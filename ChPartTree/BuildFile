@@ -1,0 +1,40 @@
+<use name=FWCore/Framework>
+<use name=FWCore/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/Common>
+<use name=DataFormats/Candidate>
+<use name=DataFormats/HepMCCandidate>
+<use name=SimGeneral/HepPDTRecord>
+<use name=SimDataFormats/GeneratorProducts>
+<use name=DataFormats/METReco>
+<use name=L1Trigger/GlobalTriggerAnalyzer>
+<use name=CondFormats/L1TObjects>
+<use name=CondFormats/DataRecord>
+<use name=DataFormats/L1GlobalTrigger>
+
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/VertexReco>
+<use name=MitEdm/DataFormats>
+
+<export>
+   <lib name=UAmultiChPartTree>
+   <use name=FWCore/Framework>
+   <use name=FWCore/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=DataFormats/Common>
+   <use name=DataFormats/Candidate>
+   <use name=DataFormats/HepMCCandidate>
+   <use name=SimGeneral/HepPDTRecord>
+   <use name=SimDataFormats/GeneratorProducts>
+   <use name=DataFormats/METReco>
+   <use name=L1Trigger/GlobalTriggerAnalyzer>
+   <use name=CondFormats/L1TObjects>
+   <use name=CondFormats/DataRecord>
+   <use name=DataFormats/L1GlobalTrigger>
+
+  <use name=DataFormats/TrackReco>
+  <use name=DataFormats/VertexReco>
+  <use name=MitEdm/DataFormats>
+
+</export>
+<flags EDM_PLUGIN=1>
