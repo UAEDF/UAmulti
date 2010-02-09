@@ -5,7 +5,8 @@ process = cms.Process("ChPartTree")
 
 # initialize MessageLogger and output report ----------------------------------------
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-#process.MessageLogger.cerr.threshold = 'INFO'
+process.MessageLogger.cerr.threshold = 'INFO'
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 #Geometry --------------------------------------------------------------------------
 process.load("Configuration.StandardSequences.Geometry_cff")
@@ -25,7 +26,7 @@ process.source = cms.Source("PoolSource",
      )
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 #process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 # gen particles printouts -----------------------------------------------------------
@@ -55,15 +56,23 @@ process.GenPartList = cms.EDAnalyzer("ParticleListDrawer",
     src = cms.InputTag("genParticles")
 )
 
-#Ferenc Tracking --------------------------------------------------------------------
+# STANDARD RECO ----------------------------------------------------------------------
+
+process.load("Configuration.StandardSequences.Reconstruction_cff")
+
+# Ferenc Tracking --------------------------------------------------------------------
 process.load('RecoPixelVertexing.PixelLowPtUtilities.MinBiasTracking_cff')
 #     This is only for MC, if Rechits are not present
 process.load("RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi")
 process.myTTRHBuilderWithoutAngle4PixelTriplets.ComputeCoarseLocalPositionFromDisk = True
 
-# REco -------------------------------------------------------------------------------
+# Ferenc vertex on allTracks ---------------------------------------------------------
 
-process.load("Configuration.StandardSequences.Reconstruction_cff")
+#process.load("UserCode.FerencSiklerVertexing.NewVertexProducer_cfi")
+process.allVertices = UserCode.FerencSiklerVertexing.NewVertexProducer_cfi.newVertices.clone()
+process.allVertices = newVertices.clone()
+process.allVertices.TrackCollection = 'allTracks'
+process.allVertices.PtMin = cms.double(0.0)
 
 
 #MIT dndeta selection ----------------------------------------------------------------
@@ -108,7 +117,7 @@ process.path = cms.Path(
                        )
 
 # EndPath (what to store) ------------------------------------------------------------
-#process.outpath = cms.EndPath(process.out)
+process.outpath = cms.EndPath(process.out)
 
 
 

@@ -73,6 +73,7 @@ ChPartTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    vtxid_xyz.clear();
    GetRecoVertex(iEvent,iSetup,"pixelVertices",pixelVertex);  
    GetRecoVertex(iEvent,iSetup,"offlinePrimaryVertices",primaryVertex);  
+   GetRecoVertex(iEvent,iSetup,"pixel3Vertices",pixel3Vertex);  
 
    GetRecoTracks(iEvent,iSetup,"generalTracks",generalTracks);
    GetRecoTracks(iEvent,iSetup,"allTracks",ferencTracks);
@@ -106,6 +107,7 @@ ChPartTree::beginJob()
 
    tree->Branch("pixelVertex",&pixelVertex);
    tree->Branch("primaryVertex",&primaryVertex);  
+   tree->Branch("pixel3Vertex",&pixel3Vertex);  
 
 
    tree->Branch("generalTracks",&generalTracks);
