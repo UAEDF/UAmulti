@@ -73,6 +73,20 @@ void ChPartTree::GetRecoTracks(const edm::Event& iEvent, const edm::EventSetup& 
      mytrack.quality[1] = tr->quality(reco::TrackBase::qualityByName("tight"));
      mytrack.quality[2] = tr->quality(reco::TrackBase::qualityByName("highPurity"));
 
+     // Vertex Links
+     mytrack.vtxid.clear();
+     mytrack.vtxdxy.clear();
+     mytrack.vtxdz.clear();
+     for ( int i = 0 ; i != vtxid ; i++ )
+     {
+        //cout << i << " " << vtxid_xyz[i] << endl;
+        //cout << "dxy: " << tr->dxy( vtxid_xyz[i] ) << endl;  
+        //cout << "dz : " << tr->dz( vtxid_xyz[i] ) << endl; 
+        mytrack.vtxid.push_back( i ); 
+        mytrack.vtxdxy.push_back( tr->dxy( vtxid_xyz[i] ) );
+        mytrack.vtxdz.push_back(  tr->dz( vtxid_xyz[i] )  );
+     }
+
 
  /* 
      cout << mytrack.Part.v.Px() << " "

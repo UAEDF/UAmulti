@@ -17,6 +17,7 @@ using namespace std;
 #include "TFile.h"
 #include "TTree.h"
 
+
 // CMSSW Include files (Minimal)
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -25,6 +26,10 @@ using namespace std;
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+// Point 3D
+#include "DataFormats/Math/interface/Point3D.h"
+
 
 // ChPartTree Analysis class decleration
 
@@ -38,6 +43,8 @@ using namespace std;
 
 #include "UAmulti/ChPartTree/interface/MyVertex.h"
 #include "UAmulti/ChPartTree/interface/MyTracks.h"
+
+// #include "UAmulti/ChPartTree/interface/MyVtxAux.h"
 
 // MIT code
 #include "UAmulti/ChPartTree/interface/MyMITEvtSel.h"
@@ -127,11 +134,14 @@ class ChPartTree : public edm::EDAnalyzer {
 
       // --------- Vtx ID --------------------------
 
-      Int_t vtxid;
-      vector<Double_t> vtxid_x;
-      vector<Double_t> vtxid_y;
-      vector<Double_t> vtxid_z;
 
+      Int_t vtxid;
+      vector<math::XYZPoint> vtxid_xyz;
+
+//    vector<MyVtxAux>  VtxAux ;
+//    vector<Double_t> vtxid_x;
+//    vector<Double_t> vtxid_y;
+//    vector<Double_t> vtxid_z;
 
 };
 

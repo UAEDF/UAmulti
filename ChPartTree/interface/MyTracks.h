@@ -1,7 +1,7 @@
 #ifndef __MyTracks_H__
 #define __MyTracks_H__
 
-#include <string>
+#include <vector>
 #include "TObject.h"
 #include "UAmulti/ChPartTree/interface/MyPart.h"
 
@@ -21,6 +21,9 @@ class MyTracks : public TObject {
     Double_t dz  , d0 ;
     Double_t edz , ed0 , ept ; 
 
+    std::vector<Int_t>     vtxid;
+    std::vector<Double_t>  vtxdxy  ;
+    std::vector<Double_t>  vtxdz   ;
 
   private:
 

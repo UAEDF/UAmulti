@@ -70,6 +70,7 @@ ChPartTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    // Data
 
    vtxid = 0;
+   vtxid_xyz.clear();
    GetRecoVertex(iEvent,iSetup,"pixelVertices",pixelVertex);  
    GetRecoVertex(iEvent,iSetup,"offlinePrimaryVertices",primaryVertex);  
 
@@ -105,6 +106,7 @@ ChPartTree::beginJob()
 
    tree->Branch("pixelVertex",&pixelVertex);
    tree->Branch("primaryVertex",&primaryVertex);  
+
 
    tree->Branch("generalTracks",&generalTracks);
    tree->Branch("minbiasTracks",&ferencTracks);

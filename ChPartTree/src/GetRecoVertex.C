@@ -28,7 +28,7 @@
 // ChPartTree Analysis class decleration
 #include "UAmulti/ChPartTree/interface/ChPartTree.h"
 
-//bool L1TrigDebug = false;
+bool RecoVtxDebug = false;
 
 void ChPartTree::GetRecoVertex(const edm::Event& iEvent, const edm::EventSetup& iSetup,
                                const char VertexCollName[60] , vector<MyVertex>& VertexVector )
@@ -43,6 +43,8 @@ void ChPartTree::GetRecoVertex(const edm::Event& iEvent, const edm::EventSetup& 
    Handle<reco::VertexCollection> vtxcoll ;
    iEvent.getByLabel(VertexCollName,vtxcoll);
 
+   if (RecoVtxDebug) cout  << VertexCollName << " : Id  position "<< endl ;
+
    for(VertexCollection::const_iterator p=vtxcoll->begin(); p!= vtxcoll->end() ; ++p)
    {
 
@@ -50,10 +52,9 @@ void ChPartTree::GetRecoVertex(const edm::Event& iEvent, const edm::EventSetup& 
       myvertex.x         = p->x()  ;
       myvertex.y         = p->y()  ;
       myvertex.z         = p->z()  ;
-      vtxid_x.push_back(myvertex.x) ; 
-      vtxid_y.push_back(myvertex.y) ; 
-      vtxid_z.push_back(myvertex.z) ; 
-       
+
+      if (RecoVtxDebug)
+        cout << myvertex.id << " " << p->position() << endl;
 
       myvertex.ex        = p->xError()  ;
       myvertex.ey        = p->yError()  ;
@@ -67,6 +68,8 @@ void ChPartTree::GetRecoVertex(const edm::Event& iEvent, const edm::EventSetup& 
       myvertex.ntracks   = p->tracksSize() ;
 
       VertexVector.push_back(myvertex);
+      vtxid_xyz.push_back(p->position());
+
    }   
 
 }
