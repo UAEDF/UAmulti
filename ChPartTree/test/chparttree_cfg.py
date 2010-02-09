@@ -66,11 +66,15 @@ process.load('RecoPixelVertexing.PixelLowPtUtilities.MinBiasTracking_cff')
 process.load("RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi")
 process.myTTRHBuilderWithoutAngle4PixelTriplets.ComputeCoarseLocalPositionFromDisk = True
 
-# Ferenc vertex on allTracks ---------------------------------------------------------
+# Ferenc vertex on Tracks ------------------------------------------------------------
 
-#process.load("UserCode.FerencSiklerVertexing.NewVertexProducer_cfi")
+import UserCode.FerencSiklerVertexing.NewVertexProducer_cfi
+
+process.generalVertices = UserCode.FerencSiklerVertexing.NewVertexProducer_cfi.newVertices.clone()
+process.generalVertices.TrackCollection = 'generalTracks'
+process.generalVertices.PtMin = cms.double(0.0)
+
 process.allVertices = UserCode.FerencSiklerVertexing.NewVertexProducer_cfi.newVertices.clone()
-process.allVertices = newVertices.clone()
 process.allVertices.TrackCollection = 'allTracks'
 process.allVertices.PtMin = cms.double(0.0)
 
@@ -107,17 +111,18 @@ process.out = cms.OutputModule("PoolOutputModule",
 # PAth (what to do) ------------------------------------------------------------------
 process.path = cms.Path(
 			 process.minBiasTracking *
+                         process.allVertices *
+                         process.generalVertices * 
                          process.siPixelRecHits *
                          process.evtSelData *
 #                        process.GenPartDecay *
 #                        process.GenPartTree *
 #                        process.GenPartList *  
-#                        process.genJetParticles*process.recoGenJets*
                          process.GenPartAna
                        )
 
 # EndPath (what to store) ------------------------------------------------------------
-process.outpath = cms.EndPath(process.out)
+#process.outpath = cms.EndPath(process.out)
 
 
 

@@ -74,6 +74,8 @@ ChPartTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    GetRecoVertex(iEvent,iSetup,"pixelVertices",pixelVertex);  
    GetRecoVertex(iEvent,iSetup,"offlinePrimaryVertices",primaryVertex);  
    GetRecoVertex(iEvent,iSetup,"pixel3Vertices",pixel3Vertex);  
+   GetRecoVertex(iEvent,iSetup,"generalVertices",ferencVtxGenTrk);  
+   GetRecoVertex(iEvent,iSetup,"allVertices",ferencVtxFerTrk);  
 
    GetRecoTracks(iEvent,iSetup,"generalTracks",generalTracks);
    GetRecoTracks(iEvent,iSetup,"allTracks",ferencTracks);
@@ -108,7 +110,8 @@ ChPartTree::beginJob()
    tree->Branch("pixelVertex",&pixelVertex);
    tree->Branch("primaryVertex",&primaryVertex);  
    tree->Branch("pixel3Vertex",&pixel3Vertex);  
-
+   tree->Branch("ferencVtxGenTrk",&ferencVtxGenTrk);
+   tree->Branch("ferencVtxFerTrk",&ferencVtxFerTrk);
 
    tree->Branch("generalTracks",&generalTracks);
    tree->Branch("minbiasTracks",&ferencTracks);

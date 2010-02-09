@@ -126,6 +126,8 @@ class ChPartTree : public edm::EDAnalyzer {
       vector<MyVertex>  pixelVertex;     
       vector<MyVertex>  primaryVertex;     
       vector<MyVertex>  pixel3Vertex;     
+      vector<MyVertex>  ferencVtxGenTrk;
+      vector<MyVertex>  ferencVtxFerTrk;
 
       vector<MyTracks>  generalTracks;
       vector<MyTracks>  ferencTracks;
