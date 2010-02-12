@@ -22,14 +22,14 @@ process.GlobalTag.globaltag = 'STARTUP3X_V8K::All'
 # Data source -----------------------------------------------------------------------
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-           ' '
-#          'file:///user/xjanssen/MBdata/__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO/DataCopy_mb__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO_1.root'
+#           ' '
+           'file:///user/xjanssen/MBdata/__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO/DataCopy_mb__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO_1.root'
 #          'file:///user/rougny/TESTFILES/Summer09-MC_31X_V3-v1_GEN-SIM-RECO_900GeV.root'
 #          'file:///user/xjanssen/MBdata/D6T2360GeV_test01/simrecofile_103.root'
      )
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 #process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 # gen particles printouts -----------------------------------------------------------
