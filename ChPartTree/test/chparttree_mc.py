@@ -16,17 +16,20 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 #process.GlobalTag.globaltag = 'MC_31X_V3::All'
-process.GlobalTag.globaltag = 'STARTUP3X_V8O::All'
+#process.GlobalTag.globaltag = 'STARTUP3X_V8O::All'
+process.GlobalTag.globaltag = 'STARTUP3X_V8K::All'
 
 # Data source -----------------------------------------------------------------------
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
+           ' '
+#          'file:///user/xjanssen/MBdata/__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO/DataCopy_mb__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO_1.root'
 #          'file:///user/rougny/TESTFILES/Summer09-MC_31X_V3-v1_GEN-SIM-RECO_900GeV.root'
-           'file:///user/xjanssen/MBdata/D6T2360GeV_test01/simrecofile_103.root'
+#          'file:///user/xjanssen/MBdata/D6T2360GeV_test01/simrecofile_103.root'
      )
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 #process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 # gen particles printouts -----------------------------------------------------------
@@ -60,6 +63,10 @@ process.GenPartList = cms.EDAnalyzer("ParticleListDrawer",
 
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
+# Bamspot ----------------------------------------------------------------------------
+
+process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
+
 # Ferenc Tracking --------------------------------------------------------------------
 process.load('RecoPixelVertexing.PixelLowPtUtilities.MinBiasTracking_cff')
 #     This is only for MC, if Rechits are not present
@@ -87,7 +94,7 @@ process.load("MitEdm.Producers.evtSelData_cfi");
 
 process.GenPartAna = cms.EDAnalyzer('ChPartTree'
 
-  , fileName = cms.untracked.string('ChPartTree_2.36_simrecfile103.root')
+  , fileName = cms.untracked.string('ChPartTree.root')
 
 # Modules to execute
   , StoreGenPart = cms.bool(True)
@@ -109,11 +116,18 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 
 # PAth (what to do) ------------------------------------------------------------------
-process.path = cms.Path(
+
+process.simu  = cms.Path(process.offlineBeamSpot)
+
+process.lreco = cms.Path(
+                         process.siPixelRecHits *
+                         process.siStripMatchedRecHits
+                       )
+
+process.greco = cms.Path(
 			 process.minBiasTracking *
                          process.allVertices *
                          process.generalVertices * 
-                         process.siPixelRecHits *
                          process.evtSelData *
 #                        process.GenPartDecay *
 #                        process.GenPartTree *
@@ -121,8 +135,16 @@ process.path = cms.Path(
                          process.GenPartAna
                        )
 
-# EndPath (what to store) ------------------------------------------------------------
 #process.outpath = cms.EndPath(process.out)
+
+process.schedule = cms.Schedule(
+                                  process.simu 
+                                , process.lreco  
+                                , process.greco 
+#                               , process.outpath
+                               )
+
+
 
 
 

@@ -13,6 +13,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
 // ChPartTree Analysis class decleration
 #include "UAmulti/ChPartTree/interface/ChPartTree.h"
 
@@ -69,17 +71,44 @@ ChPartTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // Data
 
+   // ... BeamSpot
+
+   edm::Handle<reco::BeamSpot>      beamSpotHandle;
+   iEvent.getByLabel("offlineBeamSpot", beamSpotHandle);
+   const reco::BeamSpot* theBeamSpot = beamSpotHandle.product();
+   beamSpot.x           = theBeamSpot->position().x();    
+   beamSpot.y           = theBeamSpot->position().y();    
+   beamSpot.z           = theBeamSpot->position().z();    
+   beamSpot.sigmaZ      = theBeamSpot->sigmaZ();
+   beamSpot.dxdz        = theBeamSpot->dxdz();
+   beamSpot.dydz        = theBeamSpot->dydz();
+   beamSpot.BeamWidthX  = theBeamSpot->BeamWidthX() ;
+   beamSpot.BeamWidthY  = theBeamSpot->BeamWidthY() ;
+   beamSpot.ex          = theBeamSpot->x0Error();
+   beamSpot.ey          = theBeamSpot->y0Error();
+   beamSpot.ez          = theBeamSpot->z0Error();
+   beamSpot.esigmaZ     = theBeamSpot->sigmaZ0Error();
+   beamSpot.edxdz       = theBeamSpot->dxdzError();
+   beamSpot.edydz       = theBeamSpot->dydzError();
+   beamSpot.eBeamWidthX = theBeamSpot->BeamWidthXError();
+   beamSpot.eBeamWidthY = theBeamSpot->BeamWidthYError();
+
+   //cout << "BS: " << theBeamSpot->position().x() << " " << theBeamSpot->position().y() << " " << theBeamSpot->position().z() << endl;  
+
+   // ... Vertex
    vtxid = 0;
    vtxid_xyz.clear();
    GetRecoVertex(iEvent,iSetup,"pixelVertices",pixelVertex);  
    GetRecoVertex(iEvent,iSetup,"offlinePrimaryVertices",primaryVertex);  
    GetRecoVertex(iEvent,iSetup,"pixel3Vertices",pixel3Vertex);  
-   GetRecoVertex(iEvent,iSetup,"generalVertices",ferencVtxGenTrk);  
+   //GetRecoVertex(iEvent,iSetup,"generalVertices",ferencVtxGenTrk);  
    GetRecoVertex(iEvent,iSetup,"allVertices",ferencVtxFerTrk);  
 
+   // ... Tracks
    GetRecoTracks(iEvent,iSetup,"generalTracks",generalTracks);
    GetRecoTracks(iEvent,iSetup,"allTracks",ferencTracks);
   
+   // ... MIT VtxQuality
    GetMITEvtSel(iEvent,iSetup); 
 
    tree->Fill();
@@ -106,6 +135,8 @@ ChPartTree::beginJob()
    if (StoreGenPart) tree->Branch("GenPart",&GenPart);
 
    // RECO Information
+
+   tree->Branch("beamSpot",&beamSpot);
 
    tree->Branch("pixelVertex",&pixelVertex);
    tree->Branch("primaryVertex",&primaryVertex);  

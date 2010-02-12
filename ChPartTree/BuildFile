@@ -14,6 +14,7 @@
 <use name=DataFormats/Math>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/VertexReco>
+<use name=DataFormats/BeamSpot>
 <use name=MitEdm/DataFormats>
 
 <export>
@@ -32,9 +33,9 @@
    <use name=CondFormats/DataRecord>
    <use name=DataFormats/L1GlobalTrigger>
    <use name=DataFormats/Math>
-
   <use name=DataFormats/TrackReco>
   <use name=DataFormats/VertexReco>
+  <use name=DataFormats/BeamSpot>
   <use name=MitEdm/DataFormats>
 
 </export>

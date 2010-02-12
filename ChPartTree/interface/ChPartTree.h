@@ -41,6 +41,7 @@ using namespace std;
 #include "UAmulti/ChPartTree/interface/MyGenKin.h"
 #include "UAmulti/ChPartTree/interface/MyGenPart.h"
 
+#include "UAmulti/ChPartTree/interface/MyBeamSpot.h"
 #include "UAmulti/ChPartTree/interface/MyVertex.h"
 #include "UAmulti/ChPartTree/interface/MyTracks.h"
 
@@ -122,6 +123,7 @@ class ChPartTree : public edm::EDAnalyzer {
       MyGenKin          GenKin;
       vector<MyGenPart> GenPart;
 
+      MyBeamSpot        beamSpot;
 
       vector<MyVertex>  pixelVertex;     
       vector<MyVertex>  primaryVertex;     
