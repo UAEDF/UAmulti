@@ -94,6 +94,10 @@ process.load("MitEdm.Producers.evtSelData_cfi");
 process.load("MitEdm.Filters.FilterLumi_cfi")
 process.load("MitEdm.Filters.FilterBX_cff")
 
+# L1 Filters -------------------------------------------------------------------------
+process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
+process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
+process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('0 AND ( 34 OR 40 OR 41 ) AND NOT 36 AND NOT 37 AND NOT 38 AND NOT 39')
 
 # gen particles Tree -----------------------------------------------------------------
 
@@ -123,8 +127,10 @@ process.out = cms.OutputModule("PoolOutputModule",
 # PAth (what to do) ------------------------------------------------------------------
 
 
-process.sreco = cms.Path(
-                         process.goodLumiBlocks
+process.freco = cms.Path(
+                           process.goodLumiBlocks
+#                        , process.collisionBunchCrossings
+                         , process.hltLevel1GTSeed
                         )
 
 process.simu  = cms.Path(process.offlineBeamSpot)
@@ -148,7 +154,7 @@ process.greco = cms.Path(
 #process.outpath = cms.EndPath(process.out)
 
 process.schedule = cms.Schedule(
-                                  process.sreco
+                                  process.freco
                                 , process.simu
                                 , process.lreco
                                 , process.greco
