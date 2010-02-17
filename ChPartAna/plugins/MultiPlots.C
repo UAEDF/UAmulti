@@ -40,6 +40,7 @@ void MultiPlots::init(){
   kno = new TH1F(); //TO BE SAFE
   rapidity = new TH1F("rapidity_"+multiname,"rapidity_"+multiname+";y;#frac{1}{#sigma_{tot}} #frac{d#sigma_{ch}}{y}",60,-3.,3.);
   eta = new TH1F("eta_"+multiname,"eta_"+multiname+";#eta;#frac{1}{#sigma_{tot}} #frac{d#sigma_{ch}}{#eta}",60,-3.,3.);
+  //eta = new TH1F("eta_"+multiname,"eta_"+multiname+";#eta;#frac{1}{#sigma_{tot}} #frac{d#sigma_{ch}}{#eta}",80,-10.,10.);
   pt  = new TH1F("pt_"+multiname,"pt_"+multiname+";pT [GeV];#frac{1}{#sigma_{tot}} #frac{d#sigma_{ch}}{pT}",100,0.,3.);
   pt2 = new TH1F("pt2_"+multiname,"pt2_"+multiname+";pT^{2} [GeV^{2}];#frac{1}{#sigma_{tot}} #frac{d#sigma_{ch}}{pT^{2}}",100,0.,9.);
   
@@ -117,6 +118,7 @@ void MultiPlots::write(){
 
 void MultiPlots::writeSummary(){
   cout<<"Data @ "<<energy<<" GeV  ( "<<multiname<<" ) :"<<endl;
+  cout<<" - #evts              : "<<nbEvts<<endl;     
   cout<<" - Multiplicity Mean  : "<<nch_mean->GetMean()<<endl;
   cout<<" - KNO Mean           : "<<kno->GetMean()<<endl;
   for(int i=0;i<nb_moments;i++)

@@ -159,7 +159,7 @@ else if (irun==123906 || irun==123908) {
 }
 
 bool isSD(MyGenKin* genKin){
-  if(genKin->MCProcId == 92 || genKin->MCProcId == 92)
+  if(genKin->MCProcId == 92 || genKin->MCProcId == 93)
     return true;
   return false;
 }

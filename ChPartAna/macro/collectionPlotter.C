@@ -165,11 +165,22 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc900/
     //---------------- GEN -------------------
     int nchgen = 0;
     if(isMC){
+      bool laccept = false; // Need to count evt numbers after cuts for normalisation
+                            // FIXME:
+                            // Could be moved inside the class set to true at begin of fill
+                            // and reset to false at end of nextEvent ??  
+                            // --> Should check the influence of getting back eta and pt cuts
       for(vector<MyGenPart>::iterator p=genPart->begin() ; p!=genPart->end() ; p++ ){
         if (  fabs(p->Part.charge) >0
-          &&  fabs(p->Part.v.Eta())  < eta_cut
-          &&  p->Part.v.Pt()> pt_cut
+//        &&  fabs(p->Part.v.Eta())  < eta_cut
+//        &&  p->Part.v.Pt()> pt_cut
+// ...... Count only Stable Hadrons (and not the leptons)
+//        FIXME: Same should be true for the unfolding matrix ??? 
+          && TMath::Abs(p->pdgId) != 11
+          && TMath::Abs(p->pdgId) != 13
+          && TMath::Abs(p->pdgId) != 15
           &&  p->status==1 ){
+           laccept = true;
            ++nchgen;
 	   pt_gen->Fill(p->Part.v.Pt());
 	   eta_gen->Fill(p->Part.v.Eta());
@@ -187,12 +198,14 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc900/
 	}
       }
       
-      mp_gen_INC->nextEvent();
-      mp_gen_SD->nextEvent();
-      mp_gen_DD->nextEvent();
-      mp_gen_ND->nextEvent();
-      mp_gen_NSD->nextEvent();
-      
+      if (laccept){  
+                                           mp_gen_INC->nextEvent();
+        if(isSD(genKin))                   mp_gen_SD->nextEvent();
+        if(isDD(genKin))                   mp_gen_DD->nextEvent();
+        if(!isSD(genKin) && !isDD(genKin)) mp_gen_ND->nextEvent();
+        if(!isSD(genKin))                  mp_gen_NSD->nextEvent();
+      }
+
     }
     if(nchgen!=0) nch_gen->Fill(nchgen);
     

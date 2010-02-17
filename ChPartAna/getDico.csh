@@ -43,7 +43,7 @@ wget http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/UAmulti/ChPartTree/src/
 wget http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/UAmulti/ChPartTree/src/MyVertex.C?view=co -O MyVertex.C -o /dev/null
 wget http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/UAmulti/ChPartTree/src/MyBeamSpot.C?view=co -O MyBeamSpot.C -o /dev/null
 
-for file in `ls .`; do
+for file in `ls . | grep -v CVS`; do
   sed "s:UAmulti/ChPartTree/interface/::"<$file> temp
   mv temp $file
 done
