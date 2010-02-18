@@ -1,9 +1,10 @@
-void plot (char dir[100] , char histo[200] , bool logY = false )
+void plot2D (char dir[100] , char histo[200] , bool logY = false )
 //void plot (char dir[60] , char histo[60] , char var[60] )
 {
    char var[60] = "Dummy";
   cout<<histo<<endl;
-  TCanvas* c1 = new TCanvas("c1","c",200,10,500,500);
+  TCanvas* c1 = new TCanvas("c1","c",200,10,1000,500);
+  c1->Divide(2,1);
   c1->SetLeftMargin(0.17);
   c1->SetBottomMargin(0.10);
   c1->SetFillColor(0);
@@ -23,13 +24,13 @@ void plot (char dir[100] , char histo[200] , bool logY = false )
 
   if ( dir == "none" )
   {
-    TH1F* hdata = data->Get(histo);
+    TH2F* hdata = data->Get(histo);
 
   } else { 
 
     TDirectoryFile *ddata = data->Get(dir);
     ddata->cd();
-    TH1F* hdata = ddata->Get(histo);
+    TH2F* hdata = ddata->Get(histo);
   } 
 
   TFile *moca = new TFile("../macro/collectionPlotter_MC_final_test.root","READ");
@@ -39,12 +40,12 @@ void plot (char dir[100] , char histo[200] , bool logY = false )
   
   if ( dir == "none" )
   {
-    TH1F* hmoca = moca->Get(histo);
+    TH2F* hmoca = moca->Get(histo);
   } else { 
 
     TDirectoryFile *dmoca = moca->Get(dir);
     dmoca->cd();
-    TH1F* hmoca = dmoca->Get(histo);
+    TH2F* hmoca = dmoca->Get(histo);
   }
 
   hdata->SetMarkerStyle(20);
@@ -58,12 +59,12 @@ void plot (char dir[100] , char histo[200] , bool logY = false )
 //  Float_t ndata = hdata->GetSum();
 //  Float_t nmoca = hmoca->GetSum();
 
-  Float_t ndata = hdata->Integral(1, hdata->GetNbinsX() );
-  Float_t nmoca = hmoca->Integral(1, hmoca->GetNbinsX() );
+  //Float_t ndata = hdata->Integral(1, hdata->GetNbinsX() );
+  //Float_t nmoca = hmoca->Integral(1, hmoca->GetNbinsX() );
 
 
-  cout << ndata << " " << nmoca << " " << ndata/nmoca <<  endl;
-  hmoca->Scale(ndata/nmoca);
+  //cout << ndata << " " << nmoca << " " << ndata/nmoca <<  endl;
+  //hmoca->Scale(ndata/nmoca);
   
   Float_t Max, min;
   (hdata->GetYaxis()->GetXmin()<hmoca->GetYaxis()->GetXmin())? min=hdata->GetYaxis()->GetXmin():min=hmoca->GetYaxis()->GetXmin();
@@ -83,17 +84,32 @@ void plot (char dir[100] , char histo[200] , bool logY = false )
 */
 
   //c1->SetLogY(true);
-
-  hdata->Draw("e");
-  hmoca->Draw("samehist"); 
-
+  c1->cd(1);
+  gPad->SetLeftMargin(0.17);
+  gPad->SetBottomMargin(0.10);
+  gPad->SetFillColor(0);
+  gPad->GetFrame()->SetFillColor(21);
+  gPad->GetFrame()->SetBorderSize(12);
+  gPad->SetGrid();
+  gPad->SetGrid();
+  hdata->Draw("colz");
+  
+  c1->cd(2);
+  gPad->SetLeftMargin(0.17);
+  gPad->SetBottomMargin(0.10);
+  gPad->SetFillColor(0);
+  gPad->GetFrame()->SetFillColor(21);
+  gPad->GetFrame()->SetBorderSize(12);
+  gPad->SetGrid();
+  hmoca->Draw("colz"); 
+  
   // Legend
   TLegend *leg = new TLegend (.65,.90,.90,.99);
   leg->AddEntry(hdata,"Data","p" );
   leg->AddEntry(hmoca,"PYTHIA D6T","l" );
   leg->SetBorderSize(0);
   leg->SetFillColor(0);
-  leg->Draw();
+  //leg->Draw();
 
   // Save Plot
   string basedir ( "/user/rougny/UAPlots/" );
@@ -104,6 +120,7 @@ void plot (char dir[100] , char histo[200] , bool logY = false )
   
   gPad->WaitPrimitive();
   
+  return;
   bool save = false;
   if(save){
   {string fngif ("gif/");

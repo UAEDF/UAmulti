@@ -1,9 +1,10 @@
-void plot (char dir[100] , char histo[200] , bool logY = false )
+void plotMC2D (char dir[100] , char histo[200] , bool logY = false )
 //void plot (char dir[60] , char histo[60] , char var[60] )
 {
    char var[60] = "Dummy";
   cout<<histo<<endl;
   TCanvas* c1 = new TCanvas("c1","c",200,10,500,500);
+  //c1->Divide(2,1);
   c1->SetLeftMargin(0.17);
   c1->SetBottomMargin(0.10);
   c1->SetFillColor(0);
@@ -16,22 +17,6 @@ void plot (char dir[100] , char histo[200] , bool logY = false )
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(kFALSE);
 
-  TFile *data = new TFile("../macro/collectionPlotter_data_final_test.root","READ");
-  //TFile *data = new TFile("generalTracks_OfflinePV_data.root","READ");
-  //TFile *data = new TFile("generalTracks_OfflinePV_MC900Gev_D6T.root","READ");
-  data->cd();
-
-  if ( dir == "none" )
-  {
-    TH1F* hdata = data->Get(histo);
-
-  } else { 
-
-    TDirectoryFile *ddata = data->Get(dir);
-    ddata->cd();
-    TH1F* hdata = ddata->Get(histo);
-  } 
-
   TFile *moca = new TFile("../macro/collectionPlotter_MC_final_test.root","READ");
   //TFile *moca = new TFile("collectionPlotter_MC_EvtSel_Eff.root","READ");
   //TFile *moca = new TFile("generalTracks_OfflinePV_MC900Gev_D6T.root","READ");
@@ -39,61 +24,25 @@ void plot (char dir[100] , char histo[200] , bool logY = false )
   
   if ( dir == "none" )
   {
-    TH1F* hmoca = moca->Get(histo);
+    TH2F* hmoca = moca->Get(histo);
   } else { 
 
     TDirectoryFile *dmoca = moca->Get(dir);
     dmoca->cd();
-    TH1F* hmoca = dmoca->Get(histo);
+    TH2F* hmoca = dmoca->Get(histo);
   }
-
-  hdata->SetMarkerStyle(20);
-  hdata->GetYaxis()->SetTitleOffset(2);
-  if(!logY) hdata->SetMinimum(0);
-  //hdata->GetXaxis()->SetTitle(var);
-  //hdata->GetYaxis()->SetTitle("N"); 
 
   hmoca->SetLineWidth(2);
 
-//  Float_t ndata = hdata->GetSum();
-//  Float_t nmoca = hmoca->GetSum();
-
-  Float_t ndata = hdata->Integral(1, hdata->GetNbinsX() );
-  Float_t nmoca = hmoca->Integral(1, hmoca->GetNbinsX() );
-
-
-  cout << ndata << " " << nmoca << " " << ndata/nmoca <<  endl;
-  hmoca->Scale(ndata/nmoca);
+  hmoca->Draw("colz"); 
   
-  Float_t Max, min;
-  (hdata->GetYaxis()->GetXmin()<hmoca->GetYaxis()->GetXmin())? min=hdata->GetYaxis()->GetXmin():min=hmoca->GetYaxis()->GetXmin();
-  (hdata->GetYaxis()->GetXmax()>hmoca->GetYaxis()->GetXmax())? Max=hdata->GetYaxis()->GetXmax():Max=hmoca->GetYaxis()->GetXmax();
-    
-  cout << min << endl; 
-  cout << Max << endl; 
-  //hdata->SetMaximum(Max);
-  //hdata->SetMinimum(min);
-
-   
-
-/*
-  Float_t mxdata =  hdata->GetMaximun();
-  Float_t mxmoca =  hmoca->GetMaximun();
-  cout << mxdata << " " << mxmoca << endl;
-*/
-
-  //c1->SetLogY(true);
-
-  hdata->Draw("e");
-  hmoca->Draw("samehist"); 
-
   // Legend
   TLegend *leg = new TLegend (.65,.90,.90,.99);
-  leg->AddEntry(hdata,"Data","p" );
+  //leg->AddEntry(hdata,"Data","p" );
   leg->AddEntry(hmoca,"PYTHIA D6T","l" );
   leg->SetBorderSize(0);
   leg->SetFillColor(0);
-  leg->Draw();
+  //leg->Draw();
 
   // Save Plot
   string basedir ( "/user/rougny/UAPlots/" );
@@ -104,6 +53,7 @@ void plot (char dir[100] , char histo[200] , bool logY = false )
   
   gPad->WaitPrimitive();
   
+  return;
   bool save = false;
   if(save){
   {string fngif ("gif/");
@@ -134,7 +84,6 @@ void plot (char dir[100] , char histo[200] , bool logY = false )
   }
 
   moca->Close();
-  data->Close();
 
   // return 1;
 }  
