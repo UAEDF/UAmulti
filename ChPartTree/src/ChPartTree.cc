@@ -107,13 +107,13 @@ ChPartTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    // ... Vertex
    GetRecoVertex(iEvent,iSetup,"pixelVertices",pixelVertex);  
    GetRecoVertex(iEvent,iSetup,"offlinePrimaryVertices",primaryVertex);  
-   //GetRecoVertex(iEvent,iSetup,"pixel3Vertices",pixel3Vertex);  
+   GetRecoVertex(iEvent,iSetup,"pixel3Vertices",pixel3Vertex);  
    //GetRecoVertex(iEvent,iSetup,"generalVertices",ferencVtxGenTrk);  
-   //GetRecoVertex(iEvent,iSetup,"allVertices",ferencVtxFerTrk);  
+   GetRecoVertex(iEvent,iSetup,"allVertices",ferencVtxFerTrk);  
 
    // ... Tracks
    GetRecoTracks(iEvent,iSetup,"generalTracks",generalTracks);
-   //GetRecoTracks(iEvent,iSetup,"allTracks",ferencTracks);
+   GetRecoTracks(iEvent,iSetup,"allTracks",ferencTracks);
   
    // ... MIT VtxQuality
    GetMITEvtSel(iEvent,iSetup); 
