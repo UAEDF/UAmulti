@@ -13,6 +13,7 @@
   gROOT->ProcessLine(".L ../plugins/EvtSelPlots.C+");
   gROOT->ProcessLine(".L ../plugins/TMean.cc+");
   gROOT->ProcessLine(".L ../plugins/MultiPlots.C+");
+  gROOT->ProcessLine(".L ../plugins/GenMultiPlots.C+");
   gROOT->ProcessLine(".L ../plugins/MatrixPlots.C+");
   gROOT->ProcessLine(".L ../plugins/LinkDef.C+");
 }

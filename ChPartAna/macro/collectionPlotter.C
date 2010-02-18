@@ -27,12 +27,13 @@ using namespace std;
 #include "../plugins/VertexPlots.h"
 #include "../plugins/EvtSelPlots.h"
 #include "../plugins/MultiPlots.h"
+#include "../plugins/GenMultiPlots.h"
 #include "../plugins/MatrixPlots.h"
 
 bool debug = false;
 
-TString filename = "MC_everything";
-bool isMC = true;
+TString filename = "data_final_900GeV";
+bool isMC = false;
 
 
 
@@ -44,16 +45,22 @@ void collectionPlotter()
 {
   // General variables
   int nbinmulti = 45;
-  TH1F* nch_gen = new TH1F("nch_gen","nch_gen;n_{CH};# events",(int)nbinmulti+1,-0.5,nbinmulti+0.5);
-  TH1F* pt_gen  = new TH1F("pt_gen","pt_gen;pT [GeV];# events",100,0.,3.);
-  TH1F* eta_gen = new TH1F("eta_gen","eta_gen;#eta;# events",60,-3.,3.);
+  TH1F* nch_gen_noCut     = new TH1F("nch_gen_noCut","nch_gen_noCut;n_{CH};# events",(int)nbinmulti+1,-0.5,nbinmulti+0.5);
+  TH1F* pt_gen_noCut      = new TH1F("pt_gen_noCut","pt_gen_noCut;pT [GeV];# events",100,0.,3.);
+  TH1F* eta_gen_noCut     = new TH1F("eta_gen_noCut","eta_gen_noCut;#eta;# events",60,-3.,3.);
+  TH1F* nch_gen_etaCut    = new TH1F("nch_gen_etaCut","nch_gen_etaCut;n_{CH};# events",(int)nbinmulti+1,-0.5,nbinmulti+0.5);
+  TH1F* pt_gen_etaCut     = new TH1F("pt_gen_etaCut","pt_gen_etaCut;pT [GeV];# events",100,0.,3.);
+  TH1F* eta_gen_etaCut    = new TH1F("eta_gen_etaCut","eta_gen_etaCut;#eta;# events",60,-3.,3.);
+  TH1F* nch_gen_eta_ptCut = new TH1F("nch_gen_eta_ptCut","nch_gen_eta_ptCut;n_{CH};# events",(int)nbinmulti+1,-0.5,nbinmulti+0.5);
+  TH1F* pt_gen_eta_ptCut  = new TH1F("pt_gen_eta_ptCut","pt_gen_eta_ptCut;pT [GeV];# events",100,0.,3.);
+  TH1F* eta_gen_eta_ptCut = new TH1F("eta_gen_eta_ptCut","eta_gen_eta_ptCut;#eta;# events",60,-3.,3.);
 
   //pt    = new TH1F("pt_"+trackcoll,"pt_"+trackcoll+";pt [GeV];# events",100,0.,3.);
   //eta   = new TH1F("eta_"+trackcoll,"eta_"+trackcoll+";#eta;# events",60,-3.,3.);
   
   //------------- TRACK COLLECTIONS -------------
   //generaltracks
-  TrackPlots* trp_allTr_gTr_oVtx = new TrackPlots("allTr_gTr_oVtx");
+  /*TrackPlots* trp_allTr_gTr_oVtx = new TrackPlots("allTr_gTr_oVtx");
   TrackPlots* trp_PV_gTr_oVtx    = new TrackPlots("PV_gTr_oVtx");
   TrackPlots* trp_allTr_gTr_fVtx = new TrackPlots("allTr_gTr_fVtx");
   TrackPlots* trp_PV_gTr_fVtx    = new TrackPlots("PV_gTr_fVtx");
@@ -73,7 +80,7 @@ void collectionPlotter()
   //ferencVtx wrt minbiasTracks
   VertexPlots* vtxp_allVtx_ferencVtx = new VertexPlots("allVtx_fVtx");
   VertexPlots* vtxp_PV_ferencVtx = new VertexPlots("PV_fVtx");
-  
+  */
   
   //------------- EvtSel COLLECTION -------------
   EvtSelPlots* evtselp_PV_mbTr_fVtx = new EvtSelPlots("PV_mbTr_fVtx");
@@ -92,16 +99,18 @@ void collectionPlotter()
   MultiPlots* mp_PV_mbTr_fVtx    = new MultiPlots("L1_hf_VtxSel_PV_mbTr_fVtx");
   MultiPlots* mp_PV_gTr_oVtx     = new MultiPlots("L1_hf_VtxSel_PV_gTr_oVtx");
   
-  MultiPlots* mp_gen_INC = new MultiPlots("gen_INC");
-  MultiPlots* mp_gen_SD  = new MultiPlots("gen_SD");
-  MultiPlots* mp_gen_DD  = new MultiPlots("gen_DD");
-  MultiPlots* mp_gen_ND  = new MultiPlots("gen_ND");
-  MultiPlots* mp_gen_NSD = new MultiPlots("gen_NSD");
+  GenMultiPlots* gmp_noCut_noSel = new GenMultiPlots("noCut_noSel");
+  GenMultiPlots* gmp_ptCut_noSel = new GenMultiPlots("ptCut_noSel");
+  GenMultiPlots* gmp_etaCut_noSel = new GenMultiPlots("etaCut_noSel");
+  GenMultiPlots* gmp_pt_etaCut_noSel = new GenMultiPlots("pt_etaCut_noSel");
   
   
   //------------ MatrixPlots ------------------
-  MatrixPlots* mtxp_L1_hf_VtxSel_PV_mbTr_fVtx = new MatrixPlots("L1_hf_VtxSel_PV_mbTr_fVtx");
-  MatrixPlots* mtxp_L1_hf_VtxSel_PV_gTr_oVtx = new MatrixPlots("L1_hf_VtxSel_PV_gTr_oVtx");
+  MatrixPlots* mtxp_etaGenCut_L1_hf_VtxSel_PV_mbTr_fVtx = new MatrixPlots("etaGenCut_L1_hf_VtxSel_PV_mbTr_fVtx");
+  MatrixPlots* mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_mbTr_fVtx = new MatrixPlots("eta_ptGenCut_L1_hf_VtxSel_PV_mbTr_fVtx");
+  MatrixPlots* mtxp_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx = new MatrixPlots("etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx");
+  MatrixPlots* mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_gTr_oVtx = new MatrixPlots("eta_ptGenCut_L1_hf_VtxSel_PV_gTr_oVtx");
+  
     
   
   // Open Tree file 
@@ -112,7 +121,7 @@ void collectionPlotter()
 
 if(!isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004b_d900/__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO/ChPartTree_v004b_d900__CMSSW_3_3_6_patch3__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO_*.root/evt");
 //if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v003_mc900/__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO/ChPartTree_v003_mc900__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO_1.root/evt");
-if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc900/__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO/ChPartTree_v004_mc900__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO_9?.root/evt");
+if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc900/__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO/ChPartTree_v004_mc900__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO_9.root/evt");
 
 //if(!isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v003_d900/__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO/ChPartTree_v003_d900__CMSSW_3_3_6_patch3__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO_2?.root/evt");
 //if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v003_mc900/__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO/ChPartTree_v003_mc900__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO_1.root/evt");
@@ -142,6 +151,7 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc900/
   tree->SetBranchAddress("minbiasTracks",&minbiasTracks);
   tree->SetBranchAddress("primaryVertex",&offlinePV);
   tree->SetBranchAddress("ferencVtxFerTrk",&ferencVtx);
+  //tree->SetBranchAddress("pixel3Vertex",&ferencVtx);
   tree->SetBranchAddress("L1Trig",&L1Trig);
   tree->SetBranchAddress("MITEvtSel",&MITEvtSel);
   tree->SetBranchAddress("beamSpot",&bs);
@@ -165,49 +175,47 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc900/
     //---------------- GEN -------------------
     int nchgen = 0;
     if(isMC){
-      bool laccept = false; // Need to count evt numbers after cuts for normalisation
-                            // FIXME:
-                            // Could be moved inside the class set to true at begin of fill
-                            // and reset to false at end of nextEvent ??  
-                            // --> Should check the influence of getting back eta and pt cuts
       for(vector<MyGenPart>::iterator p=genPart->begin() ; p!=genPart->end() ; p++ ){
-        if (  fabs(p->Part.charge) >0
-//        &&  fabs(p->Part.v.Eta())  < eta_cut
-//        &&  p->Part.v.Pt()> pt_cut
-// ...... Count only Stable Hadrons (and not the leptons)
-//        FIXME: Same should be true for the unfolding matrix ??? 
-          && TMath::Abs(p->pdgId) != 11
-          && TMath::Abs(p->pdgId) != 13
-          && TMath::Abs(p->pdgId) != 15
-          &&  p->status==1 ){
-           laccept = true;
-           ++nchgen;
-	   pt_gen->Fill(p->Part.v.Pt());
-	   eta_gen->Fill(p->Part.v.Eta());
+        if ( isGenPartGood(*p) ){
+	  ++nchgen;
+	  pt_gen_noCut->Fill(p->Part.v.Pt());
+	  eta_gen_noCut->Fill(p->Part.v.Eta());
+	  gmp_noCut_noSel->fill(*genKin,p->Part);
+	  
+	  //eta cut
+	  if( fabs(p->Part.v.Eta())  < eta_cut )
+	    gmp_etaCut_noSel->fill(*genKin,p->Part);
+	    
+	  //pt cut
+	  if( p->Part.v.Pt()> pt_cut )
+	    gmp_ptCut_noSel->fill(*genKin,p->Part);
+	    
+	  //eta + pt cut
+	  if( fabs(p->Part.v.Eta()) < eta_cut 
+	   && p->Part.v.Pt()> pt_cut )
+	    gmp_pt_etaCut_noSel->fill(*genKin,p->Part);
 	   
-	                                      mp_gen_INC->fill(p->Part);
-	   if(isSD(genKin))                   mp_gen_SD->fill(p->Part);
-	   if(isDD(genKin))                   mp_gen_DD->fill(p->Part);
-	   if(!isSD(genKin) && !isDD(genKin)) mp_gen_ND->fill(p->Part);
-	   if(!isSD(genKin))                  mp_gen_NSD->fill(p->Part);
-	   
-	   if(isEvtGood(*L1Trig , *MITEvtSel)){
-	     mtxp_L1_hf_VtxSel_PV_mbTr_fVtx->fillGen(p->Part);
-	     mtxp_L1_hf_VtxSel_PV_gTr_oVtx->fillGen(p->Part);
-	   }
+	  //eta cut + good evt sel
+	  if(isEvtGood(*L1Trig , *MITEvtSel) && fabs(p->Part.v.Eta()) < eta_cut && !isSD(genKin) && !isDD(genKin)){
+	    mtxp_etaGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->fillGen(p->Part);
+	    mtxp_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx->fillGen(p->Part);
+	    
+	    // + pt cut 
+	    if(p->Part.v.Pt()> pt_cut){
+	      mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->fillGen(p->Part);
+	      mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_gTr_oVtx->fillGen(p->Part);
+	    }
+	  }
 	}
       }
       
-      if (laccept){  
-                                           mp_gen_INC->nextEvent();
-        if(isSD(genKin))                   mp_gen_SD->nextEvent();
-        if(isDD(genKin))                   mp_gen_DD->nextEvent();
-        if(!isSD(genKin) && !isDD(genKin)) mp_gen_ND->nextEvent();
-        if(!isSD(genKin))                  mp_gen_NSD->nextEvent();
-      }
+      gmp_noCut_noSel->nextEvent(*genKin);
+      gmp_ptCut_noSel->nextEvent(*genKin);
+      gmp_etaCut_noSel->nextEvent(*genKin);
+      gmp_pt_etaCut_noSel->nextEvent(*genKin);
 
     }
-    if(nchgen!=0) nch_gen->Fill(nchgen);
+    if(nchgen!=0) nch_gen_noCut->Fill(nchgen);
     
     
 
@@ -215,18 +223,19 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc900/
     if(debug) cout<<"Starting the vertex collections ..."<<endl;
     int vtxId_offlinePV = getBestVertex(offlinePV);
     int vtxId_ferencVtx = getBestVertex(ferencVtx);
-    vtxp_allVtx_offlinePV->fill(*offlinePV);
-    vtxp_allVtx_ferencVtx->fill(*ferencVtx);
+    //vtxp_allVtx_offlinePV->fill(*offlinePV);
+    //vtxp_allVtx_ferencVtx->fill(*ferencVtx);
     //if(vtxId<0) continue;
     
-    for(vector<MyVertex>::iterator it_vtx = offlinePV->begin();it_vtx != offlinePV->end();++it_vtx)
+    /*for(vector<MyVertex>::iterator it_vtx = offlinePV->begin();it_vtx != offlinePV->end();++it_vtx)
       if(vtxId_offlinePV==it_vtx->id)
-        vtxp_PV_offlinePV->fill(*it_vtx);
+        //vtxp_PV_offlinePV->fill(*it_vtx);
     
     for(vector<MyVertex>::iterator it_vtx = ferencVtx->begin();it_vtx != ferencVtx->end();++it_vtx)
       if(vtxId_ferencVtx==it_vtx->id)
         vtxp_PV_ferencVtx->fill(*it_vtx);
-	
+    */
+    
     MyVertex* beamSpot = new MyVertex();
     beamSpot->id = 0;
     beamSpot->x = bs->x;
@@ -270,31 +279,31 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc900/
     if(debug) cout<<"Starting to fill good oVtx ..."<<endl;
     
     //if(vtxId_offlinePV>=0){
-      trp_allTr_gTr_oVtx->fill(*generalTracks,*offlinePV,vtxId_offlinePV,bs);
-      trp_allTr_mbTr_oVtx->fill(*minbiasTracks,*offlinePV,vtxId_offlinePV,bs);
+      //trp_allTr_gTr_oVtx->fill(*generalTracks,*offlinePV,vtxId_offlinePV,bs);
+      //trp_allTr_mbTr_oVtx->fill(*minbiasTracks,*offlinePV,vtxId_offlinePV,bs);
       
       trcoll = getPrimaryTracks(*generalTracks,offlinePV);
-      trp_PV_gTr_oVtx->fill( trcoll , *offlinePV, vtxId_offlinePV,bs);
+      //trp_PV_gTr_oVtx->fill( trcoll , *offlinePV, vtxId_offlinePV,bs);
       evtselp_PV_gTr_oVtx->fill(trcoll,*offlinePV,bs,vtxId_offlinePV,MITEvtSel->eClusVtxQual,MITEvtSel->ePxHits);
       
       trcoll = getPrimaryTracks(*generalTracks, offlinePV, bs);
       evtselp_fPV_gTr_oVtx->fill(trcoll,*offlinePV,bs,vtxId_offlinePV,MITEvtSel->eClusVtxQual,MITEvtSel->ePxHits);
       
       trcoll = getPrimaryTracks(*minbiasTracks, offlinePV);
-      trp_PV_mbTr_oVtx->fill(trcoll , *offlinePV, vtxId_offlinePV,bs);
+      //trp_PV_mbTr_oVtx->fill(trcoll , *offlinePV, vtxId_offlinePV,bs);
     //}
     
     if(debug) cout<<"Starting to fill good fVtx ..."<<endl;
     
     //if(vtxId_ferencVtx>=0){
-      trp_allTr_gTr_fVtx->fill(*generalTracks, *ferencVtx, vtxId_ferencVtx,bs);
-      trp_allTr_mbTr_fVtx->fill(*minbiasTracks, *ferencVtx,vtxId_ferencVtx,bs);
+      //trp_allTr_gTr_fVtx->fill(*generalTracks, *ferencVtx, vtxId_ferencVtx,bs);
+      //trp_allTr_mbTr_fVtx->fill(*minbiasTracks, *ferencVtx,vtxId_ferencVtx,bs);
     
       trcoll = getPrimaryTracks(*generalTracks,ferencVtx,bs);
-      trp_PV_gTr_fVtx->fill( trcoll , *ferencVtx, vtxId_ferencVtx , bs);
+      //trp_PV_gTr_fVtx->fill( trcoll , *ferencVtx, vtxId_ferencVtx , bs);
       
       trcoll = getPrimaryTracks(*minbiasTracks,ferencVtx,bs);
-      trp_PV_mbTr_fVtx->fill( trcoll , *ferencVtx, vtxId_ferencVtx , bs);
+      //trp_PV_mbTr_fVtx->fill( trcoll , *ferencVtx, vtxId_ferencVtx , bs);
       evtselp_PV_mbTr_fVtx->fill(trcoll,*ferencVtx,bs,vtxId_ferencVtx,MITEvtSel->eClusVtxQual,MITEvtSel->ePxHits);
     //}
     
@@ -303,18 +312,22 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc900/
       trcoll = getPrimaryTracks(*minbiasTracks,ferencVtx,bs);
       for(vector<MyTracks>::iterator it_tr = trcoll.begin() ; it_tr != trcoll.end() ; ++it_tr){
         mp_PV_mbTr_fVtx->fill(it_tr->Part);
-	mtxp_L1_hf_VtxSel_PV_mbTr_fVtx->fillReco(it_tr->Part);
+	mtxp_etaGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->fillReco(it_tr->Part);
+	mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->fillReco(it_tr->Part);
       }
       mp_PV_mbTr_fVtx->nextEvent();
-      mtxp_L1_hf_VtxSel_PV_mbTr_fVtx->nextEvent();
+      mtxp_etaGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->nextEvent();
+      mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->nextEvent();
       
       trcoll = getPrimaryTracks(*generalTracks,offlinePV);
       for(vector<MyTracks>::iterator it_tr = trcoll.begin() ; it_tr != trcoll.end() ; ++it_tr){
         mp_PV_gTr_oVtx->fill(it_tr->Part);
-	mtxp_L1_hf_VtxSel_PV_gTr_oVtx->fillReco(it_tr->Part);
+	mtxp_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx->fillReco(it_tr->Part);
+	mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_gTr_oVtx->fillReco(it_tr->Part);
       }
       mp_PV_gTr_oVtx->nextEvent();
-      mtxp_L1_hf_VtxSel_PV_gTr_oVtx->nextEvent();
+      mtxp_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx->nextEvent();
+      mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_gTr_oVtx->nextEvent();
       
     }
   
@@ -330,29 +343,29 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc900/
   file2->cd();
   
   if(isMC){
-    nch_gen->Write();
-    pt_gen->Write();
-    eta_gen->Write();
+    nch_gen_noCut->Write();
+    pt_gen_noCut->Write();
+    eta_gen_noCut->Write();
   }
   
-  trp_allTr_gTr_oVtx->write();
-  trp_PV_gTr_oVtx->write();
-  trp_allTr_gTr_fVtx->write();
-  trp_PV_gTr_fVtx->write();
+  //trp_allTr_gTr_oVtx->write();
+  //trp_PV_gTr_oVtx->write();
+  //trp_allTr_gTr_fVtx->write();
+  //trp_PV_gTr_fVtx->write();
   
   //minbiastracks
-  trp_allTr_mbTr_oVtx->write();
-  trp_PV_mbTr_oVtx->write();
-  trp_allTr_mbTr_fVtx->write();
-  trp_PV_mbTr_fVtx->write();
+  //trp_allTr_mbTr_oVtx->write();
+  //trp_PV_mbTr_oVtx->write();
+  //trp_allTr_mbTr_fVtx->write();
+  //trp_PV_mbTr_fVtx->write();
   
   //offlinePV
-  vtxp_allVtx_offlinePV->write();
-  vtxp_PV_offlinePV->write();
+  //vtxp_allVtx_offlinePV->write();
+  //vtxp_PV_offlinePV->write();
   
   //ferencVtx wrt minbiasTracks
-  vtxp_allVtx_ferencVtx->write();
-  vtxp_PV_ferencVtx->write();
+  //vtxp_allVtx_ferencVtx->write();
+  //vtxp_PV_ferencVtx->write();
   
   evtselp_PV_mbTr_fVtx->write();
   evtselp_PV_gTr_oVtx->write();
@@ -379,15 +392,15 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc900/
   
   //Using GEN !! only for MC
   if(isMC){
-    evtselp_PV_mbTr_fVtx->setDenom(nch_gen,pt_gen,eta_gen);
-    evtselp_PV_gTr_oVtx->setDenom(nch_gen,pt_gen,eta_gen);
-    evtselp_fPV_gTr_oVtx->setDenom(nch_gen,pt_gen,eta_gen);
-    evtselp_allTr_mbTr_fVtx->setDenom(nch_gen,pt_gen,eta_gen);
-    evtselp_allTr_gTr_oVtx->setDenom(nch_gen,pt_gen,eta_gen);
-    evtselp_PV_mbTr_bs->setDenom(nch_gen,pt_gen,eta_gen);
-    evtselp_PV_gTr_bs->setDenom(nch_gen,pt_gen,eta_gen);
-    evtselp_allTr_mbTr_bs->setDenom(nch_gen,pt_gen,eta_gen);
-    evtselp_allTr_gTr_bs->setDenom(nch_gen,pt_gen,eta_gen);
+    evtselp_PV_mbTr_fVtx->setDenom(nch_gen_noCut,pt_gen_noCut,eta_gen_noCut);
+    evtselp_PV_gTr_oVtx->setDenom(nch_gen_noCut,pt_gen_noCut,eta_gen_noCut);
+    evtselp_fPV_gTr_oVtx->setDenom(nch_gen_noCut,pt_gen_noCut,eta_gen_noCut);
+    evtselp_allTr_mbTr_fVtx->setDenom(nch_gen_noCut,pt_gen_noCut,eta_gen_noCut);
+    evtselp_allTr_gTr_oVtx->setDenom(nch_gen_noCut,pt_gen_noCut,eta_gen_noCut);
+    evtselp_PV_mbTr_bs->setDenom(nch_gen_noCut,pt_gen_noCut,eta_gen_noCut);
+    evtselp_PV_gTr_bs->setDenom(nch_gen_noCut,pt_gen_noCut,eta_gen_noCut);
+    evtselp_allTr_mbTr_bs->setDenom(nch_gen_noCut,pt_gen_noCut,eta_gen_noCut);
+    evtselp_allTr_gTr_bs->setDenom(nch_gen_noCut,pt_gen_noCut,eta_gen_noCut);
   
     evtselp_PV_mbTr_fVtx->makeEffPlots("GEN");
     evtselp_PV_gTr_oVtx->makeEffPlots("GEN");
@@ -398,6 +411,16 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc900/
     evtselp_PV_gTr_bs->makeEffPlots("GEN");
     evtselp_allTr_mbTr_bs->makeEffPlots("GEN");
     evtselp_allTr_gTr_bs->makeEffPlots("GEN");
+    
+    //Only for 1 set, final
+    evtselp_PV_gTr_oVtx->setDenom(gmp_noCut_noSel->mp_NSD->nch,gmp_noCut_noSel->mp_NSD->pt,gmp_noCut_noSel->mp_NSD->eta);
+    evtselp_PV_gTr_oVtx->makeEffPlots("GEN_NSD_noCut_noSel");
+    
+    evtselp_PV_gTr_oVtx->setDenom(gmp_etaCut_noSel->mp_NSD->nch,gmp_etaCut_noSel->mp_NSD->pt,gmp_etaCut_noSel->mp_NSD->eta);
+    evtselp_PV_gTr_oVtx->makeEffPlots("GEN_NSD_etaCut_noSel");
+    
+    evtselp_PV_gTr_oVtx->setDenom(gmp_pt_etaCut_noSel->mp_NSD->nch,gmp_pt_etaCut_noSel->mp_NSD->pt,gmp_pt_etaCut_noSel->mp_NSD->eta);
+    evtselp_PV_gTr_oVtx->makeEffPlots("GEN_NSD_pt_eta_noSel");
   }
   
   //-------- MULTI --------
@@ -405,17 +428,18 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc900/
   mp_PV_gTr_oVtx->write();
   
   if(isMC){
-    mp_gen_INC->write();
-    mp_gen_SD->write();
-    mp_gen_DD->write();
-    mp_gen_ND->write();
-    mp_gen_NSD->write();
+    gmp_noCut_noSel->write();
+    gmp_ptCut_noSel->write();
+    gmp_etaCut_noSel->write();
+    gmp_pt_etaCut_noSel->write();
   }
   
   //------ MATRIX -------
   if(isMC){
-    mtxp_L1_hf_VtxSel_PV_mbTr_fVtx->write();
-    mtxp_L1_hf_VtxSel_PV_gTr_oVtx->write();
+    mtxp_etaGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->write();
+    mtxp_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx->write();
+    mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->write();
+    mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_gTr_oVtx->write();
   }
   
   

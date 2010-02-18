@@ -26,6 +26,7 @@ echo "#pragma link C++ class EvtSelPlots+;">>LinkDef.h
 echo "#pragma link C++ class MultiPlots+;">>LinkDef.h
 echo "#pragma link C++ class TMean+;">>LinkDef.h
 echo "#pragma link C++ class MatrixPlots+;">>LinkDef.h
+echo "#pragma link C++ class GenMultiPlots+;">>LinkDef.h
 echo "#endif">>LinkDef.h
 rm -f tmp.h
 

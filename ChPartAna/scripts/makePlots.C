@@ -1,6 +1,6 @@
 {
   //gROOT->ProcessLine(".X plot.C(\"VertexPlots_allVtx_oVtx\",\"chi2n_allVtx_oVtx\")");
-  bool trkplot = false;
+  bool trkplot = true;
   bool vqlplot = false;
   bool vtxplot = false;
   bool effplot = true;

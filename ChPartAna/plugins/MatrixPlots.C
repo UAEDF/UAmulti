@@ -28,6 +28,16 @@ void MatrixPlots::init(){
   eta_matrix = new TH2F("eta_matrix_"+matrixcoll,"eta_matrix_"+matrixcoll+";eta_gen;eta_reco",60,-3.,3.,60,-3.,3.);
   pt_matrix  = new TH2F("pt_matrix_"+matrixcoll,"pt_matrix_"+matrixcoll+";pt_gen;pt_reco",100,0,3.,100,0,3.);
   
+  nch_gen->Sumw2();
+  eta_gen->Sumw2();
+  pt_gen->Sumw2();
+  nch_reco->Sumw2();
+  eta_reco->Sumw2();
+  pt_reco->Sumw2();
+  nch_matrix->Sumw2();
+  eta_matrix->Sumw2();
+  pt_matrix->Sumw2();
+  
   nch_gen_inEvt = 0;
   nch_reco_inEvt = 0;
   

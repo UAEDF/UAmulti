@@ -23,8 +23,8 @@ void TrackPlots::init(){
   phi   = new TH1F("phi_"+trackcoll,"phi_"+trackcoll+";#phi;# events",30,-TMath::Pi(),TMath::Pi());
   nhit  = new TH1F("nhit_"+trackcoll,"nhit_"+trackcoll+";nhit;# events",51,-0.5,50.5);
   chi2n = new TH1F("chi2n_"+trackcoll,"chi2n_"+trackcoll+";#chi^{2}/ndof;# events",50,0.,5.);
-  dz    = new TH1F("dz_"+trackcoll,"dz_"+trackcoll+";dz(0,0,0) [cm];# events",120,-30.,30.);
-  d0    = new TH1F("d0_"+trackcoll,"d0_"+trackcoll+";d0(0,0,0) [cm];# events",50,-2.5,2.5);
+  dz    = new TH1F("dz_"+trackcoll,"dz_"+trackcoll+";dz(vertex) [cm];# events",120,-30.,30.);
+  d0    = new TH1F("d0_"+trackcoll,"d0_"+trackcoll+";d0(vertex) [cm];# events",50,-2.5,2.5);
   edz   = new TH1F("edz_"+trackcoll,"edz_"+trackcoll+";dzError;# events",100,0.,5.);
   ed0   = new TH1F("ed0_"+trackcoll,"ed0_"+trackcoll+";d0Error;# events",100,0.,5.);
   dzOedz  = new TH1F("dzOedz_"+trackcoll,"dzOedz_"+trackcoll+";dz(vtx)/dzError;# events",60,0,15.);
@@ -38,6 +38,26 @@ void TrackPlots::init(){
   
   dxyOsxyVSphi = new TH2F("dxyOsxyVSphi_"+trackcoll,"dxyOsxyVSphi_"+trackcoll+";#dxy / sigma_xy;#phi;# events",100,0,10.,30,-TMath::Pi(),TMath::Pi());
   dzOszVSphi = new TH2F("dzOszVSphi_"+trackcoll,"dzOszVSphi_"+trackcoll+";#dz / sigma_z;#phi;# events",100,0,10.,30,-TMath::Pi(),TMath::Pi());
+
+  nch->Sumw2();
+  pt->Sumw2();
+  eta->Sumw2();
+  phi->Sumw2();
+  nhit->Sumw2();
+  chi2n->Sumw2();
+  dz->Sumw2();
+  d0->Sumw2();
+  edz->Sumw2();
+  ed0->Sumw2();
+  dzOedz->Sumw2();
+  dxyOed0->Sumw2();
+  dxyOsxy->Sumw2();
+  dzOsz->Sumw2();
+  eptOpt->Sumw2();
+  dzOsz_old->Sumw2();
+  dzOszVSphi_old->Sumw2();
+  dxyOsxyVSphi->Sumw2();
+  dzOszVSphi->Sumw2();
 }
 
 void TrackPlots::fill(vector<MyTracks>& trcoll, vector<MyVertex>& vtxcoll, int vtxId, MyBeamSpot* bs, double weight){

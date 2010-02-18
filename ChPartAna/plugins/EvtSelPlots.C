@@ -49,6 +49,9 @@ void EvtSelPlots::init(){
   nch_denom = trp_noSel->nch;
   pt_denom  = trp_noSel->pt;
   eta_denom = trp_noSel->eta;
+  nch_denom->Sumw2();
+  pt_denom->Sumw2();
+  eta_denom->Sumw2();
   
   vtxp_noSel         = new VertexPlots("noSel_"+trackcoll);
   vtxp_b40Sel        = new VertexPlots("b40Sel_"+trackcoll);
@@ -67,6 +70,14 @@ void EvtSelPlots::init(){
   vtxqual_L1_hfSel      = new TH2F("vtxqual_L1_hfSel_"+trackcoll,"vtxqual_L1_hfSel",100,0.,2000.,20,0.,10.);
   vtxqual_L1_hf_vtxSel  = new TH2F("vtxqual_L1_hf_vtxSel_"+trackcoll,"vtxqual_L1_hf_vtxSel",100,0.,2000.,20,0.,10.);
   vtxqual_L1_b40_vtxSel = new TH2F("vtxqual_L1_b40_vtxSel_"+trackcoll,"vtxqual_L1_b40_vtxSel",100,0.,2000.,20,0.,10.);
+  vtxqual_noSel->Sumw2();
+  vtxqual_b40Sel->Sumw2();
+  vtxqual_L1Sel->Sumw2();
+  vtxqual_hfSel->Sumw2();
+  vtxqual_vtxSel->Sumw2();
+  vtxqual_L1_hfSel->Sumw2();
+  vtxqual_L1_hf_vtxSel->Sumw2();
+  vtxqual_L1_b40_vtxSel->Sumw2();
 }
 
 void EvtSelPlots::fill(vector<MyTracks>& trcoll, vector<MyVertex>& vtxcoll, MyBeamSpot* bs, int vtxId, double vtxQual, int npixhits){
@@ -222,6 +233,7 @@ void EvtSelPlots::makeEffVSvar(TrackPlots* trp){
 
 void EvtSelPlots::makeEff(TH1F* num,TH1F* denom){
   TH1F* clone  = (TH1F*) num->Clone("eff_"+(TString)num->GetName());
+  clone->GetYaxis()->SetTitle("efficiency");
   clone->Divide(denom);
   clone->GetYaxis()->SetRangeUser(0.,1.1);
   clone->Write();
@@ -229,8 +241,9 @@ void EvtSelPlots::makeEff(TH1F* num,TH1F* denom){
 
 void EvtSelPlots::makeEff2(TH1F* num, TH1F* denom){
   TH1F* clone  = (TH1F*) num->Clone("eff_"+(TString)num->GetName());
+  clone->Scale(1/clone->GetXaxis()->GetBinWidth(1));
   for(int i=1;i<=num->GetNbinsX();i++){
-    double n = num->GetBinContent(i);
+    double n = clone->GetBinContent(i);
     double d = denom->GetBinContent(i);
     if( d!=0 ){
       double eff = n / d;

@@ -1,5 +1,5 @@
 
-double pt_cut = 0.2;
+double pt_cut = 0.4;
 double eta_cut = 2.4;
 
 //----------------- GET THE BEST VERTEX ------------------
@@ -199,3 +199,17 @@ vector<MyTracks> getPrimaryTracks(vector<MyTracks> v_tr , vector<MyVertex>* vtxc
   return getPrimaryTracks( v_tr, vtxcoll, getBestVertex(vtxcoll), bs );
 }
 
+
+
+//--------------------------- IS THE GenPart GOOD ------------------
+bool isGenPartGood(MyGenPart& p){
+  if ( fabs(p.Part.charge) <0 ) return false;
+  if ( p.status != 1 )          return false;
+
+  //Count only Stable Hadrons (and not the leptons)
+  if(fabs(p.pdgId) == 11 )  return false;
+  if(fabs(p.pdgId) == 13 )  return false;
+  if(fabs(p.pdgId) == 15 )  return false;
+  
+  return true;
+}

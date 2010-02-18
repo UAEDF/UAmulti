@@ -14,7 +14,7 @@
 using namespace std;
 
 const int matrixsize = 50;
-bool useData = true;
+bool useData = false;
 
 void transform2Matrix(TH2F* matrixhist,double matrix[][matrixsize]);
 
@@ -25,7 +25,7 @@ void makeCorrections(){
   TFile* mc = new TFile("/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/macro/collectionPlotter_MC_small_test.root","READ");
   
   //Get the data file
-  TFile* data = new TFile("/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/macro/collectionPlotter_data_final_test.root","READ");
+  TFile* data = new TFile("/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/macro/collectionPlotter_data_small_test.root","READ");
   
   //------------------------------------------------------------------------------
   //---------------------------- UNFOLDING ---------------------------------------
@@ -124,9 +124,9 @@ void makeCorrections(){
   nch_trueGen->Draw("same e");
   nch_unfolded.Draw("same hist");
   leg->Draw();
-  c1->SaveAs("eta.gif","");
-  c1->SaveAs("eta.eps","");
-  c1->SaveAs("eta.root","");
+  c1->SaveAs("nch.gif","");
+  c1->SaveAs("nch.eps","");
+  c1->SaveAs("nch.root","");
   
   gPad->WaitPrimitive();
   
