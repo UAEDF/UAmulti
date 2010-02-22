@@ -31,10 +31,13 @@ class MatrixPlots : public TObject {
     TH1F* eta_reco;
     TH1F* pt_reco;
     
+    TH1F* nch_reco_GenBin0;
+    TH1F* nch_gen_RecoBin0;
+    
     void init();
-    void fillGen(MyPart& , double = 1.);
-    void fillReco(MyPart& , double = 1.);
-    void nextEvent();
+    void fillGen(MyPart& , bool = true , double = 1.);
+    void fillReco(MyPart& , bool = true , double = 1.);
+    void nextEvent(bool = true , bool = true);
     void write();
     
   private:

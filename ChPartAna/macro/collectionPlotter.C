@@ -32,19 +32,21 @@ using namespace std;
 
 bool debug = false;
 
-TString filename = "data_final_900GeV";
-bool isMC = false;
+TString filename = "MC_test_test_900GeV";
+bool isMC = true;
 
 
 
 #include "evtSel.C"
 #include "cuts.C"
+//void collectionPlotter(bool = true , double = 0.9 , TString = "MC_test_900GeV" );
 
-
-void collectionPlotter()
+void collectionPlotter(bool ismc , double E , TString filename )
 {
+  isMC = ismc;
+  
   // General variables
-  int nbinmulti = 45;
+  int nbinmulti = 70;
   TH1F* nch_gen_noCut     = new TH1F("nch_gen_noCut","nch_gen_noCut;n_{CH};# events",(int)nbinmulti+1,-0.5,nbinmulti+0.5);
   TH1F* pt_gen_noCut      = new TH1F("pt_gen_noCut","pt_gen_noCut;pT [GeV];# events",100,0.,3.);
   TH1F* eta_gen_noCut     = new TH1F("eta_gen_noCut","eta_gen_noCut;#eta;# events",60,-3.,3.);
@@ -118,11 +120,35 @@ void collectionPlotter()
   //TTree* tree =(TTree*)file->Get("evt");
   
   TChain* tree = new TChain("evt","");
+  
+//------------ v5 ------------
+if(E == 0.9 ){
+if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v005_mc900/__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO/ChPartTree_v005_mc900__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO_1*.root/evt");
+//if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v003_mc900/__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO/ChPartTree_v003_mc900__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO_1.root/evt");
+if(!isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v005_d900/__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO/ChPartTree_v005_d900__CMSSW_3_3_6_patch3__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO_*.root/evt");
+}
 
+if(E == 2.36 ){
+if(!isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004nomb_d236/__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO/ChPartTree_v004nomb_d236__CMSSW_3_3_6_patch3__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO_*.root/evt");
+//if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v003_mc900/__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO/ChPartTree_v003_mc900__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO_1.root/evt");
+if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/__MinBias__Summer09-STARTUP3X_V8L_2360GeV-v1__GEN-SIM-RECO/ChPartTree_v004_mc236__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8L_2360GeV-v1__GEN-SIM-RECO_1*.root/evt");
+}
+
+/*
+//---------- v4 --------------
+if(E == 0.9 ){
 if(!isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004b_d900/__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO/ChPartTree_v004b_d900__CMSSW_3_3_6_patch3__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO_*.root/evt");
 //if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v003_mc900/__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO/ChPartTree_v003_mc900__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO_1.root/evt");
-if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc900/__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO/ChPartTree_v004_mc900__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO_9.root/evt");
+if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc900/__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO/ChPartTree_v004_mc900__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO_1.root/evt");
+}
 
+if(E == 2.36 ){
+if(!isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004nomb_d236/__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO/ChPartTree_v004nomb_d236__CMSSW_3_3_6_patch3__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO_*.root/evt");
+//if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v003_mc900/__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO/ChPartTree_v003_mc900__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO_1.root/evt");
+if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/__MinBias__Summer09-STARTUP3X_V8L_2360GeV-v1__GEN-SIM-RECO/ChPartTree_v004_mc236__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8L_2360GeV-v1__GEN-SIM-RECO_1*.root/evt");
+}*/
+
+//OLD
 //if(!isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v003_d900/__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO/ChPartTree_v003_d900__CMSSW_3_3_6_patch3__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO_2?.root/evt");
 //if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v003_mc900/__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO/ChPartTree_v003_mc900__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO_1.root/evt");
 //if(isMC)tree->Add("/user/xjanssen/cms/MinBias/CMSSW_3_3_6_patch3/src/UAmulti/ChPartTree/test/ChPartTree.root/evt");
@@ -174,46 +200,68 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc900/
     
     //---------------- GEN -------------------
     int nchgen = 0;
+    bool laccept_noCut = false;
+    bool laccept_etaCut = false;
+    bool laccept_ptCut = false;
+    bool laccept_pt_etaCut = false;
+    bool laccept_etaCut_NSD = false;
+    bool laccept_pt_etaCut_NSD = false;
+    
+    bool laccept_reco_etaCut = false;
+    
     if(isMC){
+    
+      //if(isEvtGood(*L1Trig , *MITEvtSel) && getnPrimaryTracks(generalTracks,offlinePV,0,eta_cut)!=0)
+        laccept_reco_etaCut = true;
+	
       for(vector<MyGenPart>::iterator p=genPart->begin() ; p!=genPart->end() ; p++ ){
         if ( isGenPartGood(*p) ){
 	  ++nchgen;
 	  pt_gen_noCut->Fill(p->Part.v.Pt());
 	  eta_gen_noCut->Fill(p->Part.v.Eta());
 	  gmp_noCut_noSel->fill(*genKin,p->Part);
+	  laccept_noCut = true;
 	  
 	  //eta cut
-	  if( fabs(p->Part.v.Eta())  < eta_cut )
+	  if( fabs(p->Part.v.Eta())  < eta_cut ){
 	    gmp_etaCut_noSel->fill(*genKin,p->Part);
+	    laccept_etaCut = true;
+	  }
 	    
 	  //pt cut
-	  if( p->Part.v.Pt()> pt_cut )
+	  if( p->Part.v.Pt()> pt_cut ){
 	    gmp_ptCut_noSel->fill(*genKin,p->Part);
+	    laccept_ptCut = true;
+	  }
 	    
 	  //eta + pt cut
 	  if( fabs(p->Part.v.Eta()) < eta_cut 
-	   && p->Part.v.Pt()> pt_cut )
+	   && p->Part.v.Pt()> pt_cut ){
 	    gmp_pt_etaCut_noSel->fill(*genKin,p->Part);
-	   
+	    laccept_pt_etaCut = true;
+	  }
+	  
+	  
 	  //eta cut + good evt sel
 	  if(isEvtGood(*L1Trig , *MITEvtSel) && fabs(p->Part.v.Eta()) < eta_cut && !isSD(genKin) && !isDD(genKin)){
-	    mtxp_etaGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->fillGen(p->Part);
-	    mtxp_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx->fillGen(p->Part);
+	    mtxp_etaGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->fillGen(p->Part , laccept_reco_etaCut);
+	    mtxp_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx->fillGen(p->Part , laccept_reco_etaCut);
+	    laccept_etaCut_NSD = true;
 	    
 	    // + pt cut 
 	    if(p->Part.v.Pt()> pt_cut){
-	      mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->fillGen(p->Part);
-	      mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_gTr_oVtx->fillGen(p->Part);
+	      mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->fillGen(p->Part , laccept_reco_etaCut);
+	      mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_gTr_oVtx->fillGen(p->Part , laccept_reco_etaCut);
+	      laccept_pt_etaCut_NSD = true;
 	    }
 	  }
 	}
       }
       
-      gmp_noCut_noSel->nextEvent(*genKin);
-      gmp_ptCut_noSel->nextEvent(*genKin);
-      gmp_etaCut_noSel->nextEvent(*genKin);
-      gmp_pt_etaCut_noSel->nextEvent(*genKin);
-
+        if(laccept_noCut)     gmp_noCut_noSel->nextEvent(*genKin);
+        if(laccept_ptCut)     gmp_ptCut_noSel->nextEvent(*genKin);
+        if(laccept_etaCut)    gmp_etaCut_noSel->nextEvent(*genKin);
+        if(laccept_pt_etaCut) gmp_pt_etaCut_noSel->nextEvent(*genKin);
     }
     if(nchgen!=0) nch_gen_noCut->Fill(nchgen);
     
@@ -308,26 +356,28 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc900/
     //}
     
     //------------- FILLING MULTI && MATRIX----------------------- 
+    if(debug) cout<<"Starting to fill Mtx ..."<<endl;
+    
     if( isEvtGood( *L1Trig , *MITEvtSel) ){
       trcoll = getPrimaryTracks(*minbiasTracks,ferencVtx,bs);
       for(vector<MyTracks>::iterator it_tr = trcoll.begin() ; it_tr != trcoll.end() ; ++it_tr){
         mp_PV_mbTr_fVtx->fill(it_tr->Part);
-	mtxp_etaGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->fillReco(it_tr->Part);
-	mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->fillReco(it_tr->Part);
+	mtxp_etaGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->fillReco(it_tr->Part , laccept_etaCut_NSD);
+	mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->fillReco(it_tr->Part , laccept_etaCut_NSD);
       }
       mp_PV_mbTr_fVtx->nextEvent();
-      mtxp_etaGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->nextEvent();
-      mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->nextEvent();
+      mtxp_etaGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->nextEvent(laccept_reco_etaCut , laccept_etaCut_NSD);
+      mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->nextEvent(laccept_reco_etaCut , laccept_pt_etaCut_NSD);
       
       trcoll = getPrimaryTracks(*generalTracks,offlinePV);
       for(vector<MyTracks>::iterator it_tr = trcoll.begin() ; it_tr != trcoll.end() ; ++it_tr){
         mp_PV_gTr_oVtx->fill(it_tr->Part);
-	mtxp_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx->fillReco(it_tr->Part);
-	mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_gTr_oVtx->fillReco(it_tr->Part);
+	mtxp_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx->fillReco(it_tr->Part , laccept_etaCut_NSD);
+	mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_gTr_oVtx->fillReco(it_tr->Part , laccept_etaCut_NSD);
       }
       mp_PV_gTr_oVtx->nextEvent();
-      mtxp_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx->nextEvent();
-      mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_gTr_oVtx->nextEvent();
+      mtxp_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx->nextEvent(laccept_reco_etaCut , laccept_etaCut_NSD);
+      mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_gTr_oVtx->nextEvent(laccept_reco_etaCut , laccept_pt_etaCut_NSD);
       
     }
   
@@ -337,6 +387,7 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc900/
   //file->Close();
 
 
+  if(debug) cout<<"Starting to write to file ..."<<endl;
   
   //output file
   TFile* file2=new TFile("collectionPlotter_"+filename+".root","RECREATE");

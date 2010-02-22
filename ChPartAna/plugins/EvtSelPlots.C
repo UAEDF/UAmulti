@@ -241,9 +241,9 @@ void EvtSelPlots::makeEff(TH1F* num,TH1F* denom){
 
 void EvtSelPlots::makeEff2(TH1F* num, TH1F* denom){
   TH1F* clone  = (TH1F*) num->Clone("eff_"+(TString)num->GetName());
-  clone->Scale(1/clone->GetXaxis()->GetBinWidth(1));
+  //clone->Scale(1./double(clone->GetXaxis()->GetBinWidth(1)));
   for(int i=1;i<=num->GetNbinsX();i++){
-    double n = clone->GetBinContent(i);
+    double n = double( clone->GetBinContent(i) ) / double(clone->GetXaxis()->GetBinWidth(i));
     double d = denom->GetBinContent(i);
     if( d!=0 ){
       double eff = n / d;

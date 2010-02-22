@@ -29,7 +29,7 @@ int iterStep=0;
 TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hyp){
   
   //The hypothesis distribution
-  TH1F* hypothesis= new TH1F("hypothesis","hypothesis",Ngen1,0,Ngen1);
+  TH1F* hypothesis= new TH1F("hypothesis","hypothesis",Ngen1,-0.5,double(Ngen1)+0.5);
 
   //Definition of the matrices
   matrix4dObj matrix_normalized;
@@ -37,6 +37,7 @@ TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hyp){
 
   //Load the correct hypothesis in hypothesis
   // ---> check the type !! for now, only "uniform" 
+  //if(hyp==0)specifyHypothesis("gauss",hypothesis);
   if(hyp==0)specifyHypothesis("uniform",hypothesis);
   else hypothesis = hyp;
   
@@ -50,32 +51,67 @@ TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hyp){
   //gDirectory->cd();
   
   //1st ITERATION
-  TH1F* toUnfold_step1         = new TH1F("toUnfold_step1","toUnfold_step1",Ngen1,0,Ngen1);
-  TH1F* toUnfold_scaled_step1  = new TH1F("toUnfold_scaled_step1","toUnfold_scaled_step1",Ngen1,0,Ngen1);
-  TH1F* err_obs_step1          = new TH1F("err_obs_step1","err_obs_step1",Ngen1,0,Ngen1);
+  TH1F* toUnfold_step1         = new TH1F("toUnfold_step1","toUnfold_step1",Ngen1,-0.5,double(Ngen1)-0.5);
+  TH1F* toUnfold_scaled_step1  = new TH1F("toUnfold_scaled_step1","toUnfold_scaled_step1",Ngen1,-0.5,double(Ngen1)-0.5);
+  TH1F* err_obs_step1          = new TH1F("err_obs_step1","err_obs_step1",Ngen1,-0.5,double(Ngen1)-0.5);
+  toUnfold_step1->Sumw2();
+  toUnfold_scaled_step1->Sumw2();
+  err_obs_step1->Sumw2();
+  
   unfold(toUnfold_step1,toUnfold_scaled_step1,matrix_normalized,toUnfold,hypothesis,err_obs_step1);
 
   //2nd ITERATION
-  TH1F* toUnfold_step2         = new TH1F("toUnfold_step2","toUnfold_step2",Ngen1,0,Ngen1);
-  TH1F* toUnfold_scaled_step2  = new TH1F("toUnfold_scaled_step2","toUnfold_scaled_step2",Ngen1,0,Ngen1);
-  TH1F* err_obs_step2          = new TH1F("err_obs_step2","err_obs_step2",Ngen1,0,Ngen1);
+  TH1F* toUnfold_step2         = new TH1F("toUnfold_step2","toUnfold_step2",Ngen1,-0.5,double(Ngen1)-0.5);
+  TH1F* toUnfold_scaled_step2  = new TH1F("toUnfold_scaled_step2","toUnfold_scaled_step2",Ngen1,-0.5,double(Ngen1)-0.5);
+  TH1F* err_obs_step2          = new TH1F("err_obs_step2","err_obs_step2",Ngen1,-0.5,double(Ngen1)-0.5);
+  toUnfold_step2->Sumw2();
+  toUnfold_scaled_step2->Sumw2();
+  err_obs_step2->Sumw2();
+  
   unfold(toUnfold_step2,toUnfold_scaled_step2,matrix_normalized,toUnfold,toUnfold_scaled_step1,err_obs_step2);
   
   //3rd ITERATION
-  TH1F* toUnfold_step3         = new TH1F("toUnfold_step3","toUnfold_step3",Ngen1,0,Ngen1);
-  TH1F* toUnfold_scaled_step3  = new TH1F("toUnfold_scaled_step3","toUnfold_scaled_step3",Ngen1,0,Ngen1);
-  TH1F* err_obs_step3          = new TH1F("err_obs_step3","err_obs_step3",Ngen1,0,Ngen1);
+  TH1F* toUnfold_step3         = new TH1F("toUnfold_step3","toUnfold_step3",Ngen1,-0.5,double(Ngen1)-0.5);
+  TH1F* toUnfold_scaled_step3  = new TH1F("toUnfold_scaled_step3","toUnfold_scaled_step3",Ngen1,-0.5,double(Ngen1)-0.5);
+  TH1F* err_obs_step3          = new TH1F("err_obs_step3","err_obs_step3",Ngen1,-0.5,double(Ngen1)-0.5);
+  toUnfold_step3->Sumw2();
+  toUnfold_scaled_step3->Sumw2();
+  err_obs_step3->Sumw2();
+  
   unfold(toUnfold_step3,toUnfold_scaled_step3,matrix_normalized,toUnfold,toUnfold_scaled_step2,err_obs_step3);
+  
+  //3rd ITERATION
+  TH1F* toUnfold_step4         = new TH1F("toUnfold_step4","toUnfold_step4",Ngen1,-0.5,double(Ngen1)-0.5);
+  TH1F* toUnfold_scaled_step4  = new TH1F("toUnfold_scaled_step4","toUnfold_scaled_step4",Ngen1,-0.5,double(Ngen1)-0.5);
+  TH1F* err_obs_step4          = new TH1F("err_obs_step4","err_obs_step4",Ngen1,-0.5,double(Ngen1)-0.5);
+  toUnfold_step4->Sumw2();
+  toUnfold_scaled_step4->Sumw2();
+  err_obs_step4->Sumw2();
+  
+  unfold(toUnfold_step4,toUnfold_scaled_step4,matrix_normalized,toUnfold,toUnfold_scaled_step3,err_obs_step4);
+  
+  //3rd ITERATION
+  TH1F* toUnfold_step5         = new TH1F("toUnfold_step5","toUnfold_step5",Ngen1,-0.5,double(Ngen1)-0.5);
+  TH1F* toUnfold_scaled_step5  = new TH1F("toUnfold_scaled_step5","toUnfold_scaled_step5",Ngen1,-0.5,double(Ngen1)-0.5);
+  TH1F* err_obs_step5          = new TH1F("err_obs_step5","err_obs_step5",Ngen1,-0.5,double(Ngen1)-0.5);
+  toUnfold_step5->Sumw2();
+  toUnfold_scaled_step5->Sumw2();
+  err_obs_step5->Sumw2();
+  
+  unfold(toUnfold_step5,toUnfold_scaled_step5,matrix_normalized,toUnfold,toUnfold_scaled_step4,err_obs_step5);
+  
   
   //Copy previous to make more iterations
   
-  /*toUnfold->Write();
+  toUnfold->Write();
   toUnfold_step1->Write();
   toUnfold_step2->Write();
   toUnfold_step3->Write();
-  hypothesis->Write();*/
+  toUnfold_step4->Write();
+  toUnfold_step5->Write();
+  hypothesis->Write();
   
-  return *toUnfold_step3;
+  return *toUnfold_step5;
 }
 
 void unfold(TH1F* unfoldedDistr,TH1F* unfoldedProb,double inputMat[][matrixsize],TH1F* auxEffect,TH1F* hypothesis,TH1F* err){
@@ -246,6 +282,7 @@ void specifyHypothesis(std::string curveShape, TH1F* hypothesis){
 
   int choice=0;
   if (curveShape=="uniform") choice=1;
+  if (curveShape=="gauss") choice=2;
   if (curveShape=="completeCheating") choice=4;
   if (curveShape=="physicalOtherGenerator") choice=5;
   if (curveShape=="fitPhysicalOtherGenerator") choice=6;
@@ -255,9 +292,15 @@ void specifyHypothesis(std::string curveShape, TH1F* hypothesis){
 
   case 1:
     for (int i=1;i<=hypothesis->GetNbinsX();i++)
-      hypothesis->SetBinContent(i,1./hypothesis->GetNbinsX());
+      hypothesis->SetBinContent(i,1.);///hypothesis->GetNbinsX());
     break;
 
+  case 2:
+  
+    for(int i=0;i<10000;++i)
+      hypothesis->Fill( gRandom->Gaus(14,100));
+    break;
+    
   /*case 4:
     //Pass the generated truth
     for (int i_gen1=1;i_gen1<=Ngen1;i_gen1++)

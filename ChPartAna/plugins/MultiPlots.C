@@ -35,7 +35,7 @@ void MultiPlots::init(){
   moments = new vector<TMean>(nb_moments,TMean());
   nch_mean = new TMean();
   
-  nch = new TH1F("nch_"+multiname,"nch_"+multiname+";N_{ch};fraction of events",46,-0.5,45.5);
+  nch = new TH1F("nch_"+multiname,"nch_"+multiname+";N_{ch};fraction of events",71,-0.5,70.5);
   //kno = new TH1F("kno_"+multiname,"kno_"+multiname+"n / < n >;< n >   P_{n}",nch->GetNbinsX(),0.,double(nch->GetXaxis()->GetXmax()/nch_mean->GetMean()));
   kno = new TH1F(); //TO BE SAFE
   rapidity = new TH1F("rapidity_"+multiname,"rapidity_"+multiname+";y;#frac{1}{#sigma_{tot}} #frac{d#sigma_{ch}}{dy}",60,-3.,3.);
@@ -81,10 +81,12 @@ void MultiPlots::nextEvent(double weight){
 }
 
 void MultiPlots::makeKNO(){
-  kno = new TH1F("kno_"+multiname,"kno_"+multiname+";n / < n >;< n >   P_{n}",nch->GetNbinsX(),0.,double(nch->GetXaxis()->GetXmax()/nch_mean->GetMean()));
+  kno = new TH1F("kno_"+multiname,"kno_"+multiname+";z = n_{ch} / < n_{ch} >;#psi(z)",nch->GetNbinsX(),0.,double(nch->GetXaxis()->GetXmax()/nch_mean->GetMean()));
   kno->Sumw2();
-  for( int k = 1 ; k <= nch->GetNbinsX() ; ++k)
+  for( int k = 1 ; k <= nch->GetNbinsX() ; ++k){
     kno->SetBinContent(k , nch_mean->GetMean() * nch->GetBinContent(k));
+    kno->SetBinError(k , nch_mean->GetMean() * nch->GetBinError(k));
+  }
 }
 
 void MultiPlots::write(){
