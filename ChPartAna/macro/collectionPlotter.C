@@ -39,9 +39,9 @@ bool isMC = true;
 
 #include "evtSel.C"
 #include "cuts.C"
-//void collectionPlotter(bool = true , double = 0.9 , TString = "MC_test_900GeV" );
+void collectionPlotter(bool = true , double = 0.9 , TString = "MC_test_900GeV" , int = 20000 );
 
-void collectionPlotter(bool ismc , double E , TString filename )
+void collectionPlotter(bool ismc , double E , TString filename , int nevt_max )
 {
   isMC = ismc;
   
@@ -122,7 +122,7 @@ void collectionPlotter(bool ismc , double E , TString filename )
   TChain* tree = new TChain("evt","");
   
 //------------ v5 ------------
-if(E == 0.9 ){
+/*if(E == 0.9 ){
 if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v005_mc900/__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO/ChPartTree_v005_mc900__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO_1*.root/evt");
 //if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v003_mc900/__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO/ChPartTree_v003_mc900__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO_1.root/evt");
 if(!isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v005_d900/__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO/ChPartTree_v005_d900__CMSSW_3_3_6_patch3__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO_*.root/evt");
@@ -132,9 +132,9 @@ if(E == 2.36 ){
 if(!isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004nomb_d236/__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO/ChPartTree_v004nomb_d236__CMSSW_3_3_6_patch3__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO_*.root/evt");
 //if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v003_mc900/__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO/ChPartTree_v003_mc900__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO_1.root/evt");
 if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/__MinBias__Summer09-STARTUP3X_V8L_2360GeV-v1__GEN-SIM-RECO/ChPartTree_v004_mc236__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8L_2360GeV-v1__GEN-SIM-RECO_1*.root/evt");
-}
+}*/
 
-/*
+
 //---------- v4 --------------
 if(E == 0.9 ){
 if(!isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004b_d900/__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO/ChPartTree_v004b_d900__CMSSW_3_3_6_patch3__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO_*.root/evt");
@@ -146,7 +146,7 @@ if(E == 2.36 ){
 if(!isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004nomb_d236/__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO/ChPartTree_v004nomb_d236__CMSSW_3_3_6_patch3__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO_*.root/evt");
 //if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v003_mc900/__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO/ChPartTree_v003_mc900__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO_1.root/evt");
 if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/__MinBias__Summer09-STARTUP3X_V8L_2360GeV-v1__GEN-SIM-RECO/ChPartTree_v004_mc236__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8L_2360GeV-v1__GEN-SIM-RECO_1*.root/evt");
-}*/
+}
 
 //OLD
 //if(!isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v003_d900/__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO/ChPartTree_v003_d900__CMSSW_3_3_6_patch3__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO_2?.root/evt");
@@ -184,12 +184,14 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/
   
   int nev = int(tree->GetEntries());
   std::cout <<"number of entries is : "<< nev << std::endl;
-
+  cout<<"Running on: "<<min(nev,nevt_max)<<" events"<<endl;
   // Event TYPE counting --> Weights
   
   for(int i = 0; i < nev; i++){
     
-    //if( (i%10000.) == 0) cout <<int(double(nev-i)/double(nev))<<" % left"<<endl;
+    if( ((i+1) % 10000) == 0) cout <<int(double(i+1)/double(min(nev,nevt_max))*100.)<<" % done"<<endl;
+    
+    if(i>min(nev,nevt_max)) break;
     
     tree->GetEntry(i);
     
@@ -211,9 +213,6 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/
     
     if(isMC){
     
-      //if(isEvtGood(*L1Trig , *MITEvtSel) && getnPrimaryTracks(generalTracks,offlinePV,0,eta_cut)!=0)
-        laccept_reco_etaCut = true;
-	
       for(vector<MyGenPart>::iterator p=genPart->begin() ; p!=genPart->end() ; p++ ){
         if ( isGenPartGood(*p) ){
 	  ++nchgen;
@@ -243,15 +242,15 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/
 	  
 	  
 	  //eta cut + good evt sel
-	  if(isEvtGood(*L1Trig , *MITEvtSel) && fabs(p->Part.v.Eta()) < eta_cut && !isSD(genKin) && !isDD(genKin)){
-	    mtxp_etaGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->fillGen(p->Part , laccept_reco_etaCut);
-	    mtxp_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx->fillGen(p->Part , laccept_reco_etaCut);
+	  if(isEvtGood(*L1Trig , *MITEvtSel) && fabs(p->Part.v.Eta()) < eta_cut && !isSD(genKin)){
+	    mtxp_etaGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->fillGen(p->Part);
+	    mtxp_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx->fillGen(p->Part);
 	    laccept_etaCut_NSD = true;
 	    
 	    // + pt cut 
 	    if(p->Part.v.Pt()> pt_cut){
-	      mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->fillGen(p->Part , laccept_reco_etaCut);
-	      mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_gTr_oVtx->fillGen(p->Part , laccept_reco_etaCut);
+	      mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->fillGen(p->Part);
+	      mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_gTr_oVtx->fillGen(p->Part);
 	      laccept_pt_etaCut_NSD = true;
 	    }
 	  }
@@ -359,11 +358,15 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/
     if(debug) cout<<"Starting to fill Mtx ..."<<endl;
     
     if( isEvtGood( *L1Trig , *MITEvtSel) ){
+      
+      if(isEvtGood(*L1Trig , *MITEvtSel) && getnInAccTracks(generalTracks,0,eta_cut)!=0)
+        laccept_reco_etaCut = true;
+      
       trcoll = getPrimaryTracks(*minbiasTracks,ferencVtx,bs);
       for(vector<MyTracks>::iterator it_tr = trcoll.begin() ; it_tr != trcoll.end() ; ++it_tr){
         mp_PV_mbTr_fVtx->fill(it_tr->Part);
-	mtxp_etaGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->fillReco(it_tr->Part , laccept_etaCut_NSD);
-	mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->fillReco(it_tr->Part , laccept_etaCut_NSD);
+	mtxp_etaGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->fillReco(it_tr->Part);
+	mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->fillReco(it_tr->Part);
       }
       mp_PV_mbTr_fVtx->nextEvent();
       mtxp_etaGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->nextEvent(laccept_reco_etaCut , laccept_etaCut_NSD);
@@ -372,11 +375,11 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/
       trcoll = getPrimaryTracks(*generalTracks,offlinePV);
       for(vector<MyTracks>::iterator it_tr = trcoll.begin() ; it_tr != trcoll.end() ; ++it_tr){
         mp_PV_gTr_oVtx->fill(it_tr->Part);
-	mtxp_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx->fillReco(it_tr->Part , laccept_etaCut_NSD);
-	mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_gTr_oVtx->fillReco(it_tr->Part , laccept_etaCut_NSD);
+	mtxp_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx->fillReco(it_tr->Part);
+	mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_gTr_oVtx->fillReco(it_tr->Part);
       }
       mp_PV_gTr_oVtx->nextEvent();
-      mtxp_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx->nextEvent(laccept_reco_etaCut , laccept_etaCut_NSD);
+      mtxp_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx->nextEvent(true , laccept_etaCut_NSD);
       mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_gTr_oVtx->nextEvent(laccept_reco_etaCut , laccept_pt_etaCut_NSD);
       
     }

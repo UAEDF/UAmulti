@@ -1,4 +1,3 @@
-
 double pt_cut = 0.4;
 double eta_cut = 2.4;
 
