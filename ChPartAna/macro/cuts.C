@@ -46,6 +46,8 @@ int getVtxposFromId(MyTracks& tr,int goodvtxId){
 //------------------ UE SELECTION ----------------------------------------
 bool isTrackPrimary(MyTracks& tr, int goodvtxId){
 
+  return true; 
+
   if(debug) cout<<" +-+-+ starting isTrackPrimary"<<endl;
   
   //get the number of the good vertex in the vector
@@ -124,7 +126,7 @@ bool isTrackPrimary(MyTracks& tr, vector<MyVertex>& vtxcoll, int goodvtxId, MyBe
 
 bool isInAcceptance(MyPart& p , double pt , double eta){
   if(p.v.Pt()<pt) return false;
-  if(p.v.Eta()<eta) return false;
+  if(fabs(p.v.Eta())>eta) return false;
   return true;
 }
 
@@ -165,6 +167,16 @@ int getnPrimaryTracks(vector<MyTracks>* v_tr , vector<MyVertex>* vtxcoll , doubl
   if(debug) cout<<" ** "<<v_tr->size()<<" tracks remaining after primary selection"<<endl;
 }*/
 
+
+//------------------------------ GET TRACKS IN ACCEPTANCE -----------------------------------------
+vector<MyTracks> getInAccTracks(vector<MyTracks> v_tr , double pt = pt_cut, double eta = eta_cut){
+
+  for(vector<MyTracks>::iterator it_tr = v_tr.begin() ; it_tr != v_tr.end() ; ++it_tr)
+    if( !isInAcceptance(it_tr->Part,pt,eta) ) v_tr.erase(it_tr--);
+
+  return v_tr;
+
+}
 
 //------------------------------ GET THE PRIMARY TRACK -----------------------------------------
 vector<MyTracks> getPrimaryTracks(vector<MyTracks> v_tr , int vtxId , double pt = pt_cut, double eta = eta_cut){
