@@ -144,7 +144,7 @@ int getnPrimaryTracks(vector<MyTracks>* v_tr , vector<MyVertex>* vtxcoll , doubl
   
   
   for(vector<MyTracks>::iterator it_tr = v_tr->begin() ; it_tr != v_tr->end() ; ++it_tr)
-    if( isTrackPrimary(*it_tr , getBestVertex(vtxcoll)) && !isInAcceptance(it_tr->Part,pt,eta) )
+    if( isTrackPrimary(*it_tr , getBestVertex(vtxcoll)) && isInAcceptance(it_tr->Part,pt,eta) )
       ++nch;
       
   if(debug) cout<<" ** getnPrimaryTracks() has found "<<nch<<" primary tracks"<<endl;
@@ -152,20 +152,6 @@ int getnPrimaryTracks(vector<MyTracks>* v_tr , vector<MyVertex>* vtxcoll , doubl
   return nch;
 }
 
-/*void getPrimaryTracks(vector<MyTracks>* v_tr , vector<MyVertex>* vtxcoll){
-
-  if(debug) cout<<" +-+-+ starting getPrimaryTracks"<<endl;
-  
-  //Protecting code if no vertex were found
-  if(getBestVertex(vtxcoll)==-1) v_tr->clear();
-  
-  
-  for(vector<MyTracks>::iterator it_tr = v_tr->begin() ; it_tr != v_tr->end() ; ++it_tr)
-    if( ! isTrackPrimary(*it_tr , getBestVertex(vtxcoll)) )
-      v_tr->erase(it_tr--);
-      
-  if(debug) cout<<" ** "<<v_tr->size()<<" tracks remaining after primary selection"<<endl;
-}*/
 
 
 //------------------------------ GET TRACKS IN ACCEPTANCE -----------------------------------------
@@ -175,6 +161,18 @@ vector<MyTracks> getInAccTracks(vector<MyTracks> v_tr , double pt = pt_cut, doub
     if( !isInAcceptance(it_tr->Part,pt,eta) ) v_tr.erase(it_tr--);
 
   return v_tr;
+
+}
+
+
+//------------------------------ GET NUMBER OF TRACKS IN ACCEPTANCE -----------------------------------------
+int getnInAccTracks(vector<MyTracks>* v_tr , double pt = pt_cut, double eta = eta_cut){
+
+  int nch=0;
+  for(vector<MyTracks>::iterator it_tr = v_tr->begin() ; it_tr != v_tr->end() ; ++it_tr)
+    if( isInAcceptance(it_tr->Part,pt,eta) ) ++nch;
+
+  return nch;
 
 }
 
@@ -188,7 +186,7 @@ vector<MyTracks> getPrimaryTracks(vector<MyTracks> v_tr , int vtxId , double pt 
   
   
   for(vector<MyTracks>::iterator it_tr = v_tr.begin() ; it_tr != v_tr.end() ; ++it_tr)
-    if( ! isTrackPrimary(*it_tr , vtxId) && !isInAcceptance(it_tr->Part,pt,eta))
+    if( ! isTrackPrimary(*it_tr , vtxId) || !isInAcceptance(it_tr->Part,pt,eta))
       v_tr.erase(it_tr--);
       
   if(debug) cout<<" ** "<<v_tr.size()<<" tracks remaining after primary selection"<<endl;
@@ -211,7 +209,7 @@ vector<MyTracks> getPrimaryTracks(vector<MyTracks> v_tr , vector<MyVertex>* vtxc
   
   
   for(vector<MyTracks>::iterator it_tr = v_tr.begin() ; it_tr != v_tr.end() ; ++it_tr)
-    if( ! isTrackPrimary(*it_tr , *vtxcoll, vtxId, bs ) && !isInAcceptance(it_tr->Part,pt,eta) )
+    if( ! isTrackPrimary(*it_tr , *vtxcoll, vtxId, bs ) || !isInAcceptance(it_tr->Part,pt,eta) )
       v_tr.erase(it_tr--);
       
   if(debug) cout<<" ** "<<v_tr.size()<<" tracks remaining after primary selection"<<endl;
