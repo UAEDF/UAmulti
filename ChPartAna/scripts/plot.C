@@ -9,14 +9,16 @@ void plot (char dir[100] , char histo[200] , bool logY = false )
   c1->SetFillColor(0);
   c1->GetFrame()->SetFillColor(21);
   c1->GetFrame()->SetBorderSize(12);
-  c1->SetGrid();
+  c1->SetGrid(0,0);
 
   if(logY) c1->SetLogy(true);
 
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(kFALSE);
 
-  TFile *data = new TFile("../macro/collectionPlotter_data_final_test.root","READ");
+  TFile *data = new TFile("../../../root/collectionPlotter_data_testv5.root","READ");
+  //TFile *data = new TFile("../../../root/collectionPlotter_data_finalv2_900GeV.root","READ");
+  //TFile *data = new TFile("../../../root/collectionPlotter_data_finalv2_2.36TeV.root","READ");
   //TFile *data = new TFile("generalTracks_OfflinePV_data.root","READ");
   //TFile *data = new TFile("generalTracks_OfflinePV_MC900Gev_D6T.root","READ");
   data->cd();
@@ -32,7 +34,9 @@ void plot (char dir[100] , char histo[200] , bool logY = false )
     TH1F* hdata = ddata->Get(histo);
   } 
 
-  TFile *moca = new TFile("../macro/collectionPlotter_MC_final_test.root","READ");
+  TFile *moca = new TFile("../../../root/collectionPlotter_MC_testv5.root","READ");
+  //TFile *moca = new TFile("../../../root/collectionPlotter_MC_finalv2_900GeV.root","READ");
+  //TFile *moca = new TFile("../../../root/collectionPlotter_MC_finalv2_2.36TeV.root","READ");
   //TFile *moca = new TFile("collectionPlotter_MC_EvtSel_Eff.root","READ");
   //TFile *moca = new TFile("generalTracks_OfflinePV_MC900Gev_D6T.root","READ");
   moca->cd();
@@ -84,21 +88,31 @@ void plot (char dir[100] , char histo[200] , bool logY = false )
 
   //c1->SetLogY(true);
 
+  hdata->SetMarkerColor(2);
   hdata->Draw("e");
   hmoca->Draw("samehist"); 
 
   // Legend
-  TLegend *leg = new TLegend (.65,.90,.90,.99);
+  TLegend *leg = new TLegend (.65,.60,.90,.69);
   leg->AddEntry(hdata,"Data","p" );
   leg->AddEntry(hmoca,"PYTHIA D6T","l" );
   leg->SetBorderSize(0);
   leg->SetFillColor(0);
   leg->Draw();
 
+  // 
+  //TText* txt=new TText(.65, 0.96, "CMS 0.9 TeV");
+  TText* txt=new TText(.65, 0.96, "CMS 2.36 TeV");
+  txt->SetNDC(kTRUE);
+  txt->SetTextSize(0.04);
+  txt->Draw();
+
   // Save Plot
-  string basedir ( "/user/rougny/UAPlots/" );
-  string sdir   (dir);
-  sdir += basedir;
+  //string basedir ( "/user/rougny/UAPlots/" );
+  //string basedir ( "/home/xjanssen/cms/MinBias/900GevPlots/");
+  string basedir ( "/home/xjanssen/cms/MinBias/236GevPlots/");
+  string sdir    (dir);
+  // sdir += basedir;
   string shisto (histo);
   if(logY) shisto+="_logY";
   
@@ -106,26 +120,35 @@ void plot (char dir[100] , char histo[200] , bool logY = false )
   
   bool save = false;
   if(save){
-  {string fngif ("gif/");
-  fngif += sdir;
-  fngif += "/";
+  {string fngif ("");
+   fngif += basedir;
+   fngif += "gif/";  
+   fngif += sdir;
+   fngif += "/";
+
   if (!gSystem->OpenDirectory(fngif.c_str())) gSystem->mkdir(fngif.c_str(),true);
   fngif += shisto;
   fngif += ".gif";
   c1->SaveAs(fngif.c_str(),"");}
 
   
-  {string fngif ("eps/");
-  fngif += sdir;
-  fngif += "/";
+  {string fngif ("");
+   fngif += basedir;
+   fngif += "eps/"; 
+   fngif += sdir;
+   fngif += "/";
+
   if (!gSystem->OpenDirectory(fngif.c_str())) gSystem->mkdir(fngif.c_str(),true);
   fngif += shisto;
   fngif += ".eps";
   c1->SaveAs(fngif.c_str(),"");}
 
   
-  {string fngif ("root/");
-  fngif += sdir;
+  {string fngif ("");
+   fngif += basedir;
+   fngif += "root/";
+   fngif += sdir;
+
   fngif += "/";
   if (!gSystem->OpenDirectory(fngif.c_str())) gSystem->mkdir(fngif.c_str(),true);
   fngif += shisto;

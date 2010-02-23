@@ -1,11 +1,11 @@
 {
   //gROOT->ProcessLine(".X plot.C(\"VertexPlots_allVtx_oVtx\",\"chi2n_allVtx_oVtx\")");
-  bool trkplot = true;
-  bool vqlplot = false;
-  bool vtxplot = false;
-  bool effplot = true;
-  bool mtxplot = true;
-  bool mltplot = false;
+  bool trkplot = 1;
+  bool vqlplot = 1;
+  bool vtxplot = 1;
+  bool effplot = 0;
+  bool mtxplot = 0;
+  bool mltplot = 0 ;
   TString sel,tr,all,dir,cut;
   
   //------ TRACK PLOTS ---------
@@ -78,7 +78,7 @@
   gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"chi2n_"+all+"\",1");
   gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"ntracks_"+all+"\"");
   
-  gROOT->ProcessLine(".X plot2D.C(\""+dir+"\",\"xy_"+all+"\"");
+  // gROOT->ProcessLine(".X plot2D.C(\""+dir+"\",\"xy_"+all+"\"");
   
   }
   
@@ -88,27 +88,30 @@
     dir = "EvtSelPlots_"+tr   +   "/Eff_RECO_"+tr;
     cout<<dir<<endl;
     
-    TH1F* h[20];
+    //TH1F* h[20];
+    //vector <TH1F*> vh;
+
+    TH1F* h;
     TCanvas* c1 = new TCanvas("c1","c",200,10,500,500);
     c1->cd();
     
     gROOT->ProcessLine(".X plotMC.C(c1,h,\""+dir+"\",\"eff_nch_L1Sel_"+tr+"\"");
-    gROOT->ProcessLine(".X plotMC.C(c1,h,\""+dir+"\",\"eff_nch_hfSel_"+tr+"\",1");
-    gROOT->ProcessLine(".X plotMC.C(c1,h,\""+dir+"\",\"eff_nch_vtxSel_"+tr+"\",2");
-    gROOT->ProcessLine(".X plotMC.C(c1,h,\""+dir+"\",\"eff_nch_L1_hf_vtxSel_"+tr+"\",3");
-    gPad->Update();
-    gPad->WaitPrimitive();
-    
+    gROOT->ProcessLine(".X plotMC.C(c1,h,\""+dir+"\",\"eff_nch_hfSel_"+tr+"\",0");
+    gROOT->ProcessLine(".X plotMC.C(c1,h,\""+dir+"\",\"eff_nch_vtxSel_"+tr+"\",0");
+    gROOT->ProcessLine(".X plotMC.C(c1,h,\""+dir+"\",\"eff_nch_L1_hf_vtxSel_"+tr+"\",0");
+    //gPad->Update();
+    //gPad->WaitPrimitive();
+   
     dir = "EvtSelPlots_"+tr   +   "/Eff_GEN_"+tr;
     gROOT->ProcessLine(".X plotMC.C(c1,h,\""+dir+"\",\"eff_pt_L1Sel_"+tr+"\"");
-    gROOT->ProcessLine(".X plotMC.C(c1,h,\""+dir+"\",\"eff_pt_hfSel_"+tr+"\",1");
-    gROOT->ProcessLine(".X plotMC.C(c1,h,\""+dir+"\",\"eff_pt_vtxSel_"+tr+"\",2");
-    gROOT->ProcessLine(".X plotMC.C(c1,h,\""+dir+"\",\"eff_pt_L1_hf_vtxSel_"+tr+"\",3");
+    gROOT->ProcessLine(".X plotMC.C(c1,h,\""+dir+"\",\"eff_pt_hfSel_"+tr+"\",0");
+    gROOT->ProcessLine(".X plotMC.C(c1,h,\""+dir+"\",\"eff_pt_vtxSel_"+tr+"\",0");
+    gROOT->ProcessLine(".X plotMC.C(c1,h,\""+dir+"\",\"eff_pt_L1_hf_vtxSel_"+tr+"\",0");
     
     gROOT->ProcessLine(".X plotMC.C(c1,h,\""+dir+"\",\"eff_eta_L1Sel_"+tr+"\"");
-    gROOT->ProcessLine(".X plotMC.C(c1,h,\""+dir+"\",\"eff_eta_hfSel_"+tr+"\",1");
-    gROOT->ProcessLine(".X plotMC.C(c1,h,\""+dir+"\",\"eff_eta_vtxSel_"+tr+"\",2");
-    gROOT->ProcessLine(".X plotMC.C(c1,h,\""+dir+"\",\"eff_eta_L1_hf_vtxSel_"+tr+"\",3");
+    gROOT->ProcessLine(".X plotMC.C(c1,h,\""+dir+"\",\"eff_eta_hfSel_"+tr+"\",0");
+    gROOT->ProcessLine(".X plotMC.C(c1,h,\""+dir+"\",\"eff_eta_vtxSel_"+tr+"\",0");
+    gROOT->ProcessLine(".X plotMC.C(c1,h,\""+dir+"\",\"eff_eta_L1_hf_vtxSel_"+tr+"\",0");
     //gROOT->ProcessLine(".X plotMC.C(\""+dir+"\",\"eff_nch_vtxSel_"+tr+"\"");
     //gROOT->ProcessLine(".X plotMC.C(\""+dir+"\",\"eff_nch_L1_hf_vtxSel_"+tr+"\"");
   }
@@ -142,7 +145,9 @@
   gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"nch_"+all+"\"");
   gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"nch_"+all+"\",1");
   gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"pt_"+all+"\"");
+  gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"pt_"+all+"\",1");
   gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"pt2_"+all+"\"");
+  gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"pt2_"+all+"\",1");
   gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"rapidity_"+all+"\"");
   }
    

@@ -10,14 +10,18 @@ void plotMC2D (char dir[100] , char histo[200] , bool logY = false )
   c1->SetFillColor(0);
   c1->GetFrame()->SetFillColor(21);
   c1->GetFrame()->SetBorderSize(12);
-  c1->SetGrid();
+  c1->SetGrid(0,0);
 
   if(logY) c1->SetLogy(true);
 
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(kFALSE);
 
-  TFile *moca = new TFile("../macro/collectionPlotter_MC_final_test.root","READ");
+  //TFile *moca = new TFile("../../../root/collectionPlotter_MC_finalv2_900GeV.root","READ");
+  TFile *moca = new TFile("../../../root/collectionPlotter_MC_finalv2_2.36TeV.root","READ");
+
+
+  //TFile *moca = new TFile("../../../root/collectionPlotter_MC_final_test.root","READ");
   //TFile *moca = new TFile("collectionPlotter_MC_EvtSel_Eff.root","READ");
   //TFile *moca = new TFile("generalTracks_OfflinePV_MC900Gev_D6T.root","READ");
   moca->cd();
@@ -44,39 +48,55 @@ void plotMC2D (char dir[100] , char histo[200] , bool logY = false )
   leg->SetFillColor(0);
   //leg->Draw();
 
+  // 
+  //TText* txt=new TText(.20, 0.9 , "CMS 0.9 TeV");
+  TText* txt=new TText(.20, 0.9 , "CMS 2.36 TeV");
+  txt->SetNDC(kTRUE);
+  txt->SetTextSize(0.04);
+  txt->Draw();
+
   // Save Plot
-  string basedir ( "/user/rougny/UAPlots/" );
+  // string basedir ( "/user/rougny/UAPlots/" );
+  //string basedir ( "/home/xjanssen/cms/MinBias/900GevPlots/");
+  string basedir ( "/home/xjanssen/cms/MinBias/236GevPlots/");
   string sdir   (dir);
-  sdir += basedir;
   string shisto (histo);
   if(logY) shisto+="_logY";
   
   gPad->WaitPrimitive();
   
-  return;
-  bool save = false;
+  bool save = true;
   if(save){
-  {string fngif ("gif/");
-  fngif += sdir;
-  fngif += "/";
+  {string fngif ("");
+   fngif += basedir;
+   fngif += "gif/";
+   fngif += sdir;
+   fngif += "/";
+  
   if (!gSystem->OpenDirectory(fngif.c_str())) gSystem->mkdir(fngif.c_str(),true);
   fngif += shisto;
   fngif += ".gif";
   c1->SaveAs(fngif.c_str(),"");}
 
   
-  {string fngif ("eps/");
-  fngif += sdir;
-  fngif += "/";
+  {string fngif ("");
+   fngif += basedir;
+   fngif += "eps/";
+   fngif += sdir;
+   fngif += "/";
+  
   if (!gSystem->OpenDirectory(fngif.c_str())) gSystem->mkdir(fngif.c_str(),true);
   fngif += shisto;
   fngif += ".eps";
   c1->SaveAs(fngif.c_str(),"");}
 
   
-  {string fngif ("root/");
-  fngif += sdir;
-  fngif += "/";
+  {string fngif ("");
+   fngif += basedir;
+   fngif += "root/";
+   fngif += sdir;
+   fngif += "/";
+  
   if (!gSystem->OpenDirectory(fngif.c_str())) gSystem->mkdir(fngif.c_str(),true);
   fngif += shisto;
   fngif += ".root";
