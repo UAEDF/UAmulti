@@ -51,7 +51,7 @@ class TrackPlots : public TObject {
     void write();
     
   private:
-    int TrackPlots::getVtxposFromId(MyTracks&,int);
+    int getVtxposFromId(MyTracks&,int);
     
     ClassDef (TrackPlots,1)
 };
