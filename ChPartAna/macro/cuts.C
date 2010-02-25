@@ -1,5 +1,5 @@
 double pt_cut = 0.4;
-double eta_cut = 2.5;
+double eta_cut = 1.5;
 
 //----------------- GET THE BEST VERTEX ------------------
 int getBestVertex(vector<MyVertex>* vtxcoll){
