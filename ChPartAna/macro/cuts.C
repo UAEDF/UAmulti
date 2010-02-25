@@ -1,5 +1,5 @@
 double pt_cut = 0.4;
-double eta_cut = 2.4;
+double eta_cut = 2.5;
 
 //----------------- GET THE BEST VERTEX ------------------
 int getBestVertex(vector<MyVertex>* vtxcoll){
@@ -222,7 +222,7 @@ vector<MyTracks> getPrimaryTracks(vector<MyTracks> v_tr , vector<MyVertex>* vtxc
 
 //--------------------------- IS THE GenPart GOOD ------------------
 bool isGenPartGood(MyGenPart& p){
-  if ( fabs(p.Part.charge) <0 ) return false;
+  if ( fabs(p.Part.charge) <=0 ) return false;
   if ( p.status != 1 )          return false;
 
   //Count only Stable Hadrons (and not the leptons)
@@ -231,4 +231,19 @@ bool isGenPartGood(MyGenPart& p){
   if(fabs(p.pdgId) == 15 )  return false;
   
   return true;
+}
+
+
+//---------------------- GET THE NUMBER OF PRIMARY GenPart --------------
+int getnPrimaryGenPart(vector<MyGenPart>* v_tr , double pt = pt_cut, double eta = eta_cut){
+  
+  int nch = 0;
+  
+  for(vector<MyGenPart>::iterator it_tr = v_tr->begin() ; it_tr != v_tr->end() ; ++it_tr)
+    if( isGenPartGood(*it_tr) && isInAcceptance(it_tr->Part,pt,eta) )
+      ++nch;
+      
+  if(debug) cout<<" ** getnPrimaryTracks() has found "<<nch<<" primary tracks"<<endl;
+  
+  return nch;
 }
