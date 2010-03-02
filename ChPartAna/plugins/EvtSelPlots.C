@@ -36,14 +36,16 @@ void EvtSelPlots::init(){
   nch_L1_b40_vtxSel->Sumw2();*/
   
   
-  trp_noSel         = new TrackPlots("noSel_"+trackcoll);
-  trp_b40Sel        = new TrackPlots("b40Sel_"+trackcoll);
-  trp_L1Sel         = new TrackPlots("L1Sel_"+trackcoll);
-  trp_hfSel         = new TrackPlots("hfSel_"+trackcoll);
-  trp_vtxSel        = new TrackPlots("vtxSel_"+trackcoll);
-  trp_L1_hfSel      = new TrackPlots("L1_hfSel_"+trackcoll);
-  trp_L1_hf_vtxSel  = new TrackPlots("L1_hf_vtxSel_"+trackcoll);
-  trp_L1_b40_vtxSel = new TrackPlots("L1_b40_vtxSel_"+trackcoll);
+  trp_noSel                = new TrackPlots("noSel_"+trackcoll);
+  trp_b40Sel               = new TrackPlots("b40Sel_"+trackcoll);
+  trp_L1Sel                = new TrackPlots("L1Sel_"+trackcoll);
+  trp_hfSel                = new TrackPlots("hfSel_"+trackcoll);
+  trp_vtxqualSel           = new TrackPlots("vtxqualSel_"+trackcoll);
+  trp_vtxSel               = new TrackPlots("vtxSel_"+trackcoll);
+  trp_L1_hfSel             = new TrackPlots("L1_hfSel_"+trackcoll);
+  trp_L1_hf_vtxqualSel     = new TrackPlots("L1_hf_vtxqualSel_"+trackcoll);
+  trp_L1_hf_vtxqual_vtxSel = new TrackPlots("L1_hf_vtxqual_vtxSel_"+trackcoll);
+  trp_L1_b40_vtxqualSel        = new TrackPlots("L1_b40_vtxqualSel_"+trackcoll);
   
   //init of eff denom with noSelection histos
   nch_denom = trp_noSel->nch;
@@ -53,31 +55,37 @@ void EvtSelPlots::init(){
   pt_denom->Sumw2();
   eta_denom->Sumw2();
   
-  vtxp_noSel         = new VertexPlots("noSel_"+trackcoll);
-  vtxp_b40Sel        = new VertexPlots("b40Sel_"+trackcoll);
-  vtxp_L1Sel         = new VertexPlots("L1Sel_"+trackcoll);
-  vtxp_hfSel         = new VertexPlots("hfSel_"+trackcoll);
-  vtxp_vtxSel        = new VertexPlots("vtxSel_"+trackcoll);
-  vtxp_L1_hfSel      = new VertexPlots("L1_hfSel_"+trackcoll);
-  vtxp_L1_hf_vtxSel  = new VertexPlots("L1_hf_vtxSel_"+trackcoll);
-  vtxp_L1_b40_vtxSel = new VertexPlots("L1_b40_vtxSel_"+trackcoll);
+  vtxp_noSel                = new VertexPlots("noSel_"+trackcoll);
+  vtxp_b40Sel               = new VertexPlots("b40Sel_"+trackcoll);
+  vtxp_L1Sel                = new VertexPlots("L1Sel_"+trackcoll);
+  vtxp_hfSel                = new VertexPlots("hfSel_"+trackcoll);
+  vtxp_vtxqualSel           = new VertexPlots("vtxqualSel_"+trackcoll);
+  vtxp_vtxSel               = new VertexPlots("vtxSel_"+trackcoll);
+  vtxp_L1_hfSel             = new VertexPlots("L1_hfSel_"+trackcoll);
+  vtxp_L1_hf_vtxqualSel     = new VertexPlots("L1_hf_vtxqualSel_"+trackcoll);
+  vtxp_L1_hf_vtxqual_vtxSel = new VertexPlots("L1_hf_vtxqual_vtxSel_"+trackcoll);
+  vtxp_L1_b40_vtxqualSel    = new VertexPlots("L1_b40_vtxqualSel_"+trackcoll);
   
   vtxqual_noSel  = new TH2F("vtxqual_noSel_"+trackcoll,"vtxqual_noSel",100,0.,2000.,20,0.,10.);
   vtxqual_b40Sel = new TH2F("vtxqual_b40Sel_"+trackcoll,"vtxqual_b40Sel",100,0.,2000.,20,0.,10.);
   vtxqual_L1Sel  = new TH2F("vtxqual_L1Sel_"+trackcoll,"vtxqual_L1Sel",100,0.,2000.,20,0.,10.);
   vtxqual_hfSel  = new TH2F("vtxqual_hfSel_"+trackcoll,"vtxqual_hfSel",100,0.,2000.,20,0.,10.);
+  vtxqual_vtxqualSel = new TH2F("vtxqual_vtxqualSel_"+trackcoll,"vtxqual_vtxqualSel",100,0.,2000.,20,0.,10.);
   vtxqual_vtxSel = new TH2F("vtxqual_vtxSel_"+trackcoll,"vtxqual_vtxSel",100,0.,2000.,20,0.,10.);
   vtxqual_L1_hfSel      = new TH2F("vtxqual_L1_hfSel_"+trackcoll,"vtxqual_L1_hfSel",100,0.,2000.,20,0.,10.);
-  vtxqual_L1_hf_vtxSel  = new TH2F("vtxqual_L1_hf_vtxSel_"+trackcoll,"vtxqual_L1_hf_vtxSel",100,0.,2000.,20,0.,10.);
-  vtxqual_L1_b40_vtxSel = new TH2F("vtxqual_L1_b40_vtxSel_"+trackcoll,"vtxqual_L1_b40_vtxSel",100,0.,2000.,20,0.,10.);
+  vtxqual_L1_hf_vtxqualSel  = new TH2F("vtxqual_L1_hf_vtxqualSel_"+trackcoll,"vtxqual_L1_hf_vtxqualSel",100,0.,2000.,20,0.,10.);
+  vtxqual_L1_hf_vtxqual_vtxSel  = new TH2F("vtxqual_L1_hf_vtxqual_vtxSel_"+trackcoll,"vtxqual_L1_hf_vtxqual_vtxSel",100,0.,2000.,20,0.,10.);
+  vtxqual_L1_b40_vtxqualSel = new TH2F("vtxqual_L1_b40_vtxqualSel_"+trackcoll,"vtxqual_L1_b40_vtxqualSel",100,0.,2000.,20,0.,10.);
   vtxqual_noSel->Sumw2();
   vtxqual_b40Sel->Sumw2();
   vtxqual_L1Sel->Sumw2();
   vtxqual_hfSel->Sumw2();
+  vtxqual_vtxqualSel->Sumw2();
   vtxqual_vtxSel->Sumw2();
   vtxqual_L1_hfSel->Sumw2();
-  vtxqual_L1_hf_vtxSel->Sumw2();
-  vtxqual_L1_b40_vtxSel->Sumw2();
+  vtxqual_L1_hf_vtxqualSel->Sumw2();
+  vtxqual_L1_hf_vtxqual_vtxSel->Sumw2();
+  vtxqual_L1_b40_vtxqualSel->Sumw2();
 }
 
 void EvtSelPlots::fill(vector<MyTracks>& trcoll, vector<MyVertex>& vtxcoll, MyBeamSpot* bs, int vtxId, double vtxQual, int npixhits){
@@ -116,6 +124,13 @@ void EvtSelPlots::fill(vector<MyTracks>& trcoll, vector<MyVertex>& vtxcoll, MyBe
     vtxqual_hfSel->Fill(npixhits,vtxQual);
   }
   
+  if(passVtxQual){
+    //nch_vtxSel->Fill(trcoll.size());
+    trp_vtxqualSel->fill(trcoll,vtxcoll,vtxId,bs);
+    if(goodVtx != vtxcoll.end()) vtxp_vtxqualSel->fill(*goodVtx);
+    vtxqual_vtxqualSel->Fill(npixhits,vtxQual);
+  }
+  
   if(passVtx){
     //nch_vtxSel->Fill(trcoll.size());
     trp_vtxSel->fill(trcoll,vtxcoll,vtxId,bs);
@@ -130,18 +145,25 @@ void EvtSelPlots::fill(vector<MyTracks>& trcoll, vector<MyVertex>& vtxcoll, MyBe
     vtxqual_L1_hfSel->Fill(npixhits,vtxQual);
   }  
   
-  if(passL1 && passHF && passVtx){
+  if(passL1 && passHF && passVtxQual){
     //nch_L1_hf_vtxSel->Fill(trcoll.size());
-    trp_L1_hf_vtxSel->fill(trcoll,vtxcoll,vtxId,bs);
-    if(goodVtx != vtxcoll.end()) vtxp_L1_hf_vtxSel->fill(*goodVtx);
-    vtxqual_L1_hf_vtxSel->Fill(npixhits,vtxQual);
+    trp_L1_hf_vtxqualSel->fill(trcoll,vtxcoll,vtxId,bs);
+    if(goodVtx != vtxcoll.end()) vtxp_L1_hf_vtxqualSel->fill(*goodVtx);
+    vtxqual_L1_hf_vtxqualSel->Fill(npixhits,vtxQual);
   }
   
-  if(passL1 && passBit40 && passVtx){
+  if(passL1 && passHF && passVtxQual && passVtx){
+    //nch_L1_hf_vtxSel->Fill(trcoll.size());
+    trp_L1_hf_vtxqual_vtxSel->fill(trcoll,vtxcoll,vtxId,bs);
+    if(goodVtx != vtxcoll.end()) vtxp_L1_hf_vtxqual_vtxSel->fill(*goodVtx);
+    vtxqual_L1_hf_vtxqual_vtxSel->Fill(npixhits,vtxQual);
+  }
+  
+  if(passL1 && passBit40 && passVtxQual){
     //nch_L1_b40_vtxSel->Fill(trcoll.size());
-    trp_L1_b40_vtxSel->fill(trcoll,vtxcoll,vtxId,bs);
-    if(goodVtx != vtxcoll.end()) vtxp_L1_b40_vtxSel->fill(*goodVtx);
-    vtxqual_L1_b40_vtxSel->Fill(npixhits,vtxQual);
+    trp_L1_b40_vtxqualSel->fill(trcoll,vtxcoll,vtxId,bs);
+    if(goodVtx != vtxcoll.end()) vtxp_L1_b40_vtxqualSel->fill(*goodVtx);
+    vtxqual_L1_b40_vtxqualSel->Fill(npixhits,vtxQual);
   }
 }
 
@@ -173,38 +195,45 @@ void EvtSelPlots::write(){
   vtxqual_b40Sel->Write();
   vtxqual_L1Sel->Write();
   vtxqual_hfSel->Write();
+  vtxqual_vtxqualSel->Write();
   vtxqual_vtxSel->Write();
   vtxqual_L1_hfSel->Write();
-  vtxqual_L1_hf_vtxSel->Write();
-  vtxqual_L1_b40_vtxSel->Write();
+  vtxqual_L1_hf_vtxqualSel->Write();
+  vtxqual_L1_hf_vtxqual_vtxSel->Write();
+  vtxqual_L1_b40_vtxqualSel->Write();
   
   trp_noSel->write();
   trp_b40Sel->write();
   trp_L1Sel->write();
   trp_hfSel->write();
   trp_vtxSel->write();
+  trp_vtxqualSel->write();
   trp_L1_hfSel->write();
-  trp_L1_hf_vtxSel->write();
-  trp_L1_b40_vtxSel->write();
+  trp_L1_hf_vtxqualSel->write();
+  trp_L1_hf_vtxqual_vtxSel->write();
+  trp_L1_b40_vtxqualSel->write();
   
   
   vtxp_noSel->write();
   vtxp_b40Sel->write();
   vtxp_L1Sel->write();
   vtxp_hfSel->write();
+  vtxp_vtxqualSel->write();
   vtxp_vtxSel->write();
   vtxp_L1_hfSel->write();
-  vtxp_L1_hf_vtxSel->write();
-  vtxp_L1_b40_vtxSel->write();
+  vtxp_L1_hf_vtxqualSel->write();
+  vtxp_L1_hf_vtxqual_vtxSel->write();
+  vtxp_L1_b40_vtxqualSel->write();
   
   gDirectory->cd("../");
 }
 
-void EvtSelPlots::setSelBits(bool passl1, bool passhf, bool passvtx, bool passb40){
-  passL1 = passl1;
-  passHF = passhf;
-  passVtx = passvtx;
-  passBit40 = passb40;
+void EvtSelPlots::setSelBits(bool passl1, bool passhf, bool passvtxqual, bool passvtx, bool passb40){
+  passL1      = passl1;
+  passHF      = passhf;
+  passVtxQual = passvtxqual;
+  passVtx     = passvtx;
+  passBit40   = passb40;
 }
 
 void EvtSelPlots::makeEffPlots(TString denomName){
@@ -216,10 +245,12 @@ void EvtSelPlots::makeEffPlots(TString denomName){
   this->makeEffVSvar(trp_b40Sel);
   this->makeEffVSvar(trp_L1Sel);
   this->makeEffVSvar(trp_hfSel);
+  this->makeEffVSvar(trp_vtxqualSel);
   this->makeEffVSvar(trp_vtxSel);
   this->makeEffVSvar(trp_L1_hfSel);
-  this->makeEffVSvar(trp_L1_hf_vtxSel);
-  this->makeEffVSvar(trp_L1_b40_vtxSel);
+  this->makeEffVSvar(trp_L1_hf_vtxqualSel);
+  this->makeEffVSvar(trp_L1_hf_vtxqual_vtxSel);
+  this->makeEffVSvar(trp_L1_b40_vtxqualSel);
   
   gDirectory->cd("../../");
   

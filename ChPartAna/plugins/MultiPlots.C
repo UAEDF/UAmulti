@@ -69,13 +69,14 @@ void MultiPlots::fill(MyPart& p , double weight){
   pt2->Fill( pow(p.v.Pt(),2) , weight / pt2_width );
 }
 
-void MultiPlots::nextEvent(double weight){
+void MultiPlots::nextEvent(bool laccept , double weight){
   ++nbEvts;
-  nch->Fill( nch_inEvt , weight / nch_width );
-  nch_mean->Add( nch_inEvt , weight );
-  for(int i = 0 ; unsigned(i) < moments->size() ; ++i)
-    moments->at(i).Add( pow(double(nch_inEvt),i+1) , weight );
-    
+  if(laccept){
+    nch->Fill( nch_inEvt , weight / nch_width );
+    nch_mean->Add( nch_inEvt , weight );
+    for(int i = 0 ; unsigned(i) < moments->size() ; ++i)
+      moments->at(i).Add( pow(double(nch_inEvt),i+1) , weight );
+  }  
   //re-initializing nch
   nch_inEvt = 0; 
 }
@@ -89,34 +90,34 @@ void MultiPlots::makeKNO(){
   }
 }
 
-void MultiPlots::write(){
+void MultiPlots::write(bool scale){
 
   gDirectory->mkdir("MultiPlots_"+multiname);
   gDirectory->cd("MultiPlots_"+multiname);
   
-  nch->Scale( 1. / nbEvts );
+  if(scale) nch->Scale( 1. / nbEvts );
   nch->Write();
   
   makeKNO();
   kno->Write();
   
-  rapidity->Scale(1./nbEvts);
+  if(scale) rapidity->Scale(1./nbEvts);
   rapidity->Write();
   
-  eta->Scale(1./nbEvts);
+  if(scale) eta->Scale(1./nbEvts);
   eta->Write();
   
-  pt->Scale(1./nbEvts);
+  if(scale) pt->Scale(1./nbEvts);
   pt->Write();
   
-  pt2->Scale(1./nbEvts);
+  if(scale) pt2->Scale(1./nbEvts);
   pt2->Write();
 
-  this->Write("multi_class"+multiname);
+  this->Write("multi_class_"+multiname);
   
   gDirectory->cd("../");
   
-  this->writeSummary();
+  //this->writeSummary();
 }
 
 void MultiPlots::writeSummary(){

@@ -18,6 +18,7 @@ class MatrixPlots : public TObject {
   // private:
 
     TString matrixcoll;
+    Double_t nbEvts;
     
     TH2F* nch_matrix;
     TH2F* eta_matrix;
@@ -38,7 +39,7 @@ class MatrixPlots : public TObject {
     void fillGen(MyPart& , bool = true , double = 1.);
     void fillReco(MyPart& , bool = true , double = 1.);
     void nextEvent(bool = true , bool = true);
-    void write();
+    void write(bool = true);
     
   private:
     Double_t nch_gen_inEvt;

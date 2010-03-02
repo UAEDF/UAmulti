@@ -20,6 +20,7 @@ class TrackPlots : public TObject {
 
     TString trackcoll;
     
+    TH1F* charge; 
     TH1F* nch;
     TH1F* pt;
     TH1F* eta;
@@ -27,13 +28,15 @@ class TrackPlots : public TObject {
     TH1F* nhit;
     TH1F* chi2n;
     TH1F* dz;
-    TH1F* d0;
     TH1F* edz;
+    TH1F* d0;
+    TH1F* d0bs;
     TH1F* ed0;
     TH1F* dzOedz;
     TH1F* dxyOed0;
-    TH1F* dxyOsxy;
     TH1F* dzOsz;
+    TH1F* dxyOsxy;
+    TH1F* dxybsOsxy;
     TH1F* eptOpt;
     
     TH1F* fdz;

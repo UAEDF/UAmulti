@@ -43,6 +43,7 @@ void MatrixPlots::init(){
   
   nch_gen_inEvt = 0;
   nch_reco_inEvt = 0;
+  nbEvts = 0;
   
 }
 
@@ -65,6 +66,8 @@ void MatrixPlots::fillReco(MyPart& reco ,bool accept_gen, double weight_reco ){
 }
 
 void MatrixPlots::nextEvent(bool accept_reco, bool accept_gen){
+  ++nbEvts;
+  
   if(!accept_gen){
     nch_gen_inEvt=-1;
     nch_reco_GenBin0->Fill(nch_reco_inEvt);
@@ -79,20 +82,24 @@ void MatrixPlots::nextEvent(bool accept_reco, bool accept_gen){
   nch_gen_inEvt = nch_reco_inEvt = 0;
 }
 
-void MatrixPlots::write(){
+void MatrixPlots::write(bool scale){
   //TDirectory* dir = new TDirectory("MatrixPlots_"+matrixcoll,"");
   //dir->cd();  
   gDirectory->mkdir("MatrixPlots_"+matrixcoll);
   gDirectory->cd("MatrixPlots_"+matrixcoll);
   
+  
+  if(scale) nch_gen->Scale(1./nbEvts);
   nch_gen->Write();
   eta_gen->Write();
   pt_gen->Write();
   
+  if(scale) nch_reco->Scale(1./nbEvts);
   nch_reco->Write();
   eta_reco->Write();
   pt_reco->Write();
   
+  if(scale) nch_matrix->Scale(1./nbEvts);
   nch_matrix->Write();
   eta_matrix->Write();
   pt_matrix->Write();

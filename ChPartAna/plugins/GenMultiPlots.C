@@ -39,24 +39,24 @@ void GenMultiPlots::fill(MyGenKin& genKin , MyPart& p , double weight){
   if(!this->isSD(genKin))                        mp_NSD->fill(p);
 }
 
-void GenMultiPlots::nextEvent(MyGenKin& genKin , double weight){
-   				                 mp_INC->nextEvent();
-  if(this->isSD(genKin))                         mp_SD->nextEvent();
-  if(this->isDD(genKin))                         mp_DD->nextEvent();
-  if(!this->isSD(genKin) && !this->isDD(genKin)) mp_ND->nextEvent();
-  if(!this->isSD(genKin))                        mp_NSD->nextEvent();
+void GenMultiPlots::nextEvent(MyGenKin& genKin , bool laccept , double weight){
+   				                     mp_INC->nextEvent();
+ /* if(this->isSD(genKin)) */                        mp_SD->nextEvent(this->isSD(genKin));
+ /* if(this->isDD(genKin))     */                    mp_DD->nextEvent(this->isDD(genKin));
+ /* if(!this->isSD(genKin) && !this->isDD(genKin))*/ mp_ND->nextEvent(!this->isSD(genKin) && !this->isDD(genKin));
+ /* if(!this->isSD(genKin))              */          mp_NSD->nextEvent(!this->isSD(genKin));
 }
 
-void GenMultiPlots::write(){
+void GenMultiPlots::write(bool scale){
 
   gDirectory->mkdir("GenMultiPlots_"+plotsname);
   gDirectory->cd("GenMultiPlots_"+plotsname);
   
-  mp_INC->write();
-  mp_SD->write();
-  mp_DD->write();
-  mp_ND->write();
-  mp_NSD->write();
+  mp_INC->write(scale);
+  mp_SD->write(scale);
+  mp_DD->write(scale);
+  mp_ND->write(scale);
+  mp_NSD->write(scale);
   
   gDirectory->cd("../");
 }

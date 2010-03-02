@@ -22,9 +22,9 @@ class MultiPlots : public TObject{
   ~MultiPlots();
   
   void fill(MyPart&,double = 1.);
-  void nextEvent(double = 1.);
+  void nextEvent(bool = true , double = 1.);
   void makeKNO();
-  void write();
+  void write(bool = true);
   
   //getters/setters
   vector<double> getMoments();

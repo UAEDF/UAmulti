@@ -19,8 +19,8 @@ class GenMultiPlots : public TObject{
   ~GenMultiPlots();
   
   void fill(MyGenKin& , MyPart& , double = 1.);
-  void nextEvent(MyGenKin& , double = 1.);
-  void write();
+  void nextEvent(MyGenKin& , bool = true , double = 1.);
+  void write(bool = true);
   
   MultiPlots* mp_INC;
   MultiPlots* mp_SD;
