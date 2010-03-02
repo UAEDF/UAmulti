@@ -37,8 +37,9 @@ bool isMC = true;
 
 
 
-#include "evtSel.C"
 #include "cuts.C"
+#include "evtSel.C"
+
 void collectionPlotter(bool = true , double = 0.9 , TString = "MC_test_900GeV" , int = 20000 );
 
 void collectionPlotter(bool ismc , double E , TString filename , int nevt_max )
@@ -170,6 +171,8 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/
   vector<MyTracks>*  minbiasTracks  = NULL;
   vector<MyVertex>*  offlinePV  = NULL;
   vector<MyVertex>*  ferencVtx  = NULL;
+  vector<MyVertex>*  pixel3Vertex  = NULL;
+  vector<MyVertex>*  vertexToCut  = NULL;
   MyL1Trig*     L1Trig    = NULL;
   MyMITEvtSel*  MITEvtSel = NULL;
   MyBeamSpot*   bs        = NULL;
@@ -177,7 +180,7 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/
   tree->SetBranchAddress("minbiasTracks",&minbiasTracks);
   tree->SetBranchAddress("primaryVertex",&offlinePV);
   tree->SetBranchAddress("ferencVtxFerTrk",&ferencVtx);
-  //tree->SetBranchAddress("pixel3Vertex",&ferencVtx);
+  tree->SetBranchAddress("pixel3Vertex",&pixel3Vertex);
   tree->SetBranchAddress("L1Trig",&L1Trig);
   tree->SetBranchAddress("MITEvtSel",&MITEvtSel);
   tree->SetBranchAddress("beamSpot",&bs);
@@ -195,11 +198,14 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/
     
     tree->GetEntry(i);
     
+    
+    if(i==0) vertexToCut = pixel3Vertex;
+    
+    
     //Selection of good BX for data && MC
     if(!isMC && !goodBX(evtId->Run,evtId->Bunch)) continue;
     
-    
-    
+        
     //---------------- GEN -------------------
     int nchgen = 0;
     bool laccept_noCut = false;
@@ -242,7 +248,7 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/
 	  
 	  
 	  //eta cut + good evt sel
-	  if(isEvtGood(*L1Trig , *MITEvtSel) && fabs(p->Part.v.Eta()) < eta_cut && !isSD(genKin)){
+	  if(isEvtGood(*L1Trig , *MITEvtSel , vertexToCut) && fabs(p->Part.v.Eta()) < eta_cut && !isSD(genKin)){
 	    mtxp_etaGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->fillGen(p->Part);
 	    mtxp_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx->fillGen(p->Part);
 	    laccept_etaCut_NSD = true;
@@ -357,9 +363,9 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/
     //------------- FILLING MULTI && MATRIX----------------------- 
     if(debug) cout<<"Starting to fill Mtx ..."<<endl;
     
-    if( isEvtGood( *L1Trig , *MITEvtSel) ){
+    if( isEvtGood( *L1Trig , *MITEvtSel , vertexToCut) ){
       
-      if(isEvtGood(*L1Trig , *MITEvtSel) && getnInAccTracks(generalTracks,0,eta_cut)!=0)
+      if(isEvtGood(*L1Trig , *MITEvtSel , vertexToCut) && getnInAccTracks(generalTracks,0,eta_cut)!=0)
         laccept_reco_etaCut = true;
       
       trcoll = getPrimaryTracks(*minbiasTracks,ferencVtx,bs);

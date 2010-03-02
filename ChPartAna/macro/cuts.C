@@ -1,5 +1,6 @@
 double pt_cut = 0.4;
-double eta_cut = 1.5;
+double eta_cut = 2.5;
+double vtxz_cut = 15.;
 
 //----------------- GET THE BEST VERTEX ------------------
 int getBestVertex(vector<MyVertex>* vtxcoll){
@@ -9,7 +10,7 @@ int getBestVertex(vector<MyVertex>* vtxcoll){
   double chi2n=999;
   
   for(vector<MyVertex>::iterator itvtx=vtxcoll->begin();itvtx!=vtxcoll->end();++itvtx){
-    if(itvtx->validity){
+    if(itvtx->validity && fabs(itvtx->z)<vtxz_cut){
       if(itvtx->ntracks>ntracks){
         goodVtx  =  itvtx;
 	ntracks  =  itvtx->ntracks;
@@ -38,14 +39,12 @@ int getVtxposFromId(MyTracks& tr,int goodvtxId){
   
   return -1;
 }
-
+ 
 
 
 
 //------------------ UE SELECTION ----------------------------------------
 bool isTrackPrimary(MyTracks& tr, int goodvtxId){
-
-  return true; 
 
   if(debug) cout<<" +-+-+ starting isTrackPrimary"<<endl;
   
@@ -62,7 +61,7 @@ bool isTrackPrimary(MyTracks& tr, int goodvtxId){
   if( tr.ept / tr.Part.v.Pt() > 0.1 ) return false;
   
   //To use only with generalTracks, otherwise it's filled to 0 by default
-  //if( ! tr.quality[2] && trackcoll=="generalTracks") return false;
+  if( ! tr.quality[2]) return false;
   
   
   if(debug) cout<<" ** The track is primary"<<endl;

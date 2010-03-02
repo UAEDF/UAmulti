@@ -3,10 +3,11 @@
 //#  macro to get the event selection. There are
 //#  6 possible functions returning a bool:
 //#
-//#  passBit40    (MyL1Trig)
-//#  passL1       (MyL1Trig)
-//#  passHF       (MyMITEvtSel)
-//#  passVtxQual  (MyMITEvtSel)
+//#  passBit40    (*MyL1Trig)
+//#  passL1       (*MyL1Trig)
+//#  passHF       (*MyMITEvtSel)
+//#  passVtxQual  (*MyMITEvtSel)
+//#  passVtx      (vector<MyVertex>*)
 //#
 //#  isEvtGood    (MyL1Trig , MyMITEvtSel)
 //#
@@ -68,11 +69,17 @@ bool passVtxQual(MyMITEvtSel& evtSel){
   return false;
 }    
 
+bool passVtx(vector<MyVertex>* vtxcoll){
+  if(getBestVertex(vtxcoll)==-1) return false;
+  else return true;
+}
+
 //----------- GLOBAL CUT ---------
-bool isEvtGood(MyL1Trig& L1Trig, MyMITEvtSel& evtSel){
+bool isEvtGood(MyL1Trig& L1Trig, MyMITEvtSel& evtSel, vector<MyVertex>* vtxcoll){
   if(  passL1(L1Trig)
     && passHF(evtSel)
-    && passVtxQual(evtSel) )
+    && passVtxQual(evtSel)
+    && passVtx(vtxcoll) )
       return true;
    
    return false;
