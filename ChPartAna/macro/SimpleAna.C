@@ -103,31 +103,33 @@ void SimpleAna(bool ismc , double E , TString filename , int nevt_max , int irun
   TChain* tree = new TChain("evt","");
   
 //------------ v5 ------------
-/*if(E == 0.9 ){
-if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v005_mc900/__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO/ChPartTree_v005_mc900__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO_1*.root/evt");
+if(E == 0.9 ){
+if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v005b_mc900/__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO/ChPartTree_v005b_mc900__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO_*.root/evt");
 //if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v003_mc900/__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO/ChPartTree_v003_mc900__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO_1.root/evt");
-if(!isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v005_d900/__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO/ChPartTree_v005_d900__CMSSW_3_3_6_patch3__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO_*.root/evt");
+if(!isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v005b_d900/__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO/ChPartTree_v005b_d900__CMSSW_3_3_6_patch3__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO_*.root/evt");
 }
 
 if(E == 2.36 ){
-if(!isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004nomb_d236/__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO/ChPartTree_v004nomb_d236__CMSSW_3_3_6_patch3__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO_*.root/evt");
+if(!isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v005b_d236/__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO/ChPartTree_v005b_d236__CMSSW_3_3_6_patch3__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO_*.root/evt");
 //if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v003_mc900/__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO/ChPartTree_v003_mc900__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO_1.root/evt");
-if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/__MinBias__Summer09-STARTUP3X_V8L_2360GeV-v1__GEN-SIM-RECO/ChPartTree_v004_mc236__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8L_2360GeV-v1__GEN-SIM-RECO_1*.root/evt");
-}*/
+if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v005b_mc236/__MinBias__Summer09-STARTUP3X_V8L_2360GeV-v1__GEN-SIM-RECO/ChPartTree_v005b_mc236__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8L_2360GeV-v1__GEN-SIM-RECO_*.root/evt");
+}
 
 
+/*
 //---------- v4 --------------
 if(E == 0.9 ){
 if(!isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004b_d900/__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO/ChPartTree_v004b_d900__CMSSW_3_3_6_patch3__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO_*.root/evt");
 //if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v003_mc900/__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO/ChPartTree_v003_mc900__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO_1.root/evt");
-if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc900/__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO/ChPartTree_v004_mc900__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO_1*.root/evt");
+if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc900/__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO/ChPartTree_v004_mc900__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO_*.root/evt");
 }
 
 if(E == 2.36 ){
 if(!isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004nomb_d236/__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO/ChPartTree_v004nomb_d236__CMSSW_3_3_6_patch3__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO_*.root/evt");
 //if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v003_mc900/__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO/ChPartTree_v003_mc900__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO_1.root/evt");
-if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/__MinBias__Summer09-STARTUP3X_V8L_2360GeV-v1__GEN-SIM-RECO/ChPartTree_v004_mc236__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8L_2360GeV-v1__GEN-SIM-RECO_1*.root/evt");
+if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/__MinBias__Summer09-STARTUP3X_V8L_2360GeV-v1__GEN-SIM-RECO/ChPartTree_v004_mc236__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8L_2360GeV-v1__GEN-SIM-RECO_*.root/evt");
 }
+*/
 
   MyEvtId* evtId      = NULL ;
   tree->SetBranchAddress("EvtId",&evtId);
