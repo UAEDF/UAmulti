@@ -40,7 +40,7 @@ TString fileManager ( int     iFileType  = 0
                     , int     iTracking  = 0
                     , int     iSystType  = 0
                     , int     iSystSign  = 0 
-                    , TString STest      = ""
+                    , TString STest      = "NONE"
                     ) 
 {
 
@@ -48,7 +48,7 @@ TString fileManager ( int     iFileType  = 0
 
   TString CMSSW       = "CMSSW_3_3_6_patch3";
   TString BaseDirTree = "/user/xjanssen/data/" ;
-  TString BaseDirPlot = "../macro/GOODFILES/";
+  TString BaseDirPlot = "../plots/";
 
   BaseDirTree += CMSSW + "/" ;
 
@@ -160,7 +160,7 @@ TString fileManager ( int     iFileType  = 0
        return "NONE";
       }      
     }
-    if (STest.sizeof()>0) FileName += "__" + STest ;
+    if (STest != "NONE" ) FileName += "__" + STest ;
     FileName += ".root";
 
   }
