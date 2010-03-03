@@ -17,6 +17,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 #include "../plugins/MultiPlots.h"
 
@@ -28,6 +29,12 @@ bool useData = false;
 //TString name = "data_uniform_0.9_eta2.5_v004";
 TString name = "test";
 
+TString st(string input , int cut){
+  stringstream out("");
+  out<<cut;
+  return input+"_cut"+out.str();
+}
+
 void transform2Matrix(TH2F* matrixhist,double matrix[][matrixsize]);
 TH1F resample(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hyp, int niter = 5);
 
@@ -35,23 +42,32 @@ TH1F resample(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hyp, int niter 
 #include "../macro/fileManager.C"
 #include "unfolding.cc"
 
-void makeCorrections(bool isData = false, int hyp=0 , int niter=5 , float mu = 14 , float sigma = 15 ){
+void makeCorrections(bool isData = false, int hyp=0 , int niter=5 , int acc = 0 , float mu = 14 , float sigma = 15 ){
 
    useData = isData;
+   #include "../macro/acceptanceMap.C"
   //Get the MC file
   //TFile* mc = new TFile("/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/macro/collectionPlotter_MC_finalv2_900GeV.root","READ");
   //TFile* mc = new TFile("../macro/GOODFILES/MC_v005b_2.36TeV_eta2.5_pt0.4_gTr.root","READ");
   //TFile* mc = new TFile("../macro/GOODFILES/MC_v005b_0.9TeV_eta2.5_pt0.4_gTr.root","READ");
-  TFile* mc = new TFile(fileManager(2,0,0.9,0),"READ");
-  
+  TFile* mc = new TFile(fileManager(2,10,0.9,0),"READ");
   
   //Get the data file
   //TFile* data = new TFile("../macro/GOODFILES/data_v005b_2.36TeV_eta2.5_pt0.4_gTr.root","READ");
   //TFile* data = new TFile("../macro/GOODFILES/data_v005b_0.9TeV_eta2.5_pt0.4_gTr.root","READ");
-  TFile* data = new TFile("fileManager(2,0,0.9,0)","READ");
+  TFile* data = new TFile(fileManager(2,0,0.9,0),"READ");
   
-  
-  
+  ostringstream dirstr("");
+  dirstr << "/ptGen" << accMap.at(acc).at(0) << "_etaGen" << accMap.at(acc).at(1) 
+      << "_ptReco" << accMap.at(acc).at(2) << "_etaReco" << accMap.at(acc).at(3) ;
+  /*if(accMap.at(acc).at(4)==-1)
+    dirstr << "_chargemin";
+  else if(accMap.at(acc).at(4)==1)
+    dirstr << "_chargeplus";*/
+  dirstr << "/";
+  TString dir = dirstr.str();
+  //cout<<dir<<endl;
+  //return;
   
   //------------------------------------------------------------------------------
   //---------------------------- UNFOLDING ---------------------------------------
@@ -60,7 +76,7 @@ void makeCorrections(bool isData = false, int hyp=0 , int niter=5 , float mu = 1
   //Get the Unfolding matrix
   //TFile* mc_matrix = new TFile("../macro/GOODFILES/MC_v005b_2.36TeV_eta2.5_pt0.4_gTr.root");
   //TH2F* matrixhist = (TH2F*) mc_matrix->Get("MatrixPlots_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx/nch_matrix_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx");
-  TH2F* matrixhist = (TH2F*) mc->Get("MatrixPlots_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx/nch_matrix_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx");
+  TH2F* matrixhist = (TH2F*) mc->Get(dir+st("MatrixPlots_evtSel",acc)+st("/nch_matrix_evtSel",acc));
 /*
   for(int i=1;i<=matrixhist->GetNbinsX();++i){
     matrixhist->SetBinContent(i,1,0);
@@ -77,9 +93,9 @@ void makeCorrections(bool isData = false, int hyp=0 , int niter=5 , float mu = 1
   
   //get the true nch distribution (from MC)
   //TH1F* nch_trueGen = (TH1F*) mc->Get("GenMultiPlots_etaCut/MultiPlots_NSD_etaCut/nch_NSD_etaCut");
-  TH1F* nch_trueGen_afterUnfolding = (TH1F*) mc->Get("MatrixPlots_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx/nch_gen_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx");
+  TH1F* nch_trueGen_afterUnfolding = (TH1F*) mc->Get(dir+st("MatrixPlots_evtSel",acc)+st("/nch_gen_evtSel",acc));
   //TH1F* nch_trueGen = (TH1F*) mc->Get("MatrixPlots_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx/nch_gen_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx");
-  TH1F* nch_trueGen = (TH1F*) mc->Get("MultiPlots_etaCut_noSel_NSD_gen/nch_etaCut_noSel_NSD_gen");
+  TH1F* nch_trueGen = (TH1F*) mc->Get(dir+st("MultiPlots_etaCut_noSel_NSD_gen",acc)+st("/nch_etaCut_noSel_NSD_gen",acc));
   
   //nch_trueGen->Scale(1./nch_trueGen->GetEntries());
   //nch_trueGen->Draw();
@@ -88,9 +104,11 @@ void makeCorrections(bool isData = false, int hyp=0 , int niter=5 , float mu = 1
   //get the nch to Unfold distribution
   TH1F* nch_INC;
   ////  BAD ?//if(!useData) nch_INC = (TH1F*) mc->Get("MultiPlots_L1_hf_VtxSel_PV_gTr_oVtx/nch_L1_hf_VtxSel_PV_gTr_oVtx");
-  if(!useData) nch_INC = (TH1F*) mc->Get("GenMultiPlots_evtSel_reco/MultiPlots_INC_evtSel_reco/nch_INC_evtSel_reco");
+  if(!useData)
+    nch_INC = (TH1F*) mc->Get(dir+st("GenMultiPlots_evtSel_reco",acc)+st("/MultiPlots_INC_evtSel_reco",acc)+st("/nch_INC_evtSel_reco",acc));
   //if(!useData) nch_INC = (TH1F*) mc->Get("MatrixPlots_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx/nch_reco_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx");
-  else         nch_INC = (TH1F*) data->Get("MultiPlots_evtSel_PV_gTr_oVtx/nch_evtSel_PV_gTr_oVtx");
+  else
+    nch_INC = (TH1F*) data->Get(dir+st("MultiPlots_evtSel_PV",acc)+st("/nch_evtSel_PV",acc));
   //else         nch_INC = (TH1F*) data->Get("MultiPlots_L1_hf_VtxSel_PV_gTr_oVtx/nch_L1_hf_VtxSel_PV_gTr_oVtx");
   
   //nch_INC->SetBinContent(1,0);
@@ -99,9 +117,9 @@ void makeCorrections(bool isData = false, int hyp=0 , int niter=5 , float mu = 1
   //Getting the class
   MultiPlots* mp_INC_evtSel_reco_MC;
   MultiPlots* mp_INC_evtSel_reco_data;
-  mp_INC_evtSel_reco_MC = (MultiPlots*) mc->Get("GenMultiPlots_evtSel_reco/MultiPlots_SD_evtSel_reco/multi_class_SD_evtSel_reco");
-  if(useData) mp_INC_evtSel_reco_data = (MultiPlots*) data->Get("MultiPlots_evtSel_INC_reco/multi_class_evtSel_INC_reco");
-  else mp_INC_evtSel_reco_data = (MultiPlots*) mc->Get("MultiPlots_evtSel_INC_reco/multi_class_evtSel_INC_reco");
+  mp_INC_evtSel_reco_MC = (MultiPlots*) mc->Get(dir+st("GenMultiPlots_evtSel_reco",acc)+st("/MultiPlots_SD_evtSel_reco",acc)+st("/multi_class_SD_evtSel_reco",acc));
+  if(useData) mp_INC_evtSel_reco_data = (MultiPlots*) data->Get(dir+st("MultiPlots_evtSel_INC_reco",acc)+st("/multi_class_evtSel_INC_reco",acc));
+  else mp_INC_evtSel_reco_data = (MultiPlots*) mc->Get(dir+st("MultiPlots_evtSel_INC_reco",acc)+st("/multi_class_evtSel_INC_reco",acc));
   
   double MC_factor = double(mp_INC_evtSel_reco_data->nbEvts) / double(mp_INC_evtSel_reco_MC->nbEvts) ;
   cout<<"The ratio data_INC/MC_INC is "<<MC_factor<<endl;
@@ -121,9 +139,8 @@ void makeCorrections(bool isData = false, int hyp=0 , int niter=5 , float mu = 1
   TCanvas* c_SDsub = new TCanvas("c_SDsub","c_SDsub",2350,510,500,500);
   nch_INC->Draw();
   
-  TH1F* nch_evtSel_SD =  (TH1F*) mc->Get("GenMultiPlots_evtSel_reco/MultiPlots_SD_evtSel_reco/nch_SD_evtSel_reco");
-  //TH1F* nch_evtSel_NSD = (TH1F*) mc->Get("MatrixPlots_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx/nch_reco_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx");
-  TH1F* nch_evtSel_NSD =  (TH1F*) mc->Get("GenMultiPlots_evtSel_reco/MultiPlots_NSD_evtSel_reco/nch_NSD_evtSel_reco");
+  TH1F* nch_evtSel_SD =  (TH1F*) mc->Get(dir+st("GenMultiPlots_evtSel_reco",acc)+st("/MultiPlots_SD_evtSel_reco",acc)+st("/nch_SD_evtSel_reco",acc));
+  TH1F* nch_evtSel_NSD = (TH1F*) mc->Get(dir+st("GenMultiPlots_evtSel_reco",acc)+st("/MultiPlots_NSD_evtSel_reco",acc)+st("/nch_NSD_evtSel_reco",acc));
   nch_evtSel_SD->Scale(MC_factor);
   nch_evtSel_SD->SetLineColor(kRed);
   nch_evtSel_SD->Draw("hist same");
@@ -141,15 +158,14 @@ void makeCorrections(bool isData = false, int hyp=0 , int niter=5 , float mu = 1
   leg->AddEntry(nch_evtSel_NSD,"MC NSD","l" );
   leg->Draw("same");
   
-  gPad->Update();
-  
-  TH1F* eff_evtSel = (TH1F*) mc->Get("eff_evtSel");
+  TH1F* eff_evtSel = (TH1F*) mc->Get(dir+st("eff_evtSel",acc));
   TH1F* nch_toUnfold = (TH1F*) nch_NSD->Clone("nch_toUnfold");
   //nch_toUnfold->Divide(eff_evtSel);
   
   //TEMP ----- TO CHANGE !!!
   //Opening the output file
-  TFile* out = new TFile("../out/unfolding_"+name+".root","RECREATE");
+  cout<<fileManager(3,10,0.9,0)<<endl;
+  TFile* out = new TFile(fileManager(3,10,0.9,0),"RECREATE");
   out->cd();
   
   
@@ -157,7 +173,6 @@ void makeCorrections(bool isData = false, int hyp=0 , int niter=5 , float mu = 1
   //---------------------------- Unfolding ---------------------------------------
   //------------------------------------------------------------------------------
   
-  cout<<"here"<<endl;
   TH1F nch_unfolded("","",1,0,1);
   TH1F* hypothesis = (TH1F*) nch_trueGen->Clone("hypothesis");
   if   (hyp == 0){
@@ -177,9 +192,6 @@ void makeCorrections(bool isData = false, int hyp=0 , int niter=5 , float mu = 1
   nch_unfolded = (runalgo(matrix,nch_toUnfold,hypothesis,niter));
   TH1F* nch_unfoldedPtr = (TH1F*) nch_unfolded.Clone("nch_unfoldedPtr");
   
-  cout<<"here"<<endl;
- 
- 
   
   //------------------------------------------------------------------------------
   //---------------------------- Resampling -------------------------------------
