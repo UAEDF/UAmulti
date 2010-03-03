@@ -22,14 +22,14 @@ process.GlobalTag.globaltag = 'GR09_R_V5::All'
 # Data source -----------------------------------------------------------------------
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-            ' '
-#          'file:///user/xjanssen/MBdata/__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO/DataCopy_mb__CMSSW_3_3_6_patch3__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO_1.root'
+           ' '
+#           'file:///user/xjanssen/MBdata/__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO/DataCopy_mb__CMSSW_3_3_6_patch3__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO_1.root'
 #          'file:///user/rougny/TESTFILES/Summer09-MC_31X_V3-v1_GEN-SIM-RECO_900GeV.root'
 #          'file:///user/xjanssen/MBdata/D6T2360GeV_test01/simrecofile_103.root'
      )
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(200) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 #process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 # gen particles printouts -----------------------------------------------------------
@@ -93,12 +93,7 @@ process.load("MitEdm.Producers.evtSelData_cfi");
 # MIT Data Filters -----------------------------------------------------------------------
 process.load("MitEdm.Filters.FilterLumi_cfi")
 process.load("MitEdm.Filters.FilterBX_cff")
-process.load("MitEdm.Filters.FilterEvtSel_cff")
 
-# L1 Filters -------------------------------------------------------------------------
-#process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
-#process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
-#process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('0 AND ( 34 OR 40 OR 41 ) AND NOT 36 AND NOT 37 AND NOT 38 AND NOT 39')
 
 # gen particles Tree -----------------------------------------------------------------
 
@@ -128,12 +123,8 @@ process.out = cms.OutputModule("PoolOutputModule",
 # PAth (what to do) ------------------------------------------------------------------
 
 
-process.freco = cms.Path(
-                           process.goodLumiBlocks
-                         * process.evtSelData 
-                         * process.looseEvtSelFilter
-#                        * process.collisionBunchCrossings
-#                         * process.hltLevel1GTSeed
+process.sreco = cms.Path(
+                         process.goodLumiBlocks
                         )
 
 process.simu  = cms.Path(process.offlineBeamSpot)
@@ -147,6 +138,7 @@ process.greco = cms.Path(
                          process.minBiasTracking *
                          process.allVertices *
 #                        process.generalVertices *
+                         process.evtSelData *
 #                        process.GenPartDecay *
 #                        process.GenPartTree *
 #                        process.GenPartList *  
@@ -156,7 +148,7 @@ process.greco = cms.Path(
 #process.outpath = cms.EndPath(process.out)
 
 process.schedule = cms.Schedule(
-                                  process.freco
+                                  process.sreco
                                 , process.simu
                                 , process.lreco
                                 , process.greco

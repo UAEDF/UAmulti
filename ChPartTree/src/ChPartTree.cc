@@ -71,10 +71,6 @@ ChPartTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // Data
 
-   // Reset vtx id and vector
-   vtxid = 0;
-   vtxid_xyz.clear();
-
    // ... BeamSpot
 
    edm::Handle<reco::BeamSpot>      beamSpotHandle;
@@ -97,14 +93,11 @@ ChPartTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    beamSpot.eBeamWidthX = theBeamSpot->BeamWidthXError();
    beamSpot.eBeamWidthY = theBeamSpot->BeamWidthYError();
 
-   // BeamSpot is vtx with id=0 
-   vtxid++;
-   vtxid_xyz.push_back(theBeamSpot->position());
-   
-
    //cout << "BS: " << theBeamSpot->position().x() << " " << theBeamSpot->position().y() << " " << theBeamSpot->position().z() << endl;  
 
    // ... Vertex
+   vtxid = 0;
+   vtxid_xyz.clear();
    GetRecoVertex(iEvent,iSetup,"pixelVertices",pixelVertex);  
    GetRecoVertex(iEvent,iSetup,"offlinePrimaryVertices",primaryVertex);  
    GetRecoVertex(iEvent,iSetup,"pixel3Vertices",pixel3Vertex);  
@@ -148,7 +141,7 @@ ChPartTree::beginJob()
    tree->Branch("pixelVertex",&pixelVertex);
    tree->Branch("primaryVertex",&primaryVertex);  
    tree->Branch("pixel3Vertex",&pixel3Vertex);  
-   //tree->Branch("ferencVtxGenTrk",&ferencVtxGenTrk);
+   tree->Branch("ferencVtxGenTrk",&ferencVtxGenTrk);
    tree->Branch("ferencVtxFerTrk",&ferencVtxFerTrk);
 
    tree->Branch("generalTracks",&generalTracks);

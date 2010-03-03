@@ -69,20 +69,14 @@ void ChPartTree::GetRecoTracks(const edm::Event& iEvent, const edm::EventSetup& 
      mytrack.ed0   =  tr->d0Error();
      mytrack.ept   =  tr->ptError();
 
-     mytrack.vx    =  tr->vertex().x();
-     mytrack.vy    =  tr->vertex().y();
-     mytrack.vz    =  tr->vertex().z();
-
      mytrack.quality[0] = tr->quality(reco::TrackBase::qualityByName("loose"));
      mytrack.quality[1] = tr->quality(reco::TrackBase::qualityByName("tight"));
      mytrack.quality[2] = tr->quality(reco::TrackBase::qualityByName("highPurity"));
 
-
-     // BeamSpot (id=0) and Vertex (id>0) Links
+     // Vertex Links
      mytrack.vtxid.clear();
      mytrack.vtxdxy.clear();
      mytrack.vtxdz.clear();
-
      for ( int i = 0 ; i != vtxid ; i++ )
      {
         //cout << i << " " << vtxid_xyz[i] << endl;
