@@ -9,6 +9,7 @@
 #include <TChain.h>
 //#include <TDirectory.h>
 #include <iostream>
+#include <sstream>
 using namespace std;
 //#include "TSystem.h"
 //#include "myevent.h"
@@ -18,7 +19,7 @@ using namespace std;
 #include "../plugins/MyL1Trig.h"
 #include "../plugins/MyGenKin.h"
 #include "../plugins/MyPart.h"
-#include "../plugins/MyGenPart.h"
+#include "../plugins/MyGenPart.h" 
 #include "../plugins/MyTracks.h"
 #include "../plugins/MyVertex.h"
 #include "../plugins/MyMITEvtSel.h"
@@ -35,16 +36,16 @@ bool debug = false;
 TString filename = "MC_test_test_900GeV";
 bool isMC = true;
 
-
+#include "fileManager.C"
 
 #include "cuts.C"
 #include "evtSel.C"
 
-void collectionPlotter(bool = true , double = 0.9 , TString = "MC_test_900GeV" , int = 20000 );
+void collectionPlotter(int = 10 , double = 0.9 , TString = "MC_test_900GeV" , int = 20000 );
 
-void collectionPlotter(bool ismc , double E , TString filename , int nevt_max )
+void collectionPlotter(int type , double E , TString filename , int nevt_max )
 {
-  isMC = ismc;
+  if(type==0) isMC = false;
   
   // General variables
   int nbinmulti = 70;
@@ -122,6 +123,9 @@ void collectionPlotter(bool ismc , double E , TString filename , int nevt_max )
   
   TChain* tree = new TChain("evt","");
   
+  tree->Add(fileManager(0,type,E));
+  
+/*  
 //------------ v5 ------------
 if(E == 0.9 ){
 if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v005b_mc900/__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO/ChPartTree_v005b_mc900__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO_*.root/evt");
@@ -134,7 +138,7 @@ if(!isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v005b_d236
 //if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v003_mc900/__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO/ChPartTree_v003_mc900__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO_1.root/evt");
 if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v005b_mc236/__MinBias__Summer09-STARTUP3X_V8L_2360GeV-v1__GEN-SIM-RECO/ChPartTree_v005b_mc236__CMSSW_3_3_6_patch3__MinBias__Summer09-STARTUP3X_V8L_2360GeV-v1__GEN-SIM-RECO_*.root/evt");
 }
-
+*/
 /*
 //---------- v4 --------------
 if(E == 0.9 ){
@@ -304,16 +308,16 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/
     offlinePV->push_back(*beamSpot);
     ferencVtx->push_back(*beamSpot);
     
-    evtselp_PV_mbTr_fVtx->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passBit40(*L1Trig));
-    evtselp_PV_gTr_oVtx->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passBit40(*L1Trig));
-    evtselp_fPV_gTr_oVtx->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passBit40(*L1Trig));
-    evtselp_allTr_mbTr_fVtx->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passBit40(*L1Trig));
-    evtselp_allTr_gTr_oVtx->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passBit40(*L1Trig));
+    evtselp_PV_mbTr_fVtx->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
+    evtselp_PV_gTr_oVtx->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
+    evtselp_fPV_gTr_oVtx->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
+    evtselp_allTr_mbTr_fVtx->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
+    evtselp_allTr_gTr_oVtx->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
     
-    evtselp_PV_mbTr_bs->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passBit40(*L1Trig));
-    evtselp_PV_gTr_bs->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passBit40(*L1Trig));
-    evtselp_allTr_mbTr_bs->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passBit40(*L1Trig));
-    evtselp_allTr_gTr_bs->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passBit40(*L1Trig));
+    evtselp_PV_mbTr_bs->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
+    evtselp_PV_gTr_bs->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
+    evtselp_allTr_mbTr_bs->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
+    evtselp_allTr_gTr_bs->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
     
     if(debug) cout<<"Starting to fill all classes ..."<<endl;
     evtselp_allTr_mbTr_fVtx->fill(*minbiasTracks,*ferencVtx,bs,vtxId_ferencVtx,MITEvtSel->eClusVtxQual,MITEvtSel->ePxHits);
@@ -399,7 +403,7 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/
   if(debug) cout<<"Starting to write to file ..."<<endl;
   
   //output file
-  TFile* file2=new TFile("collectionPlotter_"+filename+".root","RECREATE");
+  TFile* file2=new TFile(fileManager(1,type,E),"RECREATE");
   file2->cd();
   
   if(isMC){
