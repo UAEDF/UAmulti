@@ -6,7 +6,7 @@
 //# iFileType = 0 : ChPartTree 
 //#             1 : collectionPlotter
 //#             2 : simpleAna 
-//#             3 : 
+//#             3 : unfolding
 //#
 //# iDataType = 0  : Data
 //#             10 : MC - PYTHIA D6T 
@@ -115,7 +115,7 @@ TString fileManager ( int     iFileType  = 0
                + TreeBase + "__" + CMSSW + DataSet + "_*.root/evt" ;
 
   //---------------------- collectionPlotter Files --------------------------
-  } else if ( iFileType == 1 || iFileType == 2 ) {
+  } else if ( iFileType == 1 || iFileType == 2 || iFileType == 3 ) {
 
     TString PlotBase;
     TString DataSet  = "_Undef" ;
@@ -123,7 +123,8 @@ TString fileManager ( int     iFileType  = 0
     TString STracking= "_Undef" ; 
 
     if ( iFileType == 1 ) PlotBase = "collectionPlotter" ;
-    if ( iFileType == 2 ) PlotBase = "simpleAna";  
+    if ( iFileType == 2 ) PlotBase = "simpleAna";
+    if ( iFileType == 3 ) PlotBase = "unfolding";  
 
     if ( iDataType == 0 ) DataSet = "_data" ; 
     if ( iDataType == 10) DataSet = "_MC_D6T" ; 
@@ -140,6 +141,7 @@ TString fileManager ( int     iFileType  = 0
 
     FileName  = BaseDirPlot +  PlotBase + DataSet + SEnergy ;
     if (iFileType == 2 ) FileName += STracking ;
+    if (iFileType == 3 ) FileName += STracking ;
     if (iSystType > 0 ) 
     {
       if ( fabs (iSystSign) == 1 ) 

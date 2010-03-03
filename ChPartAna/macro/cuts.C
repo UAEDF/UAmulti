@@ -1,4 +1,4 @@
-double pt_cut = 0.4;
+double pt_cut = 0.2;
 double eta_cut = 2.5;
 double vtxz_cut = 15.;
 
@@ -122,9 +122,12 @@ bool isTrackPrimary(MyTracks& tr, vector<MyVertex>& vtxcoll, int goodvtxId, MyBe
 //--------------------------- Get the Part in the good acceptance -----------------------------
 
 
-bool isInAcceptance(MyPart& p , double pt , double eta){
+bool isInAcceptance(MyPart& p , double pt , double eta , int charge = 0){
   if(p.v.Pt()<pt) return false;
   if(fabs(p.v.Eta())>eta) return false;
+  if(charge!=0)
+    if(charge!=p.charge)return false;
+    
   return true;
 }
 

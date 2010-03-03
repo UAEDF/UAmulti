@@ -41,11 +41,12 @@ bool isMC = true;
 #include "cuts.C"
 #include "evtSel.C"
 
-void collectionPlotter(int = 10 , double = 0.9 , TString = "MC_test_900GeV" , int = 5000 );
+void collectionPlotter(int = 10 , double = 0.9 , double = 0.2 , TString = "NONE" , int = 5000 );
 
-void collectionPlotter(int type , double E , TString filename , int nevt_max )
+void collectionPlotter(int type , double E , double ptcut , TString filename , int nevt_max )
 {
   if(type==0) isMC = false;
+  pt_cut = ptcut;
   
   // General variables
   int nbinmulti = 70;
@@ -474,7 +475,10 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/
   if(debug) cout<<"Starting to write to file ..."<<endl;
   
   //output file
-  TFile* file2=new TFile(fileManager(1,type,E),"RECREATE");
+  ostringstream PT("");
+  PT << "ptcut" << pt_cut;
+  if(filename!="NONE") PT <<"_"<< filename;
+  TFile* file2=new TFile(fileManager(1,type,E,0,0,0,PT.str()),"RECREATE");
   file2->cd();
   
   if(isMC){
