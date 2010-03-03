@@ -1,7 +1,8 @@
-#ifndef
+#ifndef _MAKECORRECTIONS_
 #define _MAKECORRECTIONS_
 
 #include "TH1F.h"
+#include "TF1.h"
 #include "TH1D.h"
 #include "TH2F.h"
 #include "TFile.h"
@@ -9,21 +10,29 @@
 #include "TStyle.h"
 #include "TLegend.h"
 #include "TPad.h"
+#include "TRandom.h"
+#include "TGraphAsymmErrors.h"
 
 #include "TFrame.h"
 
 #include <iostream>
+#include <fstream>
 
 #include "../plugins/MultiPlots.h"
 
+#endif
 using namespace std;
 
 const int matrixsize = 71;
 bool useData = false;
-TString name = "MC_test_uniform";
+//TString name = "data_uniform_0.9_eta2.5_v004";
+TString name = "test";
 
 void transform2Matrix(TH2F* matrixhist,double matrix[][matrixsize]);
+TH1F resample(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hyp, int niter = 5);
 
+//iFileType,iDataType,Energy,iTracking,iSystType,iSystSign,STest
+#include "../macro/fileManager.C"
 #include "unfolding.cc"
 
 void makeCorrections(bool isData = false, int hyp=0 , int niter=5 , float mu = 14 , float sigma = 15 ){
@@ -31,11 +40,15 @@ void makeCorrections(bool isData = false, int hyp=0 , int niter=5 , float mu = 1
    useData = isData;
   //Get the MC file
   //TFile* mc = new TFile("/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/macro/collectionPlotter_MC_finalv2_900GeV.root","READ");
-  TFile* mc = new
-  TFile("../macro/collectionPlotter_simpleana_MC3_test24.root","READ");
+  //TFile* mc = new TFile("../macro/GOODFILES/MC_v005b_2.36TeV_eta2.5_pt0.4_gTr.root","READ");
+  //TFile* mc = new TFile("../macro/GOODFILES/MC_v005b_0.9TeV_eta2.5_pt0.4_gTr.root","READ");
+  TFile* mc = new TFile(fileManager(2,0,0.9,0),"READ");
+  
   
   //Get the data file
-  TFile* data = new TFile("../macro/collectionPlotter_simpleana_data3_test24.root","READ");
+  //TFile* data = new TFile("../macro/GOODFILES/data_v005b_2.36TeV_eta2.5_pt0.4_gTr.root","READ");
+  //TFile* data = new TFile("../macro/GOODFILES/data_v005b_0.9TeV_eta2.5_pt0.4_gTr.root","READ");
+  TFile* data = new TFile("fileManager(2,0,0.9,0)","READ");
   
   
   
@@ -45,6 +58,8 @@ void makeCorrections(bool isData = false, int hyp=0 , int niter=5 , float mu = 1
   //------------------------------------------------------------------------------
   
   //Get the Unfolding matrix
+  //TFile* mc_matrix = new TFile("../macro/GOODFILES/MC_v005b_2.36TeV_eta2.5_pt0.4_gTr.root");
+  //TH2F* matrixhist = (TH2F*) mc_matrix->Get("MatrixPlots_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx/nch_matrix_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx");
   TH2F* matrixhist = (TH2F*) mc->Get("MatrixPlots_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx/nch_matrix_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx");
 /*
   for(int i=1;i<=matrixhist->GetNbinsX();++i){
@@ -96,8 +111,14 @@ void makeCorrections(bool isData = false, int hyp=0 , int niter=5 , float mu = 1
      
      //nch_trueRec->Draw("same");
    //} 
+   
+   
+   
+  //------------------------------------------------------------------------------
+  //---------------------------- SD Substraction ---------------------------------
+  //------------------------------------------------------------------------------
   
-  TCanvas* cc = new TCanvas("cc","c",2350,510,500,500);
+  TCanvas* c_SDsub = new TCanvas("c_SDsub","c_SDsub",2350,510,500,500);
   nch_INC->Draw();
   
   TH1F* nch_evtSel_SD =  (TH1F*) mc->Get("GenMultiPlots_evtSel_reco/MultiPlots_SD_evtSel_reco/nch_SD_evtSel_reco");
@@ -120,7 +141,7 @@ void makeCorrections(bool isData = false, int hyp=0 , int niter=5 , float mu = 1
   leg->AddEntry(nch_evtSel_NSD,"MC NSD","l" );
   leg->Draw("same");
   
-  
+  gPad->Update();
   
   TH1F* eff_evtSel = (TH1F*) mc->Get("eff_evtSel");
   TH1F* nch_toUnfold = (TH1F*) nch_NSD->Clone("nch_toUnfold");
@@ -131,23 +152,58 @@ void makeCorrections(bool isData = false, int hyp=0 , int niter=5 , float mu = 1
   TFile* out = new TFile("../out/unfolding_"+name+".root","RECREATE");
   out->cd();
   
-  if   (hyp == 0) 
-    TH1F nch_unfolded = (runalgo(matrix,nch_toUnfold,0,niter));
+  
+  //------------------------------------------------------------------------------
+  //---------------------------- Unfolding ---------------------------------------
+  //------------------------------------------------------------------------------
+  
+  cout<<"here"<<endl;
+  TH1F nch_unfolded("","",1,0,1);
+  TH1F* hypothesis = (TH1F*) nch_trueGen->Clone("hypothesis");
+  if   (hyp == 0){
+    for (int i=1;i<=hypothesis->GetNbinsX();i++)
+      hypothesis->SetBinContent(i,1.);
+  }
   else if (hyp == 1)
-    TH1F nch_unfolded = (runalgo(matrix,nch_toUnfold,nch_trueGen_afterUnfolding,niter));
+    hypothesis = nch_trueGen_afterUnfolding;
   else if (hyp == 2)
-    TH1F nch_unfolded = (runalgo(matrix,nch_toUnfold,nch_toUnfold,niter));
+    hypothesis = nch_toUnfold;
   else if (hyp == 3)
   {
-    TH1F* nch_gauss =  (TH1F*) nch_trueGen->Clone("nch_gauss");
-    nch_gauss->Reset();
-    for (int i=0 ; i<10000 ; ++i) nch_gauss->Fill(gRandom->Gaus(mu,sigma) ) ;
-    TH1F nch_unfolded = (runalgo(matrix,nch_toUnfold,nch_gauss,niter));
+    hypothesis->Reset();
+    for (int i=0 ; i<10000 ; ++i) hypothesis->Fill(gRandom->Gaus(mu,sigma) ) ;
   }
  
-
+  nch_unfolded = (runalgo(matrix,nch_toUnfold,hypothesis,niter));
   TH1F* nch_unfoldedPtr = (TH1F*) nch_unfolded.Clone("nch_unfoldedPtr");
+  
+  cout<<"here"<<endl;
+ 
+ 
+  
+  //------------------------------------------------------------------------------
+  //---------------------------- Resampling -------------------------------------
+  //------------------------------------------------------------------------------
+  
+  TH1F nch_resampled = resample(matrix,nch_toUnfold,hypothesis,niter);
+  TH1F* nch_resampledPtr = &nch_resampled;
+  
+  TCanvas* c_resample = new TCanvas("resampling","resampling",810,510,500,500);
+  nch_unfoldedPtr->SetLineColor(kBlack);
+  //nch_unfoldedPtr->Draw("hist");
+  nch_resampledPtr->Draw("e");
+  //gPad->WaitPrimitive();
+  gPad->Update();
+  
+  for(int nbin = 1 ; nbin<=nch_unfoldedPtr->GetNbinsX() ; ++nbin)
+    nch_unfoldedPtr->SetBinError(nbin , nch_resampledPtr->GetBinError(nbin));
+  
+  //------------------------------------------------------------------------------
+  //---------------------------- EvtSel Correction -------------------------------------
+  //------------------------------------------------------------------------------
+  
   TH1F* nch_corrected = (TH1F*) nch_unfolded.Clone("nch_corrected");
+  //eff_evtSel->Sumw2();
   nch_corrected->Divide(eff_evtSel);
   
   nch_trueGen->Scale(MC_factor);
@@ -157,15 +213,25 @@ void makeCorrections(bool isData = false, int hyp=0 , int niter=5 , float mu = 1
   nch_trueGen->Draw("hist");
   nch_corrected->Draw("same e");
   nch_unfoldedPtr->SetLineColor(kGreen);
-  nch_unfoldedPtr->Draw("same");
-  nch_trueGen_afterUnfolding->Draw("same e");
+  nch_unfoldedPtr->Draw("same e");
+  nch_trueGen_afterUnfolding->Draw("same hist");
   
-  TLegend *leg = new TLegend (.65,.70,.90,.99);
+  leg = new TLegend (.65,.70,.90,.99);
   leg->AddEntry(nch_trueGen,"MC after Correction","l" );
   leg->AddEntry(nch_corrected,"Data after Correction","l" );
   leg->AddEntry(nch_trueGen_afterUnfolding,"MC after Unfolding","l" );
   leg->AddEntry(nch_unfoldedPtr,"Data after Unfolding","l" );
   leg->Draw("same");
+  
+  cout<<"Mean of multiplicity --------> "<<nch_corrected->GetMean()<<endl;
+  cout<<"RMS of multiplicity  --------> "<<nch_corrected->GetRMS()<<endl;
+  
+  
+  
+  
+  
+  
+  
   //------------------------------------------------------------------------------
   //---------------------------- Corrections -------------------------------------
   //------------------------------------------------------------------------------
@@ -259,33 +325,34 @@ void makeCorrections(bool isData = false, int hyp=0 , int niter=5 , float mu = 1
 
   // UA5
   bool lua5 = true;
+  TGraphAsymmErrors* ua5_multi;
   if ( lua5 ) {
-    ifstream ua5;
+    ifstream ua5("/user/xjanssen/ua5_dsigdn_eta15");
     const Int_t   n = 300 ;
     Int_t   i = 0;
     Double_t xl[n], xh[n], x[n] , y[n], eyl[n] , eyh[n] , ex[n];
-    ua5.open ("/user/xjanssen/ua5_dsigdn_eta15");
+    //ua5.open ("/user/xjanssen/ua5_dsigdn_eta15");
     while ( ua5 >>  xl[i] >> xh[i] >> y[i] >> eyh[i] >> eyl[i] ) {
       eyl[i] = -eyl[i] ;
       x[i]  = xl[i]+(xh[i]-xl[i])/2;
       y[i] = 3*50000 * y[i];
       eyl[i]*=3*50000;
       eyh[i]*=3*50000;
-      cout<<y[i]<<endl;
+      //cout<<y[i]<<endl;
       ex[i] = (xh[i]-xl[i])/2;
       i++;
     }
     
     ua5.close();
-    gr = new TGraphAsymmErrors(i,x,y,ex,ex,eyl,eyh);
+    ua5_multi = new TGraphAsymmErrors(i,x,y,ex,ex,eyl,eyh);
     //gr->SetMarkerColor(0);
     //gr->SetMarkerStyle(24);
-    gr->Draw("L");
-
+    ua5_multi->Draw("L");
+    ua5_multi->Write();
   }
  
 
-  TLegend *leg = new TLegend (.65,.90,.90,.99);
+  leg = new TLegend (.65,.90,.90,.99);
   leg->AddEntry(nch_trueGen,"PYTHIA D6T","l" );
   if (useData) {
     leg->AddEntry(nch_INC,"Data - Raw","l" );
@@ -294,7 +361,7 @@ void makeCorrections(bool isData = false, int hyp=0 , int niter=5 , float mu = 1
     leg->AddEntry(nch_INC,"MC - Raw","l" );
     leg->AddEntry(nch_corrected,"MC - Corrected","l" );
   }
-  if (lua5) leg->AddEntry(gr,"UA5 #eta < 1.5","l"); 
+  if (lua5) leg->AddEntry(ua5_multi,"UA5 #eta < 1.5","l"); 
   leg->SetBorderSize(0);
   leg->SetFillColor(0);
 
@@ -320,10 +387,10 @@ void makeCorrections(bool isData = false, int hyp=0 , int niter=5 , float mu = 1
   nch_unfolded.Write();
   matrixhist->Write();
   nch_corrected->Write();
-/*
-  eff_nch_L1_hf_vtxSel->Write();
+
+  //eff_nch_L1_hf_vtxSel->Write();
   kno->Write();
-*/
+
 /*  
   //eta correction
   eta_trueGen->Write();
@@ -349,5 +416,81 @@ void transform2Matrix(TH2F* matrixhist,double matrix[][matrixsize]){
   }
 }
 
+void makeKNO(TH1F* multi,TH1F* kno){
+  for( int k = 1 ; k <= multi->GetNbinsX() ; ++k){
+    kno->SetBinContent(k , multi->GetMean() * multi->GetBinContent(k));
+    kno->SetBinError(k , multi->GetMean() * multi->GetBinError(k));
+  }
+}
 
-#endif
+TH1F resample(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hyp, int niter){
+
+  const int nresampling = 1000;
+  
+  TH1F sample[nresampling];
+
+  TH1F bins[matrixsize];// = new vector<TH1F>;
+  char* name = "bin_%d";
+  char name2[60];
+  for(int k=1;k<=toUnfold->GetNbinsX();++k){
+    sprintf(name2,name,k);
+    //cout<<name2<<endl;
+    //cout<<bins.size()<<endl;
+    //TH1F temp = (TH1F) toUnfold->Clone(name2);
+    //(name2,name2,71,-0.5,70.5);
+    //temp.SetLineColor(kRed);
+    //temp.Draw();
+    //gPad->WaitPrimitive();
+    //if(temp==0) cout<<"pb"<<endl;
+    bins[k-1] = TH1F(name2,name2,10000,-0.5,9999.5);
+    //cout<<bins.size()<<"  "<<toUnfold->GetNbinsX()<<endl;
+    //delete temp;
+  }
+  
+  
+  TH1F* out = (TH1F*) toUnfold->Clone("nch_resampled");
+
+  TF1*Gauss = new TF1("Gauss","gaus");
+
+  for(int i=0;i<nresampling;++i){
+    char tmp[160] = "sample_nsample%d";
+    char samplechar[160] = "";
+    sprintf(samplechar,tmp,i+1);
+    //cout<<samplechar<<endl;
+    TH1F* nch_temp = new TH1F(samplechar,samplechar,matrixsize,-0.5,matrixsize-0.5);
+    for(int n=1;n<=matrixsize;++n){
+      nch_temp->SetBinContent(n,gRandom->Poisson(toUnfold->GetBinContent(n)));
+    }
+    //TCanvas* c_kno = new TCanvas("c_kno","c_kno",200,510,500,500);
+    //nch_temp->Draw();
+
+    if(hyp==0) cout<<"PROBLEM -----> the hypothesis is void !!"<<endl;
+    sample[i] = (runalgo(matrix,nch_temp,hyp,niter,i+1));
+    //sample[i].SetLineColor(kRed);
+    //sample[i].Draw("same");
+  
+    for(int k=1;k<=matrixsize;++k){
+      bins[k-1].Fill(sample[i].GetBinContent(k));
+      //bins[k-1].SetLineColor(kBlue);
+      //bins[k-1].Draw("same");
+    }  
+      
+    //gPad->Update();
+    //gPad->WaitPrimitive();
+  }
+  //TCanvas* c_kno = new TCanvas("c_kno","c_kno",200,510,500,500);
+  for(int k=1;k<=matrixsize;++k){
+    bins[k-1].Fit("Gauss","Q");
+    bins[k-1].Draw();
+    //gPad->Update();
+    //gPad->WaitPrimitive();
+    out->SetBinContent(k,Gauss->GetParameter(1));
+    out->SetBinError(k,Gauss->GetParameter(2));    
+  }
+  
+  
+  //out->Draw();
+  //gPad->WaitPrimitive();
+  return *out;
+}
+
