@@ -9,7 +9,7 @@
 //#  passVtxQual  (*MyMITEvtSel)
 //#  passVtx      (vector<MyVertex>*)
 //#
-//#  isEvtGood    (MyL1Trig , MyMITEvtSel)
+//#  isEvtGood    (*MyL1Trig , *MyMITEvtSel , vector<MyVertex>*)
 //#
 //#  goodBX       (irun,bx)
 //#
@@ -73,6 +73,18 @@ bool passVtx(vector<MyVertex>* vtxcoll){
   if(getBestVertex(vtxcoll)==-1) return false;
   else return true;
 }
+
+//----------- GLOBAL CUT ---------
+bool isEvtGoodNoVtx(MyL1Trig& L1Trig, MyMITEvtSel& evtSel){
+  if(  passL1(L1Trig)
+    && passHF(evtSel)
+    && passVtxQual(evtSel)
+    )
+      return true;
+
+   return false;
+}
+
 
 //----------- GLOBAL CUT ---------
 bool isEvtGood(MyL1Trig& L1Trig, MyMITEvtSel& evtSel, vector<MyVertex>* vtxcoll){

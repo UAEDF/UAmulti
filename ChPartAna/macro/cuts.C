@@ -78,7 +78,7 @@ bool isTrackPrimary(MyTracks& tr, vector<MyVertex>& vtxcoll, int goodvtxId, MyBe
   if(debug) cout<<" +-+-+ starting isTrackPrimary"<<endl;
   
   //get the number of the good vertex in the vector
-  int vtxnum = getVtxposFromId(tr,goodvtxId);
+  //int vtxnum = getVtxposFromId(tr,goodvtxId);
   
   //get the good vertex iterator
   vector<MyVertex>::iterator goodVtx = vtxcoll.end();
@@ -130,7 +130,7 @@ bool isInAcceptance(MyPart& p , double pt , double eta){
 
 
 
-//---------------------- GET THE NUMBER OF PRIMARY TRACKS --------------
+//---------------------- GET THE NUMBER OF PRIMARY TRACKS ---UEEVENTS --
 int getnPrimaryTracks(vector<MyTracks>* v_tr , vector<MyVertex>* vtxcoll , double pt = pt_cut, double eta = eta_cut){
   
   if(debug) cout<<" +-+-+ starting getnPrimaryTracks"<<endl;
@@ -150,6 +150,26 @@ int getnPrimaryTracks(vector<MyTracks>* v_tr , vector<MyVertex>* vtxcoll , doubl
   return nch;
 }
 
+
+//---------------------- GET THE NUMBER OF PRIMARY TRACKS -- FERENC ----
+int getnPrimaryTracks(vector<MyTracks>* v_tr , vector<MyVertex>* vtxcoll, MyBeamSpot* bs , double pt = pt_cut, double eta = eta_cut){
+
+  if(debug) cout<<" +-+-+ starting getnPrimaryTracks"<<endl;
+
+  int nch = 0;
+
+  //Protecting code if no vertex were found
+  if(getBestVertex(vtxcoll)==-1) return 0;
+
+
+  for(vector<MyTracks>::iterator it_tr = v_tr->begin() ; it_tr != v_tr->end() ; ++it_tr)
+    if( isTrackPrimary(*it_tr , *vtxcoll , getBestVertex(vtxcoll), bs) && isInAcceptance(it_tr->Part,pt,eta) )
+      ++nch;
+
+  if(debug) cout<<" ** getnPrimaryTracks() has found "<<nch<<" primary tracks"<<endl;
+
+  return nch;
+}
 
 
 //------------------------------ GET TRACKS IN ACCEPTANCE -----------------------------------------

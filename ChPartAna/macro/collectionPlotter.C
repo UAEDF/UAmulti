@@ -41,7 +41,7 @@ bool isMC = true;
 #include "cuts.C"
 #include "evtSel.C"
 
-void collectionPlotter(int = 10 , double = 0.9 , TString = "MC_test_900GeV" , int = 20000 );
+void collectionPlotter(int = 10 , double = 0.9 , TString = "MC_test_900GeV" , int = 5000 );
 
 void collectionPlotter(int type , double E , TString filename , int nevt_max )
 {
@@ -74,8 +74,20 @@ void collectionPlotter(int type , double E , TString filename , int nevt_max )
   TrackPlots* trp_PV_mbTr_oVtx    = new TrackPlots("PV_mbTr_oVtx");
   TrackPlots* trp_allTr_mbTr_fVtx = new TrackPlots("allTr_mbTr_fVtx");
   TrackPlots* trp_PV_mbTr_fVtx    = new TrackPlots("PV_mbTr_fVtx");
-  
-  
+  */
+
+  // Bin ZERO BG Plots  
+  TrackPlots* trp_ntr0_gTr_novtx      = new TrackPlots("ntr0_gTr_novtx");
+  TrackPlots* trp_ntr0_gTr_withvtx    = new TrackPlots("ntr0_gTr_withvtx"); 
+  TrackPlots* trp_ntr0_mbTr_novtx     = new TrackPlots("ntr0_mbTr_novtx");
+  TrackPlots* trp_ntr0_mbTr_withvtx   = new TrackPlots("ntr0_mbTr_withvtx");  
+  int nevt_ntr0_gTr = 0 , nevt_ntr0_gTr_novtx = 0 , nevt_ntr0_gTr_notr = 0 , nevt_ntr0_gTr_novtxatall = 0;
+  int nevt_ntr0_gTr_novtx_notr = 0 , nevt_ntr0_gTr_novtx_withtr = 0, nevt_ntr0_gTr_withvtx_notr = 0 ;
+  int nevt_ntr0_mbTr = 0 , nevt_ntr0_mbTr_novtx = 0 , nevt_ntr0_mbTr_notr = 0 , nevt_ntr0_mbTr_novtxatall = 0;
+  int nevt_ntr0_mbTr_novtx_notr = 0 , nevt_ntr0_mbTr_novtx_withtr = 0, nevt_ntr0_mbTr_withvtx_notr = 0 ;
+
+
+  /*
   //------------- VERTEX COLLECTIONS -------------
   //offlinePV
   VertexPlots* vtxp_allVtx_offlinePV = new VertexPlots("allVtx_oVtx");
@@ -363,6 +375,65 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/
       //trp_PV_mbTr_fVtx->fill( trcoll , *ferencVtx, vtxId_ferencVtx , bs);
       evtselp_PV_mbTr_fVtx->fill(trcoll,*ferencVtx,bs,vtxId_ferencVtx,MITEvtSel->eClusVtxQual,MITEvtSel->ePxHits);
     //}
+
+
+    //------------- ZERO BIN TRACKS -----------------------------
+
+    //if( isEvtGood ( *L1Trig , *MITEvtSel , vertexToCut )  ) {  
+    if( isEvtGoodNoVtx( *L1Trig , *MITEvtSel )  ) {
+
+      // general Tracks
+      if(getnPrimaryTracks(generalTracks,offlinePV)==0){
+        ++nevt_ntr0_gTr;
+
+        // no track
+        if(generalTracks->size()==0)
+          ++nevt_ntr0_gTr_notr;
+
+        // with vtx  
+        if ( passVtx(vertexToCut) ) {
+          trp_ntr0_gTr_withvtx->fill(*generalTracks,*offlinePV,vtxId_offlinePV,bs);
+          if(generalTracks->size()==0)
+            ++nevt_ntr0_gTr_withvtx_notr;
+
+        // no vtx
+        } else {
+           ++nevt_ntr0_gTr_novtx;
+           trp_ntr0_gTr_novtx->fill(*generalTracks,*offlinePV,0,bs);         
+          if(generalTracks->size()==0)
+            ++nevt_ntr0_gTr_novtx_notr;
+          else
+            ++nevt_ntr0_gTr_novtx_withtr;
+        }
+      }
+
+      // minbias Tracks
+      if(getnPrimaryTracks(minbiasTracks,ferencVtx,bs)==0){
+        ++nevt_ntr0_mbTr;
+
+        // no track
+        if(minbiasTracks->size()==0)
+          ++nevt_ntr0_mbTr_notr;
+    
+        // with vtx  
+        if ( passVtx(vertexToCut) ) {
+          trp_ntr0_mbTr_withvtx->fill(*minbiasTracks,*ferencVtx,vtxId_ferencVtx,bs);
+          if(minbiasTracks->size()==0)
+            ++nevt_ntr0_mbTr_withvtx_notr;
+
+        // no vtx
+        } else {
+           ++nevt_ntr0_mbTr_novtx;
+           trp_ntr0_mbTr_novtx->fill(*minbiasTracks,*ferencVtx,0,bs);
+          if(minbiasTracks->size()==0)
+            ++nevt_ntr0_mbTr_novtx_notr;
+          else
+            ++nevt_ntr0_mbTr_novtx_withtr;
+        }
+      }
+
+
+    }
     
     //------------- FILLING MULTI && MATRIX----------------------- 
     if(debug) cout<<"Starting to fill Mtx ..."<<endl;
@@ -422,7 +493,13 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/
   //trp_PV_mbTr_oVtx->write();
   //trp_allTr_mbTr_fVtx->write();
   //trp_PV_mbTr_fVtx->write();
-  
+ 
+  // BIN ZERO Tracks (BEFORE VTX CUT)
+  trp_ntr0_gTr_novtx->write();
+  trp_ntr0_gTr_withvtx->write();
+  trp_ntr0_mbTr_novtx->write();
+  trp_ntr0_mbTr_withvtx->write();
+ 
   //offlinePV
   //vtxp_allVtx_offlinePV->write();
   //vtxp_PV_offlinePV->write();
@@ -505,14 +582,29 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/
     mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->write();
     mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_gTr_oVtx->write();
   }
+
+
+  cout<<" ---ZeroBin- SUMMARY --- gTR -----"<<endl;
+  cout<<"nevts : "<<mp_PV_gTr_oVtx->nbEvts<<endl;
+  cout<<"nevts with ntr assoc to PV = 0 : "<<nevt_ntr0_gTr<<"  ---> "<<double(nevt_ntr0_gTr)/double(mp_PV_gTr_oVtx->nbEvts)*100.<<" %"<<endl;
+  cout<<"nevts with ntr assoc to PV = 0 & no good vtx: "<<nevt_ntr0_gTr_novtx<<"  ---> "<<double(nevt_ntr0_gTr_novtx)/double(nevt_ntr0_gTr)*100.<<" %"<<endl;
+  cout<<"nevts with ntr assoc to PV = 0 & good vtx & no tr: "<<nevt_ntr0_gTr_withvtx_notr<<"  ---> "<<double(nevt_ntr0_gTr_withvtx_notr)/double(nevt_ntr0_gTr)*100.<<" %"<<endl;
+  cout<<"nevts with ntr assoc to PV = 0 & no good vtx & no tr: "<<nevt_ntr0_gTr_novtx_notr<<"  ---> "<<double(nevt_ntr0_gTr_novtx_notr)/double(nevt_ntr0_gTr)*100.<<" %"<<endl;
+  cout<<"nevts with ntr assoc to PV = 0 & no good vtx & with tr: "<<nevt_ntr0_gTr_novtx_withtr<<"  ---> "<<double(nevt_ntr0_gTr_novtx_withtr)/double(nevt_ntr0_gTr)*100.<<" %"<<endl;
+  cout<<"nevts with ntr assoc to PV = 0 & no vtx at all: "<<nevt_ntr0_gTr_novtxatall<<"  ---> "<<double(nevt_ntr0_gTr_novtxatall)/double(nevt_ntr0_gTr)*100.<<" %"<<endl;
+  cout<<"nevts with ntr assoc to PV = 0 & no tr: "<<nevt_ntr0_gTr_notr<<"  ---> "<<double(nevt_ntr0_gTr_notr)/double(nevt_ntr0_gTr)*100.<<" %"<<endl;
+
+  cout<<" ---ZeroBin- SUMMARY ---mbTR -----"<<endl;
+  cout<<"nevts : "<<mp_PV_gTr_oVtx->nbEvts<<endl;
+  cout<<"nevts with ntr assoc to PV = 0 : "<<nevt_ntr0_mbTr<<"  ---> "<<double(nevt_ntr0_mbTr)/double(mp_PV_gTr_oVtx->nbEvts)*100.<<" %"<<endl;
+  cout<<"nevts with ntr assoc to PV = 0 & no good vtx: "<<nevt_ntr0_mbTr_novtx<<"  ---> "<<double(nevt_ntr0_mbTr_novtx)/double(nevt_ntr0_mbTr)*100.<<" %"<<endl;
+  cout<<"nevts with ntr assoc to PV = 0 & good vtx & no tr: "<<nevt_ntr0_mbTr_withvtx_notr<<"  ---> "<<double(nevt_ntr0_mbTr_withvtx_notr)/double(nevt_ntr0_mbTr)*100.<<" %"<<endl;
+  cout<<"nevts with ntr assoc to PV = 0 & no good vtx & no tr: "<<nevt_ntr0_mbTr_novtx_notr<<"  ---> "<<double(nevt_ntr0_mbTr_novtx_notr)/double(nevt_ntr0_mbTr)*100.<<" %"<<endl;
+  cout<<"nevts with ntr assoc to PV = 0 & no good vtx & with tr: "<<nevt_ntr0_mbTr_novtx_withtr<<"  ---> "<<double(nevt_ntr0_mbTr_novtx_withtr)/double(nevt_ntr0_mbTr)*100.<<" %"<<endl;
+  cout<<"nevts with ntr assoc to PV = 0 & no vtx at all: "<<nevt_ntr0_mbTr_novtxatall<<"  ---> "<<double(nevt_ntr0_mbTr_novtxatall)/double(nevt_ntr0_mbTr)*100.<<" %"<<endl;
+  cout<<"nevts with ntr assoc to PV = 0 & no tr: "<<nevt_ntr0_mbTr_notr<<"  ---> "<<double(nevt_ntr0_mbTr_notr)/double(nevt_ntr0_mbTr)*100.<<" %"<<endl;
+
   
-  
-  
-  
-  
-  
-  
-  
-  
-  //file2->Close();
+  // CLOSE FILE !!  
+  file2->Close();
 }
