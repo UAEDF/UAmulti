@@ -30,9 +30,6 @@
 //#
 //#################################################
 
-//#include <TString>
-//#include <iostream>
-//using namespace std;
 
 TString fileManager ( int     iFileType  = 0
                     , int     iDataType  = 0
@@ -148,7 +145,7 @@ TString fileManager ( int     iFileType  = 0
       if ( fabs (iSystSign) == 1 ) 
       {
         std::string str;
-        std::stringstream out;
+        std::stringstream out("");
         out << iSystType;
         str = out.str();
         FileName += "_syst" + str ;
