@@ -1,6 +1,6 @@
 void unfold(TH1F* unfoldedDistr,TH1F* unfoldedProb,double inputMat[][matrixsize],TH1F* auxEffect,TH1F* hypothesis, TH1F* err);
 bool checkMatrix(double inputMat[][matrixsize],double inputMatNormalized[][matrixsize]);
-void specifyHypothesis(std::string curveShape, TH1F* hypothesis);
+//void specifyHypothesis(std::string curveShape, TH1F* hypothesis);
 bool isGenLineVoid(double inputMat[][matrixsize],int indx_gen);
 bool isRecoLineVoid(double inputMat[][matrixsize],int indx_reco);
 
@@ -26,11 +26,14 @@ using namespace std;
 
 int iterStep=0;
 
-TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hyp){
+TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hypothesis, int niter = 5, int nsample = 0){
+  //cout<<"starting the unfolding ..."<<endl;
   
   //The hypothesis distribution
-  TH1F* hypothesis= new TH1F("hypothesis","hypothesis",Ngen1,-0.5,double(Ngen1)+0.5);
-
+  /*char* hypchar = "hypothesis_nsample%";
+  sprintf(hypchar,hypchar,nsample);
+  TH1F* hypothesis= new TH1F(hypchar,hypchar,Ngen1,-0.5,double(Ngen1)-0.5);
+  */
   //Definition of the matrices
   matrix4dObj matrix_normalized;
   checkMatrix(matrix,matrix_normalized);
@@ -38,10 +41,13 @@ TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hyp){
   //Load the correct hypothesis in hypothesis
   // ---> check the type !! for now, only "uniform" 
   //if(hyp==0)specifyHypothesis("gauss",hypothesis);
-  if(hyp==0)specifyHypothesis("uniform",hypothesis);
-  else hypothesis = hyp;
   
-  //Fill efficiency plot (eff vs gen var)
+ /* char hypchar[160] = "hypothesis_nsample%d";
+  sprintf(hypchar,hypchar,nsample);
+  TH1F* hypothesis = (TH1F*) hyp->Clone(hypchar);
+  hypothesis->SetNameTitle(hypchar,hypchar);
+*/
+    //Fill efficiency plot (eff vs gen var)
   //Can be used later to correct the unfolding (in case sum over gen line !=1, for trigger inef for instance)
   //Not implemented yet ....
   //fillEfficiency(binEff);
@@ -50,8 +56,52 @@ TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hyp){
   //out->cd();
   //gDirectory->cd();
   
+  
+  vector<TH1F*>* vtoUnfold = new vector<TH1F*>(niter,new TH1F()) ;
+  vector<TH1F*>* vtoUnfold_scaled = new vector<TH1F*>(niter,new TH1F());
+  vector<TH1F*>* verr_obs = new vector<TH1F*>(niter,new TH1F());
+  
+  for(int it = 0 ; it < niter ; ++it){
+    char* tmp = "toUnfold_step%d";
+    char name[160] = "";
+    sprintf(name,tmp,niter);
+    strcat(name,"_nsample%d");
+    sprintf(name,name,nsample);
+    vtoUnfold->at(it)->SetNameTitle(name,name);
+    vtoUnfold->at(it)->SetBins(Ngen1,-0.5,double(Ngen1)-0.5);
+    //vtoUnfold->at(it)->Sumw2();
+    
+    tmp = "toUnfold_scaled_step%d";
+    sprintf(name,tmp,niter);
+    strcat(name,"_nsample%d");
+    sprintf(name,name,nsample);
+    vtoUnfold_scaled->at(it)->SetNameTitle(name,name);
+    vtoUnfold_scaled->at(it)->SetBins(Ngen1,-0.5,double(Ngen1)-0.5);
+    //vtoUnfold_scaled->at(it)->Sumw2();
+    
+    tmp = "err_obs_step%d";
+    sprintf(name,tmp,niter);
+    strcat(name,"_nsample%d");
+    sprintf(name,name,nsample);
+    verr_obs->at(it)->SetNameTitle(name,name);
+    verr_obs->at(it)->SetBins(Ngen1,-0.5,double(Ngen1)-0.5);
+    //verr_obs->at(it)->Sumw2();
+    
+    if(it==0)
+      unfold(vtoUnfold->at(it),vtoUnfold_scaled->at(it),matrix_normalized,toUnfold,hypothesis,verr_obs->at(it));
+    else
+      unfold(vtoUnfold->at(it),vtoUnfold_scaled->at(it),matrix_normalized,toUnfold,vtoUnfold->at(it-1),verr_obs->at(it));
+  }
+  
+  
+  //cout<<"Finished the unfolding, returning the unfolded histo"<<endl;
+  return *(vtoUnfold->at(niter-1));
+  
+  /*char* tmp = "toUnfold_step%d";
+  char nsamplebis[60] = "";
+  printf(nsamplebis,tmp,nsample);
   //1st ITERATION
-  TH1F* toUnfold_step1         = new TH1F("toUnfold_step1","toUnfold_step1",Ngen1,-0.5,double(Ngen1)-0.5);
+  TH1F* toUnfold_step1         = new TH1F(("toUnfold_step1_"+(string)nsamplebis).c_str(),"toUnfold_step1",Ngen1,-0.5,double(Ngen1)-0.5);
   TH1F* toUnfold_scaled_step1  = new TH1F("toUnfold_scaled_step1","toUnfold_scaled_step1",Ngen1,-0.5,double(Ngen1)-0.5);
   TH1F* err_obs_step1          = new TH1F("err_obs_step1","err_obs_step1",Ngen1,-0.5,double(Ngen1)-0.5);
   toUnfold_step1->Sumw2();
@@ -61,7 +111,7 @@ TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hyp){
   unfold(toUnfold_step1,toUnfold_scaled_step1,matrix_normalized,toUnfold,hypothesis,err_obs_step1);
 
   //2nd ITERATION
-  TH1F* toUnfold_step2         = new TH1F("toUnfold_step2","toUnfold_step2",Ngen1,-0.5,double(Ngen1)-0.5);
+  TH1F* toUnfold_step2         = new TH1F(("toUnfold_step2_"+(string)nsamplebis).c_str(),"toUnfold_step2",Ngen1,-0.5,double(Ngen1)-0.5);
   TH1F* toUnfold_scaled_step2  = new TH1F("toUnfold_scaled_step2","toUnfold_scaled_step2",Ngen1,-0.5,double(Ngen1)-0.5);
   TH1F* err_obs_step2          = new TH1F("err_obs_step2","err_obs_step2",Ngen1,-0.5,double(Ngen1)-0.5);
   toUnfold_step2->Sumw2();
@@ -71,7 +121,7 @@ TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hyp){
   unfold(toUnfold_step2,toUnfold_scaled_step2,matrix_normalized,toUnfold,toUnfold_scaled_step1,err_obs_step2);
   
   //3rd ITERATION
-  TH1F* toUnfold_step3         = new TH1F("toUnfold_step3","toUnfold_step3",Ngen1,-0.5,double(Ngen1)-0.5);
+  TH1F* toUnfold_step3         = new TH1F(("toUnfold_step3_"+(string)nsamplebis).c_str(),"toUnfold_step3",Ngen1,-0.5,double(Ngen1)-0.5);
   TH1F* toUnfold_scaled_step3  = new TH1F("toUnfold_scaled_step3","toUnfold_scaled_step3",Ngen1,-0.5,double(Ngen1)-0.5);
   TH1F* err_obs_step3          = new TH1F("err_obs_step3","err_obs_step3",Ngen1,-0.5,double(Ngen1)-0.5);
   toUnfold_step3->Sumw2();
@@ -80,8 +130,8 @@ TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hyp){
   
   unfold(toUnfold_step3,toUnfold_scaled_step3,matrix_normalized,toUnfold,toUnfold_scaled_step2,err_obs_step3);
   
-  //3rd ITERATION
-  TH1F* toUnfold_step4         = new TH1F("toUnfold_step4","toUnfold_step4",Ngen1,-0.5,double(Ngen1)-0.5);
+  //4th ITERATION
+  TH1F* toUnfold_step4         = new TH1F(("toUnfold_step4_"+(string)nsamplebis).c_str(),"toUnfold_step4",Ngen1,-0.5,double(Ngen1)-0.5);
   TH1F* toUnfold_scaled_step4  = new TH1F("toUnfold_scaled_step4","toUnfold_scaled_step4",Ngen1,-0.5,double(Ngen1)-0.5);
   TH1F* err_obs_step4          = new TH1F("err_obs_step4","err_obs_step4",Ngen1,-0.5,double(Ngen1)-0.5);
   toUnfold_step4->Sumw2();
@@ -90,8 +140,8 @@ TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hyp){
   
   unfold(toUnfold_step4,toUnfold_scaled_step4,matrix_normalized,toUnfold,toUnfold_scaled_step3,err_obs_step4);
   
-  //3rd ITERATION
-  TH1F* toUnfold_step5         = new TH1F("toUnfold_step5","toUnfold_step5",Ngen1,-0.5,double(Ngen1)-0.5);
+  //5th ITERATION
+  TH1F* toUnfold_step5         = new TH1F(("toUnfold_step5_"+(string)nsamplebis).c_str(),"toUnfold_step5",Ngen1,-0.5,double(Ngen1)-0.5);
   TH1F* toUnfold_scaled_step5  = new TH1F("toUnfold_scaled_step5","toUnfold_scaled_step5",Ngen1,-0.5,double(Ngen1)-0.5);
   TH1F* err_obs_step5          = new TH1F("err_obs_step5","err_obs_step5",Ngen1,-0.5,double(Ngen1)-0.5);
   toUnfold_step5->Sumw2();
@@ -111,7 +161,25 @@ TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hyp){
   toUnfold_step5->Write();
   hypothesis->Write();
   
-  return *toUnfold_step5;
+  delete toUnfold_scaled_step1;
+  delete err_obs_step1;
+  delete toUnfold_scaled_step2;
+  delete err_obs_step2;
+  delete toUnfold_scaled_step3;
+  delete err_obs_step3;
+  delete toUnfold_scaled_step4;
+  delete err_obs_step4;
+  delete toUnfold_scaled_step5;
+  delete err_obs_step5;
+  delete hypothesis;
+  
+  cout<<"Finished the unfolding, returning the unfolded histo"<<endl;
+  
+  if(niter == 1) return *toUnfold_step1;
+  if(niter == 2) return *toUnfold_step2;
+  if(niter == 3) return *toUnfold_step3;
+  if(niter == 4) return *toUnfold_step4;
+  if(niter == 5) return *toUnfold_step5;*/
 }
 
 void unfold(TH1F* unfoldedDistr,TH1F* unfoldedProb,double inputMat[][matrixsize],TH1F* auxEffect,TH1F* hypothesis,TH1F* err){
@@ -277,88 +345,3 @@ bool isRecoLineVoid(double inputMat[][matrixsize],int indx_reco){
 }
 
 
-//Get the hypothesis distribution
-void specifyHypothesis(std::string curveShape, TH1F* hypothesis){
-
-  int choice=0;
-  if (curveShape=="uniform") choice=1;
-  if (curveShape=="gauss") choice=2;
-  if (curveShape=="completeCheating") choice=4;
-  if (curveShape=="physicalOtherGenerator") choice=5;
-  if (curveShape=="fitPhysicalOtherGenerator") choice=6;
-  std::cout<<"unfolding from___"<<curveShape<<"___hypothesis"<<std::endl;
-  
-  switch (choice) {
-
-  case 1:
-    for (int i=1;i<=hypothesis->GetNbinsX();i++)
-      hypothesis->SetBinContent(i,1.);///hypothesis->GetNbinsX());
-    break;
-
-  case 2:
-  
-    for(int i=0;i<10000;++i)
-      hypothesis->Fill( gRandom->Gaus(14,100));
-    break;
-    
-  /*case 4:
-    //Pass the generated truth
-    for (int i_gen1=1;i_gen1<=Ngen1;i_gen1++)
-      hypothesis->SetBinContent(i_gen1, truegen->GetBinContent(i_gen1) );
-    hypothesis->Scale( 1./hypothesis->Integral() );
-    break;
-    
-  case 5:
-    TFile* myFileHyp = TFile::Open("rfio:///castor/cern.ch/user/l/lucaroni/PerLuca/MB_10_PT0.root");  
-    double NGen,NReco,pTGen,pTReco;
-    TTree *treeHyp = (TTree*)gDirectory->Get("demo/TreeLuca");
-    treeHyp->SetBranchAddress("TrGen500",&NGen);
-    treeHyp->SetBranchAddress("TrReco500",&NReco);
-    treeHyp->SetBranchAddress("pTGen500",&pTGen);
-    treeHyp->SetBranchAddress("pTReco500",&pTReco);
-    int entries = treeHyp->GetEntries();
-    for(int n=0;n<entries;n++){
-      treeHyp->GetEntry(n);
-      if (pTReco>1. && pTGen>1.){ //precheck essenziale a causa di come andrea ha fillato il tree
-        //tarsforma in qualche modo nell'intero che ti interessa
-        int i_NGen,i_NReco,i_pTGen,i_pTReco;
-        i_NGen=(int)NGen; i_NReco=(int)NReco; i_pTGen=(int)pTGen; i_pTReco=(int)pTReco;
-        hypothesis->Fill(i_NGen);
-        }
-      }
-    hypothesis->Scale( 1./hypothesis->Integral() );
-    break;
-    
-  case 6:   
-    TH1F* hypothesisAux = new TH1F("hypothesisAux","hypothesisAux",Ngen1,0,Ngen1);
-    TFile* myFileHyp = TFile::Open("rfio:///castor/cern.ch/user/l/lucaroni/PerLuca/MB_10_PT0.root");  
-    double NGen,NReco,pTGen,pTReco;
-    TTree *treeHypF = (TTree*)gDirectory->Get("demo/TreeLuca");
-    treeHypF->SetBranchAddress("TrGen500",&NGen);
-    treeHypF->SetBranchAddress("TrReco500",&NReco);
-    treeHypF->SetBranchAddress("pTGen500",&pTGen);
-    treeHypF->SetBranchAddress("pTReco500",&pTReco);
-    int entries = treeHypF->GetEntries();
-    for(int n=0;n<entries;n++){
-      treeHypF->GetEntry(n);
-      //if (pTReco>1. && pTGen>1.)
-      { //precheck essenziale a causa di come andrea ha fillato il tree
-        //tarsforma in qualche modo nell'intero che ti interessa
-        int i_NGen,i_NReco,i_pTGen,i_pTReco;
-        i_NGen=(int)NGen; i_NReco=(int)NReco; i_pTGen=(int)pTGen; i_pTReco=(int)pTReco;
-        hypothesisAux->Fill(i_NGen);
-        }
-      }
-    hypothesisAux->Scale( 1./hypothesisAux->Integral() );
-
-    TF1 f1("f1","[0]*exp([1]*x)",0.,Ngen1);
-    hypothesisAux->Fit("f1");
-    for (int binX=1;binX<=Ngen1;binX++)
-      hypothesis->SetBinContent(binX,f1(binX));
-  break; */   
-
-  default:
-    {cout << "cio' dei, passime una buona hypotesi, non sta a far el mona.. fine del programa"; exit(999);}
-
-  }
-}
