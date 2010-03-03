@@ -90,7 +90,7 @@ void TrackPlots::fill(vector<MyTracks>& trcoll, vector<MyVertex>& vtxcoll, int v
     nhit->Fill(tr->nhit,weight);
     chi2n->Fill(tr->chi2n,weight);
     if(vtxnum!=-1)d0->Fill(tr->vtxdxy.at(vtxnum),weight);
-    d0->Fill(tr->vtxdxy.at(0),weight);
+    d0bs->Fill(tr->vtxdxy.at(0),weight);
     if(vtxnum!=-1)dz->Fill(tr->vtxdz.at(vtxnum),weight);
     ed0->Fill(tr->ed0,weight);
     edz->Fill(tr->edz,weight);
