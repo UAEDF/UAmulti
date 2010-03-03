@@ -122,7 +122,7 @@ bool isTrackPrimary(MyTracks& tr, vector<MyVertex>& vtxcoll, int goodvtxId, MyBe
 //--------------------------- Get the Part in the good acceptance -----------------------------
 
 
-bool isInAcceptance(MyPart& p , double pt , double eta , int charge = 0){
+bool isInAcceptance(MyPart& p , double pt , double eta , double charge = 0){
   if(p.v.Pt()<pt) return false;
   if(fabs(p.v.Eta())>eta) return false;
   if(charge!=0)
@@ -134,7 +134,7 @@ bool isInAcceptance(MyPart& p , double pt , double eta , int charge = 0){
 
 
 //---------------------- GET THE NUMBER OF PRIMARY TRACKS ---UEEVENTS --
-int getnPrimaryTracks(vector<MyTracks>* v_tr , vector<MyVertex>* vtxcoll , double pt = pt_cut, double eta = eta_cut){
+int getnPrimaryTracks(vector<MyTracks>* v_tr , vector<MyVertex>* vtxcoll , double pt = pt_cut, double eta = eta_cut, double charge = 0){
   
   if(debug) cout<<" +-+-+ starting getnPrimaryTracks"<<endl;
   
@@ -145,7 +145,7 @@ int getnPrimaryTracks(vector<MyTracks>* v_tr , vector<MyVertex>* vtxcoll , doubl
   
   
   for(vector<MyTracks>::iterator it_tr = v_tr->begin() ; it_tr != v_tr->end() ; ++it_tr)
-    if( isTrackPrimary(*it_tr , getBestVertex(vtxcoll)) && isInAcceptance(it_tr->Part,pt,eta) )
+    if( isTrackPrimary(*it_tr , getBestVertex(vtxcoll)) && isInAcceptance(it_tr->Part,pt,eta,charge) )
       ++nch;
       
   if(debug) cout<<" ** getnPrimaryTracks() has found "<<nch<<" primary tracks"<<endl;
@@ -155,7 +155,7 @@ int getnPrimaryTracks(vector<MyTracks>* v_tr , vector<MyVertex>* vtxcoll , doubl
 
 
 //---------------------- GET THE NUMBER OF PRIMARY TRACKS -- FERENC ----
-int getnPrimaryTracks(vector<MyTracks>* v_tr , vector<MyVertex>* vtxcoll, MyBeamSpot* bs , double pt = pt_cut, double eta = eta_cut){
+int getnPrimaryTracks(vector<MyTracks>* v_tr , vector<MyVertex>* vtxcoll, MyBeamSpot* bs , double pt = pt_cut, double eta = eta_cut, double charge = 0){
 
   if(debug) cout<<" +-+-+ starting getnPrimaryTracks"<<endl;
 
@@ -166,7 +166,7 @@ int getnPrimaryTracks(vector<MyTracks>* v_tr , vector<MyVertex>* vtxcoll, MyBeam
 
 
   for(vector<MyTracks>::iterator it_tr = v_tr->begin() ; it_tr != v_tr->end() ; ++it_tr)
-    if( isTrackPrimary(*it_tr , *vtxcoll , getBestVertex(vtxcoll), bs) && isInAcceptance(it_tr->Part,pt,eta) )
+    if( isTrackPrimary(*it_tr , *vtxcoll , getBestVertex(vtxcoll), bs) && isInAcceptance(it_tr->Part,pt,eta,charge) )
       ++nch;
 
   if(debug) cout<<" ** getnPrimaryTracks() has found "<<nch<<" primary tracks"<<endl;
@@ -176,10 +176,10 @@ int getnPrimaryTracks(vector<MyTracks>* v_tr , vector<MyVertex>* vtxcoll, MyBeam
 
 
 //------------------------------ GET TRACKS IN ACCEPTANCE -----------------------------------------
-vector<MyTracks> getInAccTracks(vector<MyTracks> v_tr , double pt = pt_cut, double eta = eta_cut){
+vector<MyTracks> getInAccTracks(vector<MyTracks> v_tr , double pt = pt_cut, double eta = eta_cut,double charge = 0.){
 
   for(vector<MyTracks>::iterator it_tr = v_tr.begin() ; it_tr != v_tr.end() ; ++it_tr)
-    if( !isInAcceptance(it_tr->Part,pt,eta) ) v_tr.erase(it_tr--);
+    if( !isInAcceptance(it_tr->Part,pt,eta,charge) ) v_tr.erase(it_tr--);
 
   return v_tr;
 
@@ -187,18 +187,18 @@ vector<MyTracks> getInAccTracks(vector<MyTracks> v_tr , double pt = pt_cut, doub
 
 
 //------------------------------ GET NUMBER OF TRACKS IN ACCEPTANCE -----------------------------------------
-int getnInAccTracks(vector<MyTracks>* v_tr , double pt = pt_cut, double eta = eta_cut){
+int getnInAccTracks(vector<MyTracks>* v_tr , double pt = pt_cut, double eta = eta_cut, double charge = 0.){
 
   int nch=0;
   for(vector<MyTracks>::iterator it_tr = v_tr->begin() ; it_tr != v_tr->end() ; ++it_tr)
-    if( isInAcceptance(it_tr->Part,pt,eta) ) ++nch;
+    if( isInAcceptance(it_tr->Part,pt,eta,charge) ) ++nch;
 
   return nch;
 
 }
 
 //------------------------------ GET THE PRIMARY TRACK -----------------------------------------
-vector<MyTracks> getPrimaryTracks(vector<MyTracks> v_tr , int vtxId , double pt = pt_cut, double eta = eta_cut){
+vector<MyTracks> getPrimaryTracks(vector<MyTracks> v_tr , int vtxId , double pt = pt_cut, double eta = eta_cut, double charge = 0){
 
   if(debug) cout<<" +-+-+ starting getPrimaryTracks"<<endl;
   
@@ -207,7 +207,7 @@ vector<MyTracks> getPrimaryTracks(vector<MyTracks> v_tr , int vtxId , double pt 
   
   
   for(vector<MyTracks>::iterator it_tr = v_tr.begin() ; it_tr != v_tr.end() ; ++it_tr)
-    if( ! isTrackPrimary(*it_tr , vtxId) || !isInAcceptance(it_tr->Part,pt,eta))
+    if( ! isTrackPrimary(*it_tr , vtxId) || !isInAcceptance(it_tr->Part,pt,eta,charge))
       v_tr.erase(it_tr--);
       
   if(debug) cout<<" ** "<<v_tr.size()<<" tracks remaining after primary selection"<<endl;
@@ -215,13 +215,13 @@ vector<MyTracks> getPrimaryTracks(vector<MyTracks> v_tr , int vtxId , double pt 
   return v_tr;
 }
 
-vector<MyTracks> getPrimaryTracks(vector<MyTracks> v_tr , vector<MyVertex>* vtxcoll ,  double pt = pt_cut, double eta = eta_cut){
-  return getPrimaryTracks(v_tr , getBestVertex(vtxcoll) , pt , eta);
+vector<MyTracks> getPrimaryTracks(vector<MyTracks> v_tr , vector<MyVertex>* vtxcoll ,  double pt = pt_cut, double eta = eta_cut, double charge = 0){
+  return getPrimaryTracks(v_tr , getBestVertex(vtxcoll) , pt , eta , charge );
 }
 
 
 
-vector<MyTracks> getPrimaryTracks(vector<MyTracks> v_tr , vector<MyVertex>* vtxcoll, int vtxId, MyBeamSpot* bs, double pt = pt_cut, double eta = eta_cut){
+vector<MyTracks> getPrimaryTracks(vector<MyTracks> v_tr , vector<MyVertex>* vtxcoll, int vtxId, MyBeamSpot* bs, double pt = pt_cut, double eta = eta_cut, double charge = 0){
 
   if(debug) cout<<" +-+-+ starting getPrimaryTracks using Ferenc association"<<endl;
   
@@ -230,7 +230,7 @@ vector<MyTracks> getPrimaryTracks(vector<MyTracks> v_tr , vector<MyVertex>* vtxc
   
   
   for(vector<MyTracks>::iterator it_tr = v_tr.begin() ; it_tr != v_tr.end() ; ++it_tr)
-    if( ! isTrackPrimary(*it_tr , *vtxcoll, vtxId, bs ) || !isInAcceptance(it_tr->Part,pt,eta) )
+    if( ! isTrackPrimary(*it_tr , *vtxcoll, vtxId, bs ) || !isInAcceptance(it_tr->Part,pt,eta,charge) )
       v_tr.erase(it_tr--);
       
   if(debug) cout<<" ** "<<v_tr.size()<<" tracks remaining after primary selection"<<endl;
@@ -238,8 +238,8 @@ vector<MyTracks> getPrimaryTracks(vector<MyTracks> v_tr , vector<MyVertex>* vtxc
   return v_tr;
 }
 
-vector<MyTracks> getPrimaryTracks(vector<MyTracks> v_tr , vector<MyVertex>* vtxcoll, MyBeamSpot* bs, double pt = pt_cut, double eta = eta_cut){
-  return getPrimaryTracks( v_tr, vtxcoll, getBestVertex(vtxcoll), bs , pt , eta);
+vector<MyTracks> getPrimaryTracks(vector<MyTracks> v_tr , vector<MyVertex>* vtxcoll, MyBeamSpot* bs, double pt = pt_cut, double eta = eta_cut, double charge = 0){
+  return getPrimaryTracks( v_tr, vtxcoll, getBestVertex(vtxcoll), bs , pt , eta , charge);
 }
 
 //--------------------------- IS THE GenPart GOOD ------------------
@@ -257,12 +257,12 @@ bool isGenPartGood(MyGenPart& p){
 
 
 //---------------------- GET THE NUMBER OF PRIMARY GenPart --------------
-int getnPrimaryGenPart(vector<MyGenPart>* v_tr , double pt = pt_cut, double eta = eta_cut){
+int getnPrimaryGenPart(vector<MyGenPart>* v_tr , double pt = pt_cut, double eta = eta_cut, double charge = 0){
   
   int nch = 0;
   
   for(vector<MyGenPart>::iterator it_tr = v_tr->begin() ; it_tr != v_tr->end() ; ++it_tr)
-    if( isGenPartGood(*it_tr) && isInAcceptance(it_tr->Part,pt,eta) )
+    if( isGenPartGood(*it_tr) && isInAcceptance(it_tr->Part,pt,eta,charge) )
       ++nch;
       
   if(debug) cout<<" ** getnPrimaryTracks() has found "<<nch<<" primary tracks"<<endl;

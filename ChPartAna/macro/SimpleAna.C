@@ -201,15 +201,15 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
       for(int acc = 0 ; acc < (signed)accMap.size() ; ++acc){
 	if(isMC){
           for(vector<MyGenPart>::iterator p=genPart->begin() ; p!=genPart->end() ; p++ )
-            if ( isGenPartGood(*p) && isInAcceptance(p->Part,accMap[acc].at(2),accMap[acc].at(3)) )//--->RECO acc cuts !!
+            if ( isGenPartGood(*p) && isInAcceptance(p->Part,accMap[acc].at(2),accMap[acc].at(3),accMap[acc].at(4)) )//--->RECO acc cuts !!
               gmp_evtSel.at(acc)->fill(*genKin , p->Part);
           gmp_evtSel.at(acc)->nextEvent(*genKin);
         }
       
         //Making a GenMulti for RECO
         vector<MyTracks> trcoll;
-	if(iTracking==0) trcoll = getPrimaryTracks(*tracks,vertex,accMap[acc].at(2),accMap[acc].at(3));
-	if(iTracking==1) trcoll = getPrimaryTracks(*tracks,vertex,bs,accMap[acc].at(2),accMap[acc].at(3));
+	if(iTracking==0) trcoll = getPrimaryTracks(*tracks,vertex,accMap[acc].at(2),accMap[acc].at(3),accMap[acc].at(4));
+	if(iTracking==1) trcoll = getPrimaryTracks(*tracks,vertex,bs,accMap[acc].at(2),accMap[acc].at(3),accMap[acc].at(4));
         for(vector<MyTracks>::iterator it_tr = trcoll.begin() ; it_tr != trcoll.end() ; ++it_tr){
           if(isMC) gmp_evtSel_reco.at(acc)->fill(*genKin , it_tr->Part);
 	  mp_evtSel_INC_reco.at(acc)->fill(it_tr->Part);
@@ -231,36 +231,36 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
     for(int acc = 0 ; acc < (signed)accMap.size() ; ++acc){
       if(isMC){
         for(vector<MyGenPart>::iterator p=genPart->begin() ; p!=genPart->end() ; p++ )
-          if ( isGenPartGood(*p) && isInAcceptance(p->Part,accMap[acc].at(0),accMap[acc].at(1)) )
+          if ( isGenPartGood(*p) && isInAcceptance(p->Part,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4)) )
             mp_etaCut_noSel_NSD_gen.at(acc)->fill(p->Part);
         mp_etaCut_noSel_NSD_gen.at(acc)->nextEvent();
       }
     
-      if(isMC) evtSel_before.at(acc)->Fill(getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1)));
+      if(isMC) evtSel_before.at(acc)->Fill(getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4)));
     
       //L1 CUT
-      if(isMC) L1_before.at(acc)->Fill(getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1)));
+      if(isMC) L1_before.at(acc)->Fill(getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4)));
       if(passL1(*L1Trig))
-        if(isMC) L1_after.at(acc)->Fill(getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1)));
+        if(isMC) L1_after.at(acc)->Fill(getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4)));
     
       //HF CUT
-      if(isMC) hf_before.at(acc)->Fill(getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1)));
+      if(isMC) hf_before.at(acc)->Fill(getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4)));
       if(passHF(*MITEvtSel))
-        if(isMC) hf_after.at(acc)->Fill(getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1)));
+        if(isMC) hf_after.at(acc)->Fill(getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4)));
     
       //vtxqual CUT
-      if(isMC) vtxqual_before.at(acc)->Fill(getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1)));
+      if(isMC) vtxqual_before.at(acc)->Fill(getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4)));
       if(passVtxQual(*MITEvtSel))
-        if(isMC) vtxqual_after.at(acc)->Fill(getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1)));
+        if(isMC) vtxqual_after.at(acc)->Fill(getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4)));
     
       //Taking events with only 1 good vertex
-      if(isMC) vtx_before.at(acc)->Fill(getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1)));
+      if(isMC) vtx_before.at(acc)->Fill(getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4)));
       if(getBestVertex(vertexToCut)>-1)
-        if(isMC) vtx_after.at(acc)->Fill(getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1)));
+        if(isMC) vtx_after.at(acc)->Fill(getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4)));
     
       //if(!isEvtGood(*L1Trig , *MITEvtSel) || getBestVertex(vertexToCut)==-1) continue;
       if(isEvtGood(*L1Trig , *MITEvtSel , vertex))
-        if(isMC) evtSel_after.at(acc)->Fill(getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1)));
+        if(isMC) evtSel_after.at(acc)->Fill(getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4)));
     
     }
     
@@ -274,7 +274,7 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
     if(isMC){
       for(int acc = 0 ; acc < (signed)accMap.size() ; ++acc){
         for(vector<MyGenPart>::iterator p=genPart->begin() ; p!=genPart->end() ; p++ ){
-          if ( isGenPartGood(*p) && isInAcceptance(p->Part,accMap[acc].at(0),accMap[acc].at(1))){
+          if ( isGenPartGood(*p) && isInAcceptance(p->Part,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4))){
 	    gmp_etaCut.at(acc)->fill(*genKin,p->Part);
 	    mtxp_evtSel.at(acc)->fillGen(p->Part);
 	  }
@@ -303,8 +303,8 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
     
     for(int acc = 0 ; acc < (signed)accMap.size() ; ++acc){
       vector<MyTracks> trcoll;
-      if(iTracking==0) trcoll = getPrimaryTracks(*tracks,vertex,accMap[acc].at(2),accMap[acc].at(3));
-      if(iTracking==1) trcoll = getPrimaryTracks(*tracks,vertex,bs,accMap[acc].at(2),accMap[acc].at(3));
+      if(iTracking==0) trcoll = getPrimaryTracks(*tracks,vertex,accMap[acc].at(2),accMap[acc].at(3),accMap[acc].at(4));
+      if(iTracking==1) trcoll = getPrimaryTracks(*tracks,vertex,bs,accMap[acc].at(2),accMap[acc].at(3),accMap[acc].at(4));
       for(vector<MyTracks>::iterator it_tr = trcoll.begin() ; it_tr != trcoll.end() ; ++it_tr){
 	if(isMC)
 	  mtxp_evtSel.at(acc)->fillReco(it_tr->Part);
@@ -336,7 +336,7 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
   */
   
   for(int acc = 0 ; acc < (signed)accMap.size() ; ++acc){
-    //TString dir = "";
+    //TString dir = ""; 
     ostringstream dir("");
     dir << "ptGen" << accMap.at(acc).at(0) << "_etaGen" << accMap.at(acc).at(1) 
         << "_ptReco" << accMap.at(acc).at(2) << "_etaReco" << accMap.at(acc).at(3);
