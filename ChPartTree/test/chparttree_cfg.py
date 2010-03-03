@@ -16,20 +16,17 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 #process.GlobalTag.globaltag = 'MC_31X_V3::All'
-#process.GlobalTag.globaltag = 'STARTUP3X_V8O::All'
-process.GlobalTag.globaltag = 'GR09_R_V5::All'
+process.GlobalTag.globaltag = 'STARTUP3X_V8O::All'
 
 # Data source -----------------------------------------------------------------------
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-            ' '
-#          'file:///user/xjanssen/MBdata/__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO/DataCopy_mb__CMSSW_3_3_6_patch3__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO_1.root'
 #          'file:///user/rougny/TESTFILES/Summer09-MC_31X_V3-v1_GEN-SIM-RECO_900GeV.root'
-#          'file:///user/xjanssen/MBdata/D6T2360GeV_test01/simrecofile_103.root'
+           'file:///user/xjanssen/MBdata/D6T2360GeV_test01/simrecofile_103.root'
      )
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(200) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 #process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 # gen particles printouts -----------------------------------------------------------
@@ -54,7 +51,7 @@ process.GenPartTree = cms.EDAnalyzer("ParticleTreeDrawer",
 )
 
 process.GenPartList = cms.EDAnalyzer("ParticleListDrawer",
-    maxEventsToPrint = cms.untracked.int32(10),
+    maxEventsToPrint = cms.untracked.int32(100),
     printVertex = cms.untracked.bool(False),
     src = cms.InputTag("genParticles")
 )
@@ -63,17 +60,11 @@ process.GenPartList = cms.EDAnalyzer("ParticleListDrawer",
 
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
-# Bamspot ----------------------------------------------------------------------------
-
-process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
-
 # Ferenc Tracking --------------------------------------------------------------------
 process.load('RecoPixelVertexing.PixelLowPtUtilities.MinBiasTracking_cff')
 #     This is only for MC, if Rechits are not present
-#process.load("RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi")
-#process.myTTRHBuilderWithoutAngle4PixelTriplets.ComputeCoarseLocalPositionFromDisk = True
-
-
+process.load("RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi")
+process.myTTRHBuilderWithoutAngle4PixelTriplets.ComputeCoarseLocalPositionFromDisk = True
 
 # Ferenc vertex on Tracks ------------------------------------------------------------
 
@@ -88,27 +79,19 @@ process.allVertices.TrackCollection = 'allTracks'
 process.allVertices.PtMin = cms.double(0.0)
 
 
-# MIT Big Events Cuts -------------------------------------------------------------------
+#MIT dndeta selection ----------------------------------------------------------------
 process.load("MitEdm.Producers.evtSelData_cfi"); 
-# MIT Data Filters -----------------------------------------------------------------------
-process.load("MitEdm.Filters.FilterLumi_cfi")
-process.load("MitEdm.Filters.FilterBX_cff")
-process.load("MitEdm.Filters.FilterEvtSel_cff")
 
-# L1 Filters -------------------------------------------------------------------------
-#process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
-#process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
-#process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('0 AND ( 34 OR 40 OR 41 ) AND NOT 36 AND NOT 37 AND NOT 38 AND NOT 39')
 
 # gen particles Tree -----------------------------------------------------------------
 
 process.GenPartAna = cms.EDAnalyzer('ChPartTree'
 
-  , fileName = cms.untracked.string('ChPartTree.root')
+  , fileName = cms.untracked.string('ChPartTree_2.36_simrecfile103.root')
 
 # Modules to execute
-  , StoreGenPart = cms.bool(False)
-  , StoreGenKine = cms.bool(False)
+  , StoreGenPart = cms.bool(True)
+  , StoreGenKine = cms.bool(True)
 
 # Define DATA Collections
   , genPartColl   = cms.InputTag("genParticles")
@@ -126,42 +109,20 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 
 # PAth (what to do) ------------------------------------------------------------------
-
-
-process.freco = cms.Path(
-                           process.goodLumiBlocks
-                         * process.evtSelData 
-                         * process.looseEvtSelFilter
-#                        * process.collisionBunchCrossings
-#                         * process.hltLevel1GTSeed
-                        )
-
-process.simu  = cms.Path(process.offlineBeamSpot)
-
-process.lreco = cms.Path(
-                         process.siPixelRecHits *
-                         process.siStripMatchedRecHits
-                       )
-
-process.greco = cms.Path(
-                         process.minBiasTracking *
+process.path = cms.Path(
+			 process.minBiasTracking *
                          process.allVertices *
-#                        process.generalVertices *
+                         process.generalVertices * 
+                         process.siPixelRecHits *
+                         process.evtSelData *
 #                        process.GenPartDecay *
 #                        process.GenPartTree *
 #                        process.GenPartList *  
                          process.GenPartAna
                        )
 
+# EndPath (what to store) ------------------------------------------------------------
 #process.outpath = cms.EndPath(process.out)
-
-process.schedule = cms.Schedule(
-                                  process.freco
-                                , process.simu
-                                , process.lreco
-                                , process.greco
-#                                , process.outpath
-                               )
 
 
 

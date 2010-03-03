@@ -15,8 +15,6 @@ class MyPart : public TObject {
     Double_t       charge;
     TLorentzVector v;
 
-    TLorentzVector vmpi();
-
   private:
 
     ClassDef (MyPart,1)

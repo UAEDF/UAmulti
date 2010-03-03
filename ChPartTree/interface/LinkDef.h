@@ -9,8 +9,6 @@
 
 #pragma link C++ class MyGenKin+;
 
-#pragma link C++ class MyBeamSpot+;
-
 #pragma link C++ class MyVertex+;
 #pragma link C++ class vector<MyVertex>+;
 

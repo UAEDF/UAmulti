@@ -20,7 +20,6 @@ class MyTracks : public TObject {
     Double_t chi2n;
     Double_t dz  , d0 ;
     Double_t edz , ed0 , ept ; 
-    Double_t vx, vy, vz ;
 
     std::vector<Int_t>     vtxid;
     std::vector<Double_t>  vtxdxy  ;
