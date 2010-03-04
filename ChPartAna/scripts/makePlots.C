@@ -1,10 +1,115 @@
+//
 // makePlots: Do all control plots
 // ---------
 //
 // itracking = 1 : general Tracks and offline Vtx
 //             2 : minbias Tracks and ferenc  Vtx
 
-void makePlots (int itracking = 1){
+#include <TROOT.h>
+#include <TH1F.h>
+#include <TH2F.h>
+#include <TString.h>
+#include <TProfile.h>
+#include <TStyle.h> 
+#include <TCanvas.h>
+#include <TFrame.h>
+#include <TFile.h>
+#include <TDirectory.h>
+#include <TLegend.h>
+#include <TText.h>
+
+#include <TSystem.h>
+
+#include <iostream>
+#include <sstream>
+using namespace std;
+
+#include "makePlots.h"
+
+//makePlot Plots;
+
+#include "../macro/fileManager.C"
+#include "plot.C"
+//#include "plot2D.C"
+//#include "plotMC.C"
+//#include "plotMC2D.C"
+
+void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 ){
+
+  dataSetId.clear();
+  dataSetIsMc.clear();
+  dataSetStyle.clear();
+  dataSetColor.clear();
+  dataSetLegend.clear();
+
+  // PTCUT string
+
+  std::stringstream PT("");
+  PT << "ptcut" << ptcut;
+  ptcutstr = PT.str();
+
+  // 
+  globalEnergy = energy;
+  if ( energy == 0.9 ) {
+    globalLabel =  "CMS 0.9 TeV";
+ 
+    // DATA
+    dataSetId.push_back(0);
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(20);
+    dataSetColor.push_back(2);
+    dataSetLegend.push_back("Data");
+
+    // PYTHIA - D6T
+    dataSetId.push_back(10);
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(1);
+    dataSetColor.push_back(1);
+    dataSetLegend.push_back("PYTHIA D6T");
+
+    // PYTHIA - DW
+    dataSetId.push_back(11);
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(2);
+    dataSetColor.push_back(2);
+    dataSetLegend.push_back("PYTHIA DW");
+
+    // PYTHIA - P0
+    dataSetId.push_back(12);
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(2);
+    dataSetColor.push_back(3);
+    dataSetLegend.push_back("PYTHIA P0");
+
+    // PYTHIA - P0
+    dataSetId.push_back(13);
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(2);
+    dataSetColor.push_back(4);
+    dataSetLegend.push_back("PYTHIA ProQ20");
+
+
+  }
+  if ( energy == 2.36) {
+    globalLabel =  "CMS 2.36 TeV";
+
+    // DATA
+    dataSetId.push_back(0);
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(20);
+    dataSetColor.push_back(2);
+    dataSetLegend.push_back("Data");
+
+    // PYTHIA - D6T
+    dataSetId.push_back(10);
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(1);
+    dataSetColor.push_back(1);
+    dataSetLegend.push_back("PYTHIA D6T");
+
+  }
+
+
   //gROOT->ProcessLine(".X plot.C(\"VertexPlots_allVtx_oVtx\",\"chi2n_allVtx_oVtx\")");
   bool trkplot = 1;
   bool vqlplot = 0;
@@ -16,6 +121,9 @@ void makePlots (int itracking = 1){
   
   //------ TRACK PLOTS ---------
   if(trkplot){
+
+    // Plots.allPlotSetting->clear();
+
     sel = "L1_hf_vtxqual_vtxSel";
     if ( itracking == 1 ) {
       tr  = "PV_gTr_oVtx";
@@ -30,38 +138,44 @@ void makePlots (int itracking = 1){
     all = sel+"_"+tr;
     dir = "EvtSelPlots_"+tr   +   "/TrackPlots_"+sel+"_"+tr;
 
-    cout<<dir<<endl;
-    gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"nch_"+all+"\"");
-    gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"chi2n_"+all+"\"");
-    gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"chi2n_"+all+"\",1");
-    gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"pt_"+all+"\"");
-    gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"pt_"+all+"\",1");
-    gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"phi_"+all+"\"");
-    gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"eta_"+all+"\"");
-    gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"nhit_"+all+"\"");
-    gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"charge_"+all+"\"");
-    //gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"chi2n_"+all+"\"");
+    cout << dir << endl;
+    cout << all << endl;
 
+
+    plot(dir,"nch_"+all);
+    plot(dir,"chi2n_"+all);
+    plot(dir,"chi2n_"+all,1);
+    plot(dir,"pt_"+all);
+    plot(dir,"pt_"+all,1);
+    plot(dir,"eta_"+all,0,1);
+    plot(dir,"phi_"+all);
+    plot(dir,"charge_"+all,0,1);
+    plot(dir,"nhit_"+all);
+    
     if ( itracking == 1 ) {
       tr  = "allTr_gTr_oVtx";
       all = sel+"_"+tr;
       dir = "EvtSelPlots_"+tr   +   "/TrackPlots_"+sel+"_"+tr;
       cout<<dir<<endl;
-      gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"dzOedz_"+all+"\"");
-      gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"dzOedz_"+all+"\",1");
-      gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"dxyOed0_"+all+"\"");
-      gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"dxyOed0_"+all+"\",1");
-      gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"eptOpt_"+all+"\"");
-      gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"eptOpt_"+all+"\",1");
+     
+      plot(dir,"dzOedz_"+all);
+      plot(dir,"dzOedz_"+all,1);
+      plot(dir,"dxyOed0_"+all);
+      plot(dir,"dxyOed0_"+all,1);
+      plot(dir,"eptOpt_"+all);
+      plot(dir,"eptOpt_"+all,1);
+
     } else if  ( itracking == 2 ) {
       tr  = "allTr_mbTr_fVtx";
       all = sel+"_"+tr;
       dir = "EvtSelPlots_"+tr   +   "/TrackPlots_"+sel+"_"+tr;
       cout<<dir<<endl;
-      gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"dzOsz_"+all+"\"");
-      gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"dzOsz_"+all+"\",1");
-      gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"dxybsOsxy_"+all+"\"");
-      gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"dxybsOsxy_"+all+"\",1");
+
+      plot(dir,"dzOsz_"+all);
+      plot(dir,"dzOsz_"+all,1);
+      plot(dir,"dxybsOsxy_"+all);
+      plot(dir,"dxybsOsxy_"+all,1);
+
 //    gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"sxy_"+all+"\",1");
 //    gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"ed0_"+all+"\",1");
 //    gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"d0_"+all+"\",1");
@@ -77,7 +191,8 @@ void makePlots (int itracking = 1){
       cout << "itraking = " << itracking << " :option not available !!! exit !!! " << endl;
       return;
     }
-     
+
+
  
   }
   
@@ -119,8 +234,8 @@ void makePlots (int itracking = 1){
     cout<<dir<<endl;
     
     
-    gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"z_wide_"+all+"\"");
-    gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"z_wide_"+all+"\",1");
+    plot(dir,"z_wide_"+all);
+    plot(dir,"z_wide_"+all,1);
 
     if ( itracking == 1 ) {    
        tr  = "PV_gTr_oVtx";
@@ -136,15 +251,13 @@ void makePlots (int itracking = 1){
     all = sel+"_"+tr;
     dir = "EvtSelPlots_"+tr   +   "/VertexPlots_"+sel+"_"+tr;
     cout<<dir<<endl;
-    
-    gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"z_"+all+"\"");
-    //gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"z_wide_"+all+"\"");
-    //gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"z_wide_"+all+"\",1");
-    gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"x_"+all+"\"");
-    gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"y_"+all+"\"");
-    gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"chi2n_"+all+"\"");
-    gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"chi2n_"+all+"\",1");
-    gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"ntracks_"+all+"\"");
+
+    plot(dir,"z_"+all);
+    plot(dir,"x_"+all);
+    plot(dir,"y_"+all);
+    plot(dir,"chi2n_"+all);
+    plot(dir,"chi2n_"+all,1);
+    plot(dir,"ntracks_"+all);
     
     // gROOT->ProcessLine(".X plot2D.C(\""+dir+"\",\"xy_"+all+"\"");
     
@@ -167,7 +280,7 @@ void makePlots (int itracking = 1){
     //TH1F* h[20];
     //vector <TH1F*> vh;
 
-    TH1F* h;
+    //TH1F* h;
     TCanvas* c1 = new TCanvas("c1","c",200,10,500,500);
     c1->cd();
     
@@ -231,17 +344,18 @@ void makePlots (int itracking = 1){
     all = sel+"_"+tr;
     dir = "MultiPlots_"+all;
     cout<<dir<<endl;
-    
-    gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"eta_"+all+"\"");
-    gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"kno_"+all+"\"");
-    gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"kno_"+all+"\",1");
-    gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"nch_"+all+"\"");
-    gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"nch_"+all+"\",1");
-    gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"pt_"+all+"\"");
-    gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"pt_"+all+"\",1");
-    gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"pt2_"+all+"\"");
-    gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"pt2_"+all+"\",1");
-    gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"rapidity_"+all+"\"");
+   
+    plot(dir,"eta_"+all);
+    plot(dir,"nch_"+all);
+    plot(dir,"nch_"+all,1);
+    plot(dir,"kno_"+all);
+    plot(dir,"kno_"+all,1);
+    plot(dir,"pt_"+all);
+    plot(dir,"pt_"+all,1);
+    plot(dir,"pt2_"+all);
+    plot(dir,"pt2_"+all,1);
+ 
+    //gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"rapidity_"+all+"\"");
   }
    
 }
