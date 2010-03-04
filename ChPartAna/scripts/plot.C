@@ -45,10 +45,14 @@ void plot (TString dir , TString histo , bool logY = false , int iLegendPos = 0 
       hData.at(iData)->SetLineStyle(dataSetStyle.at(iData));
     }
     // Normalisation
-    if ( iData>0 && globalNorm ) {
+    if ( iData>0 && globalNorm == 1 ) {
       Float_t ndata = hData.at(0)->Integral(1, hData.at(0)->GetNbinsX() );
       Float_t nmoca = hData.at(iData)->Integral(1, hData.at(iData)->GetNbinsX() );
       hData.at(iData)->Scale(ndata/nmoca);
+    }
+    if ( globalNorm == 2 ) {
+      Float_t ndata = hData.at(iData)->Integral(1, hData.at(iData)->GetNbinsX() );
+      hData.at(iData)->Scale(1/ndata); 
     }
     // hMax
     if ( hData.at(iData)->GetMaximum() > hMax ) hMax = hData.at(iData)->GetMaximum() ;

@@ -15,8 +15,11 @@ using namespace std;
  float         xGlobalLabel  = 0.60 ;
  float         yGlobalLabel  = 0.90 ;
 
- // MC to Data surface normalisation 
- bool          globalNorm    = 1 ;
+ // Normalisation 
+ // 0: No
+ // 1: to #events in first histo
+ // 2: to Integral of each histo
+ int           globalNorm    = 2 ;
 
  // TLegend position +  Title 
 

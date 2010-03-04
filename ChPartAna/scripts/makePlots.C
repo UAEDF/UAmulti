@@ -34,7 +34,16 @@ using namespace std;
 //#include "plotMC.C"
 //#include "plotMC2D.C"
 
-void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , double etacut = 2.4 ){
+// --- What to Plot ----
+bool trkplot = 1;
+bool vqlplot = 0;
+bool vtxplot = 0;
+bool effplot = 0;
+bool mtxplot = 0;
+bool mltplot = 1;
+
+// ------------------------ makePlots ---------------------------
+void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , double etacut = 2.5 ){
 
   dataSetId.clear();
   dataSetIsMc.clear();
@@ -46,6 +55,9 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
 
   std::stringstream PT("");
   PT << "ptcut" << ptcut;
+  if (etacut != 2.5) {
+    PT << "_eta" << etacut; 
+  }
   ptcutstr = PT.str();
 
   // Legend Title
@@ -74,6 +86,7 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
     dataSetStyle.push_back(1);
     dataSetColor.push_back(1);
     dataSetLegend.push_back("PYTHIA D6T");
+
 
     // PYTHIA - DW
     dataSetId.push_back(11);
@@ -118,13 +131,6 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
   }
 
 
-  //gROOT->ProcessLine(".X plot.C(\"VertexPlots_allVtx_oVtx\",\"chi2n_allVtx_oVtx\")");
-  bool trkplot = 1;
-  bool vqlplot = 0;
-  bool vtxplot = 0;
-  bool effplot = 0;
-  bool mtxplot = 0;
-  bool mltplot = 0 ;
   TString sel,tr,all,dir,cut;
   
   //------ TRACK PLOTS ---------
@@ -151,7 +157,7 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
 
 
     plot(dir,"nch_"+all);
-    plot(dir,"nch_"+all,1);
+    plot(dir,"nch_"+all,1,1);
     plot(dir,"chi2n_"+all);
     plot(dir,"chi2n_"+all,1);
     plot(dir,"pt_"+all);
@@ -354,14 +360,10 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
     dir = "MultiPlots_"+all;
     cout<<dir<<endl;
    
-    plot(dir,"eta_"+all);
-    plot(dir,"nch_"+all);
+    plot(dir,"eta_"+all,0,1);
     plot(dir,"nch_"+all,1);
-    plot(dir,"kno_"+all);
     plot(dir,"kno_"+all,1);
-    plot(dir,"pt_"+all);
     plot(dir,"pt_"+all,1);
-    plot(dir,"pt2_"+all);
     plot(dir,"pt2_"+all,1);
  
     //gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"rapidity_"+all+"\"");
