@@ -15,16 +15,16 @@ using namespace std;
  float         xGlobalLabel  = 0.60 ;
  float         yGlobalLabel  = 0.90 ;
 
-
  // MC to Data surface normalisation 
  bool          globalNorm    = 1 ;
 
- // TLegend position 
+ // TLegend position +  Title 
 
- float xLegendMin[] = { 0.60 , 0.35 };
- float xLegendWidth = 0.30;
- float yLegendMax[] = { 0.80 , 0.50 };
- float yLegendWidth = 0.03;
+ TString  LegendTitle ("NONE"); 
+ float    xLegendMin[] = { 0.57 , 0.35 };
+ float    xLegendWidth = 0.35;
+ float    yLegendMax[] = { 0.80 , 0.50 };
+ float    yLegendWidth = 0.03;
 
  // Save Figs 
  bool          globalSaveFig = 0 ; 

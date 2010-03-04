@@ -34,7 +34,7 @@ using namespace std;
 //#include "plotMC.C"
 //#include "plotMC2D.C"
 
-void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 ){
+void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , double etacut = 2.4 ){
 
   dataSetId.clear();
   dataSetIsMc.clear();
@@ -47,6 +47,14 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 ){
   std::stringstream PT("");
   PT << "ptcut" << ptcut;
   ptcutstr = PT.str();
+
+  // Legend Title
+  std::stringstream LT("");
+  if (itracking == 1 ) LT << "genTracks: " << endl;  
+  if (itracking == 2 ) LT << "mbiasTracks: " << endl; 
+  LT << "  |#eta|<" << etacut  ;
+  LT << "  p_{T}>"  << ptcut   ;
+  LegendTitle = LT.str();
 
   // 
   globalEnergy = energy;
@@ -143,12 +151,13 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 ){
 
 
     plot(dir,"nch_"+all);
+    plot(dir,"nch_"+all,1);
     plot(dir,"chi2n_"+all);
     plot(dir,"chi2n_"+all,1);
     plot(dir,"pt_"+all);
     plot(dir,"pt_"+all,1);
     plot(dir,"eta_"+all,0,1);
-    plot(dir,"phi_"+all);
+    plot(dir,"phi_"+all,0,1);
     plot(dir,"charge_"+all,0,1);
     plot(dir,"nhit_"+all);
     

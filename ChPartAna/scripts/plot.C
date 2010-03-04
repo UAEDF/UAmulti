@@ -79,6 +79,7 @@ void plot (TString dir , TString histo , bool logY = false , int iLegendPos = 0 
                               yLegendMax[iLegendPos] - yLegendWidth * (1+dataSetId.size()) ,
                               xLegendMin[iLegendPos] + xLegendWidth ,
                               yLegendMax[iLegendPos] );
+  if ( LegendTitle != "NONE")  leg->SetHeader(LegendTitle);
   for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) {
     if ( dataSetIsMc.at(iData) )  opt  = "l"; 
     else                          opt  = "p"; 
