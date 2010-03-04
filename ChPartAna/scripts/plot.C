@@ -1,7 +1,8 @@
-void plot (char dir[100] , char histo[200] , bool logY = false )
-//void plot (char dir[60] , char histo[60] , char var[60] )
+void plot (TString dir , TString histo , bool logY = false , int iLegendPos = 0 )
 {
-   char var[60] = "Dummy";
+
+  if ( dataSetId.size()==0 ) return;
+   
   cout<<histo<<endl;
   TCanvas* c1 = new TCanvas("c1","c",200,10,500,500);
   c1->SetLeftMargin(0.17);
@@ -16,109 +17,97 @@ void plot (char dir[100] , char histo[200] , bool logY = false )
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(kFALSE);
 
-  TFile *data = new TFile("../../../root/collectionPlotter_data_testv5.root","READ");
-  //TFile *data = new TFile("../../../root/collectionPlotter_data_finalv2_900GeV.root","READ");
-  //TFile *data = new TFile("../../../root/collectionPlotter_data_finalv2_2.36TeV.root","READ");
-  //TFile *data = new TFile("generalTracks_OfflinePV_data.root","READ");
-  //TFile *data = new TFile("generalTracks_OfflinePV_MC900Gev_D6T.root","READ");
-  data->cd();
+  Float_t hMax = 0 ;
+  vector<TFile*>          fData ( dataSetId.size() , NULL );
+  vector<TDirectoryFile*> dData ( dataSetId.size() , NULL );
+  vector<TH1F*>           hData ( dataSetId.size() , NULL );  
 
-  if ( dir == "none" )
-  {
-    TH1F* hdata = data->Get(histo);
-
-  } else { 
-
-    TDirectoryFile *ddata = data->Get(dir);
-    ddata->cd();
-    TH1F* hdata = ddata->Get(histo);
-  } 
-
-  TFile *moca = new TFile("../../../root/collectionPlotter_MC_testv5.root","READ");
-  //TFile *moca = new TFile("../../../root/collectionPlotter_MC_finalv2_900GeV.root","READ");
-  //TFile *moca = new TFile("../../../root/collectionPlotter_MC_finalv2_2.36TeV.root","READ");
-  //TFile *moca = new TFile("collectionPlotter_MC_EvtSel_Eff.root","READ");
-  //TFile *moca = new TFile("generalTracks_OfflinePV_MC900Gev_D6T.root","READ");
-  moca->cd();
   
-  if ( dir == "none" )
-  {
-    TH1F* hmoca = moca->Get(histo);
-  } else { 
-
-    TDirectoryFile *dmoca = moca->Get(dir);
-    dmoca->cd();
-    TH1F* hmoca = dmoca->Get(histo);
+  for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) { 
+    // Get histo
+    fData.at(iData) = new TFile(fileManager(globalFileType,dataSetId.at(iData),globalEnergy,0,0,0,ptcutstr),"READ");
+    fData.at(iData)->cd();
+    if ( dir == "none" )
+    {
+      hData.at(iData) = (TH1F*) fData.at(iData)->Get(histo);
+    } else {
+      dData.at(iData) = (TDirectoryFile*) fData.at(iData)->Get(dir);
+      dData.at(iData)->cd();
+      hData.at(iData) = (TH1F*) dData.at(iData)->Get(histo);
+    }
+    // Plot Style
+    if ( ! dataSetIsMc.at(iData) ) {
+      hData.at(iData)->SetMarkerColor(dataSetColor.at(iData));
+      hData.at(iData)->SetMarkerStyle(dataSetStyle.at(iData)); 
+    } else {
+      hData.at(iData)->SetLineWidth(2);
+      hData.at(iData)->SetLineColor(dataSetColor.at(iData));
+      hData.at(iData)->SetLineStyle(dataSetStyle.at(iData));
+    }
+    // Normalisation
+    if ( iData>0 && globalNorm ) {
+      Float_t ndata = hData.at(0)->Integral(1, hData.at(0)->GetNbinsX() );
+      Float_t nmoca = hData.at(iData)->Integral(1, hData.at(iData)->GetNbinsX() );
+      hData.at(iData)->Scale(ndata/nmoca);
+    }
+    // hMax
+    if ( hData.at(iData)->GetMaximum() > hMax ) hMax = hData.at(iData)->GetMaximum() ;
   }
 
-  hdata->SetMarkerStyle(20);
-  hdata->GetYaxis()->SetTitleOffset(2);
-  if(!logY) hdata->SetMinimum(0);
-  //hdata->GetXaxis()->SetTitle(var);
-  //hdata->GetYaxis()->SetTitle("N"); 
+  // Global Style
+  hData.at(0)->GetYaxis()->SetTitleOffset(2);
+  if(!logY) {
+    hData.at(0)->SetMinimum(0);
+    hData.at(0)->SetMaximum(hMax*1.1 );
+  }
 
-  hmoca->SetLineWidth(2);
-
-//  Float_t ndata = hdata->GetSum();
-//  Float_t nmoca = hmoca->GetSum();
-
-  Float_t ndata = hdata->Integral(1, hdata->GetNbinsX() );
-  Float_t nmoca = hmoca->Integral(1, hmoca->GetNbinsX() );
-
-
-  cout << ndata << " " << nmoca << " " << ndata/nmoca <<  endl;
-  hmoca->Scale(ndata/nmoca);
-  
-  Float_t Max, min;
-  (hdata->GetYaxis()->GetXmin()<hmoca->GetYaxis()->GetXmin())? min=hdata->GetYaxis()->GetXmin():min=hmoca->GetYaxis()->GetXmin();
-  (hdata->GetYaxis()->GetXmax()>hmoca->GetYaxis()->GetXmax())? Max=hdata->GetYaxis()->GetXmax():Max=hmoca->GetYaxis()->GetXmax();
-    
-  cout << min << endl; 
-  cout << Max << endl; 
-  //hdata->SetMaximum(Max);
-  //hdata->SetMinimum(min);
-
-   
-
-/*
-  Float_t mxdata =  hdata->GetMaximun();
-  Float_t mxmoca =  hmoca->GetMaximun();
-  cout << mxdata << " " << mxmoca << endl;
-*/
-
-  //c1->SetLogY(true);
-
-  hdata->SetMarkerColor(2);
-  hdata->Draw("e");
-  hmoca->Draw("samehist"); 
+  // Plot
+  TString opt;
+  for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) {
+    if ( dataSetIsMc.at(iData) )  opt  = "hist"; 
+    else                          opt  = "e";
+    if ( iData > 0 )              opt += "same";
+    hData.at(iData)->Draw(opt);
+  }
+  for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) {
+    if ( ! dataSetIsMc.at(iData) ) hData.at(iData)->Draw("esame"); 
+  }
 
   // Legend
-  TLegend *leg = new TLegend (.65,.60,.90,.69);
-  leg->AddEntry(hdata,"Data","p" );
-  leg->AddEntry(hmoca,"PYTHIA D6T","l" );
+
+  TLegend *leg = new TLegend (xLegendMin[iLegendPos] ,
+                              yLegendMax[iLegendPos] - yLegendWidth * (1+dataSetId.size()) ,
+                              xLegendMin[iLegendPos] + xLegendWidth ,
+                              yLegendMax[iLegendPos] );
+  for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) {
+    if ( dataSetIsMc.at(iData) )  opt  = "l"; 
+    else                          opt  = "p"; 
+    leg->AddEntry(hData.at(iData),dataSetLegend.at(iData),opt );
+  }
   leg->SetBorderSize(0);
   leg->SetFillColor(0);
   leg->Draw();
 
   // 
   //TText* txt=new TText(.65, 0.96, "CMS 0.9 TeV");
-  TText* txt=new TText(.65, 0.96, "CMS 2.36 TeV");
+  TText* txt=new TText(xGlobalLabel,yGlobalLabel,globalLabel);
   txt->SetNDC(kTRUE);
   txt->SetTextSize(0.04);
   txt->Draw();
 
   // Save Plot
-  //string basedir ( "/user/rougny/UAPlots/" );
-  //string basedir ( "/home/xjanssen/cms/MinBias/900GevPlots/");
-  string basedir ( "/home/xjanssen/cms/MinBias/236GevPlots/");
+  string basedir ( globalFigDir );
+  stringstream out("");
+  out<< globalEnergy << "Tev/";
+  basedir += out.str();
+
   string sdir    (dir);
-  // sdir += basedir;
-  string shisto (histo);
+  string shisto  (histo);
   if(logY) shisto+="_logY";
   
   gPad->WaitPrimitive();
   
-  bool save = false;
+  bool save = globalSaveFig;
   if(save){
   {string fngif ("");
    fngif += basedir;
@@ -156,8 +145,12 @@ void plot (char dir[100] , char histo[200] , bool logY = false )
   c1->SaveAs(fngif.c_str(),"");}
   }
 
-  moca->Close();
-  data->Close();
+  for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) 
+    fData.at(iData)->Close(); 
+
+  //moca->Close();
+  //data->Close();
+  delete c1;
 
   // return 1;
 }  
