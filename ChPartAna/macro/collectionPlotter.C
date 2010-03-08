@@ -103,14 +103,18 @@ void collectionPlotter(int type , double E , double ptcut , TString filename , i
   EvtSelPlots* evtselp_PV_mbTr_fVtx = new EvtSelPlots("PV_mbTr_fVtx");
   EvtSelPlots* evtselp_PV_gTr_oVtx  = new EvtSelPlots("PV_gTr_oVtx");
   EvtSelPlots* evtselp_fPV_gTr_oVtx = new EvtSelPlots("fPV_gTr_oVtx");
+  EvtSelPlots* evtselp_PV_mbTr_pVtx = new EvtSelPlots("PV_mbTr_pVtx");
   
   EvtSelPlots* evtselp_allTr_mbTr_fVtx = new EvtSelPlots("allTr_mbTr_fVtx");
   EvtSelPlots* evtselp_allTr_gTr_oVtx  = new EvtSelPlots("allTr_gTr_oVtx");
+  EvtSelPlots* evtselp_allTr_mbTr_pVtx = new EvtSelPlots("allTr_mbTr_pVtx");
+ 
   
   EvtSelPlots* evtselp_allTr_mbTr_bs = new EvtSelPlots("allTr_mbTr_bs");
   EvtSelPlots* evtselp_allTr_gTr_bs  = new EvtSelPlots("allTr_gTr_bs");
   EvtSelPlots* evtselp_PV_mbTr_bs = new EvtSelPlots("PV_mbTr_bs");
   EvtSelPlots* evtselp_PV_gTr_bs  = new EvtSelPlots("PV_gTr_bs");
+
   
   //------------ MultiPlots ------------------
   MultiPlots* mp_PV_mbTr_fVtx    = new MultiPlots("L1_hf_VtxSel_PV_mbTr_fVtx");
@@ -293,6 +297,7 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/
     if(debug) cout<<"Starting the vertex collections ..."<<endl;
     int vtxId_offlinePV = getBestVertex(offlinePV);
     int vtxId_ferencVtx = getBestVertex(ferencVtx);
+    int vtxId_pixel3Vtx = getBestVertex(pixel3Vertex);
     //vtxp_allVtx_offlinePV->fill(*offlinePV);
     //vtxp_allVtx_ferencVtx->fill(*ferencVtx);
     //if(vtxId<0) continue;
@@ -324,8 +329,11 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/
     evtselp_PV_mbTr_fVtx->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
     evtselp_PV_gTr_oVtx->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
     evtselp_fPV_gTr_oVtx->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
+    evtselp_PV_mbTr_pVtx->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
+
     evtselp_allTr_mbTr_fVtx->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
     evtselp_allTr_gTr_oVtx->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
+    evtselp_allTr_mbTr_pVtx->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
     
     evtselp_PV_mbTr_bs->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
     evtselp_PV_gTr_bs->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
@@ -335,6 +343,7 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/
     if(debug) cout<<"Starting to fill all classes ..."<<endl;
     evtselp_allTr_mbTr_fVtx->fill(*minbiasTracks,*ferencVtx,bs,vtxId_ferencVtx,MITEvtSel->eClusVtxQual,MITEvtSel->ePxHits);
     evtselp_allTr_gTr_oVtx->fill(*generalTracks,*offlinePV,bs,vtxId_offlinePV,MITEvtSel->eClusVtxQual,MITEvtSel->ePxHits);
+    evtselp_allTr_mbTr_pVtx->fill(*minbiasTracks,*pixel3Vertex,bs,vtxId_pixel3Vtx,MITEvtSel->eClusVtxQual,MITEvtSel->ePxHits);
     
     evtselp_allTr_mbTr_bs->fill(*minbiasTracks,*ferencVtx,bs,0,MITEvtSel->eClusVtxQual,MITEvtSel->ePxHits);
     evtselp_allTr_gTr_bs->fill(*generalTracks,*offlinePV,bs,0,MITEvtSel->eClusVtxQual,MITEvtSel->ePxHits);
@@ -375,6 +384,11 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/
       trcoll = getPrimaryTracks(*minbiasTracks,ferencVtx,bs);
       //trp_PV_mbTr_fVtx->fill( trcoll , *ferencVtx, vtxId_ferencVtx , bs);
       evtselp_PV_mbTr_fVtx->fill(trcoll,*ferencVtx,bs,vtxId_ferencVtx,MITEvtSel->eClusVtxQual,MITEvtSel->ePxHits);
+
+      trcoll = getPrimaryTracks(*minbiasTracks,pixel3Vertex,bs);
+      evtselp_PV_mbTr_pVtx->fill(trcoll,*pixel3Vertex,bs,vtxId_pixel3Vtx,MITEvtSel->eClusVtxQual,MITEvtSel->ePxHits);
+
+
     //}
 
 
@@ -515,9 +529,11 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/
   evtselp_PV_mbTr_fVtx->write();
   evtselp_PV_gTr_oVtx->write();
   evtselp_fPV_gTr_oVtx->write();
+  evtselp_PV_mbTr_pVtx->write();
   
   evtselp_allTr_mbTr_fVtx->write();
   evtselp_allTr_gTr_oVtx->write();
+  evtselp_allTr_mbTr_pVtx->write();
   
   evtselp_PV_mbTr_bs->write();
   evtselp_PV_gTr_bs->write();

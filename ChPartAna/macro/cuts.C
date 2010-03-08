@@ -61,7 +61,7 @@ bool isTrackPrimary(MyTracks& tr, int goodvtxId){
   if( tr.ept / tr.Part.v.Pt() > 0.1 ) return false;
   
   //To use only with generalTracks, otherwise it's filled to 0 by default
-  if( ! tr.quality[2]) return false;
+  //if( ! tr.quality[2]) return false;
   
   
   if(debug) cout<<" ** The track is primary"<<endl;
