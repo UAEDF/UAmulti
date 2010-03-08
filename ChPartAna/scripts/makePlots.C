@@ -211,6 +211,7 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
     plot(dir,"phi_"+all,0,1);
     plot(dir,"charge_"+all,0,1);
     plot(dir,"nhit_"+all);
+    plot(dir,"quality_"+all,1,0);
     
     if ( itracking == 1 ) {
       tr  = "allTr_gTr_oVtx";
