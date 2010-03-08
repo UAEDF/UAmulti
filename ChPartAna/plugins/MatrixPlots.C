@@ -16,20 +16,20 @@ MatrixPlots::MatrixPlots(TString collname){
 MatrixPlots::~MatrixPlots(){ }
 
 void MatrixPlots::init(){
-  nch_gen = new TH1F("nch_gen_"+matrixcoll,"nch_gen_"+matrixcoll+";nch_gen;# events",71,-0.5,70.5);
+  nch_gen = new TH1F("nch_gen_"+matrixcoll,"nch_gen_"+matrixcoll+";nch_gen;# events",111,-0.5,110.5);
   eta_gen = new TH1F("eta_gen_"+matrixcoll,"eta_gen_"+matrixcoll+";eta_gen;# events",60,-3.,3.);
   pt_gen  = new TH1F("pt_gen_"+matrixcoll,"pt_gen_"+matrixcoll+";pt_gen;# events",100,0,3.);
   
-  nch_reco = new TH1F("nch_reco_"+matrixcoll,"nch_reco_"+matrixcoll+";nch_reco;# events",71,-0.5,70.5);
+  nch_reco = new TH1F("nch_reco_"+matrixcoll,"nch_reco_"+matrixcoll+";nch_reco;# events",111,-0.5,110.5);
   eta_reco = new TH1F("eta_reco_"+matrixcoll,"eta_reco_"+matrixcoll+";eta_reco;# events",60,-3.,3.);
   pt_reco  = new TH1F("pt_reco_"+matrixcoll,"pt_reco_"+matrixcoll+";pt_reco;# events",100,0,3.);
   
-  nch_matrix = new TH2F("nch_matrix_"+matrixcoll,"nch_matrix_"+matrixcoll+";nch_gen;nch_reco",71,-0.5,70.5,71,-0.5,70.5);
+  nch_matrix = new TH2F("nch_matrix_"+matrixcoll,"nch_matrix_"+matrixcoll+";nch_gen;nch_reco",111,-0.5,110.5,111,-0.5,110.5);
   eta_matrix = new TH2F("eta_matrix_"+matrixcoll,"eta_matrix_"+matrixcoll+";eta_gen;eta_reco",60,-3.,3.,60,-3.,3.);
   pt_matrix  = new TH2F("pt_matrix_"+matrixcoll,"pt_matrix_"+matrixcoll+";pt_gen;pt_reco",100,0,3.,100,0,3.);
   
-  nch_reco_GenBin0 = new TH1F("nch_reco_GenBin0_"+matrixcoll,"nch_reco_GenBin0_"+matrixcoll+";nch_gen;# events",71,-0.5,70.5);
-  nch_gen_RecoBin0 = new TH1F("nch_gen_RecoBin0_"+matrixcoll,"nch_gen_RecoBin0_"+matrixcoll+";nch_gen;# events",71,-0.5,70.5);
+  nch_reco_GenBin0 = new TH1F("nch_reco_GenBin0_"+matrixcoll,"nch_reco_GenBin0_"+matrixcoll+";nch_gen;# events",111,-0.5,110.5);
+  nch_gen_RecoBin0 = new TH1F("nch_gen_RecoBin0_"+matrixcoll,"nch_gen_RecoBin0_"+matrixcoll+";nch_gen;# events",111,-0.5,110.5);
   
   nch_gen->Sumw2();
   eta_gen->Sumw2();

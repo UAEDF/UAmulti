@@ -17,7 +17,7 @@ TrackPlots::~TrackPlots(){ }
 
 void TrackPlots::init(){
   charge   = new TH1F("charge_"+trackcoll,"charge_"+trackcoll+";charge;# events",3,-1.5,1.5);
-  nch   = new TH1F("nch_"+trackcoll,"nch_"+trackcoll+";n_{CH};# events",71,-0.5,70.5);
+  nch   = new TH1F("nch_"+trackcoll,"nch_"+trackcoll+";n_{CH};# events",111,-0.5,110.5);
   pt    = new TH1F("pt_"+trackcoll,"pt_"+trackcoll+";pt [GeV];# events",100,0.,3.);
   eta   = new TH1F("eta_"+trackcoll,"eta_"+trackcoll+";#eta;# events",60,-3.,3.);
   phi   = new TH1F("phi_"+trackcoll,"phi_"+trackcoll+";#phi;# events",30,-TMath::Pi(),TMath::Pi());

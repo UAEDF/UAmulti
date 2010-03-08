@@ -53,7 +53,7 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
 {
   if(type==0) isMC = false;
   
-  int nbinmulti = 70;
+  int nbinmulti = 110;
   
   #include "acceptanceMap.C"
   
