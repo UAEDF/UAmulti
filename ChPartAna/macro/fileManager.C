@@ -38,6 +38,7 @@ TString fileManager ( int     iFileType  = 0
                     , int     iSystType  = 0
                     , int     iSystSign  = 0 
                     , TString STest      = "NONE"
+                    , TString BaseDirPlIn= "NONE"
                     ) 
 {
 
@@ -46,6 +47,9 @@ TString fileManager ( int     iFileType  = 0
   TString CMSSW       = "CMSSW_3_3_6_patch3";
   TString BaseDirTree = "/user/xjanssen/data/" ;
   TString BaseDirPlot = "../plots/";
+  
+  if ( BaseDirPlIn != "NONE" )
+    BaseDirPlot = BaseDirPlIn ;
 
   BaseDirTree += CMSSW + "/" ;
 
