@@ -66,7 +66,15 @@ class EvtSelPlots : public TObject {
     VertexPlots* vtxp_L1_hf_vtxqualSel;
     VertexPlots* vtxp_L1_hf_vtxqual_vtxSel;
     VertexPlots* vtxp_L1_b40_vtxqualSel;
-    
+   
+    TH1F* nvtx_evtSel;
+    TH1F* nvtx_ntrneq0_evtSel;
+    TrackPlots*  trp_nvtxeq1_evtSel;
+    TrackPlots*  trp_nvtxgt1_evtSel;
+    VertexPlots* vtx1_evtSel;
+    VertexPlots* vtx2_evtSel;
+    VertexPlots* vtx3_evtSel;
+ 
     void init();
     void setSelBits(bool, bool, bool, bool, bool);
     void fill(vector<MyTracks>& , vector<MyVertex>&, MyBeamSpot*, int, double, int);//vtxId, vtxQual, npixhits

@@ -65,6 +65,14 @@ void EvtSelPlots::init(){
   vtxp_L1_hf_vtxqualSel     = new VertexPlots("L1_hf_vtxqualSel_"+trackcoll);
   vtxp_L1_hf_vtxqual_vtxSel = new VertexPlots("L1_hf_vtxqual_vtxSel_"+trackcoll);
   vtxp_L1_b40_vtxqualSel    = new VertexPlots("L1_b40_vtxqualSel_"+trackcoll);
+
+  nvtx_evtSel    = new TH1F("nvtx_evtSel_"+trackcoll,"nvtx_evtSel_",21,-0.5,20.5);
+  nvtx_ntrneq0_evtSel  = new TH1F("nvtx_ntrneq0_evtSel_"+trackcoll,"nvtx_ntrneq0_evtSel_",21,-0.5,20.5);
+  trp_nvtxeq1_evtSel = new TrackPlots("nvtxeq1_evtSel_"+trackcoll); 
+  trp_nvtxgt1_evtSel = new TrackPlots("nvtxgt1_evtSel_"+trackcoll); 
+  vtx1_evtSel    = new VertexPlots("vtx1_evtSel_"+trackcoll);
+  vtx2_evtSel    = new VertexPlots("vtx2_evtSel_"+trackcoll);
+  vtx3_evtSel    = new VertexPlots("vtx3_evtSel_"+trackcoll);
   
   vtxqual_noSel  = new TH2F("vtxqual_noSel_"+trackcoll,"vtxqual_noSel",100,0.,2000.,20,0.,10.);
   vtxqual_b40Sel = new TH2F("vtxqual_b40Sel_"+trackcoll,"vtxqual_b40Sel",100,0.,2000.,20,0.,10.);
@@ -157,6 +165,17 @@ void EvtSelPlots::fill(vector<MyTracks>& trcoll, vector<MyVertex>& vtxcoll, MyBe
     trp_L1_hf_vtxqual_vtxSel->fill(trcoll,vtxcoll,vtxId,bs);
     if(goodVtx != vtxcoll.end()) vtxp_L1_hf_vtxqual_vtxSel->fill(*goodVtx);
     vtxqual_L1_hf_vtxqual_vtxSel->Fill(npixhits,vtxQual);
+    nvtx_evtSel->Fill(vtxcoll.size());
+    int nvtx_ntrneq0 = 0;
+    for(vector<MyVertex>::iterator vtx = vtxcoll.begin() ; vtx != vtxcoll.end() ; ++vtx){
+      if (vtx-vtxcoll.begin() == 0) vtx1_evtSel->fill( *vtx );
+      if (vtx-vtxcoll.begin() == 1) vtx2_evtSel->fill( *vtx );
+      if (vtx-vtxcoll.begin() == 2) vtx3_evtSel->fill( *vtx );
+      if (vtx->ntracks > 0 ) ++nvtx_ntrneq0;   
+    }
+    nvtx_ntrneq0_evtSel->Fill(nvtx_ntrneq0);
+    if ( nvtx_ntrneq0 == 1 ) trp_nvtxeq1_evtSel->fill(trcoll,vtxcoll,vtxId,bs);
+    if ( nvtx_ntrneq0 >  1 ) trp_nvtxgt1_evtSel->fill(trcoll,vtxcoll,vtxId,bs);
   }
   
   if(passL1 && passBit40 && passVtxQual){
@@ -224,7 +243,15 @@ void EvtSelPlots::write(){
   vtxp_L1_hf_vtxqualSel->write();
   vtxp_L1_hf_vtxqual_vtxSel->write();
   vtxp_L1_b40_vtxqualSel->write();
-  
+ 
+  nvtx_evtSel->Write();
+  nvtx_ntrneq0_evtSel->Write();
+  trp_nvtxeq1_evtSel->write();
+  trp_nvtxgt1_evtSel->write();
+  vtx1_evtSel->write();
+  vtx2_evtSel->write();
+  vtx3_evtSel->write();
+ 
   gDirectory->cd("../");
 }
 

@@ -28,6 +28,7 @@ class VertexPlots : public TObject {
     TH1F* ez;
     TH1F* chi2n;
     TH1F* ntracks;
+    TH1F* nvertex;
     
     TH2F* xy;
     TH2F* xz;

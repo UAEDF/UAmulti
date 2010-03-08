@@ -25,6 +25,7 @@ void VertexPlots::init(){
   ez = new TH1F("ez_"+vertexcoll,"ez_"+vertexcoll+";ez;# events",100,0.,10.);
   chi2n = new TH1F("chi2n_"+vertexcoll,"chi2n_"+vertexcoll+";#chi^{2}/ndof;# events",80,0.,8.);
   ntracks = new TH1F("ntracks_"+vertexcoll,"ntracks_"+vertexcoll+";ntracks;# events",31,-0.5,30.5);
+  nvertex = new TH1F("nvertex_"+vertexcoll,"nvertex_"+vertexcoll+";nvertex;# events",11,-0.5,10.5);
   
   xy = new TH2F("xy_"+vertexcoll,"xy_"+vertexcoll+";x;y;# events",100,-2.,2.,100,-2.,2.);
   xz = new TH2F("xz_"+vertexcoll,"xz_"+vertexcoll+";x;z;# events",100,-2.,2.,100,-10.,10.);
@@ -32,6 +33,7 @@ void VertexPlots::init(){
 }
 
 void VertexPlots::fill(vector<MyVertex>& vtxcoll , double weight){
+  nvertex->Fill(vtxcoll.size(),weight);
   for(vector<MyVertex>::iterator vtx = vtxcoll.begin() ; vtx != vtxcoll.end() ; ++vtx)
     this->fill(*vtx,weight);
 }
@@ -66,6 +68,7 @@ void VertexPlots::write(){
   ez->Write();
   chi2n->Write();
   ntracks->Write();
+  nvertex->Write();
   xy->Write();
   xz->Write();
   yz->Write();

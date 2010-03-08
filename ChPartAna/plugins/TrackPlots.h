@@ -38,7 +38,9 @@ class TrackPlots : public TObject {
     TH1F* dxyOsxy;
     TH1F* dxybsOsxy;
     TH1F* eptOpt;
-    
+       
+    TH1F* quality;  
+
     TH1F* fdz;
     TH1F* sz;
     TH1F* sxy;
