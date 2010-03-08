@@ -45,15 +45,15 @@ bool vtxplot = 0;
 bool mltplot = 0;
 
 // eta / pt / pt2
-bool corplot = 1;
+bool corplot = 0;
 
 // Nch Unfolding
 bool effplot = 0;
 bool mtxplot = 0;
 
+bool nchplot = 1;
+int iUfoldNIter;int iUfoldisData;int iUfoldHyp;
 
-
-bool nchplot = 0;
 
 // ------------------------ trackPlot
 
@@ -530,7 +530,7 @@ SetId.push_back(10);
     bin = BIN.str();
 
     dataSetId.push_back(-1);
-    ptcutstr = "hyp1_niter10_cut" + bin + "_isData1";
+    ptcutstr = "hyp4_niter5_cut" + bin + "_isData1";
     dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
     dataSetIsMc.push_back(0);
     dataSetStyle.push_back(20);
@@ -539,7 +539,7 @@ SetId.push_back(10);
     dataSetHisto.push_back("eta_data_toCorrect"); 
 
     dataSetId.push_back(-1);
-    ptcutstr = "hyp1_niter10_cut" + bin + "_isData1";
+    ptcutstr = "hyp4_niter5_cut" + bin + "_isData1";
     dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
     dataSetIsMc.push_back(0);
     dataSetStyle.push_back(20);
@@ -548,7 +548,7 @@ SetId.push_back(10);
     dataSetHisto.push_back("eta_corrected"); 
 
     dataSetId.push_back(-1);
-    ptcutstr = "hyp1_niter10_cut" + bin + "_isData0";
+    ptcutstr = "hyp4_niter5_cut" + bin + "_isData0";
     dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
     dataSetIsMc.push_back(1);
     dataSetStyle.push_back(2);
@@ -557,7 +557,7 @@ SetId.push_back(10);
     dataSetHisto.push_back("eff_eta");
 
     dataSetId.push_back(-1);
-    ptcutstr = "hyp1_niter10_cut" + bin + "_isData0";
+    ptcutstr = "hyp4_niter5_cut" + bin + "_isData0";
     dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
     dataSetIsMc.push_back(1);
     dataSetStyle.push_back(1);
@@ -566,7 +566,7 @@ SetId.push_back(10);
     dataSetHisto.push_back("eta_data_toCorrect");
 
     dataSetId.push_back(-1);
-    ptcutstr = "hyp1_niter10_cut" + bin + "_isData0";
+    ptcutstr = "hyp4_niter5_cut" + bin + "_isData0";
     dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
     dataSetIsMc.push_back(1);
     dataSetStyle.push_back(1);
@@ -633,41 +633,151 @@ SetId.push_back(10);
 
   //-------- Mch Unfold --------
   if( nchplot ){
-
+  
+    std::stringstream BIN ("");
+    BIN << "hyp" << iUfoldHyp << "_niter" << iUfoldNIter << "_cut" << iUfoldBin << "_isData" << iUfoldisData;
+    
+    cout<<BIN.str()<<endl;
+    
     plotReset();
-
+    ptcutstr = BIN.str();
     // Plot settings
     globalNorm     = 0;
     globalFileType = 3;
     globalHistoType= 1;
 
-    TString bin("0");
-    std::stringstream BIN ("");
-    BIN << iUfoldBin;
-    bin = BIN.str();
 
+    dir   = "unfolding";
+    
     dataSetId.push_back(-1);
-    ptcutstr = "hyp1_niter10_cut" + bin + "_isData1";
     dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
     dataSetIsMc.push_back(0);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(2);
-    dataSetLegend.push_back("Data");
+    dataSetLegend.push_back("Data INC");
+    dataSetHisto.push_back("nch_data_INC_beforeSDsub");
+    
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(20);
+    dataSetColor.push_back(4);
+    dataSetLegend.push_back("Data NSD");
+    dataSetHisto.push_back("nch_data_NSD_afterSDsub");
 
     dataSetId.push_back(-1);
-    ptcutstr = "hyp1_niter10_cut" + bin + "_isData0";
     dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
     dataSetIsMc.push_back(1);
     dataSetStyle.push_back(1);
     dataSetColor.push_back(1);
-    dataSetLegend.push_back("PYTHIA D6T");
+    dataSetLegend.push_back("NSD PYTHIA D6T");
+    dataSetHisto.push_back("nch_MC_gen_NSD");
 
-    dir   = "unfolding";
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(1);
+    dataSetColor.push_back(2);
+    dataSetLegend.push_back("SD PYTHIA D6T");
+    dataSetHisto.push_back("nch_MC_gen_SD");
+    
+    plot(dir,"AUTO");
+    
+    
+    plotReset();
+    ptcutstr = BIN.str();
+    
+    // Plot settings
+    globalNorm     = 0;
+    globalFileType = 3;
+    globalHistoType= 1;
+    
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(20);
+    dataSetColor.push_back(2);
+    dataSetLegend.push_back("Data NSD");
+    dataSetHisto.push_back("nch_data_NSD_afterSDsub");
+    
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(20);
+    dataSetColor.push_back(4);
+    dataSetLegend.push_back("Data Unfolded");
+    dataSetHisto.push_back("nch_unfoldedPtr");
+
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(1);
+    dataSetColor.push_back(1);
+    dataSetLegend.push_back("Reco NSD PYTHIA D6T");
+    dataSetHisto.push_back("nch_MC_gen_NSD");
+
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(1);
+    dataSetColor.push_back(2);
+    dataSetLegend.push_back("Gen NSD PYTHIA D6T");
+    dataSetHisto.push_back("nch_MC_gen_afterUnfolding");
+   
+    plot(dir,"AUTO");
+    
+    
+    plotReset();
+    ptcutstr = BIN.str();
+    // Plot settings
+    globalNorm     = 0;
+    globalFileType = 3;
+    globalHistoType= 1;
+    
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(20);
+    dataSetColor.push_back(2);
+    dataSetLegend.push_back("Data Unfolded");
+    dataSetHisto.push_back("nch_unfoldedPtr");
+    
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(20);
+    dataSetColor.push_back(4);
+    dataSetLegend.push_back("Data Corrected");
+    dataSetHisto.push_back("nch_data_corrected");
+
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(1);
+    dataSetColor.push_back(2);
+    dataSetLegend.push_back("Gen NSD PYTHIA D6T");
+    dataSetHisto.push_back("nch_MC_gen_afterUnfolding");
+   
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(1);
+    dataSetColor.push_back(4 );
+    dataSetLegend.push_back("Gen NSD w/o evtSel PYTHIA D6T");
+    dataSetHisto.push_back("nch_MC_gen_afterEvtSelCorrection");
+   
+    plot(dir,"AUTO",1);
+    
+    
+    /*dataSetHisto.clear();
+    dataSetHisto.push_back("nch_data_corrected");
+    dataSetHisto.push_back("nch_MC_gen_afterEvtSelCorrection");
+    plot(dir,"AUTO");
     
     plot(dir,"nch_data_INC_beforeSDsub",0,1); 
     plot(dir,"nch_data_NSD_afterSDsub",0,1); 
     plot(dir,"nch_unfoldedPtr",0,1); 
-    plot(dir,"nch_data_corrected",0,1); 
+    plot(dir,"nch_data_corrected",0,1); */
  
 
   }
@@ -676,7 +786,9 @@ SetId.push_back(10);
 }
 
 
-void makeUPlots ( int itracking = 1 , double energy = 0.9 , int iUfoldBin = 0){
+void makeUPlots ( int itracking = 1 , double energy = 0.9 , int iUfoldBin = 0 , int iUfoldisDatain = 1 , int iUfoldHypin = 1 , int iUfoldNIterin = 5){
+  iUfoldisData = iUfoldisDatain ; iUfoldHyp = iUfoldHypin ; iUfoldNIter = iUfoldNIterin;
+  
   makePlots ( itracking , energy , 0 , 0 , iUfoldBin );
 }
 
