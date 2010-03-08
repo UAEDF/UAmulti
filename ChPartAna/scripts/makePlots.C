@@ -42,7 +42,8 @@ double  globalEnergy = 0.9;
 bool trkplot = 0;
 bool vqlplot = 0;
 bool vtxplot = 0;
-bool nvtplot = 1;
+bool nvtplot = 0;
+bool tvtplot = 1;
 bool mltplot = 0;
 
 // eta / pt / pt2
@@ -96,7 +97,7 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
   if ( globalEnergy == 2.36) globalLabel =  "CMS 2.36 TeV";  
 
   //------ TRACK & VTX PLOTS CONFIG ---------
-  if ( trkplot || vqlplot || vtxplot || nvtplot || mltplot ) { 
+  if ( trkplot || vqlplot || vtxplot || nvtplot || tvtplot || mltplot ) { 
 
     globalNorm = 1; 
   
@@ -113,13 +114,14 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
     std::stringstream LT("");
     if (itracking == 1 ) LT << "genTracks: " << endl;  
     if (itracking == 2 ) LT << "mbiasTracks: " << endl; 
+    if (itracking == 3 ) LT << "mbiasTracks+pVtx: " << endl; 
     LT << "  |#eta|<" << etacut  ;
     LT << "  p_{T}>"  << ptcut   ;
     LegendTitle = LT.str();
   
     // 
     if ( energy == 0.9 ) {
-   
+ 
       // DATA
       dataSetId.push_back(0);
       dataSetIsMc.push_back(0);
@@ -188,6 +190,8 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
       tr  = "PV_gTr_oVtx";
     } else if  ( itracking == 2 ) {
       tr  = "PV_mbTr_fVtx";
+    } else if  ( itracking == 3 ) {
+      tr  = "PV_mbTr_pVtx";
     } else {
       cout << "itraking = " << itracking << " :option not available !!! exit !!! " << endl;
       return;
@@ -226,7 +230,7 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
       plot(dir,"eptOpt_"+all);
       plot(dir,"eptOpt_"+all,1);
 
-    } else if  ( itracking == 2 ) {
+    } else if  ( itracking == 2 || itracking == 3 ) {
       tr  = "allTr_mbTr_fVtx";
       all = sel+"_"+tr;
       dir = "EvtSelPlots_"+tr   +   "/TrackPlots_"+sel+"_"+tr;
@@ -254,6 +258,134 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
     }
 
 
+ 
+  }
+
+
+  //------ TRACK PLOTS --------- vs VTX position
+  if(tvtplot){
+
+    // Plots.allPlotSetting->clear();
+
+    if ( itracking == 1 ) {
+      tr  = "PV_gTr_oVtx";
+    } else if  ( itracking == 2 ) {
+      tr  = "PV_mbTr_fVtx";
+    } else if  ( itracking == 3 ) {
+      tr  = "PV_mbTr_pVtx";
+    } else {
+      cout << "itraking = " << itracking << " :option not available !!! exit !!! " << endl;
+      return;
+    }
+  
+  
+    sel = "smallzvtx_evtSel";
+    all = sel+"_"+tr;
+    dir = "EvtSelPlots_"+tr   +   "/TrackPlots_"+sel+"_"+tr;
+
+    // Legend Title
+    TString LTKEEP(LegendTitle);
+    LegendTitle = LTKEEP + "  |z_{vtx}|<2" ;  
+
+    cout << dir << endl;
+    cout << all << endl;
+
+/*
+    plot(dir,"nch_"+all);
+    plot(dir,"nch_"+all,1,2);
+    plot(dir,"chi2n_"+all);
+    plot(dir,"chi2n_"+all,1);
+    plot(dir,"pt_"+all);
+    plot(dir,"pt_"+all,1);
+*/
+    plot(dir,"eta_"+all,0,1);
+/*
+    plot(dir,"phi_"+all,0,1);
+    plot(dir,"charge_"+all,0,1);
+    plot(dir,"nhit_"+all);
+*/
+
+    sel = "mediumzvtx_evtSel";
+    all = sel+"_"+tr;
+    dir = "EvtSelPlots_"+tr   +   "/TrackPlots_"+sel+"_"+tr;
+
+    LegendTitle = LTKEEP + "  2<|z_{vtx}|<5" ;
+
+    cout << dir << endl;
+    cout << all << endl;
+/*
+    plot(dir,"nch_"+all);
+    plot(dir,"nch_"+all,1,2);
+    plot(dir,"chi2n_"+all);
+    plot(dir,"chi2n_"+all,1);
+    plot(dir,"pt_"+all);
+    plot(dir,"pt_"+all,1);
+*/
+    plot(dir,"eta_"+all,0,1);
+/*
+    plot(dir,"phi_"+all,0,1);
+    plot(dir,"charge_"+all,0,1);
+    plot(dir,"nhit_"+all);
+*/
+
+
+    sel = "largezvtx_evtSel";
+    all = sel+"_"+tr;
+    dir = "EvtSelPlots_"+tr   +   "/TrackPlots_"+sel+"_"+tr;
+
+    LegendTitle = LTKEEP + "  |z_{vtx}|>5" ;
+
+    cout << dir << endl;
+    cout << all << endl;
+/*
+    plot(dir,"nch_"+all);
+    plot(dir,"nch_"+all,1,2);
+    plot(dir,"chi2n_"+all);
+    plot(dir,"chi2n_"+all,1);
+    plot(dir,"pt_"+all);
+    plot(dir,"pt_"+all,1);
+*/
+    plot(dir,"eta_"+all,0,1);
+/*
+    plot(dir,"phi_"+all,0,1);
+    plot(dir,"charge_"+all,0,1);
+    plot(dir,"nhit_"+all);
+*/
+
+
+    LegendTitle = LTKEEP ;
+
+/*    
+    if ( itracking == 1 ) {
+      tr  = "allTr_gTr_oVtx";
+      all = sel+"_"+tr;
+      dir = "EvtSelPlots_"+tr   +   "/TrackPlots_"+sel+"_"+tr;
+      cout<<dir<<endl;
+     
+      plot(dir,"dzOedz_"+all);
+      plot(dir,"dzOedz_"+all,1);
+      plot(dir,"dxyOed0_"+all);
+      plot(dir,"dxyOed0_"+all,1);
+      plot(dir,"eptOpt_"+all);
+      plot(dir,"eptOpt_"+all,1);
+
+    } else if  ( itracking == 2 || itracking == 3 ) {
+      tr  = "allTr_mbTr_fVtx";
+      all = sel+"_"+tr;
+      dir = "EvtSelPlots_"+tr   +   "/TrackPlots_"+sel+"_"+tr;
+      cout<<dir<<endl;
+
+      plot(dir,"dzOsz_"+all);
+      plot(dir,"dzOsz_"+all,1);
+      plot(dir,"dxybsOsxy_"+all);
+      plot(dir,"dxybsOsxy_"+all,1);
+
+    } else {
+      cout << "itraking = " << itracking << " :option not available !!! exit !!! " << endl;
+      return;
+    }
+
+*/
  
   }
   
@@ -285,6 +417,8 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
        tr  = "allTr_gTr_oVtx";
     } else if  ( itracking == 2 ) {
        tr  = "allTr_mbTr_fVtx";
+    } else if  ( itracking == 3 ) {
+       tr  = "allTr_mbTr_pVtx";
     } else {
        cout << "itraking = " << itracking << " :option not available !!! exit !!! " << endl;
        return;
@@ -303,6 +437,8 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
        tr  = "PV_gTr_oVtx";
     } else if  ( itracking == 2 ) {
        tr  = "PV_mbTr_fVtx";
+    } else if  ( itracking == 3 ) {
+       tr  = "PV_mbTr_pVtx";
     } else {
        cout << "itraking = " << itracking << " :option not available !!! exit !!! " << endl;
        return;
@@ -334,6 +470,8 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
        tr  = "PV_gTr_oVtx";
     } else if  ( itracking == 2 ) {
        tr  = "PV_mbTr_fVtx";
+    } else if  ( itracking == 3 ) {
+       tr  = "PV_mbTr_pVtx";
     } else {
        cout << "itraking = " << itracking << " :option not available !!! exit !!! " << endl;
        return;
@@ -352,6 +490,8 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
        tr  = "allTr_gTr_oVtx";
     } else if  ( itracking == 2 ) {
        tr  = "allTr_mbTr_fVtx";
+    } else if  ( itracking == 3 ) {
+       tr  = "allTr_mbTr_pVtx";
     } else {
        cout << "itraking = " << itracking << " :option not available !!! exit !!! " << endl;
        return;
@@ -370,7 +510,7 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
       plot(dir,"eptOpt_"+all);
       plot(dir,"eptOpt_"+all,1);
 
-    } else if  ( itracking == 2 ) {
+    } else if  ( itracking == 2 || itracking == 3) {
 
       plot(dir,"dzOsz_"+all);
       plot(dir,"dzOsz_"+all,1);
@@ -385,6 +525,8 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
        tr  = "allTr_gTr_oVtx";
     } else if  ( itracking == 2 ) {
        tr  = "allTr_mbTr_fVtx";
+    } else if  ( itracking == 3 ) {
+       tr  = "allTr_mbTr_pVtx";
     } else {
        cout << "itraking = " << itracking << " :option not available !!! exit !!! " << endl;
        return;
@@ -404,7 +546,7 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
       plot(dir,"eptOpt_"+all);
       plot(dir,"eptOpt_"+all,1);
 
-    } else if  ( itracking == 2 ) {
+    } else if  ( itracking == 2 || itracking == 3 ) {
 
       plot(dir,"dzOsz_"+all);
       plot(dir,"dzOsz_"+all,1);
