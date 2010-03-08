@@ -2,6 +2,12 @@ void plot (TString dir , TString histo , bool logY = false , int iLegendPos = 0 
 {
 
   if ( dataSetId.size()==0 ) return;
+  if ( globalHistoType == 2 ) {
+    if ( dataSetId.size() > 1 ) {
+      cout << "[plot] Can not plot more than 1 TH2F histo !!! " << endl;
+      return;
+    } 
+  } 
    
   cout<<histo<<endl;
   TCanvas* c1 = new TCanvas("c1","c",200,10,500,500);
@@ -18,23 +24,41 @@ void plot (TString dir , TString histo , bool logY = false , int iLegendPos = 0 
   gStyle->SetOptTitle(kFALSE);
 
   Float_t hMax = 0 ;
-  vector<TFile*>          fData ( dataSetId.size() , NULL );
-  vector<TDirectoryFile*> dData ( dataSetId.size() , NULL );
-  vector<TH1F*>           hData ( dataSetId.size() , NULL );  
 
-  
+  vector<TFile*>          fData ( dataSetId.size() , NULL );
+  vector<TH1*>            hData ( dataSetId.size() , NULL );
+
   for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) { 
     // Get histo
-    fData.at(iData) = new TFile(fileManager(globalFileType,dataSetId.at(iData),globalEnergy,0,0,0,ptcutstr),"READ");
-    fData.at(iData)->cd();
-    if ( dir == "none" )
-    {
-      hData.at(iData) = (TH1F*) fData.at(iData)->Get(histo);
-    } else {
-      dData.at(iData) = (TDirectoryFile*) fData.at(iData)->Get(dir);
-      dData.at(iData)->cd();
-      hData.at(iData) = (TH1F*) dData.at(iData)->Get(histo);
+    TString fileName ;
+    if ( dataSetId.at(iData) >= 0 )
+      fileName = fileManager(globalFileType,dataSetId.at(iData),globalEnergy,globalTraking,0,0,ptcutstr) ; 
+    else
+      fileName = dataSetFile.at(iData);
+    cout << "File: " << fileName << endl;
+    fData.at(iData) = new TFile(fileName,"READ");
+    if ( fData.at(iData) == 0 ) { 
+      cout << "[plot] File does not exist " << endl;
+      return;
     }
+
+    fData.at(iData)->cd();
+
+    TString histoName ("");
+    if ( dir   != "none" ) histoName += dir + "/"; 
+    if ( histo == "AUTO" ) histoName += dataSetHisto.at(iData);
+    else                   histoName += histo;
+  
+    cout << "Histo: " << histoName << endl;
+
+    if ( globalHistoType == 1 ) hData.at(iData) = (TH1F*) fData.at(iData)->Get(histoName);
+    if ( globalHistoType == 2 ) hData.at(iData) = (TH2F*) fData.at(iData)->Get(histoName);
+
+    if ( hData.at(iData) == 0 ) {
+      cout << "[plot] Histo does not exist " << endl;
+      return;
+    }
+
     // Plot Style
     if ( ! dataSetIsMc.at(iData) ) {
       hData.at(iData)->SetMarkerColor(dataSetColor.at(iData));
@@ -65,16 +89,26 @@ void plot (TString dir , TString histo , bool logY = false , int iLegendPos = 0 
     hData.at(0)->SetMaximum(hMax*1.1 );
   }
 
-  // Plot
   TString opt;
-  for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) {
-    if ( dataSetIsMc.at(iData) )  opt  = "hist"; 
-    else                          opt  = "e";
-    if ( iData > 0 )              opt += "same";
-    hData.at(iData)->Draw(opt);
+  // TH1F Plot
+  if ( globalHistoType == 1 ) 
+  {
+    for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) {
+      if ( dataSetIsMc.at(iData) )  opt  = "hist"; 
+      else                          opt  = "e";
+      if ( iData > 0 )              opt += "same";
+      hData.at(iData)->Draw(opt);
+    }
+    for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) {
+      if ( ! dataSetIsMc.at(iData) ) hData.at(iData)->Draw("esame"); 
+    }
   }
-  for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) {
-    if ( ! dataSetIsMc.at(iData) ) hData.at(iData)->Draw("esame"); 
+
+  // TH2F Plot
+  if ( globalHistoType == 2 )
+  {
+    if ( dataSetId.size() == 1 )
+      hData.at(0)->Draw(global2DplotOpt);
   }
 
   // Legend
@@ -85,13 +119,23 @@ void plot (TString dir , TString histo , bool logY = false , int iLegendPos = 0 
                               yLegendMax[iLegendPos] );
   if ( LegendTitle != "NONE")  leg->SetHeader(LegendTitle);
   for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) {
-    if ( dataSetIsMc.at(iData) )  opt  = "l"; 
-    else                          opt  = "p"; 
+    if ( globalHistoType == 1 ) {
+      if ( dataSetIsMc.at(iData) )  opt  = "l"; 
+      else                          opt  = "p";
+    } else
+      opt  = "box";
     leg->AddEntry(hData.at(iData),dataSetLegend.at(iData),opt );
   }
   leg->SetBorderSize(0);
   leg->SetFillColor(0);
   leg->Draw();
+
+  TText* ExtLT = new TText( xLegendMin[iLegendPos] , yLegendMax[iLegendPos] + yLegendWidth , ExtLegTitle  );
+  if (ExtLegTitle != "NONE") {
+    ExtLT->SetNDC(kTRUE);
+    ExtLT->SetTextSize(0.023);
+    ExtLT->Draw();
+  }
 
   // 
   //TText* txt=new TText(.65, 0.96, "CMS 0.9 TeV");
@@ -108,53 +152,65 @@ void plot (TString dir , TString histo , bool logY = false , int iLegendPos = 0 
 
   string sdir    (dir);
   string shisto  (histo);
-  if(logY) shisto+="_logY";
   
-  gPad->WaitPrimitive();
+  if (globalWait) gPad->WaitPrimitive();
   
   bool save = globalSaveFig;
   if(save){
-  {string fngif ("");
-   fngif += basedir;
-   fngif += "gif/";  
-   fngif += sdir;
-   fngif += "/";
 
-  if (!gSystem->OpenDirectory(fngif.c_str())) gSystem->mkdir(fngif.c_str(),true);
-  fngif += shisto;
-  fngif += ".gif";
-  c1->SaveAs(fngif.c_str(),"");}
-
+    {
+     string fngif ("");
+     fngif += basedir;
+     fngif += "gif/";  
+     fngif += sdir;
+     fngif += "/";
   
-  {string fngif ("");
-   fngif += basedir;
-   fngif += "eps/"; 
-   fngif += sdir;
-   fngif += "/";
-
-  if (!gSystem->OpenDirectory(fngif.c_str())) gSystem->mkdir(fngif.c_str(),true);
-  fngif += shisto;
-  fngif += ".eps";
-  c1->SaveAs(fngif.c_str(),"");}
-
+     if (!gSystem->OpenDirectory(fngif.c_str())) gSystem->mkdir(fngif.c_str(),true);
+     fngif += shisto;
+     fngif += "_" + ptcutstr;
+     if(logY) fngif +="_logY";
+     fngif += ".gif";
+     c1->SaveAs(fngif.c_str(),"");
+    }
   
-  {string fngif ("");
-   fngif += basedir;
-   fngif += "root/";
-   fngif += sdir;
-
-  fngif += "/";
-  if (!gSystem->OpenDirectory(fngif.c_str())) gSystem->mkdir(fngif.c_str(),true);
-  fngif += shisto;
-  fngif += ".root";
-  c1->SaveAs(fngif.c_str(),"");}
+    
+    {
+     string fngif ("");
+     fngif += basedir;
+     fngif += "eps/"; 
+     fngif += sdir;
+     fngif += "/";
+  
+     if (!gSystem->OpenDirectory(fngif.c_str())) gSystem->mkdir(fngif.c_str(),true);
+     fngif += shisto;
+     fngif += "_" + ptcutstr;
+     if(logY) fngif +="_logY";
+     fngif += ".eps";
+     c1->SaveAs(fngif.c_str(),"");
+    }
+  
+  /*  
+    {
+     string fngif ("");
+     fngif += basedir;
+     fngif += "root/";
+     fngif += sdir;
+  
+     fngif += "/";
+     if (!gSystem->OpenDirectory(fngif.c_str())) gSystem->mkdir(fngif.c_str(),true);
+     fngif += shisto;
+     fngif += "_" + ptcutstr;
+     if(logY) fngif +="_logY";
+     fngif += ".root";
+     c1->SaveAs(fngif.c_str(),"");
+    }
+  */
+  
   }
 
   for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) 
     fData.at(iData)->Close(); 
 
-  //moca->Close();
-  //data->Close();
   delete c1;
 
   // return 1;
