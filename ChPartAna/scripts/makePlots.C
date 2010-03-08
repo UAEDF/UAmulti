@@ -42,6 +42,7 @@ double  globalEnergy = 0.9;
 bool trkplot = 0;
 bool vqlplot = 0;
 bool vtxplot = 0;
+bool nvtplot = 1;
 bool mltplot = 0;
 
 // eta / pt / pt2
@@ -51,7 +52,7 @@ bool corplot = 0;
 bool effplot = 0;
 bool mtxplot = 0;
 
-bool nchplot = 1;
+bool nchplot = 0;
 int iUfoldNIter;int iUfoldisData;int iUfoldHyp;
 
 
@@ -95,9 +96,9 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
   if ( globalEnergy == 2.36) globalLabel =  "CMS 2.36 TeV";  
 
   //------ TRACK & VTX PLOTS CONFIG ---------
-  if ( trkplot || vqlplot || vtxplot || mltplot ) { 
+  if ( trkplot || vqlplot || vtxplot || nvtplot || mltplot ) { 
 
-    globalNorm = 2; 
+    globalNorm = 1; 
   
     // PTCUT string
   
@@ -132,7 +133,7 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
       dataSetStyle.push_back(1);
       dataSetColor.push_back(1);
       dataSetLegend.push_back("PYTHIA D6T");
-  
+/*  
   
       // PYTHIA - DW
       dataSetId.push_back(11);
@@ -154,7 +155,7 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
       dataSetStyle.push_back(2);
       dataSetColor.push_back(4);
       dataSetLegend.push_back("PYTHIA ProQ20");
-  
+*/  
   
     }
     if ( energy == 2.36) {
@@ -321,6 +322,96 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
     
     // gROOT->ProcessLine(".X plot2D.C(\""+dir+"\",\"xy_"+all+"\"");
     
+  }
+
+  //------ VERTEX PLOTS --------- How many vtx ?
+  if (nvtplot) {
+
+    //--- #vertex
+
+    if ( itracking == 1 ) {
+       tr  = "PV_gTr_oVtx";
+    } else if  ( itracking == 2 ) {
+       tr  = "PV_mbTr_fVtx";
+    } else {
+       cout << "itraking = " << itracking << " :option not available !!! exit !!! " << endl;
+       return;
+    }
+  
+    sel = "evtSel";
+    all = sel+"_"+tr;
+    dir = "EvtSelPlots_"+tr  ;
+
+    //plot(dir,"nvtx_"+all,1,0);
+    plot(dir,"nvtx_ntrneq0_"+all,1,0);
+
+    //--- Tracks for events with 1 vtx : PV assoc
+
+    if ( itracking == 1 ) {
+       tr  = "allTr_gTr_oVtx";
+    } else if  ( itracking == 2 ) {
+       tr  = "allTr_mbTr_fVtx";
+    } else {
+       cout << "itraking = " << itracking << " :option not available !!! exit !!! " << endl;
+       return;
+    }
+
+    sel = "nvtxeq1_evtSel";
+    all = sel+"_"+tr;
+    dir = "EvtSelPlots_"+tr   +   "/TrackPlots_"+sel+"_"+tr;      
+
+    if ( itracking == 1 ) {
+
+      plot(dir,"dzOedz_"+all);
+      plot(dir,"dzOedz_"+all,1);
+      plot(dir,"dxyOed0_"+all);
+      plot(dir,"dxyOed0_"+all,1);
+      plot(dir,"eptOpt_"+all);
+      plot(dir,"eptOpt_"+all,1);
+
+    } else if  ( itracking == 2 ) {
+
+      plot(dir,"dzOsz_"+all);
+      plot(dir,"dzOsz_"+all,1);
+      plot(dir,"dxybsOsxy_"+all);
+      plot(dir,"dxybsOsxy_"+all,1);
+
+    }
+
+    //--- Tracks for events with >1 vtx : PV assoc
+
+    if ( itracking == 1 ) {
+       tr  = "allTr_gTr_oVtx";
+    } else if  ( itracking == 2 ) {
+       tr  = "allTr_mbTr_fVtx";
+    } else {
+       cout << "itraking = " << itracking << " :option not available !!! exit !!! " << endl;
+       return;
+    }
+
+    sel = "nvtxgt1_evtSel";
+    all = sel+"_"+tr;
+    dir = "EvtSelPlots_"+tr   +   "/TrackPlots_"+sel+"_"+tr;
+
+
+    if ( itracking == 1 ) {
+
+      plot(dir,"dzOedz_"+all);
+      plot(dir,"dzOedz_"+all,1);
+      plot(dir,"dxyOed0_"+all);
+      plot(dir,"dxyOed0_"+all,1);
+      plot(dir,"eptOpt_"+all);
+      plot(dir,"eptOpt_"+all,1);
+
+    } else if  ( itracking == 2 ) {
+
+      plot(dir,"dzOsz_"+all);
+      plot(dir,"dzOsz_"+all,1);
+      plot(dir,"dxybsOsxy_"+all);
+      plot(dir,"dxybsOsxy_"+all,1);
+   
+    }
+
   }
 
   //--------- MULTI PLOTS -----------
