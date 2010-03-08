@@ -73,6 +73,10 @@ void EvtSelPlots::init(){
   vtx1_evtSel    = new VertexPlots("vtx1_evtSel_"+trackcoll);
   vtx2_evtSel    = new VertexPlots("vtx2_evtSel_"+trackcoll);
   vtx3_evtSel    = new VertexPlots("vtx3_evtSel_"+trackcoll);
+
+  trp_smallzvtx_evtSel = new TrackPlots("smallzvtx_evtSel_"+trackcoll); 
+  trp_mediumzvtx_evtSel = new TrackPlots("mediumzvtx_evtSel_"+trackcoll);
+  trp_largezvtx_evtSel = new TrackPlots("largezvtx_evtSel_"+trackcoll);
   
   vtxqual_noSel  = new TH2F("vtxqual_noSel_"+trackcoll,"vtxqual_noSel",100,0.,2000.,20,0.,10.);
   vtxqual_b40Sel = new TH2F("vtxqual_b40Sel_"+trackcoll,"vtxqual_b40Sel",100,0.,2000.,20,0.,10.);
@@ -159,7 +163,8 @@ void EvtSelPlots::fill(vector<MyTracks>& trcoll, vector<MyVertex>& vtxcoll, MyBe
     if(goodVtx != vtxcoll.end()) vtxp_L1_hf_vtxqualSel->fill(*goodVtx);
     vtxqual_L1_hf_vtxqualSel->Fill(npixhits,vtxQual);
   }
-  
+ 
+  // Final selection 
   if(passL1 && passHF && passVtxQual && passVtx){
     //nch_L1_hf_vtxSel->Fill(trcoll.size());
     trp_L1_hf_vtxqual_vtxSel->fill(trcoll,vtxcoll,vtxId,bs);
@@ -176,6 +181,13 @@ void EvtSelPlots::fill(vector<MyTracks>& trcoll, vector<MyVertex>& vtxcoll, MyBe
     nvtx_ntrneq0_evtSel->Fill(nvtx_ntrneq0);
     if ( nvtx_ntrneq0 == 1 ) trp_nvtxeq1_evtSel->fill(trcoll,vtxcoll,vtxId,bs);
     if ( nvtx_ntrneq0 >  1 ) trp_nvtxgt1_evtSel->fill(trcoll,vtxcoll,vtxId,bs);
+
+    if(goodVtx != vtxcoll.end()) {
+      if ( fabs(goodVtx->z) < 2 ) trp_smallzvtx_evtSel->fill(trcoll,vtxcoll,vtxId,bs);
+      if ( fabs(goodVtx->z) < 5 && fabs(goodVtx->z) >=2 )
+                                   trp_mediumzvtx_evtSel->fill(trcoll,vtxcoll,vtxId,bs);
+      if ( fabs(goodVtx->z) >= 5 ) trp_largezvtx_evtSel->fill(trcoll,vtxcoll,vtxId,bs);
+    }
   }
   
   if(passL1 && passBit40 && passVtxQual){
@@ -251,7 +263,11 @@ void EvtSelPlots::write(){
   vtx1_evtSel->write();
   vtx2_evtSel->write();
   vtx3_evtSel->write();
- 
+
+  trp_smallzvtx_evtSel->write();
+  trp_mediumzvtx_evtSel->write();
+  trp_largezvtx_evtSel->write();
+
   gDirectory->cd("../");
 }
 

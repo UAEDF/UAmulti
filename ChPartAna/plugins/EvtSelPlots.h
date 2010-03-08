@@ -66,7 +66,8 @@ class EvtSelPlots : public TObject {
     VertexPlots* vtxp_L1_hf_vtxqualSel;
     VertexPlots* vtxp_L1_hf_vtxqual_vtxSel;
     VertexPlots* vtxp_L1_b40_vtxqualSel;
-   
+  
+    // To look at #vtx and there quality --> Ferenc vtx problem
     TH1F* nvtx_evtSel;
     TH1F* nvtx_ntrneq0_evtSel;
     TrackPlots*  trp_nvtxeq1_evtSel;
@@ -75,6 +76,12 @@ class EvtSelPlots : public TObject {
     VertexPlots* vtx2_evtSel;
     VertexPlots* vtx3_evtSel;
  
+    // Look for tracks close to vtx=(0,0,0) --> Eta problem ?
+
+    TrackPlots*  trp_smallzvtx_evtSel;
+    TrackPlots*  trp_mediumzvtx_evtSel;
+    TrackPlots*  trp_largezvtx_evtSel;
+
     void init();
     void setSelBits(bool, bool, bool, bool, bool);
     void fill(vector<MyTracks>& , vector<MyVertex>&, MyBeamSpot*, int, double, int);//vtxId, vtxQual, npixhits
