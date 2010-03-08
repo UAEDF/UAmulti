@@ -32,7 +32,7 @@ void plot (TString dir , TString histo , bool logY = false , int iLegendPos = 0 
     // Get histo
     TString fileName ;
     if ( dataSetId.at(iData) >= 0 )
-      fileName = fileManager(globalFileType,dataSetId.at(iData),globalEnergy,globalTraking,0,0,ptcutstr) ; 
+      fileName = fileManager(globalFileType,dataSetId.at(iData),globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot) ; 
     else
       fileName = dataSetFile.at(iData);
     cout << "File: " << fileName << endl;

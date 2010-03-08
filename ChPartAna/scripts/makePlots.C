@@ -79,8 +79,9 @@ void trackPlots()
 
 }
 
+
 // ------------------------ makePlots ---------------------------
-void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , double etacut = 2.5 ){
+void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , double etacut = 2.5 , int iUfoldBin = 0){
 
   gROOT->ProcessLine(".x cmsStyleRoot.C");
 
@@ -523,11 +524,14 @@ SetId.push_back(10);
     globalFileType = 3;
     globalHistoType= 1;
 
-    TString bin ("5");
+    TString bin("0");
+    std::stringstream BIN ("");
+    BIN << iUfoldBin;
+    bin = BIN.str();
 
     dataSetId.push_back(-1);
     ptcutstr = "hyp1_niter10_cut" + bin + "_isData1";
-    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr));
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
     dataSetIsMc.push_back(0);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(2);
@@ -536,7 +540,7 @@ SetId.push_back(10);
 
     dataSetId.push_back(-1);
     ptcutstr = "hyp1_niter10_cut" + bin + "_isData1";
-    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr));
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
     dataSetIsMc.push_back(0);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(4);
@@ -545,7 +549,7 @@ SetId.push_back(10);
 
     dataSetId.push_back(-1);
     ptcutstr = "hyp1_niter10_cut" + bin + "_isData0";
-    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr));
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
     dataSetIsMc.push_back(1);
     dataSetStyle.push_back(2);
     dataSetColor.push_back(1);
@@ -554,7 +558,7 @@ SetId.push_back(10);
 
     dataSetId.push_back(-1);
     ptcutstr = "hyp1_niter10_cut" + bin + "_isData0";
-    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr));
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
     dataSetIsMc.push_back(1);
     dataSetStyle.push_back(1);
     dataSetColor.push_back(2);
@@ -563,7 +567,7 @@ SetId.push_back(10);
 
     dataSetId.push_back(-1);
     ptcutstr = "hyp1_niter10_cut" + bin + "_isData0";
-    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr));
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
     dataSetIsMc.push_back(1);
     dataSetStyle.push_back(1);
     dataSetColor.push_back(4);
@@ -633,22 +637,26 @@ SetId.push_back(10);
     plotReset();
 
     // Plot settings
-    globalNorm     = 2;
+    globalNorm     = 0;
     globalFileType = 3;
     globalHistoType= 1;
 
+    TString bin("0");
+    std::stringstream BIN ("");
+    BIN << iUfoldBin;
+    bin = BIN.str();
 
     dataSetId.push_back(-1);
-    ptcutstr = "hyp1_niter10_cut0_isData1";
-    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr));
+    ptcutstr = "hyp1_niter10_cut" + bin + "_isData1";
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
     dataSetIsMc.push_back(0);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(2);
     dataSetLegend.push_back("Data");
 
     dataSetId.push_back(-1);
-    ptcutstr = "hyp1_niter10_cut0_isData0";
-    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr));
+    ptcutstr = "hyp1_niter10_cut" + bin + "_isData0";
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
     dataSetIsMc.push_back(1);
     dataSetStyle.push_back(1);
     dataSetColor.push_back(1);
@@ -657,9 +665,19 @@ SetId.push_back(10);
     dir   = "unfolding";
     
     plot(dir,"nch_data_INC_beforeSDsub",0,1); 
+    plot(dir,"nch_data_NSD_afterSDsub",0,1); 
+    plot(dir,"nch_unfoldedPtr",0,1); 
+    plot(dir,"nch_data_corrected",0,1); 
  
 
   }
 
 
 }
+
+
+void makeUPlots ( int itracking = 1 , double energy = 0.9 , int iUfoldBin = 0){
+  makePlots ( itracking , energy , 0 , 0 , iUfoldBin );
+}
+
+

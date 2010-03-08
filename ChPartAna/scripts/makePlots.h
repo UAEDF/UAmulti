@@ -8,6 +8,7 @@ using namespace std;
  // File level
  int           globalFileType = 1; 
  TString       ptcutstr = "NONE" ;
+ TString       globalDirPlot = "../plots.romain/";
 
  // Energy + CMS Label
  TString       globalLabel   ("CMS");
