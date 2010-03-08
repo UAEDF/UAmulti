@@ -183,8 +183,8 @@ void EvtSelPlots::fill(vector<MyTracks>& trcoll, vector<MyVertex>& vtxcoll, MyBe
     if ( nvtx_ntrneq0 >  1 ) trp_nvtxgt1_evtSel->fill(trcoll,vtxcoll,vtxId,bs);
 
     if(goodVtx != vtxcoll.end()) {
-      if ( fabs(goodVtx->z) < 2 ) trp_smallzvtx_evtSel->fill(trcoll,vtxcoll,vtxId,bs);
-      if ( fabs(goodVtx->z) < 5 && fabs(goodVtx->z) >=2 )
+      if ( fabs(goodVtx->z) < 1 ) trp_smallzvtx_evtSel->fill(trcoll,vtxcoll,vtxId,bs);
+      if ( fabs(goodVtx->z) < 5 && fabs(goodVtx->z) >=1 )
                                    trp_mediumzvtx_evtSel->fill(trcoll,vtxcoll,vtxId,bs);
       if ( fabs(goodVtx->z) >= 5 ) trp_largezvtx_evtSel->fill(trcoll,vtxcoll,vtxId,bs);
     }
