@@ -78,6 +78,10 @@ void plot (TString dir , TString histo , bool logY = false , int iLegendPos = 0 
       Float_t ndata = hData.at(iData)->Integral(1, hData.at(iData)->GetNbinsX() );
       hData.at(iData)->Scale(1/ndata); 
     }
+    if ( globalNorm == 3 ) { // Excluding bin 0 for normalization
+      Float_t ndata = hData.at(iData)->Integral(2, hData.at(iData)->GetNbinsX() );
+      hData.at(iData)->Scale(1/ndata); 
+    }
     // hMax
     if ( hData.at(iData)->GetMaximum() > hMax ) hMax = hData.at(iData)->GetMaximum() ;
   }
