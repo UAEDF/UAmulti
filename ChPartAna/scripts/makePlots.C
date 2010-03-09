@@ -43,7 +43,7 @@ bool trkplot = 0;
 bool vqlplot = 0;
 bool vtxplot = 0;
 bool nvtplot = 0;
-bool tvtplot = 1;
+bool tvtplot = 0;
 bool mltplot = 0;
 
 // eta / pt / pt2
@@ -54,6 +54,8 @@ bool effplot = 0;
 bool mtxplot = 0;
 
 bool nchplot = 0;
+bool nchctrk = 0;
+
 int iUfoldNIter;int iUfoldisData;int iUfoldHyp;
 
 
@@ -84,6 +86,8 @@ void trackPlots()
 
 // ------------------------ makePlots ---------------------------
 void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , double etacut = 2.5 , int iUfoldBin = 0){
+
+  #include "../macro/acceptanceMap.C"
 
   gROOT->ProcessLine(".x cmsStyleRoot.C");
 
@@ -867,16 +871,39 @@ SetId.push_back(10);
 
   //-------- Mch Unfold --------
   if( nchplot ){
+
+    globalDirPlot = "../plots.romain/unfoldingv1/";
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+    cout << "globalDirPlot= " << globalDirPlot << endl;
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+
+    // Retrieve bin info
+    if ( iUfoldBin > accMap.size() ) {
+      cout << "[makePlots] iUfoldBin > accMap.size()" << endl;
+      return;
+    }
+
+    double ptGen   = accMap[iUfoldBin].at(0);
+    double etaGen  = accMap[iUfoldBin].at(1);
+    double ptReco  = accMap[iUfoldBin].at(2);
+    double etaReco = accMap[iUfoldBin].at(3);
   
     std::stringstream BIN ("");
     BIN << "hyp" << iUfoldHyp << "_niter" << iUfoldNIter << "_cut" << iUfoldBin << "_isData" << iUfoldisData;
+
+    std::stringstream LT("");
+    if (itracking == 1 ) LT << "   genTracks: " ;
+    if (itracking == 2 ) LT << "   mbiasTracks: " ;
+    LT << "  |#eta|<" << etaGen ;
+    LT << "  p_{T}>"  << ptGen ;
     
     cout<<BIN.str()<<endl;
     
     plotReset();
     ptcutstr = BIN.str();
+    LegendTitle = LT.str();
     // Plot settings
-    globalNorm     = 0;
+    globalNorm     = 2;
     globalFileType = 3;
     globalHistoType= 1;
 
@@ -920,9 +947,10 @@ SetId.push_back(10);
     
     plotReset();
     ptcutstr = BIN.str();
+    LegendTitle = LT.str();
     
     // Plot settings
-    globalNorm     = 0;
+    globalNorm     = 2;
     globalFileType = 3;
     globalHistoType= 1;
     
@@ -963,11 +991,12 @@ SetId.push_back(10);
     
     plotReset();
     ptcutstr = BIN.str();
+    LegendTitle = LT.str();
     // Plot settings
-    globalNorm     = 0;
+    globalNorm     = 2;
     globalFileType = 3;
     globalHistoType= 1;
-    
+
     dataSetId.push_back(-1);
     dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
     dataSetIsMc.push_back(0);
@@ -975,7 +1004,7 @@ SetId.push_back(10);
     dataSetColor.push_back(2);
     dataSetLegend.push_back("Data Unfolded");
     dataSetHisto.push_back("nch_unfoldedPtr");
-    
+
     dataSetId.push_back(-1);
     dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
     dataSetIsMc.push_back(0);
@@ -991,7 +1020,7 @@ SetId.push_back(10);
     dataSetColor.push_back(2);
     dataSetLegend.push_back("Gen NSD PYTHIA D6T");
     dataSetHisto.push_back("nch_MC_gen_afterUnfolding");
-   
+
     dataSetId.push_back(-1);
     dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
     dataSetIsMc.push_back(1);
@@ -1000,7 +1029,7 @@ SetId.push_back(10);
     dataSetLegend.push_back("Gen NSD w/o evtSel PYTHIA D6T");
     dataSetHisto.push_back("nch_MC_gen_afterEvtSelCorrection");
    
-    plot(dir,"AUTO",1);
+    plot(dir,"AUTO",1,2);
     
     
     /*dataSetHisto.clear();
@@ -1016,14 +1045,243 @@ SetId.push_back(10);
 
   }
 
+  //-------- Mch Unfold -------- Compare Trackings
+  if( nchctrk ){
+
+    globalDirPlot = "../plots.romain/unfoldingv1/";
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+    cout << "globalDirPlot= " << globalDirPlot << endl;
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+
+    // Retrieve bin info
+    if ( iUfoldBin > accMap.size() ) {
+      cout << "[makePlots] iUfoldBin > accMap.size()" << endl;
+      return;
+    }
+
+    double ptGen   = accMap[iUfoldBin].at(0);
+    double etaGen  = accMap[iUfoldBin].at(1);
+    double ptReco  = accMap[iUfoldBin].at(2);
+    double etaReco = accMap[iUfoldBin].at(3);
+  
+    std::stringstream BIN ("");
+    BIN << "hyp" << iUfoldHyp << "_niter" << iUfoldNIter << "_cut" << iUfoldBin << "_isData" << iUfoldisData;
+
+    std::stringstream LT("");
+    LT << "  |#eta|<" << etaGen ;
+    LT << "  p_{T}>"  << ptGen ;
+
+    std::stringstream LD1("");
+    std::stringstream LD2("");
+    LD1 << "Data - genTracks p_{T}>" << ptReco ;
+    LD2 << "Data - mbiasTracks p_{T}>" << ptReco ;
+
+    plotReset();
+    ptcutstr = BIN.str();
+    LegendTitle = LT.str();
+    // Plot settings
+    globalNorm     = 2;
+    globalFileType = 3;
+    globalHistoType= 1;
+
+    dir   = "unfolding";
+    
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(20);
+    dataSetColor.push_back(kRed);
+    dataSetLegend.push_back(LD1.str());
+    dataSetHisto.push_back("nch_data_corrected");
+
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,1,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(20);
+    dataSetColor.push_back(kBlue);
+    dataSetLegend.push_back(LD2.str());
+    dataSetHisto.push_back("nch_data_corrected");
+
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(1);
+    dataSetColor.push_back(1);
+    dataSetLegend.push_back("NSD - PYTHIA D6T");
+    dataSetHisto.push_back("nch_MC_gen_afterEvtSelCorrection");
+   
+    plot(dir,"AUTO",1,2);
+    
+
+
+
+  }
+
+
+
+  //-------- Mch Unfold -------- Compare Binnings 
+  if( nchctrk ){
+
+//    iUfoldisData = 0;
+
+    //globalDirPlot = "../plots.romain/unfoldingv1/";
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+    cout << "globalDirPlot= " << globalDirPlot << endl;
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+
+    int iUfoldBin1 = iUfoldBin + 0 ;
+    int iUfoldBin2 = iUfoldBin + 5 ;
+
+    // Retrieve bin info --> Bin 1
+    if ( iUfoldBin1 > accMap.size() ) {
+      cout << "[makePlots] iUfoldBin1 > accMap.size()" << endl;
+      return;
+    }
+
+    double ptGen1   = accMap[iUfoldBin1].at(0);
+    double etaGen1  = accMap[iUfoldBin1].at(1);
+    double ptReco1  = accMap[iUfoldBin1].at(2);
+    double etaReco1 = accMap[iUfoldBin1].at(3);
+
+    std::stringstream BIN1 ("");
+    BIN1 << "hyp" << iUfoldHyp << "_niter" << iUfoldNIter << "_cut" << iUfoldBin1 << "_isData" << iUfoldisData;
+
+    // Retrieve bin info --> Bin 2
+    if ( iUfoldBin2 > accMap.size() ) {
+      cout << "[makePlots] iUfoldBin2 > accMap.size()" << endl;
+      return;
+    }
+
+    double ptGen2   = accMap[iUfoldBin2].at(0);
+    double etaGen2  = accMap[iUfoldBin2].at(1);
+    double ptReco2  = accMap[iUfoldBin2].at(2);
+    double etaReco2 = accMap[iUfoldBin2].at(3);
+  
+    std::stringstream BIN2 ("");
+    BIN2 << "hyp" << iUfoldHyp << "_niter" << iUfoldNIter << "_cut" << iUfoldBin2 << "_isData" << iUfoldisData;
+
+    // Check Consistency of both bins
+    if (   ( ptGen1 != ptGen2 ) || ( etaGen1 != etaGen2 ) || ( etaReco1 != etaReco2 )  ) {
+      cout << "[makePlots] iUfoldBin1 <-> iUfoldBin2 are incompatible" << endl;
+      return;
+    }
+
+    //
+  
+    std::stringstream LT("");
+    LT << "  |#eta|<" << etaGen1 ;
+    LT << "  p_{T}>"  << ptGen1  ;
+    
+    std::stringstream LD1("");
+    std::stringstream LD2("");
+    std::stringstream LD3("");
+    LD1 << "Data - genTracks p_{T}>"   << ptReco1 ;
+    LD2 << "Data - mbiasTracks p_{T}>" << ptReco1 ;
+    LD3 << "Data - mbiasTracks p_{T}>" << ptReco2 ;
+
+    plotReset();
+    LegendTitle = LT.str();
+    // Plot settings
+    globalNorm     = 3;
+    globalFileType = 3;
+    globalHistoType= 1;
+
+    dir   = "unfolding";
+    
+    ptcutstr = BIN1.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(24);
+    dataSetColor.push_back(kRed);
+    dataSetLegend.push_back(LD1.str());
+    dataSetHisto.push_back("nch_data_corrected");
+
+    ptcutstr = BIN1.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,1,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(24);
+    dataSetColor.push_back(kGreen);
+    dataSetLegend.push_back(LD2.str());
+    dataSetHisto.push_back("nch_data_corrected");
+
+    ptcutstr = BIN2.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(24);
+    dataSetColor.push_back(kBlack);
+    dataSetLegend.push_back("genT 0.15");
+    dataSetHisto.push_back("nch_data_corrected");
+
+
+    ptcutstr = BIN2.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,1,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(24);
+    dataSetColor.push_back(kBlue);
+    dataSetLegend.push_back(LD3.str());
+    dataSetHisto.push_back("nch_data_corrected");
+
+
+
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(1);
+    dataSetColor.push_back(1);
+    dataSetLegend.push_back("NSD - PYTHIA D6T");
+    dataSetHisto.push_back("nch_MC_gen_afterEvtSelCorrection");
+
+   
+    plot(dir,"AUTO",1,2);
+    
+
+
+
+  }
 
 }
 
 
-void makeUPlots ( int itracking = 1 , double energy = 0.9 , int iUfoldBin = 0 , int iUfoldisDatain = 1 , int iUfoldHypin = 1 , int iUfoldNIterin = 5){
+void makeUPlots ( int itracking = 0 , double energy = 0.9 , int iUfoldBin = 0 , int iUfoldisDatain = 1 , int iUfoldHypin = 1 , int iUfoldNIterin = 10){
   iUfoldisData = iUfoldisDatain ; iUfoldHyp = iUfoldHypin ; iUfoldNIter = iUfoldNIterin;
-  
-  makePlots ( itracking , energy , 0 , 0 , iUfoldBin );
+
+ trkplot = 0;
+ vqlplot = 0;
+ vtxplot = 0;
+ nvtplot = 0;
+ tvtplot = 0;
+ mltplot = 0;
+
+// eta / pt / pt2
+ corplot = 0;
+
+// Nch Unfolding
+ effplot = 0;
+ mtxplot = 0;
+//-------------------
+
+ nchplot = 1;
+ if (itracking == 1 || itracking == 2 )
+   makePlots ( itracking , energy , 0 , 0 , iUfoldBin );
+ else if ( itracking == 0 ) 
+ {
+   makePlots ( 1  , energy , 0 , 0 , iUfoldBin );
+   makePlots ( 2  , energy , 0 , 0 , iUfoldBin );
+   nchplot = 0;
+   nchctrk = 1;
+   makePlots ( 0  , energy , 0 , 0 , iUfoldBin ); 
+ }
+ else if ( itracking == 3 ) 
+ {
+   nchplot = 0;
+   nchctrk = 1;
+   makePlots ( 0  , energy , 0 , 0 , iUfoldBin ); 
+ }
+
 }
 
 

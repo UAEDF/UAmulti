@@ -63,6 +63,7 @@ void plot (TString dir , TString histo , bool logY = false , int iLegendPos = 0 
     if ( ! dataSetIsMc.at(iData) ) {
       hData.at(iData)->SetMarkerColor(dataSetColor.at(iData));
       hData.at(iData)->SetMarkerStyle(dataSetStyle.at(iData)); 
+      hData.at(iData)->SetLineColor(dataSetColor.at(iData));
     } else {
       hData.at(iData)->SetLineWidth(2);
       hData.at(iData)->SetLineColor(dataSetColor.at(iData));

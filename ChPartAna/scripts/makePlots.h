@@ -8,8 +8,8 @@ using namespace std;
  // File level
  int           globalFileType = 1; 
  TString       ptcutstr = "NONE" ;
-// TString       globalDirPlot = "../plots.romain/";
- TString       globalDirPlot = "../plots.xavier/";
+ TString       globalDirPlot = "../plots.romain/";
+// TString       globalDirPlot = "../plots.xavier/";
   
  // Energy + CMS Label
  TString       globalLabel   ("CMS");
@@ -44,7 +44,10 @@ using namespace std;
  TString       globalFigDir  ("../figs/");
 
  // Dataset Settings
-  
+
+ float           histoXMin = -99999.;   
+ float           histoXMax = -99999.;   
+
  vector<int>     dataSetId     (1,0);
  vector<bool>    dataSetIsMc   (1,0);
  vector<int>     dataSetStyle  (1,20);
@@ -89,6 +92,9 @@ void plotReset()
  // globalFigDir  = "../figs/" ;
 
  // Dataset Settings
+
+  histoXMin = -99999.;
+  histoXMax = -99999.;
 
   dataSetId.clear();     
   dataSetIsMc.clear();   
