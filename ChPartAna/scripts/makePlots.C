@@ -285,7 +285,7 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
 
     // Legend Title
     TString LTKEEP(LegendTitle);
-    LegendTitle = LTKEEP + "  |z_{vtx}|<2" ;  
+    LegendTitle = LTKEEP + "  |z_{vtx}|<1" ;  
 
     cout << dir << endl;
     cout << all << endl;
@@ -309,7 +309,7 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
     all = sel+"_"+tr;
     dir = "EvtSelPlots_"+tr   +   "/TrackPlots_"+sel+"_"+tr;
 
-    LegendTitle = LTKEEP + "  2<|z_{vtx}|<5" ;
+    LegendTitle = LTKEEP + "  1<|z_{vtx}|<5" ;
 
     cout << dir << endl;
     cout << all << endl;

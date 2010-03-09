@@ -1,6 +1,8 @@
 #ifndef TMEAN_H
 #define TMEAN_H
 
+#include "TObject.h"
+
 //#include "RootHeaders.h"
 
 class TMean : public TObject{

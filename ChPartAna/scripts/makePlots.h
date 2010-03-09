@@ -8,8 +8,9 @@ using namespace std;
  // File level
  int           globalFileType = 1; 
  TString       ptcutstr = "NONE" ;
- TString       globalDirPlot = "../plots.romain/";
-
+// TString       globalDirPlot = "../plots.romain/";
+ TString       globalDirPlot = "../plots.xavier/";
+  
  // Energy + CMS Label
  TString       globalLabel   ("CMS");
  float         xGlobalLabel  = 0.60 ;

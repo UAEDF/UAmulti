@@ -2,6 +2,7 @@
 #define __VertexPlots_H__
 
 #include <vector>
+using namespace std;
 #include "TObject.h"
 #include "TH1F.h"
 #include "TH2F.h"
