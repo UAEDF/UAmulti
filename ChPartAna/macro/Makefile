@@ -24,37 +24,30 @@ PLUGINOBJ := $(addsuffix .o , $(PLUGINOBJ) )
 PLUGIDICO  = $(addprefix $(PLUGINDIR), $(PLUGINNAME))
 PLUGIDICO := $(addsuffix _C.so , $(PLUGIDICO) )
 
-OBJDIR  = ./
-OBJNAME = collectionPlotter 
-
-OBJSRC  = $(addprefix $(OBJDIR), $(OBJNAME))
-OBJSRC := $(addsuffix .C , $(OBJSRC) )
-OBJOBJ  = $(addprefix $(OBJDIR), $(OBJNAME))
-OBJOBJ := $(addsuffix .o , $(OBJOBJ) )
-
-MAINSRC = mcollectionPlotter.C
-
 #suffix list
 .SUFFIXES: .C .o
 
 # ------------- What2do ---------------------------------------------
 
-all: dependencies collectionPlotter
+all: dependencies collectionPlotter simpleAna
 
+#shortcuts:
 cplot: collectionPlotter
+siana: simpleAna
 
-dependencies: ${OBJOBJ} ${PLUGINOBJ} dico
-	echo ${OBJNAME}  ; \
-	echo ${PLUGINOBJ}
-
-collectionPlotter: 
+dependencies: ${PLUGINOBJ} dico
+	
+collectionPlotter: collectionPlotter.o
 	${COMPILER} mcollectionPlotter.C -o $@.exe  \
-	${OBJOBJ} ${PLUGINOBJ} ${PLUGIDICO} \
+	collectionPlotter.o ${PLUGINOBJ} ${PLUGIDICO} \
+	${CFLAGS} ${LIBS}
+
+simpleAna: SimpleAna.o
+	${COMPILER} mSimpleAna.C -o $@.exe  \
+	SimpleAna.o ${PLUGINOBJ} ${PLUGIDICO} \
 	${CFLAGS} ${LIBS}
 
 # ------------- Stuff you shouldn't have to change ------------------
-
-
 
 .C.o : 
 	${COMPILER} ${CFLAGS} -I$(PLUGINDIR) -c -o $*.o $<
