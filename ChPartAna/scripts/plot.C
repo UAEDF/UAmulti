@@ -1,3 +1,22 @@
+
+#include <TROOT.h>
+#include <TH1F.h>
+#include <TH2F.h>
+#include <TGraphErrors.h>
+#include <TString.h>
+#include <TProfile.h>
+#include <TStyle.h> 
+#include <TCanvas.h>
+#include <TFrame.h>
+#include <TFile.h>
+#include <TDirectory.h>
+#include <TLegend.h>
+#include <TText.h>
+#include <iostream>
+#include <fstream>
+using namespace std;
+
+
 void plot (TString dir , TString histo , bool logY = false , int iLegendPos = 0 )
 {
 
@@ -25,73 +44,116 @@ void plot (TString dir , TString histo , bool logY = false , int iLegendPos = 0 
 
   Float_t hMax = 0 ;
 
+  vector<bool>            rData ( dataSetId.size() , 1    ); 
   vector<TFile*>          fData ( dataSetId.size() , NULL );
   vector<TH1*>            hData ( dataSetId.size() , NULL );
+  vector<TGraph*>         gData ( dataSetId.size() , NULL );
 
   for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) { 
     // Get histo
     TString fileName ;
-    if ( dataSetId.at(iData) >= 0 )
+    if      ( dataSetId.at(iData) >=  0 )
       fileName = fileManager(globalFileType,dataSetId.at(iData),globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot) ; 
-    else
+    else 
       fileName = dataSetFile.at(iData);
     cout << "File: " << fileName << endl;
-    fData.at(iData) = new TFile(fileName,"READ");
-    if ( fData.at(iData) == 0 ) { 
-      cout << "[plot] File does not exist " << endl;
-      return;
+
+    // Data from root file ?
+    // bool isRootData = true; 
+    if ( histo == "AUTO" ) {
+      if ( dataSetHisto.at(iData) == "EXTDATA" )  rData.at(iData) = 0 ; //isRootData = false;
     }
 
-    fData.at(iData)->cd();
-
-    TString histoName ("");
-    if ( dir   != "none" ) histoName += dir + "/"; 
-    if ( histo == "AUTO" ) histoName += dataSetHisto.at(iData);
-    else                   histoName += histo;
+    // Data from root files: TH1, TH2, TProfile
+    if ( rData.at(iData) ) 
+    {
+      fData.at(iData) = new TFile(fileName,"READ");
+      if ( fData.at(iData) == 0 ) { 
+        cout << "[plot] File does not exist " << endl;
+        return;
+      }
   
-    cout << "Histo: " << histoName << endl;
+      fData.at(iData)->cd();
+  
+      TString histoName ("");
+      if ( dir   != "none" ) histoName += dir + "/"; 
+      if ( histo == "AUTO" ) histoName += dataSetHisto.at(iData);
+      else                   histoName += histo;
+    
+      cout << "Histo: " << histoName << endl;
+  
+      if ( globalHistoType == 1 ) hData.at(iData) = (TH1F*) fData.at(iData)->Get(histoName);
+      if ( globalHistoType == 2 ) hData.at(iData) = (TH2F*) fData.at(iData)->Get(histoName);
+  
+      if ( hData.at(iData) == 0 ) {
+        cout << "[plot] Histo does not exist " << endl;
+        return;
+      }
+   
+      // Plot Style
+      if ( ! dataSetIsMc.at(iData) ) {
+        hData.at(iData)->SetMarkerColor(dataSetColor.at(iData));
+        hData.at(iData)->SetMarkerStyle(dataSetStyle.at(iData)); 
+        hData.at(iData)->SetLineColor(dataSetColor.at(iData));
+      } else {
+        hData.at(iData)->SetLineWidth(2);
+        hData.at(iData)->SetLineColor(dataSetColor.at(iData));
+        hData.at(iData)->SetLineStyle(dataSetStyle.at(iData));
+      }
+      // Normalisation
+      if ( iData>0 && globalNorm == 1 ) {
+        Float_t ndata = hData.at(0)->Integral(1, hData.at(0)->GetNbinsX() );
+        Float_t nmoca = hData.at(iData)->Integral(1, hData.at(iData)->GetNbinsX() );
+        hData.at(iData)->Scale(ndata/nmoca);
+      }
+      if ( globalNorm == 2 ) {
+        Float_t ndata = hData.at(iData)->Integral(1, hData.at(iData)->GetNbinsX() );
+        hData.at(iData)->Scale(1/ndata); 
+      }
+      if ( globalNorm == 3 ) { // Excluding bin 0 for normalization
+        Float_t ndata = hData.at(iData)->Integral(2, hData.at(iData)->GetNbinsX() );
+        hData.at(iData)->Scale(1/ndata); 
+      }
+      // hMax
+      if ( hData.at(iData)->GetMaximum() > hMax ) hMax = hData.at(iData)->GetMaximum() ;
 
-    if ( globalHistoType == 1 ) hData.at(iData) = (TH1F*) fData.at(iData)->Get(histoName);
-    if ( globalHistoType == 2 ) hData.at(iData) = (TH2F*) fData.at(iData)->Get(histoName);
-
-    if ( hData.at(iData) == 0 ) {
-      cout << "[plot] Histo does not exist " << endl;
-      return;
-    }
-
-    // Plot Style
-    if ( ! dataSetIsMc.at(iData) ) {
-      hData.at(iData)->SetMarkerColor(dataSetColor.at(iData));
-      hData.at(iData)->SetMarkerStyle(dataSetStyle.at(iData)); 
-      hData.at(iData)->SetLineColor(dataSetColor.at(iData));
+    // Data from external text file 
     } else {
-      hData.at(iData)->SetLineWidth(2);
-      hData.at(iData)->SetLineColor(dataSetColor.at(iData));
-      hData.at(iData)->SetLineStyle(dataSetStyle.at(iData));
+      
+      cout << "[plot] make TGraphError !!!!" << endl; 
+
+      int   n = 0; 
+      const int  nmax = 300 ;
+      double x[nmax] , y[nmax] , ex[nmax] , ey[nmax] ;
+
+      ifstream mydata ;
+      mydata.open (fileName);          
+      while (mydata >> x[n] >> y[n] >> ey[n] ) { ex[n] = 0. ; n++; }
+      mydata.close();
+
+      gData.at(iData) = new TGraphErrors(n,x,y,ex,ey);
+ 
+      // Plot Style
+      gData.at(iData)->SetMarkerColor(dataSetColor.at(iData));
+      gData.at(iData)->SetMarkerStyle(dataSetStyle.at(iData)); 
+      gData.at(iData)->SetLineColor(dataSetColor.at(iData));
+
     }
-    // Normalisation
-    if ( iData>0 && globalNorm == 1 ) {
-      Float_t ndata = hData.at(0)->Integral(1, hData.at(0)->GetNbinsX() );
-      Float_t nmoca = hData.at(iData)->Integral(1, hData.at(iData)->GetNbinsX() );
-      hData.at(iData)->Scale(ndata/nmoca);
-    }
-    if ( globalNorm == 2 ) {
-      Float_t ndata = hData.at(iData)->Integral(1, hData.at(iData)->GetNbinsX() );
-      hData.at(iData)->Scale(1/ndata); 
-    }
-    if ( globalNorm == 3 ) { // Excluding bin 0 for normalization
-      Float_t ndata = hData.at(iData)->Integral(2, hData.at(iData)->GetNbinsX() );
-      hData.at(iData)->Scale(1/ndata); 
-    }
-    // hMax
-    if ( hData.at(iData)->GetMaximum() > hMax ) hMax = hData.at(iData)->GetMaximum() ;
   }
 
   // Global Style
-  hData.at(0)->GetYaxis()->SetTitleOffset(2);
-  if(!logY) {
-    hData.at(0)->SetMinimum(0);
-    hData.at(0)->SetMaximum(hMax*1.1 );
+  if ( rData.at(0) ) {
+    hData.at(0)->GetYaxis()->SetTitleOffset(2);
+    if(!logY) {
+      hData.at(0)->SetMinimum(0);
+      hData.at(0)->SetMaximum(hMax*1.1 );
+    }
+  } else {
+    gData.at(0)->GetYaxis()->SetTitleOffset(2);
+    if(!logY) {
+      gData.at(0)->SetMinimum(0);
+      gData.at(0)->SetMaximum(hMax*1.1 );
+    }
   }
 
   TString opt;
@@ -102,10 +164,12 @@ void plot (TString dir , TString histo , bool logY = false , int iLegendPos = 0 
       if ( dataSetIsMc.at(iData) )  opt  = "hist"; 
       else                          opt  = "e";
       if ( iData > 0 )              opt += "same";
-      hData.at(iData)->Draw(opt);
+      if ( rData.at(iData) ) hData.at(iData)->Draw(opt);
     }
     for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) {
-      if ( ! dataSetIsMc.at(iData) ) hData.at(iData)->Draw("esame"); 
+      if ( ! dataSetIsMc.at(iData) )
+        if ( rData.at(iData) ) hData.at(iData)->Draw("esame");
+        else                   gData.at(iData)->Draw("psame");   
     }
   }
 
@@ -113,7 +177,7 @@ void plot (TString dir , TString histo , bool logY = false , int iLegendPos = 0 
   if ( globalHistoType == 2 )
   {
     if ( dataSetId.size() == 1 )
-      hData.at(0)->Draw(global2DplotOpt);
+      if ( rData.at(0) ) hData.at(0)->Draw(global2DplotOpt);
   }
 
   // Legend
@@ -129,7 +193,9 @@ void plot (TString dir , TString histo , bool logY = false , int iLegendPos = 0 
       else                          opt  = "p";
     } else
       opt  = "box";
-    leg->AddEntry(hData.at(iData),dataSetLegend.at(iData),opt );
+    if ( rData.at(iData) ) leg->AddEntry(hData.at(iData),dataSetLegend.at(iData),opt );
+    else                   leg->AddEntry(gData.at(iData),dataSetLegend.at(iData),opt );
+   
   }
   leg->SetBorderSize(0);
   leg->SetFillColor(0);
@@ -214,9 +280,8 @@ void plot (TString dir , TString histo , bool logY = false , int iLegendPos = 0 
   }
 
   for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) 
-    fData.at(iData)->Close(); 
+    if ( rData.at(iData) ) fData.at(iData)->Close(); 
 
-  delete c1;
-
+  // delete c1;
   // return 1;
 }  
