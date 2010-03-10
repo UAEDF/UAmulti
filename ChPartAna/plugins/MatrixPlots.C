@@ -1,35 +1,23 @@
-
 #include "MatrixPlots.h"
 
 ClassImp(MatrixPlots)
 
-MatrixPlots::MatrixPlots(){
-  matrixcoll = "none";
-  this->init();
-}
-
-MatrixPlots::MatrixPlots(TString collname){
-  matrixcoll = collname;
-  this->init();
-}
-
-MatrixPlots::~MatrixPlots(){ }
 
 void MatrixPlots::init(){
-  nch_gen = new TH1F("nch_gen_"+matrixcoll,"nch_gen_"+matrixcoll+";nch_gen;# events",111,-0.5,110.5);
-  eta_gen = new TH1F("eta_gen_"+matrixcoll,"eta_gen_"+matrixcoll+";eta_gen;# events",60,-3.,3.);
-  pt_gen  = new TH1F("pt_gen_"+matrixcoll,"pt_gen_"+matrixcoll+";pt_gen;# events",100,0,3.);
+  nch_gen = new TH1F("nch_gen_"+plotsname,"nch_gen_"+plotsname+";nch_gen;# events",nch_nbin,nch_array);
+  eta_gen = new TH1F("eta_gen_"+plotsname,"eta_gen_"+plotsname+";eta_gen;# events",eta_nbin,eta_array);
+  pt_gen  = new TH1F("pt_gen_"+plotsname,"pt_gen_"+plotsname+";pt_gen;# events",pt_nbin,pt_array);
   
-  nch_reco = new TH1F("nch_reco_"+matrixcoll,"nch_reco_"+matrixcoll+";nch_reco;# events",111,-0.5,110.5);
-  eta_reco = new TH1F("eta_reco_"+matrixcoll,"eta_reco_"+matrixcoll+";eta_reco;# events",60,-3.,3.);
-  pt_reco  = new TH1F("pt_reco_"+matrixcoll,"pt_reco_"+matrixcoll+";pt_reco;# events",100,0,3.);
+  nch_reco = new TH1F("nch_reco_"+plotsname,"nch_reco_"+plotsname+";nch_reco;# events",nch_nbin,nch_array);
+  eta_reco = new TH1F("eta_reco_"+plotsname,"eta_reco_"+plotsname+";eta_reco;# events",eta_nbin,eta_array);
+  pt_reco  = new TH1F("pt_reco_"+plotsname,"pt_reco_"+plotsname+";pt_reco;# events",pt_nbin,pt_array);
   
-  nch_matrix = new TH2F("nch_matrix_"+matrixcoll,"nch_matrix_"+matrixcoll+";nch_gen;nch_reco",111,-0.5,110.5,111,-0.5,110.5);
-  eta_matrix = new TH2F("eta_matrix_"+matrixcoll,"eta_matrix_"+matrixcoll+";eta_gen;eta_reco",60,-3.,3.,60,-3.,3.);
-  pt_matrix  = new TH2F("pt_matrix_"+matrixcoll,"pt_matrix_"+matrixcoll+";pt_gen;pt_reco",100,0,3.,100,0,3.);
+  nch_matrix = new TH2F("nch_matrix_"+plotsname,"nch_matrix_"+plotsname+";nch_gen;nch_reco",nch_nbin,nch_array,nch_nbin,nch_array);
+  eta_matrix = new TH2F("eta_matrix_"+plotsname,"eta_matrix_"+plotsname+";eta_gen;eta_reco",eta_nbin,eta_array,eta_nbin,eta_array);
+  pt_matrix  = new TH2F("pt_matrix_"+plotsname,"pt_matrix_"+plotsname+";pt_gen;pt_reco",pt_nbin,pt_array,pt_nbin,pt_array);
   
-  nch_reco_GenBin0 = new TH1F("nch_reco_GenBin0_"+matrixcoll,"nch_reco_GenBin0_"+matrixcoll+";nch_gen;# events",111,-0.5,110.5);
-  nch_gen_RecoBin0 = new TH1F("nch_gen_RecoBin0_"+matrixcoll,"nch_gen_RecoBin0_"+matrixcoll+";nch_gen;# events",111,-0.5,110.5);
+  nch_reco_GenBin0 = new TH1F("nch_reco_GenBin0_"+plotsname,"nch_reco_GenBin0_"+plotsname+";nch_gen;# events",nch_nbin,nch_array);
+  nch_gen_RecoBin0 = new TH1F("nch_gen_RecoBin0_"+plotsname,"nch_gen_RecoBin0_"+plotsname+";nch_gen;# events",nch_nbin,nch_array);
   
   nch_gen->Sumw2();
   eta_gen->Sumw2();
@@ -44,8 +32,8 @@ void MatrixPlots::init(){
   nch_gen_inEvt = 0;
   nch_reco_inEvt = 0;
   nbEvts = 0;
-  
 }
+
 
 void MatrixPlots::fillGen(MyPart& gen , bool accept_reco, double weight_gen ){
   if(accept_reco){
@@ -83,10 +71,10 @@ void MatrixPlots::nextEvent(bool accept_reco, bool accept_gen){
 }
 
 void MatrixPlots::write(bool scale){
-  //TDirectory* dir = new TDirectory("MatrixPlots_"+matrixcoll,"");
+  //TDirectory* dir = new TDirectory("MatrixPlots_"+plotsname,"");
   //dir->cd();  
-  gDirectory->mkdir("MatrixPlots_"+matrixcoll);
-  gDirectory->cd("MatrixPlots_"+matrixcoll);
+  gDirectory->mkdir("MatrixPlots_"+plotsname);
+  gDirectory->cd("MatrixPlots_"+plotsname);
   
   
   if(scale) nch_gen->Scale(1./nbEvts);

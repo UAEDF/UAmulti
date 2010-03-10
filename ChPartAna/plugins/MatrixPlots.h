@@ -6,14 +6,15 @@
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TDirectory.h"
-#include "./MyPart.h"
+#include "MyPart.h"
+#include "BasePlots.h"
 
-class MatrixPlots : public TObject {
+class MatrixPlots : public BasePlots {
 
   public :
-    MatrixPlots();
-    MatrixPlots(TString);
-    virtual ~MatrixPlots();
+    MatrixPlots(){plotsname="none";this->init();};
+    MatrixPlots(TString collname){plotsname=collname;this->init();};
+    virtual ~MatrixPlots(){};
 
   // private:
 
@@ -44,7 +45,7 @@ class MatrixPlots : public TObject {
   private:
     Double_t nch_gen_inEvt;
     Double_t nch_reco_inEvt;
-    
+        
     ClassDef (MatrixPlots,1)
 };
 

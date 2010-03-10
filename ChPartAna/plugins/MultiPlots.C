@@ -1,21 +1,7 @@
-//#include "TMean.cc"
-//#include <vector>
-
 #include "MultiPlots.h"
 using namespace std;
 
 ClassImp(MultiPlots)
-
-//Default Constructor
-MultiPlots::MultiPlots(){
-  multiname = "none";
-  this->init();
-}
-
-MultiPlots::MultiPlots(TString name){
-  multiname = name;
-  this->init();
-}
 
 //Destructor
 MultiPlots::~MultiPlots(){
@@ -35,20 +21,18 @@ void MultiPlots::init(){
   moments = new vector<TMean>(nb_moments,TMean());
   nch_mean = new TMean();
   
-  nch = new TH1F("nch_"+multiname,"nch_"+multiname+";N_{ch};fraction of events",111,-0.5,110.5);
-  //kno = new TH1F("kno_"+multiname,"kno_"+multiname+"n / < n >;< n >   P_{n}",nch->GetNbinsX(),0.,double(nch->GetXaxis()->GetXmax()/nch_mean->GetMean()));
-  kno = new TH1F(); //TO BE SAFE
-  rapidity = new TH1F("rapidity_"+multiname,"rapidity_"+multiname+";y;#frac{1}{N} #frac{d#sigma_{ch}}{dy}",60,-3.,3.);
-  eta = new TH1F("eta_"+multiname,"eta_"+multiname+";#eta;#frac{1}{N} #frac{d#sigma_{ch}}{d#eta}",60,-3.,3.);
-  //eta = new TH1F("eta_"+multiname,"eta_"+multiname+";#eta;#frac{1}{#sigma_{tot}} #frac{d#sigma_{ch}}{#eta}",80,-10.,10.);
-  pt  = new TH1F("pt_"+multiname,"pt_"+multiname+";p_{T} [GeV];#frac{1}{N} #frac{d#sigma_{ch}}{dp_{T}}",100,0.,3.);
-  pt2 = new TH1F("pt2_"+multiname,"pt2_"+multiname+";p_{T}^{2} [GeV^{2}];#frac{1}{N} #frac{d#sigma_{ch}}{dp_{T}^{2}}",100,0.,9.);
+  nch      = new TH1F("nch_"+plotsname,"nch_"+plotsname+";N_{ch};fraction of events",nch_nbin,nch_array);
+  kno      = new TH1F(); //TO BE SAFE
+  rapidity = new TH1F("rapidity_"+plotsname,"rapidity_"+plotsname+";y;#frac{1}{N} #frac{d#sigma_{ch}}{dy}",eta_nbin,eta_array);
+  eta      = new TH1F("eta_"+plotsname,"eta_"+plotsname+";#eta;#frac{1}{N} #frac{d#sigma_{ch}}{d#eta}",eta_nbin,eta_array);
+  pt       = new TH1F("pt_"+plotsname,"pt_"+plotsname+";p_{T} [GeV];#frac{1}{N} #frac{d#sigma_{ch}}{dp_{T}}",pt_nbin,pt_array);
+  pt2      = new TH1F("pt2_"+plotsname,"pt2_"+plotsname+";p_{T}^{2} [GeV^{2}];#frac{1}{N} #frac{d#sigma_{ch}}{dp_{T}^{2}}",100,0.,9.);
   
-  nch_width = nch->GetXaxis()->GetBinWidth(1);
+  nch_width      = nch->GetXaxis()->GetBinWidth(1);
   rapidity_width = rapidity->GetXaxis()->GetBinWidth(1);
-  eta_width = eta->GetXaxis()->GetBinWidth(1);
-  pt_width  = pt->GetXaxis()->GetBinWidth(1);
-  pt2_width = pt2->GetXaxis()->GetBinWidth(1);
+  eta_width      = eta->GetXaxis()->GetBinWidth(1);
+  pt_width       = pt->GetXaxis()->GetBinWidth(1);
+  pt2_width      = pt2->GetXaxis()->GetBinWidth(1);
   
   nch->Sumw2();
   rapidity->Sumw2();
@@ -82,7 +66,7 @@ void MultiPlots::nextEvent(bool laccept , double weight){
 }
 
 void MultiPlots::makeKNO(){
-  kno = new TH1F("kno_"+multiname,"kno_"+multiname+";z = n_{ch} / < n_{ch} >;#psi(z)",nch->GetNbinsX(),0.,double(nch->GetXaxis()->GetXmax()/nch_mean->GetMean()));
+  kno = new TH1F("kno_"+plotsname,"kno_"+plotsname+";z = n_{ch} / < n_{ch} >;#psi(z)",nch->GetNbinsX(),0.,double(nch->GetXaxis()->GetXmax()/nch_mean->GetMean()));
   kno->Sumw2();
   for( int k = 1 ; k <= nch->GetNbinsX() ; ++k){
     kno->SetBinContent(k , nch_mean->GetMean() * nch->GetBinContent(k));
@@ -92,8 +76,8 @@ void MultiPlots::makeKNO(){
 
 void MultiPlots::write(bool scale){
 
-  gDirectory->mkdir("MultiPlots_"+multiname);
-  gDirectory->cd("MultiPlots_"+multiname);
+  gDirectory->mkdir("MultiPlots_"+plotsname);
+  gDirectory->cd("MultiPlots_"+plotsname);
   
   if(scale) nch->Scale( 1. / nbEvts );
   nch->Write();
@@ -113,7 +97,7 @@ void MultiPlots::write(bool scale){
   if(scale) pt2->Scale(1./nbEvts);
   pt2->Write();
 
-  this->Write("multi_class_"+multiname);
+  this->Write("multi_class_"+plotsname);
   
   gDirectory->cd("../");
   
@@ -121,7 +105,7 @@ void MultiPlots::write(bool scale){
 }
 
 void MultiPlots::writeSummary(){
-  cout<<"Data @ "<<energy<<" GeV  ( "<<multiname<<" ) :"<<endl;
+  cout<<"Data @ "<<energy<<" GeV  ( "<<plotsname<<" ) :"<<endl;
   cout<<" - #evts              : "<<nbEvts<<endl;     
   cout<<" - Multiplicity Mean  : "<<nch_mean->GetMean()<<endl;
   cout<<" - KNO Mean           : "<<kno->GetMean()<<endl;

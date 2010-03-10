@@ -27,6 +27,7 @@ using namespace std;
 #include "../plugins/TrackPlots.h"
 #include "../plugins/VertexPlots.h"
 #include "../plugins/EvtSelPlots.h"
+#include "../plugins/BasePlots.h"
 #include "../plugins/MultiPlots.h"
 #include "../plugins/GenMultiPlots.h"
 #include "../plugins/MatrixPlots.h"
@@ -40,6 +41,7 @@ bool isMC = true;
 #include "fileManager.C"
 #include "cuts.C"
 #include "evtSel.C"
+#include "binningMap.C"
 
 TString st(string input , int cut){
   stringstream out("");
@@ -57,6 +59,8 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
   
   #include "acceptanceMap.C"
   
+  BasePlots* baseplot = new BasePlots("BasePlots");
+    
   //----------------------  RECO  ----------------------
   vector<GenMultiPlots*> gmp_evtSel_reco(accMap.size(),0);
   vector<MultiPlots*> mp_evtSel_INC_reco(accMap.size(),0);
@@ -82,6 +86,10 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
   vector<TH1F*> evtSel_after(accMap.size(),0);
   
   for(int acc = 0 ; acc < (signed) accMap.size() ; ++acc){
+    vector< vector<double> > binning;
+    binning = getBins(1,0,1);
+    baseplot->setBinning(binning);
+    
     //----------------------  RECO  ----------------------
     gmp_evtSel_reco.at(acc)  = new GenMultiPlots(st("evtSel_reco",acc));
     mp_evtSel_INC_reco.at(acc)  = new MultiPlots(st("evtSel_INC_reco",acc));
@@ -100,25 +108,26 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
     //------------ MatrixPlots ------------------
     mtxp_evtSel.at(acc) = new MatrixPlots(st("evtSel",acc));
   
+    //return;
     //-----
-    L1_before.at(acc) = new TH1F(st("L1_before",acc),st("L1_before",acc),nbinmulti+1,-0.5,nbinmulti+0.5);
-    L1_after.at(acc) = new TH1F(st("L1_after",acc),st("L1_after",acc),nbinmulti+1,-0.5,nbinmulti+0.5);
+    L1_before.at(acc) = new TH1F(st("L1_before",acc),st("L1_before",acc),binning.at(0).size()-1,&binning[0][0]);
+    L1_after.at(acc) = new TH1F(st("L1_after",acc),st("L1_after",acc),binning.at(0).size()-1,&binning[0][0]);
     L1_before.at(acc)->Sumw2();
     L1_after.at(acc)->Sumw2();
-    hf_before.at(acc) = new TH1F(st("hf_before",acc),st("hf_before",acc),nbinmulti+1,-0.5,nbinmulti+0.5);
-    hf_after.at(acc) = new TH1F(st("hf_after",acc),st("hf_after",acc),nbinmulti+1,-0.5,nbinmulti+0.5);
+    hf_before.at(acc) = new TH1F(st("hf_before",acc),st("hf_before",acc),binning.at(0).size()-1,&binning[0][0]);
+    hf_after.at(acc) = new TH1F(st("hf_after",acc),st("hf_after",acc),binning.at(0).size()-1,&binning[0][0]);
     hf_before.at(acc)->Sumw2();
     hf_after.at(acc)->Sumw2();
-    vtxqual_before.at(acc) = new TH1F(st("vtxqual_before",acc),st("vtxqual_before",acc),nbinmulti+1,-0.5,nbinmulti+0.5);
-    vtxqual_after.at(acc) = new TH1F(st("vtxqual_after",acc),st("vtxqual_after",acc),nbinmulti+1,-0.5,nbinmulti+0.5);
+    vtxqual_before.at(acc) = new TH1F(st("vtxqual_before",acc),st("vtxqual_before",acc),binning.at(0).size()-1,&binning[0][0]);
+    vtxqual_after.at(acc) = new TH1F(st("vtxqual_after",acc),st("vtxqual_after",acc),binning.at(0).size()-1,&binning[0][0]);
     vtxqual_before.at(acc)->Sumw2();
     vtxqual_after.at(acc)->Sumw2();
-    vtx_before.at(acc) = new TH1F(st("vtx_before",acc),st("vtx_before",acc),nbinmulti+1,-0.5,nbinmulti+0.5);
-    vtx_after.at(acc) = new TH1F(st("vtx_after",acc),st("vtx_after",acc),nbinmulti+1,-0.5,nbinmulti+0.5);
+    vtx_before.at(acc) = new TH1F(st("vtx_before",acc),st("vtx_before",acc),binning.at(0).size()-1,&binning[0][0]);
+    vtx_after.at(acc) = new TH1F(st("vtx_after",acc),st("vtx_after",acc),binning.at(0).size()-1,&binning[0][0]);
     vtx_before.at(acc)->Sumw2();
     vtx_after.at(acc)->Sumw2();
-    evtSel_before.at(acc) = new TH1F(st("evtSel_before",acc),st("evtSel_before",acc),nbinmulti+1,-0.5,nbinmulti+0.5);
-    evtSel_after.at(acc) = new TH1F(st("evtSel_after",acc),st("evtSel_after",acc),nbinmulti+1,-0.5,nbinmulti+0.5);
+    evtSel_before.at(acc) = new TH1F(st("evtSel_before",acc),st("evtSel_before",acc),binning.at(0).size()-1,&binning[0][0]);
+    evtSel_after.at(acc) = new TH1F(st("evtSel_after",acc),st("evtSel_after",acc),binning.at(0).size()-1,&binning[0][0]);
     evtSel_before.at(acc)->Sumw2();
     evtSel_after.at(acc)->Sumw2();
   }

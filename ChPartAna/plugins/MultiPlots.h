@@ -11,14 +11,15 @@
 
 #include "TMean.h"
 #include "MyPart.h"
+#include "BasePlots.h"
 
 using namespace std;
 
-class MultiPlots : public TObject{
+class MultiPlots : public BasePlots {
 
   public:
-  MultiPlots();
-  MultiPlots(TString);
+  MultiPlots(){plotsname="none";this->init();};
+  MultiPlots(TString collname){plotsname=collname;this->init();};
   ~MultiPlots();
   
   void fill(MyPart&,double = 1.);
