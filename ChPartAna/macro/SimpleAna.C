@@ -369,31 +369,31 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
     vtxp->write();
   
     TH1F* eff_L1 = (TH1F*) L1_after.at(acc)->Clone(st("eff_L1",acc));
-    eff_L1->Divide(L1_before.at(acc));
+    eff_L1->Divide(eff_L1,L1_before.at(acc),1,1,"B");
     L1_before.at(acc)->Write();
     L1_after.at(acc)->Write();
     eff_L1->Write();
   
     TH1F* eff_hf = (TH1F*) hf_after.at(acc)->Clone(st("eff_hf",acc));
-    eff_hf->Divide(hf_before.at(acc));
+    eff_hf->Divide(eff_hf,hf_before.at(acc),1,1,"B");
     hf_before.at(acc)->Write();
     hf_after.at(acc)->Write();
     eff_hf->Write();
   
     TH1F* eff_vtxqual = (TH1F*) vtxqual_after.at(acc)->Clone(st("eff_vtxqual",acc));
-    eff_vtxqual->Divide(vtxqual_before.at(acc));
+    eff_vtxqual->Divide(eff_vtxqual,vtxqual_before.at(acc),1,1,"B");
     vtxqual_before.at(acc)->Write();
     vtxqual_after.at(acc)->Write();
     eff_vtxqual->Write();
   
     TH1F* eff_vtx = (TH1F*) vtx_after.at(acc)->Clone(st("eff_vtx",acc));
-    eff_vtx->Divide(vtx_before.at(acc));
+    eff_vtx->Divide(eff_vtx,vtx_before.at(acc),1,1,"B");
     vtx_before.at(acc)->Write();
     vtx_after.at(acc)->Write();
     eff_vtx->Write();
   
     TH1F* eff_evtSel = (TH1F*) evtSel_after.at(acc)->Clone(st("eff_evtSel",acc));
-    eff_evtSel->Divide(evtSel_before.at(acc));
+    eff_evtSel->Divide(eff_evtSel,evtSel_before.at(acc),1,1,"B");
     evtSel_before.at(acc)->Write();
     evtSel_after.at(acc)->Write();
     eff_evtSel->Write();
