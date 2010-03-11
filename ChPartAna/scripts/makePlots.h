@@ -52,6 +52,7 @@ using namespace std;
  vector<bool>    dataSetIsMc   (1,0);
  vector<int>     dataSetStyle  (1,20);
  vector<int>     dataSetColor  (1,2);
+ vector<float>   dataSetFactor (1,1);
  vector<TString> dataSetLegend (1,"Undef");
  vector<TString> dataSetFile   (1,"Undef"); 
  vector<TString> dataSetDir    (1,"Undef"); 
@@ -100,6 +101,7 @@ void plotReset()
   dataSetIsMc.clear();   
   dataSetStyle.clear();  
   dataSetColor.clear();  
+  dataSetFactor.clear();  
   dataSetLegend.clear(); 
   dataSetFile.clear();
   dataSetDir.clear();    

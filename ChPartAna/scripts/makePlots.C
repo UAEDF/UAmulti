@@ -59,7 +59,15 @@ bool mtxplot = 0;
 bool nchplot = 0;
 bool nchctrk = 0;
 bool nchcbin = 0;
+bool nchcunf = 0;
+bool nchchyp = 0;
+bool nchcitr = 0;
 
+bool nchstak = 0;
+bool knostak = 0;
+
+bool nch2ene = 0;
+bool kno2ene = 0;
 
 // Unfolding options
 int iUfoldNIter;
@@ -95,6 +103,7 @@ void trackPlots()
 // ------------------------ makePlots ---------------------------
 void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , double etacut = 2.5 , int iUfoldBin = 0){
 
+//  vector< vector<double> > accMap;
   #include "../macro/acceptanceMap.C"
 
   gROOT->ProcessLine(".x cmsStyleRoot.C");
@@ -999,7 +1008,7 @@ SetId.push_back(10);
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
 
     // Retrieve bin info
-    if ( iUfoldBin > accMap.size() ) {
+    if ( iUfoldBin > (signed) accMap.size() ) {
       cout << "[makePlots] iUfoldBin > accMap.size()" << endl;
       return;
     }
@@ -1008,7 +1017,9 @@ SetId.push_back(10);
     double etaGen  = accMap[iUfoldBin].at(1);
     double ptReco  = accMap[iUfoldBin].at(2);
     double etaReco = accMap[iUfoldBin].at(3);
-  
+    cout << ptGen << " " << etaGen << " " << ptReco << " " << etaReco << endl;
+
+
     std::stringstream BIN ("");
     BIN << "hyp" << iUfoldHyp << "_niter" << iUfoldNIter << "_cut" << iUfoldBin << "_DataType" << iUfoldDataType;
 
@@ -1017,12 +1028,21 @@ SetId.push_back(10);
     if (itracking == 2 ) LT << "   mbiasTracks: " ;
     LT << "  |#eta|<" << etaGen ;
     LT << "  p_{T}>"  << ptGen ;
+
+    std::stringstream ELT("");
+    if ( iUfoldMCType == 10 )  ELT << "  Unf.=D6T" ;
+    if ( iUfoldMCType == 11 )  ELT << "  Unf.=DW" ;
+    if ( iUfoldMCType == 12 )  ELT << "  Unf.=P0" ;
+    if ( iUfoldMCType == 13 )  ELT << "  Unf.=ProQ20" ;
+    ELT << "  Hyp.="      << iUfoldHyp; 
+    ELT << "  Niter=" << iUfoldNIter;  
     
     cout<<BIN.str()<<endl;
     
     plotReset();
     ptcutstr = BIN.str();
     LegendTitle = LT.str();
+    ExtLegTitle = ELT.str();
     // Plot settings
     globalNorm     = 2;
     globalFileType = 3;
@@ -1069,6 +1089,7 @@ SetId.push_back(10);
     plotReset();
     ptcutstr = BIN.str();
     LegendTitle = LT.str();
+    ExtLegTitle = ELT.str();
     
     // Plot settings
     globalNorm     = 2;
@@ -1113,6 +1134,7 @@ SetId.push_back(10);
     plotReset();
     ptcutstr = BIN.str();
     LegendTitle = LT.str();
+    ExtLegTitle = ELT.str();
     // Plot settings
     globalNorm     = 2;
     globalFileType = 3;
@@ -1175,7 +1197,7 @@ SetId.push_back(10);
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
 
     // Retrieve bin info
-    if ( iUfoldBin > accMap.size() ) {
+    if ( iUfoldBin > (signed) accMap.size() ) {
       cout << "[makePlots] iUfoldBin > accMap.size()" << endl;
       return;
     }
@@ -1184,6 +1206,7 @@ SetId.push_back(10);
     double etaGen  = accMap[iUfoldBin].at(1);
     double ptReco  = accMap[iUfoldBin].at(2);
     double etaReco = accMap[iUfoldBin].at(3);
+    cout << ptGen << " " << etaGen << " " << ptReco << " " << etaReco << endl;
   
     std::stringstream BIN ("");
     BIN << "hyp" << iUfoldHyp << "_niter" << iUfoldNIter << "_cut" << iUfoldBin << "_DataType" << iUfoldDataType;
@@ -1192,14 +1215,30 @@ SetId.push_back(10);
     LT << "  |#eta|<" << etaGen ;
     LT << "  p_{T}>"  << ptGen ;
 
+    std::stringstream ELT("");
+    if ( iUfoldMCType == 10 )  ELT << "  Unf.=D6T" ;
+    if ( iUfoldMCType == 11 )  ELT << "  Unf.=DW" ;
+    if ( iUfoldMCType == 12 )  ELT << "  Unf.=P0" ;
+    if ( iUfoldMCType == 13 )  ELT << "  Unf.=ProQ20" ;
+    ELT << "  Hyp.="      << iUfoldHyp; 
+    ELT << "  N_{iter}=" << iUfoldNIter;  
+
+    std::string datatype;
+    if ( iUfoldDataType ==  0 ) datatype = "Data";
+    if ( iUfoldDataType == 10 ) datatype = "D6T";
+    if ( iUfoldDataType == 11 ) datatype = "DW";
+    if ( iUfoldDataType == 12 ) datatype = "P0";
+    if ( iUfoldDataType == 13 ) datatype = "ProQ20";
+  
     std::stringstream LD1("");
     std::stringstream LD2("");
-    LD1 << "Data - genTracks p_{T}>" << ptReco ;
-    LD2 << "Data - mbiasTracks p_{T}>" << ptReco ;
+    LD1 << datatype << " - genTracks p_{T}>" << ptReco ;
+    LD2 << datatype << " - mbiasTracks p_{T}>" << ptReco ;
 
     plotReset();
     ptcutstr = BIN.str();
     LegendTitle = LT.str();
+    ExtLegTitle = ELT.str();
     // Plot settings
     globalNorm     = 2;
     globalFileType = 3;
@@ -1254,7 +1293,7 @@ SetId.push_back(10);
     int iUfoldBin2 = iUfoldBin + 5 ;
 
     // Retrieve bin info --> Bin 1
-    if ( iUfoldBin1 > accMap.size() ) {
+    if ( iUfoldBin1 > (signed) accMap.size() ) {
       cout << "[makePlots] iUfoldBin1 > accMap.size()" << endl;
       return;
     }
@@ -1263,12 +1302,13 @@ SetId.push_back(10);
     double etaGen1  = accMap[iUfoldBin1].at(1);
     double ptReco1  = accMap[iUfoldBin1].at(2);
     double etaReco1 = accMap[iUfoldBin1].at(3);
+    cout << ptGen1 << " " << etaGen1 << " " << ptReco1 << " " << etaReco1 << endl;
 
     std::stringstream BIN1 ("");
     BIN1 << "hyp" << iUfoldHyp << "_niter" << iUfoldNIter << "_cut" << iUfoldBin1 << "_DataType" << iUfoldDataType;
 
     // Retrieve bin info --> Bin 2
-    if ( iUfoldBin2 > accMap.size() ) {
+    if ( iUfoldBin2 > (signed) accMap.size() ) {
       cout << "[makePlots] iUfoldBin2 > accMap.size()" << endl;
       return;
     }
@@ -1277,6 +1317,7 @@ SetId.push_back(10);
     double etaGen2  = accMap[iUfoldBin2].at(1);
     double ptReco2  = accMap[iUfoldBin2].at(2);
     double etaReco2 = accMap[iUfoldBin2].at(3);
+    cout << ptGen2 << " " << etaGen2 << " " << ptReco2 << " " << etaReco2 << endl;
   
     std::stringstream BIN2 ("");
     BIN2 << "hyp" << iUfoldHyp << "_niter" << iUfoldNIter << "_cut" << iUfoldBin2 << "_DataType" << iUfoldDataType;
@@ -1292,16 +1333,34 @@ SetId.push_back(10);
     std::stringstream LT("");
     LT << "  |#eta|<" << etaGen1 ;
     LT << "  p_{T}>"  << ptGen1  ;
-    
+
+    std::stringstream ELT("");
+    if ( iUfoldMCType == 10 )  ELT << "  Unf.=D6T" ;
+    if ( iUfoldMCType == 11 )  ELT << "  Unf.=DW" ;
+    if ( iUfoldMCType == 12 )  ELT << "  Unf.=P0" ;
+    if ( iUfoldMCType == 13 )  ELT << "  Unf.=ProQ20" ;
+    ELT << "  Hyp.="      << iUfoldHyp; 
+    ELT << "  N_{iter}=" << iUfoldNIter;  
+   
+    std::string datatype;
+    if ( iUfoldDataType ==  0 ) datatype = "Data";
+    if ( iUfoldDataType == 10 ) datatype = "D6T";
+    if ( iUfoldDataType == 11 ) datatype = "DW";
+    if ( iUfoldDataType == 12 ) datatype = "P0";
+    if ( iUfoldDataType == 13 ) datatype = "ProQ20";
+ 
     std::stringstream LD1("");
     std::stringstream LD2("");
     std::stringstream LD3("");
-    LD1 << "Data - genTracks p_{T}>"   << ptReco1 ;
-    LD2 << "Data - mbiasTracks p_{T}>" << ptReco1 ;
-    LD3 << "Data - mbiasTracks p_{T}>" << ptReco2 ;
+    std::stringstream LD4("");
+    LD1 << datatype << " - genTracks p_{T}>"   << ptReco1 ;
+    LD2 << datatype << " - mbiasTracks p_{T}>" << ptReco1 ;
+    LD3 << datatype << " - genTracks p_{T}>"   << ptReco2 ;
+    LD4 << datatype << " - mbiasTracks p_{T}>" << ptReco2 ;
 
     plotReset();
     LegendTitle = LT.str();
+    ExtLegTitle = ELT.str();
     // Plot settings
     globalNorm     = 3;
     globalFileType = 3;
@@ -1333,7 +1392,7 @@ SetId.push_back(10);
     dataSetIsMc.push_back(0);
     dataSetStyle.push_back(24);
     dataSetColor.push_back(kBlack);
-    dataSetLegend.push_back("genT 0.15");
+    dataSetLegend.push_back(LD3.str());
     dataSetHisto.push_back("nch_data_corrected");
 
 
@@ -1343,7 +1402,7 @@ SetId.push_back(10);
     dataSetIsMc.push_back(0);
     dataSetStyle.push_back(24);
     dataSetColor.push_back(kBlue);
-    dataSetLegend.push_back(LD3.str());
+    dataSetLegend.push_back(LD4.str());
     dataSetHisto.push_back("nch_data_corrected");
 
 
@@ -1359,15 +1418,1009 @@ SetId.push_back(10);
    
     plot(dir,"AUTO",1,2);
     
-
-
-
   }
+
+
+  //-------- Mch Unfold -------- Compare Unf. MC
+  if( nchcunf ){
+
+    globalDirPlot = "../plots.romain/unfoldingv2/";
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+    cout << "globalDirPlot= " << globalDirPlot << endl;
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+
+    // Retrieve bin info
+    if ( iUfoldBin > (signed) accMap.size() ) {
+      cout << "[makePlots] iUfoldBin > accMap.size()" << endl;
+      return;
+    }
+
+    double ptGen   = accMap[iUfoldBin].at(0);
+    double etaGen  = accMap[iUfoldBin].at(1);
+    double ptReco  = accMap[iUfoldBin].at(2);
+    double etaReco = accMap[iUfoldBin].at(3);
+    cout << ptGen << " " << etaGen << " " << ptReco << " " << etaReco << endl;
+  
+    std::stringstream BIN ("");
+    BIN << "hyp" << iUfoldHyp << "_niter" << iUfoldNIter << "_cut" << iUfoldBin << "_DataType" << iUfoldDataType;
+
+    std::stringstream LT("");
+    LT << "  |#eta|<" << etaGen ;
+    LT << "  p_{T}>"  << ptGen ;
+
+    std::stringstream ELT("");
+    ELT << "  Hyp.="      << iUfoldHyp; 
+    ELT << "  N_{iter}=" << iUfoldNIter;  
+    if (globalTraking==0) ELT << "  gTr - PT>" << ptReco;
+    if (globalTraking==1) ELT << " mbTr - PT>" << ptReco;
+
+    std::string datatype;
+    if ( iUfoldDataType ==  0 ) datatype = "Data";
+    if ( iUfoldDataType == 10 ) datatype = "D6T";
+    if ( iUfoldDataType == 11 ) datatype = "DW";
+    if ( iUfoldDataType == 12 ) datatype = "P0";
+    if ( iUfoldDataType == 13 ) datatype = "ProQ20";
+
+    std::stringstream LD1("");
+    std::stringstream LD2("");
+    LD1 << datatype << " - Unf.= D6T" ;
+    LD2 << datatype << " - Unf.= P0"  ;
+
+    plotReset();
+    ptcutstr = BIN.str();
+    LegendTitle = LT.str();
+    ExtLegTitle = ELT.str();
+    // Plot settings
+    globalNorm     = 2;
+    globalFileType = 3;
+    globalHistoType= 1;
+
+    dir   = "unfolding";
+    
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(20);
+    dataSetColor.push_back(kRed);
+    dataSetLegend.push_back(LD1.str());
+    dataSetHisto.push_back("nch_data_corrected");
+
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,12,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(20);
+    dataSetColor.push_back(kBlue);
+    dataSetLegend.push_back(LD2.str());
+    dataSetHisto.push_back("nch_data_corrected");
+
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(1);
+    dataSetColor.push_back(1);
+    dataSetLegend.push_back("NSD - PYTHIA D6T");
+    dataSetHisto.push_back("nch_MC_gen_afterEvtSelCorrection");
+   
+    plot(dir,"AUTO",1,2);
+    
+  }
+
+  //-------- Mch Unfold -------- Compare Unf. Hypothesis
+  if( nchchyp ){
+
+    globalDirPlot = "../plots.romain/unfoldingv2/";
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+    cout << "globalDirPlot= " << globalDirPlot << endl;
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+
+    // Retrieve bin info
+    if ( iUfoldBin > (signed) accMap.size() ) {
+      cout << "[makePlots] iUfoldBin > accMap.size()" << endl;
+      return;
+    }
+
+    double ptGen   = accMap[iUfoldBin].at(0);
+    double etaGen  = accMap[iUfoldBin].at(1);
+    double ptReco  = accMap[iUfoldBin].at(2);
+    double etaReco = accMap[iUfoldBin].at(3);
+    cout << ptGen << " " << etaGen << " " << ptReco << " " << etaReco << endl;
+  
+    std::stringstream BIN1 ("");
+    std::stringstream BIN2 ("");
+    BIN1 << "hyp0" << "_niter" << iUfoldNIter << "_cut" << iUfoldBin << "_DataType" << iUfoldDataType;
+    BIN2 << "hyp1" << "_niter" << iUfoldNIter << "_cut" << iUfoldBin << "_DataType" << iUfoldDataType;
+
+    std::stringstream LT("");
+    LT << "  |#eta|<" << etaGen ;
+    LT << "  p_{T}>"  << ptGen ;
+
+    std::stringstream ELT("");
+    if ( iUfoldMCType == 10 )  ELT << "  Unf.=D6T" ;
+    if ( iUfoldMCType == 11 )  ELT << "  Unf.=DW" ;
+    if ( iUfoldMCType == 12 )  ELT << "  Unf.=P0" ;
+    if ( iUfoldMCType == 13 )  ELT << "  Unf.=ProQ20" ;
+    ELT << "  N_{iter}=" << iUfoldNIter;  
+    if (globalTraking==0) ELT << "  gTr - PT>" << ptReco;
+    if (globalTraking==1) ELT << " mbTr - PT>" << ptReco;
+
+    std::string datatype;
+    if ( iUfoldDataType ==  0 ) datatype = "Data";
+    if ( iUfoldDataType == 10 ) datatype = "D6T";
+    if ( iUfoldDataType == 11 ) datatype = "DW";
+    if ( iUfoldDataType == 12 ) datatype = "P0";
+    if ( iUfoldDataType == 13 ) datatype = "ProQ20";
+
+    std::stringstream LD1("");
+    std::stringstream LD2("");
+    LD1 << datatype << " - Hyp.= 0";
+    LD2 << datatype << " - Hyp.= 1";
+
+    plotReset();
+    LegendTitle = LT.str();
+    ExtLegTitle = ELT.str();
+    // Plot settings
+    globalNorm     = 2;
+    globalFileType = 3;
+    globalHistoType= 1;
+
+    dir   = "unfolding";
+    
+    ptcutstr = BIN1.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(20);
+    dataSetColor.push_back(kRed);
+    dataSetLegend.push_back(LD1.str());
+    dataSetHisto.push_back("nch_data_corrected");
+
+    ptcutstr = BIN2.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(20);
+    dataSetColor.push_back(kBlue);
+    dataSetLegend.push_back(LD2.str());
+    dataSetHisto.push_back("nch_data_corrected");
+
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(1);
+    dataSetColor.push_back(1);
+    dataSetLegend.push_back("NSD - PYTHIA D6T");
+    dataSetHisto.push_back("nch_MC_gen_afterEvtSelCorrection");
+   
+    plot(dir,"AUTO",1,2);
+    
+  }
+
+  //-------- Mch Unfold -------- Compare Unf. Iterations
+  if( nchcitr ){
+
+    globalDirPlot = "../plots.romain/unfoldingv2/";
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+    cout << "globalDirPlot= " << globalDirPlot << endl;
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+
+    // Retrieve bin info
+    if ( iUfoldBin > (signed) accMap.size() ) {
+      cout << "[makePlots] iUfoldBin > accMap.size()" << endl;
+      return;
+    }
+
+    double ptGen   = accMap[iUfoldBin].at(0);
+    double etaGen  = accMap[iUfoldBin].at(1);
+    double ptReco  = accMap[iUfoldBin].at(2);
+    double etaReco = accMap[iUfoldBin].at(3);
+    cout << ptGen << " " << etaGen << " " << ptReco << " " << etaReco << endl;
+  
+    std::stringstream BIN1 ("");
+    std::stringstream BIN2 ("");
+    std::stringstream BIN3 ("");
+    std::stringstream BIN4 ("");
+    BIN1 << "hyp" << iUfoldHyp << "_niter3" << "_cut" << iUfoldBin << "_DataType" << iUfoldDataType;
+    BIN2 << "hyp" << iUfoldHyp << "_niter5" << "_cut" << iUfoldBin << "_DataType" << iUfoldDataType;
+    BIN3 << "hyp" << iUfoldHyp << "_niter10" << "_cut" << iUfoldBin << "_DataType" << iUfoldDataType;
+//    BIN4 << "hyp" << iUfoldHyp << "_niter3" << "_cut" << iUfoldBin << "_DataType" << iUfoldDataType;
+
+    std::stringstream LT("");
+    LT << "  |#eta|<" << etaGen ;
+    LT << "  p_{T}>"  << ptGen ;
+
+    std::stringstream ELT("");
+    if ( iUfoldMCType == 10 )  ELT << "  Unf.=D6T" ;
+    if ( iUfoldMCType == 11 )  ELT << "  Unf.=DW" ;
+    if ( iUfoldMCType == 12 )  ELT << "  Unf.=P0" ;
+    if ( iUfoldMCType == 13 )  ELT << "  Unf.=ProQ20" ;
+    ELT << "  Hyp.="      << iUfoldHyp; 
+    // ELT << "  N_{iter}=" << iUfoldNIter;  
+    if (globalTraking==0) ELT << "  gTr - PT>" << ptReco;
+    if (globalTraking==1) ELT << " mbTr - PT>" << ptReco;
+
+    std::string datatype;
+    if ( iUfoldDataType ==  0 ) datatype = "Data";
+    if ( iUfoldDataType == 10 ) datatype = "D6T";
+    if ( iUfoldDataType == 11 ) datatype = "DW";
+    if ( iUfoldDataType == 12 ) datatype = "P0";
+    if ( iUfoldDataType == 13 ) datatype = "ProQ20";
+
+    std::stringstream LD1("");
+    std::stringstream LD2("");
+    std::stringstream LD3("");
+    std::stringstream LD4("");
+    LD1 << datatype << " - N_{iter}= 3";
+    LD2 << datatype << " - N_{iter}= 5";
+    LD3 << datatype << " - N_{iter}= 10";
+//    LD4 << datatype << " - N_{iter}= 15";
+
+    plotReset();
+    LegendTitle = LT.str();
+    ExtLegTitle = ELT.str();
+    // Plot settings
+    globalNorm     = 2;
+    globalFileType = 3;
+    globalHistoType= 1;
+
+    dir   = "unfolding";
+    
+    ptcutstr = BIN1.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(20);
+    dataSetColor.push_back(kRed);
+    dataSetLegend.push_back(LD1.str());
+    dataSetHisto.push_back("nch_data_corrected");
+
+    ptcutstr = BIN2.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(20);
+    dataSetColor.push_back(kBlue);
+    dataSetLegend.push_back(LD2.str());
+    dataSetHisto.push_back("nch_data_corrected");
+
+
+    ptcutstr = BIN3.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(24);
+    dataSetColor.push_back(kRed);
+    dataSetLegend.push_back(LD3.str());
+    dataSetHisto.push_back("nch_data_corrected");
+
+/*
+    ptcutstr = BIN4.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(24);
+    dataSetColor.push_back(kBlue);
+    dataSetLegend.push_back(LD4.str());
+    dataSetHisto.push_back("nch_data_corrected");
+*/
+
+    ptcutstr = BIN2.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(1);
+    dataSetColor.push_back(1);
+    dataSetLegend.push_back("NSD - PYTHIA D6T");
+    dataSetHisto.push_back("nch_MC_gen_afterEvtSelCorrection");
+   
+    plot(dir,"AUTO",1,2);
+    
+  }
+
+//----------------------------------------- Nch Final plots --------------------------------------------
+
+
+
+  //-------- Mch Unfold -------- Stack
+  if( nchstak ){
+
+    globalDirPlot = "../plots.romain/unfoldingv2/";
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+    cout << "globalDirPlot= " << globalDirPlot << endl;
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+
+    // Retrieve bin info
+    if ( iUfoldBin > (signed) accMap.size() ) {
+      cout << "[makePlots] iUfoldBin > accMap.size()" << endl;
+      return;
+    }
+
+    double ptGen1   = accMap[iUfoldBin+0].at(0);
+    double etaGen1  = accMap[iUfoldBin+0].at(1);
+    double ptReco1  = accMap[iUfoldBin+0].at(2);
+    double etaReco1 = accMap[iUfoldBin+0].at(3);
+
+    double ptGen2   = accMap[iUfoldBin+1].at(0);
+    double etaGen2  = accMap[iUfoldBin+1].at(1);
+    double ptReco2  = accMap[iUfoldBin+1].at(2);
+    double etaReco2 = accMap[iUfoldBin+1].at(3);
+
+    double ptGen3   = accMap[iUfoldBin+2].at(0);
+    double etaGen3  = accMap[iUfoldBin+2].at(1);
+    double ptReco3  = accMap[iUfoldBin+2].at(2);
+    double etaReco3 = accMap[iUfoldBin+2].at(3);
+
+    double ptGen4   = accMap[iUfoldBin+3].at(0);
+    double etaGen4  = accMap[iUfoldBin+3].at(1);
+    double ptReco4  = accMap[iUfoldBin+3].at(2);
+    double etaReco4 = accMap[iUfoldBin+3].at(3);
+
+    double ptGen5   = accMap[iUfoldBin+4].at(0);
+    double etaGen5  = accMap[iUfoldBin+4].at(1);
+    double ptReco5  = accMap[iUfoldBin+4].at(2);
+    double etaReco5 = accMap[iUfoldBin+4].at(3);
+
+    cout << ptGen1 << " " << etaGen1 << " " << ptReco1 << " " << etaReco1 << endl;
+    cout << ptGen2 << " " << etaGen2 << " " << ptReco2 << " " << etaReco2 << endl;
+    cout << ptGen3 << " " << etaGen3 << " " << ptReco3 << " " << etaReco3 << endl;
+    cout << ptGen4 << " " << etaGen4 << " " << ptReco4 << " " << etaReco4 << endl;
+    cout << ptGen5 << " " << etaGen5 << " " << ptReco5 << " " << etaReco5 << endl;
+  
+    std::stringstream BIN1 ("");
+    std::stringstream BIN2 ("");
+    std::stringstream BIN3 ("");
+    std::stringstream BIN4 ("");
+    std::stringstream BIN5 ("");
+
+    BIN1 << "hyp" << iUfoldHyp << "_niter" << iUfoldNIter << "_cut" << (iUfoldBin+0) << "_DataType" << iUfoldDataType;
+    BIN2 << "hyp" << iUfoldHyp << "_niter" << iUfoldNIter << "_cut" << (iUfoldBin+1) << "_DataType" << iUfoldDataType;
+    BIN3 << "hyp" << iUfoldHyp << "_niter" << iUfoldNIter << "_cut" << (iUfoldBin+2) << "_DataType" << iUfoldDataType;
+    BIN4 << "hyp" << iUfoldHyp << "_niter" << iUfoldNIter << "_cut" << (iUfoldBin+3) << "_DataType" << iUfoldDataType;
+    BIN5 << "hyp" << iUfoldHyp << "_niter" << iUfoldNIter << "_cut" << (iUfoldBin+4) << "_DataType" << iUfoldDataType;
+
+    std::stringstream LT("");
+    if (itracking == 1 ) LT << "   genTracks: " ;
+    if (itracking == 2 ) LT << "   mbiasTracks: " ;
+    LT << "  p_{T}>"  << ptGen1 ;
+
+    std::stringstream ELT("");
+/*
+    if ( iUfoldMCType == 10 )  ELT << "  Unf.=D6T" ;
+    if ( iUfoldMCType == 11 )  ELT << "  Unf.=DW" ;
+    if ( iUfoldMCType == 12 )  ELT << "  Unf.=P0" ;
+    if ( iUfoldMCType == 13 )  ELT << "  Unf.=ProQ20" ;
+    ELT << "  Hyp.="      << iUfoldHyp; 
+    // ELT << "  N_{iter}=" << iUfoldNIter;  
+    if (globalTraking==0) ELT << "  gTr - PT>" << ptReco;
+    if (globalTraking==1) ELT << " mbTr - PT>" << ptReco;
+*/
+
+    std::string datatype;
+    if ( iUfoldDataType ==  0 ) datatype = "Data";
+    if ( iUfoldDataType == 10 ) datatype = "D6T";
+    if ( iUfoldDataType == 11 ) datatype = "DW";
+    if ( iUfoldDataType == 12 ) datatype = "P0";
+    if ( iUfoldDataType == 13 ) datatype = "ProQ20";
+
+    std::stringstream LD1("");
+    std::stringstream LD2("");
+    std::stringstream LD3("");
+    std::stringstream LD4("");
+    std::stringstream LD5("");
+    LD1 << datatype << " - |#eta|<" << etaReco1 ;
+    LD2 << datatype << " - |#eta|<" << etaReco2 ;
+    LD3 << datatype << " - |#eta|<" << etaReco3 ;
+    LD4 << datatype << " - |#eta|<" << etaReco4 ;
+    LD5 << datatype << " - |#eta|<" << etaReco5 ;
+
+    plotReset();
+    LegendTitle = LT.str();
+    ExtLegTitle = ELT.str();
+    // Plot settings
+    globalNorm     = 2;
+    globalFileType = 3;
+    globalHistoType= 1;
+
+    dir   = "unfolding";
+    
+    ptcutstr = BIN1.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(20);
+    dataSetColor.push_back(kBlack);
+    dataSetLegend.push_back(LD1.str());
+    dataSetHisto.push_back("nch_data_corrected");
+
+    ptcutstr = BIN2.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(21);
+    dataSetColor.push_back(kBlack);
+    dataSetLegend.push_back(LD2.str());
+    dataSetHisto.push_back("nch_data_corrected");
+
+
+    ptcutstr = BIN3.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(22);
+    dataSetColor.push_back(kBlack);
+    dataSetLegend.push_back(LD3.str());
+    dataSetHisto.push_back("nch_data_corrected");
+
+    ptcutstr = BIN4.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(23);
+    dataSetColor.push_back(kBlack);
+    dataSetLegend.push_back(LD4.str());
+    dataSetHisto.push_back("nch_data_corrected");
+
+    ptcutstr = BIN5.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(24);
+    dataSetColor.push_back(kBlack);
+    dataSetLegend.push_back(LD5.str());
+    dataSetHisto.push_back("nch_data_corrected");
+
+
+    ptcutstr = BIN1.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(1);
+    dataSetColor.push_back(1);
+    dataSetLegend.push_back("PYTHIA D6T");
+    dataSetHisto.push_back("nch_MC_gen_afterEvtSelCorrection");
+
+    ptcutstr = BIN2.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(1);
+    dataSetColor.push_back(1);
+    dataSetLegend.push_back("NONE");
+    dataSetHisto.push_back("nch_MC_gen_afterEvtSelCorrection");
+
+    ptcutstr = BIN3.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(1);
+    dataSetColor.push_back(1);
+    dataSetLegend.push_back("NONE");
+    dataSetHisto.push_back("nch_MC_gen_afterEvtSelCorrection");
+
+    ptcutstr = BIN4.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(1);
+    dataSetColor.push_back(1);
+    dataSetLegend.push_back("NONE");
+    dataSetHisto.push_back("nch_MC_gen_afterEvtSelCorrection");
+
+    ptcutstr = BIN5.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(1);
+    dataSetColor.push_back(1);
+    dataSetLegend.push_back("NONE");
+    dataSetHisto.push_back("nch_MC_gen_afterEvtSelCorrection");
+
+
+    // Data scaling Factor
+    dataSetFactor.push_back(10000);
+    dataSetFactor.push_back(1000);
+    dataSetFactor.push_back(100);
+    dataSetFactor.push_back(10);
+    dataSetFactor.push_back(1);
+   
+    // MC  scaling Factor
+    dataSetFactor.push_back(10000);
+    dataSetFactor.push_back(1000);
+    dataSetFactor.push_back(100);
+    dataSetFactor.push_back(10);
+    dataSetFactor.push_back(1);
+
+
+    plot(dir,"AUTO",1,2);
+    
+  }
+
+
+  //-------- Mch Unfold -------- Stack
+  if( knostak ){
+
+    globalDirPlot = "../plots.romain/unfoldingv2/";
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+    cout << "globalDirPlot= " << globalDirPlot << endl;
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+
+    // Retrieve bin info
+    if ( iUfoldBin > (signed) accMap.size() ) {
+      cout << "[makePlots] iUfoldBin > accMap.size()" << endl;
+      return;
+    }
+
+    double ptGen1   = accMap[iUfoldBin+0].at(0);
+    double etaGen1  = accMap[iUfoldBin+0].at(1);
+    double ptReco1  = accMap[iUfoldBin+0].at(2);
+    double etaReco1 = accMap[iUfoldBin+0].at(3);
+
+    double ptGen2   = accMap[iUfoldBin+1].at(0);
+    double etaGen2  = accMap[iUfoldBin+1].at(1);
+    double ptReco2  = accMap[iUfoldBin+1].at(2);
+    double etaReco2 = accMap[iUfoldBin+1].at(3);
+
+    double ptGen3   = accMap[iUfoldBin+2].at(0);
+    double etaGen3  = accMap[iUfoldBin+2].at(1);
+    double ptReco3  = accMap[iUfoldBin+2].at(2);
+    double etaReco3 = accMap[iUfoldBin+2].at(3);
+
+    double ptGen4   = accMap[iUfoldBin+3].at(0);
+    double etaGen4  = accMap[iUfoldBin+3].at(1);
+    double ptReco4  = accMap[iUfoldBin+3].at(2);
+    double etaReco4 = accMap[iUfoldBin+3].at(3);
+
+    double ptGen5   = accMap[iUfoldBin+4].at(0);
+    double etaGen5  = accMap[iUfoldBin+4].at(1);
+    double ptReco5  = accMap[iUfoldBin+4].at(2);
+    double etaReco5 = accMap[iUfoldBin+4].at(3);
+
+    cout << ptGen1 << " " << etaGen1 << " " << ptReco1 << " " << etaReco1 << endl;
+    cout << ptGen2 << " " << etaGen2 << " " << ptReco2 << " " << etaReco2 << endl;
+    cout << ptGen3 << " " << etaGen3 << " " << ptReco3 << " " << etaReco3 << endl;
+    cout << ptGen4 << " " << etaGen4 << " " << ptReco4 << " " << etaReco4 << endl;
+    cout << ptGen5 << " " << etaGen5 << " " << ptReco5 << " " << etaReco5 << endl;
+  
+    std::stringstream BIN1 ("");
+    std::stringstream BIN2 ("");
+    std::stringstream BIN3 ("");
+    std::stringstream BIN4 ("");
+    std::stringstream BIN5 ("");
+
+    BIN1 << "hyp" << iUfoldHyp << "_niter" << iUfoldNIter << "_cut" << (iUfoldBin+0) << "_DataType" << iUfoldDataType;
+    BIN2 << "hyp" << iUfoldHyp << "_niter" << iUfoldNIter << "_cut" << (iUfoldBin+1) << "_DataType" << iUfoldDataType;
+    BIN3 << "hyp" << iUfoldHyp << "_niter" << iUfoldNIter << "_cut" << (iUfoldBin+2) << "_DataType" << iUfoldDataType;
+    BIN4 << "hyp" << iUfoldHyp << "_niter" << iUfoldNIter << "_cut" << (iUfoldBin+3) << "_DataType" << iUfoldDataType;
+    BIN5 << "hyp" << iUfoldHyp << "_niter" << iUfoldNIter << "_cut" << (iUfoldBin+4) << "_DataType" << iUfoldDataType;
+
+    std::stringstream LT("");
+    if (itracking == 1 ) LT << "   genTracks: " ;
+    if (itracking == 2 ) LT << "   mbiasTracks: " ;
+    LT << "  p_{T}>"  << ptGen1 ;
+
+    std::stringstream ELT("");
+/*
+    if ( iUfoldMCType == 10 )  ELT << "  Unf.=D6T" ;
+    if ( iUfoldMCType == 11 )  ELT << "  Unf.=DW" ;
+    if ( iUfoldMCType == 12 )  ELT << "  Unf.=P0" ;
+    if ( iUfoldMCType == 13 )  ELT << "  Unf.=ProQ20" ;
+    ELT << "  Hyp.="      << iUfoldHyp; 
+    // ELT << "  N_{iter}=" << iUfoldNIter;  
+    if (globalTraking==0) ELT << "  gTr - PT>" << ptReco;
+    if (globalTraking==1) ELT << " mbTr - PT>" << ptReco;
+*/
+
+    std::string datatype;
+    if ( iUfoldDataType ==  0 ) datatype = "Data";
+    if ( iUfoldDataType == 10 ) datatype = "D6T";
+    if ( iUfoldDataType == 11 ) datatype = "DW";
+    if ( iUfoldDataType == 12 ) datatype = "P0";
+    if ( iUfoldDataType == 13 ) datatype = "ProQ20";
+
+    std::stringstream LD1("");
+    std::stringstream LD2("");
+    std::stringstream LD3("");
+    std::stringstream LD4("");
+    std::stringstream LD5("");
+    LD1 << datatype << " - |#eta|<" << etaReco1 ;
+    LD2 << datatype << " - |#eta|<" << etaReco2 ;
+    LD3 << datatype << " - |#eta|<" << etaReco3 ;
+    LD4 << datatype << " - |#eta|<" << etaReco4 ;
+    LD5 << datatype << " - |#eta|<" << etaReco5 ;
+
+    plotReset();
+    LegendTitle = LT.str();
+    ExtLegTitle = ELT.str();
+    // Plot settings
+    globalNorm     = 2;
+    globalFileType = 3;
+    globalHistoType= 1;
+
+    dir   = "unfolding";
+    
+    ptcutstr = BIN1.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(20);
+    dataSetColor.push_back(kBlack);
+    dataSetLegend.push_back(LD1.str());
+    dataSetHisto.push_back("kno_corrected");
+
+    ptcutstr = BIN2.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(21);
+    dataSetColor.push_back(kBlack);
+    dataSetLegend.push_back(LD2.str());
+    dataSetHisto.push_back("kno_corrected");
+
+
+    ptcutstr = BIN3.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(22);
+    dataSetColor.push_back(kBlack);
+    dataSetLegend.push_back(LD3.str());
+    dataSetHisto.push_back("kno_corrected");
+
+    ptcutstr = BIN4.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(23);
+    dataSetColor.push_back(kBlack);
+    dataSetLegend.push_back(LD4.str());
+    dataSetHisto.push_back("kno_corrected");
+
+    ptcutstr = BIN5.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(24);
+    dataSetColor.push_back(kBlack);
+    dataSetLegend.push_back(LD5.str());
+    dataSetHisto.push_back("kno_corrected");
+
+
+    ptcutstr = BIN1.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(1);
+    dataSetColor.push_back(1);
+    dataSetLegend.push_back("PYTHIA D6T");
+    dataSetHisto.push_back("kno_gen");
+
+    ptcutstr = BIN2.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(1);
+    dataSetColor.push_back(1);
+    dataSetLegend.push_back("NONE");
+    dataSetHisto.push_back("kno_gen");
+
+    ptcutstr = BIN3.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(1);
+    dataSetColor.push_back(1);
+    dataSetLegend.push_back("NONE");
+    dataSetHisto.push_back("kno_gen");
+
+    ptcutstr = BIN4.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(1);
+    dataSetColor.push_back(1);
+    dataSetLegend.push_back("NONE");
+    dataSetHisto.push_back("kno_gen");
+
+    ptcutstr = BIN5.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(1);
+    dataSetColor.push_back(1);
+    dataSetLegend.push_back("NONE");
+    dataSetHisto.push_back("kno_gen");
+
+
+    // Data scaling Factor
+    dataSetFactor.push_back(10000);
+    dataSetFactor.push_back(1000);
+    dataSetFactor.push_back(100);
+    dataSetFactor.push_back(10);
+    dataSetFactor.push_back(1);
+   
+    // MC  scaling Factor
+    dataSetFactor.push_back(10000);
+    dataSetFactor.push_back(1000);
+    dataSetFactor.push_back(100);
+    dataSetFactor.push_back(10);
+    dataSetFactor.push_back(1);
+
+
+    plot(dir,"AUTO",1,2);
+    
+  }
+
+
+  bool compenergy = false;
+  if( nch2ene || kno2ene ) compenergy = true;
+
+  //-------- Mch Unfold -------- Stack - 2 energies
+  if( compenergy ){
+
+    TString hdata , hmoca; 
+    
+    if (nch2ene ) {
+      hdata = "nch_data_corrected";
+      hmoca = "nch_MC_gen_afterEvtSelCorrection";
+    }
+
+    if (kno2ene ) {
+      hdata = "kno_corrected";
+      hmoca = "kno_gen";
+    }
+
+    globalDirPlot = "../plots.romain/unfoldingv2/";
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+    cout << "globalDirPlot= " << globalDirPlot << endl;
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+
+    // Retrieve bin info
+    if ( iUfoldBin > (signed) accMap.size() ) {
+      cout << "[makePlots] iUfoldBin > accMap.size()" << endl;
+      return;
+    }
+
+    double ptGen1   = accMap[iUfoldBin+0].at(0);
+    double etaGen1  = accMap[iUfoldBin+0].at(1);
+    double ptReco1  = accMap[iUfoldBin+0].at(2);
+    double etaReco1 = accMap[iUfoldBin+0].at(3);
+
+    double ptGen2   = accMap[iUfoldBin+1].at(0);
+    double etaGen2  = accMap[iUfoldBin+1].at(1);
+    double ptReco2  = accMap[iUfoldBin+1].at(2);
+    double etaReco2 = accMap[iUfoldBin+1].at(3);
+
+    double ptGen3   = accMap[iUfoldBin+2].at(0);
+    double etaGen3  = accMap[iUfoldBin+2].at(1);
+    double ptReco3  = accMap[iUfoldBin+2].at(2);
+    double etaReco3 = accMap[iUfoldBin+2].at(3);
+
+    double ptGen4   = accMap[iUfoldBin+3].at(0);
+    double etaGen4  = accMap[iUfoldBin+3].at(1);
+    double ptReco4  = accMap[iUfoldBin+3].at(2);
+    double etaReco4 = accMap[iUfoldBin+3].at(3);
+
+    double ptGen5   = accMap[iUfoldBin+4].at(0);
+    double etaGen5  = accMap[iUfoldBin+4].at(1);
+    double ptReco5  = accMap[iUfoldBin+4].at(2);
+    double etaReco5 = accMap[iUfoldBin+4].at(3);
+
+    cout << ptGen1 << " " << etaGen1 << " " << ptReco1 << " " << etaReco1 << endl;
+    cout << ptGen2 << " " << etaGen2 << " " << ptReco2 << " " << etaReco2 << endl;
+    cout << ptGen3 << " " << etaGen3 << " " << ptReco3 << " " << etaReco3 << endl;
+    cout << ptGen4 << " " << etaGen4 << " " << ptReco4 << " " << etaReco4 << endl;
+    cout << ptGen5 << " " << etaGen5 << " " << ptReco5 << " " << etaReco5 << endl;
+  
+    std::stringstream BIN1 ("");
+    std::stringstream BIN2 ("");
+    std::stringstream BIN3 ("");
+    std::stringstream BIN4 ("");
+    std::stringstream BIN5 ("");
+
+    BIN1 << "hyp" << iUfoldHyp << "_niter" << iUfoldNIter << "_cut" << (iUfoldBin+0) << "_DataType" << iUfoldDataType;
+    BIN2 << "hyp" << iUfoldHyp << "_niter" << iUfoldNIter << "_cut" << (iUfoldBin+1) << "_DataType" << iUfoldDataType;
+    BIN3 << "hyp" << iUfoldHyp << "_niter" << iUfoldNIter << "_cut" << (iUfoldBin+2) << "_DataType" << iUfoldDataType;
+    BIN4 << "hyp" << iUfoldHyp << "_niter" << iUfoldNIter << "_cut" << (iUfoldBin+3) << "_DataType" << iUfoldDataType;
+    BIN5 << "hyp" << iUfoldHyp << "_niter" << iUfoldNIter << "_cut" << (iUfoldBin+4) << "_DataType" << iUfoldDataType;
+
+    std::stringstream LT("");
+    if (itracking == 1 ) LT << "   genTracks: " ;
+    if (itracking == 2 ) LT << "   mbiasTracks: " ;
+    LT << "  p_{T}>"  << ptGen1 ;
+
+    std::stringstream ELT("");
+/*
+    if ( iUfoldMCType == 10 )  ELT << "  Unf.=D6T" ;
+    if ( iUfoldMCType == 11 )  ELT << "  Unf.=DW" ;
+    if ( iUfoldMCType == 12 )  ELT << "  Unf.=P0" ;
+    if ( iUfoldMCType == 13 )  ELT << "  Unf.=ProQ20" ;
+    ELT << "  Hyp.="      << iUfoldHyp; 
+    // ELT << "  N_{iter}=" << iUfoldNIter;  
+    if (globalTraking==0) ELT << "  gTr - PT>" << ptReco;
+    if (globalTraking==1) ELT << " mbTr - PT>" << ptReco;
+*/
+
+    std::string datatype;
+    if ( iUfoldDataType ==  0 ) datatype = "Data";
+    if ( iUfoldDataType == 10 ) datatype = "D6T";
+    if ( iUfoldDataType == 11 ) datatype = "DW";
+    if ( iUfoldDataType == 12 ) datatype = "P0";
+    if ( iUfoldDataType == 13 ) datatype = "ProQ20";
+
+    std::stringstream LD1("");
+    std::stringstream LD2("");
+    std::stringstream LD3("");
+    std::stringstream LD4("");
+    std::stringstream LD5("");
+    LD1 << datatype << " - |#eta|<" << etaReco1 ;
+    LD2 << datatype << " - |#eta|<" << etaReco2 ;
+    LD3 << datatype << " - |#eta|<" << etaReco3 ;
+    LD4 << datatype << " - |#eta|<" << etaReco4 ;
+    LD5 << datatype << " - |#eta|<" << etaReco5 ;
+
+    plotReset();
+    globalLabel = "CMS";
+
+    LegendTitle = LT.str();
+    ExtLegTitle = ELT.str();
+    // Plot settings
+    globalNorm     = 3;
+    globalFileType = 3;
+    globalHistoType= 1;
+
+    dir   = "unfolding";
+      
+    int kColor = kBlack ;
+
+    for ( int iE = 1 ; iE < 3 ; ++iE ) {
+
+      std::stringstream LD1("");
+      std::stringstream LD2("");
+      std::stringstream LD3("");
+      std::stringstream LD4("");
+      std::stringstream LD5("");
+ 
+      if ( iE==1 ) {
+        globalEnergy = 0.9; 
+        kColor = kBlack ;
+        LD1 << datatype << " 0.9 TeV - |#eta|<" << etaReco1 ;
+        LD2 << datatype << " 0.9 TeV - |#eta|<" << etaReco2 ;
+        LD3 << datatype << " 0.9 TeV - |#eta|<" << etaReco3 ;
+        LD4 << datatype << " 0.9 TeV - |#eta|<" << etaReco4 ;
+        LD5 << datatype << " 0.9 TeV - |#eta|<" << etaReco5 ;
+      }
+
+      if ( iE==2 ) {
+        globalEnergy = 2.36; 
+        kColor = kBlue ;
+        LD1 << datatype << " 2.36 TeV - |#eta|<" << etaReco1 ;
+        LD2 << datatype << " 2.36 TeV - |#eta|<" << etaReco2 ;
+        LD3 << datatype << " 2.36 TeV - |#eta|<" << etaReco3 ;
+        LD4 << datatype << " 2.36 TeV - |#eta|<" << etaReco4 ;
+        LD5 << datatype << " 2.36 TeV - |#eta|<" << etaReco5 ;
+      }
+
+      ptcutstr = BIN1.str();
+      dataSetId.push_back(-1);
+      dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+      dataSetIsMc.push_back(0);
+      dataSetStyle.push_back(20);
+      dataSetColor.push_back(kColor);
+      dataSetLegend.push_back(LD1.str());
+      dataSetHisto.push_back(hdata);
+  
+      ptcutstr = BIN2.str();
+      dataSetId.push_back(-1);
+      dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+      dataSetIsMc.push_back(0);
+      dataSetStyle.push_back(21);
+      dataSetColor.push_back(kColor);
+      dataSetLegend.push_back(LD2.str());
+      dataSetHisto.push_back(hdata);
+  
+  
+      ptcutstr = BIN3.str();
+      dataSetId.push_back(-1);
+      dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+      dataSetIsMc.push_back(0);
+      dataSetStyle.push_back(22);
+      dataSetColor.push_back(kColor);
+      dataSetLegend.push_back(LD3.str());
+      dataSetHisto.push_back(hdata);
+  
+      ptcutstr = BIN4.str();
+      dataSetId.push_back(-1);
+      dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+      dataSetIsMc.push_back(0);
+      dataSetStyle.push_back(23);
+      dataSetColor.push_back(kColor);
+      dataSetLegend.push_back(LD4.str());
+      dataSetHisto.push_back(hdata);
+  
+      ptcutstr = BIN5.str();
+      dataSetId.push_back(-1);
+      dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+      dataSetIsMc.push_back(0);
+      dataSetStyle.push_back(24);
+      dataSetColor.push_back(kColor);
+      dataSetLegend.push_back(LD5.str());
+      dataSetHisto.push_back(hdata);
+  
+  
+      ptcutstr = BIN1.str();
+      dataSetId.push_back(-1);
+      dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
+      dataSetIsMc.push_back(1);
+      dataSetStyle.push_back(1);
+      dataSetColor.push_back(kColor);
+      if (iE == 1 ) dataSetLegend.push_back("PYTHIA D6T 0.9 TeV");
+      if (iE == 2 ) dataSetLegend.push_back("PYTHIA D6T 2.36 TeV");
+      dataSetHisto.push_back(hmoca);
+  
+      ptcutstr = BIN2.str();
+      dataSetId.push_back(-1);
+      dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
+      dataSetIsMc.push_back(1);
+      dataSetStyle.push_back(1);
+      dataSetColor.push_back(kColor);
+      dataSetLegend.push_back("NONE");
+      dataSetHisto.push_back(hmoca);
+  
+      ptcutstr = BIN3.str();
+      dataSetId.push_back(-1);
+      dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
+      dataSetIsMc.push_back(1);
+      dataSetStyle.push_back(1);
+      dataSetColor.push_back(kColor);
+      dataSetLegend.push_back("NONE");
+      dataSetHisto.push_back(hmoca);
+  
+      ptcutstr = BIN4.str();
+      dataSetId.push_back(-1);
+      dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
+      dataSetIsMc.push_back(1);
+      dataSetStyle.push_back(1);
+      dataSetColor.push_back(kColor);
+      dataSetLegend.push_back("NONE");
+      dataSetHisto.push_back(hmoca);
+  
+      ptcutstr = BIN5.str();
+      dataSetId.push_back(-1);
+      dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
+      dataSetIsMc.push_back(1);
+      dataSetStyle.push_back(1);
+      dataSetColor.push_back(kColor);
+      dataSetLegend.push_back("NONE");
+      dataSetHisto.push_back(hmoca);
+  
+  
+      // Data scaling Factor
+      dataSetFactor.push_back(10000);
+      dataSetFactor.push_back(1000);
+      dataSetFactor.push_back(100);
+      dataSetFactor.push_back(10);
+      dataSetFactor.push_back(1);
+     
+      // MC  scaling Factor
+      dataSetFactor.push_back(10000);
+      dataSetFactor.push_back(1000);
+      dataSetFactor.push_back(100);
+      dataSetFactor.push_back(10);
+      dataSetFactor.push_back(1);
+
+    } // end for (iE)
+
+    plot(dir,"AUTO",1,2);
+    
+  }
+
+
+
 
 }
 
 
-void makeUPlots ( int itracking        = 0   , 
+void makeUPlots ( int iplot            = 1   ,
+                  int itracking        = 0   , 
                   double energy        = 0.9 , 
                   int iUfoldBin        = 0   , 
                   int iUfoldDataTypein = 0   , 
@@ -1390,26 +2443,33 @@ void makeUPlots ( int itracking        = 0   ,
 // Nch Unfolding
  effplot = 0;
  mtxplot = 0;
+
 //-------------------
 
- nchplot = 1;
- if (itracking == 1 || itracking == 2 )
-   makePlots ( itracking , energy , 0 , 0 , iUfoldBin );
- else if ( itracking == 0 ) 
- {
-   makePlots ( 1  , energy , 0 , 0 , iUfoldBin );
-   makePlots ( 2  , energy , 0 , 0 , iUfoldBin );
-   nchplot = 0;
-   nchctrk = 1;
-   makePlots ( 0  , energy , 0 , 0 , iUfoldBin ); 
- }
- else if ( itracking == 3 ) 
- {
-   nchplot = 0;
-   nchctrk = 0;
-   nchcbin = 1;
-   makePlots ( 0  , energy , 0 , 0 , iUfoldBin ); 
- }
+ nchplot = 0;
+ nchctrk = 0;
+ nchcbin = 0;
+ nchcunf = 0;
+ nchchyp = 0;
+ nchcitr = 0;
+ nchstak = 0;
+ knostak = 0;
+ nch2ene = 0;
+ kno2ene = 0;
+
+ if      ( iplot == 1 ) nchplot = 1;
+ else if ( iplot == 2 ) nchctrk = 1;
+ else if ( iplot == 3 ) nchcbin = 1; // Only for 0,1,2,3,4 bins !!!!
+ else if ( iplot == 4 ) nchcunf = 1;
+ else if ( iplot == 5 ) nchchyp = 1;
+ else if ( iplot == 6 ) nchcitr = 1;
+
+ else if ( iplot == 10) nchstak = 1;  
+ else if ( iplot == 11) knostak = 1;  
+ else if ( iplot == 12) nch2ene = 1; 
+ else if ( iplot == 13) kno2ene = 1; 
+
+ makePlots ( itracking  , energy , 0 , 0 , iUfoldBin ); 
 
 }
 

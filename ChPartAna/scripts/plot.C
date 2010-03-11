@@ -108,11 +108,17 @@ void plot (TString dir , TString histo , bool logY = false , int iLegendPos = 0 
       }
       if ( globalNorm == 2 ) {
         Float_t ndata = hData.at(iData)->Integral(1, hData.at(iData)->GetNbinsX() );
-        hData.at(iData)->Scale(1/ndata); 
+        hData.at(iData)->Scale(1/ndata,"width"); 
       }
       if ( globalNorm == 3 ) { // Excluding bin 0 for normalization
         Float_t ndata = hData.at(iData)->Integral(2, hData.at(iData)->GetNbinsX() );
-        hData.at(iData)->Scale(1/ndata); 
+        hData.at(iData)->Scale(1/ndata,"width"); 
+      }
+      // Factor
+      cout << dataSetFactor.size() << " " << iData << endl;
+      if ( (signed) dataSetFactor.size() > iData ) {
+        cout << "ScaleFactor = " << dataSetFactor.at(iData) << endl ; 
+        hData.at(iData)->Scale(dataSetFactor.at(iData));
       }
       // hMax
       if ( hData.at(iData)->GetMaximum() > hMax ) hMax = hData.at(iData)->GetMaximum() ;
@@ -167,9 +173,11 @@ void plot (TString dir , TString histo , bool logY = false , int iLegendPos = 0 
       if ( rData.at(iData) ) hData.at(iData)->Draw(opt);
     }
     for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) {
-      if ( ! dataSetIsMc.at(iData) )
-        if ( rData.at(iData) ) hData.at(iData)->Draw("esame");
-        else                   gData.at(iData)->Draw("psame");   
+      if ( ! dataSetIsMc.at(iData) ) 
+      {
+        if ( rData.at(iData) ) { hData.at(iData)->Draw("esame"); }
+        else                   { gData.at(iData)->Draw("psame"); }  
+      }
     }
   }
 
@@ -182,8 +190,12 @@ void plot (TString dir , TString histo , bool logY = false , int iLegendPos = 0 
 
   // Legend
 
+  int LegendSize = 1;
+  for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) 
+    if ( dataSetLegend.at(iData) != "NONE" ) ++LegendSize;
+
   TLegend *leg = new TLegend (xLegendMin[iLegendPos] ,
-                              yLegendMax[iLegendPos] - yLegendWidth * (1+dataSetId.size()) ,
+                              yLegendMax[iLegendPos] - yLegendWidth * LegendSize  ,
                               xLegendMin[iLegendPos] + xLegendWidth ,
                               yLegendMax[iLegendPos] );
   if ( LegendTitle != "NONE")  leg->SetHeader(LegendTitle);
@@ -193,9 +205,11 @@ void plot (TString dir , TString histo , bool logY = false , int iLegendPos = 0 
       else                          opt  = "p";
     } else
       opt  = "box";
-    if ( rData.at(iData) ) leg->AddEntry(hData.at(iData),dataSetLegend.at(iData),opt );
-    else                   leg->AddEntry(gData.at(iData),dataSetLegend.at(iData),opt );
-   
+    if ( dataSetLegend.at(iData) != "NONE" ) 
+    { 
+      if ( rData.at(iData) ) leg->AddEntry(hData.at(iData),dataSetLegend.at(iData),opt );
+      else                   leg->AddEntry(gData.at(iData),dataSetLegend.at(iData),opt );
+    }
   }
   leg->SetBorderSize(0);
   leg->SetFillColor(0);
