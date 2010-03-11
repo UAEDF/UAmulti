@@ -1065,7 +1065,7 @@ SetId.push_back(10);
     LegendTitle = LT.str();
     ExtLegTitle = ELT.str();
     // Plot settings
-    globalNorm     = 2;
+    globalNorm     = 0;
     globalFileType = 3;
     globalHistoType= 1;
 
@@ -2138,6 +2138,15 @@ SetId.push_back(10);
     dataSetLegend.push_back(LD5.str());
     dataSetHisto.push_back("nch_data_corrected");
 
+    if (globalEnergy == 0.9 && ( iUfoldBin == 0 || iUfoldBin == 5 ) ) {
+      dataSetId.push_back(-1);
+      dataSetFile.push_back("../expdata/ua5_dsigdn_eta15");
+      dataSetIsMc.push_back(0);
+      dataSetStyle.push_back(24);
+      dataSetColor.push_back(kRed);
+      dataSetLegend.push_back("UA5 - |#eta|<1.5");
+      dataSetHisto.push_back("UA5");
+    }
 
     ptcutstr = BIN1.str();
     dataSetId.push_back(-1);
@@ -2191,7 +2200,8 @@ SetId.push_back(10);
     dataSetFactor.push_back(100);
     dataSetFactor.push_back(10);
     dataSetFactor.push_back(1);
-   
+    if (globalEnergy == 0.9 && ( iUfoldBin == 0 || iUfoldBin == 5 ) ) { dataSetFactor.push_back(100); }   
+
     // MC  scaling Factor
     dataSetFactor.push_back(10000);
     dataSetFactor.push_back(1000);

@@ -3,6 +3,7 @@
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TGraphErrors.h>
+#include <TGraphAsymmErrors.h>
 #include <TString.h>
 #include <TProfile.h>
 #include <TStyle.h> 
@@ -61,7 +62,7 @@ void plot (TString dir , TString histo , bool logY = false , int iLegendPos = 0 
     // Data from root file ?
     // bool isRootData = true; 
     if ( histo == "AUTO" ) {
-      if ( dataSetHisto.at(iData) == "EXTDATA" )  rData.at(iData) = 0 ; //isRootData = false;
+      if ( dataSetHisto.at(iData) == "EXTDATA" || dataSetHisto.at(iData) == "UA5" )  rData.at(iData) = 0 ; //isRootData = false;
     }
 
     // Data from root files: TH1, TH2, TProfile
@@ -125,20 +126,66 @@ void plot (TString dir , TString histo , bool logY = false , int iLegendPos = 0 
 
     // Data from external text file 
     } else {
-      
+     
+ 
       cout << "[plot] make TGraphError !!!!" << endl; 
 
-      int   n = 0; 
-      const int  nmax = 300 ;
-      double x[nmax] , y[nmax] , ex[nmax] , ey[nmax] ;
-
-      ifstream mydata ;
-      mydata.open (fileName);          
-      while (mydata >> x[n] >> y[n] >> ey[n] ) { ex[n] = 0. ; n++; }
-      mydata.close();
-
-      gData.at(iData) = new TGraphErrors(n,x,y,ex,ey);
+      if ( dataSetHisto.at(iData) == "EXTDATA" ) 
+      {
+        int   n = 0; 
+        const int  nmax = 300 ;
+        double x[nmax] , y[nmax] , ex[nmax] , ey[nmax] ;
+  
+        ifstream mydata ;
+        mydata.open (fileName);          
+        while (mydata >> x[n] >> y[n] >> ey[n] ) { ex[n] = 0. ; n++; }
+        mydata.close();
  
+        // Factor
+        cout << dataSetFactor.size() << " " << iData << endl;
+        if ( (signed) dataSetFactor.size() > iData ) {
+          cout << "ScaleFactor = " << dataSetFactor.at(iData) << endl ;
+          for ( int i=0 ; i<n ; ++i ) {
+              y [i] *= dataSetFactor.at(iData);
+             ey [i] *= dataSetFactor.at(iData);
+          }
+        } 
+ 
+        gData.at(iData) = new TGraphErrors(n,x,y,ex,ey);
+      }  
+  
+      if ( dataSetHisto.at(iData) == "UA5" )
+      { 
+
+        int   n = 0;
+        const int  nmax = 300 ;
+        double x[nmax], xl[nmax] , xh[nmax] , y[nmax] , ex[nmax] , eyl[nmax] , eyh[nmax] ;
+      
+        ifstream mydata ;
+        mydata.open (fileName);
+        while (mydata >>  xl[n] >> xh[n] >> y[n] >> eyh[n] >> eyl[n] ) {
+          ex[n] = 0.;
+          eyl[n] = -eyl[n] ;
+          x[n]  = xl[n]+(xh[n]-xl[n])/2;
+          n++;
+        }
+        mydata.close();
+
+        // Factor
+        cout << dataSetFactor.size() << " " << iData << endl;
+        if ( (signed) dataSetFactor.size() > iData ) {
+          cout << "ScaleFactor = " << dataSetFactor.at(iData) << endl ;
+          for ( int i=0 ; i<n ; ++i ) {
+              y [i] *= dataSetFactor.at(iData);
+             eyl[i] *= dataSetFactor.at(iData);
+             eyh[i] *= dataSetFactor.at(iData);
+          }
+        } 
+
+        gData.at(iData) = new TGraphAsymmErrors(n,x,y,ex,ex,eyl,eyh);
+
+      }
+
       // Plot Style
       gData.at(iData)->SetMarkerColor(dataSetColor.at(iData));
       gData.at(iData)->SetMarkerStyle(dataSetStyle.at(iData)); 
