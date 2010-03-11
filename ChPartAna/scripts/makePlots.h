@@ -42,6 +42,7 @@ using namespace std;
  bool          globalWait    = 1 ;
  bool          globalSaveFig = 0 ; 
  TString       globalFigDir  ("../figs/");
+ TString       globalFigBaseName  ("NONE");
 
  // Dataset Settings
 

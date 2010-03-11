@@ -82,10 +82,13 @@ void trackPlots()
   trkplot = 1;
   vqlplot = 0;
   vtxplot = 1;
-  mltplot = 0;
+  
 
+/*
+  mltplot = 0;
   effplot = 0;
   mtxplot = 0;
+*/
 
   gROOT->ProcessLine(".x cmsStyleRoot.C");
   gROOT->ProcessLine("makePlots(1,0.9,0.15)");
@@ -895,10 +898,24 @@ SetId.push_back(10);
   //-------- ETA -------- Final Plot
   if( etaplot ){
 
-    globalDirPlot = "../plots.romain/unfoldingv3/";
+    globalDirPlot = "../plots.romain/unfoldingv4/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+
+    // Fig name
+    std::stringstream figname; 
+    figname << "dndeta_" ;
+    if (iUfoldMCType == 10 )  figname << "MC_D6T_" ;
+    if (iUfoldMCType == 11 )  figname << "MC_DW_" ;
+    if (iUfoldMCType == 12 )  figname << "MC_P0_" ;
+    if (iUfoldMCType == 13 )  figname << "MC_ProQ20_" ;
+    //if (globalEnergy == 0.9  ) figname << "0.9TeV_";
+    //if (globalEnergy == 2.36 ) figname << "2.36TeV_";
+    //if (itracking == 1 )  figname << "gTr_" ;
+    //if (itracking == 2 )  figname << "mbTr_" ;
+    globalFigBaseName = figname.str();
+
 
     plotReset();
 
@@ -1082,7 +1099,23 @@ SetId.push_back(10);
     dataSetColor.push_back(2);
     dataSetLegend.push_back("SD PYTHIA D6T");
     dataSetHisto.push_back("nch_MC_gen_SD");
-    
+
+
+    // Fig name
+    {
+    std::stringstream figname; 
+    figname << "unfolding_step1_" ;
+    if (iUfoldMCType == 10 )  figname << "MC_D6T_" ;
+    if (iUfoldMCType == 11 )  figname << "MC_DW_" ;
+    if (iUfoldMCType == 12 )  figname << "MC_P0_" ;
+    if (iUfoldMCType == 13 )  figname << "MC_ProQ20_" ;
+    if (globalEnergy == 0.9  ) figname << "0.9TeV_";
+    if (globalEnergy == 2.36 ) figname << "2.36TeV_";
+    if (itracking == 1 )  figname << "gTr_" ;
+    if (itracking == 2 )  figname << "mbTr_" ;
+    globalFigBaseName = figname.str();
+    }    
+
     plot(dir,"AUTO");
     
     
@@ -1127,6 +1160,22 @@ SetId.push_back(10);
     dataSetColor.push_back(2);
     dataSetLegend.push_back("Gen NSD PYTHIA D6T");
     dataSetHisto.push_back("nch_MC_gen_afterUnfolding");
+
+    // Fig name
+    {
+    std::stringstream figname; 
+    figname << "unfolding_step2_" ;
+    if (iUfoldMCType == 10 )  figname << "MC_D6T_" ;
+    if (iUfoldMCType == 11 )  figname << "MC_DW_" ;
+    if (iUfoldMCType == 12 )  figname << "MC_P0_" ;
+    if (iUfoldMCType == 13 )  figname << "MC_ProQ20_" ;
+    if (globalEnergy == 0.9  ) figname << "0.9TeV_";
+    if (globalEnergy == 2.36 ) figname << "2.36TeV_";
+    if (itracking == 1 )  figname << "gTr_" ;
+    if (itracking == 2 )  figname << "mbTr_" ;
+    globalFigBaseName = figname.str();
+    }    
+
    
     plot(dir,"AUTO");
     
@@ -1171,6 +1220,22 @@ SetId.push_back(10);
     dataSetColor.push_back(4 );
     dataSetLegend.push_back("Gen NSD w/o evtSel PYTHIA D6T");
     dataSetHisto.push_back("nch_MC_gen_afterEvtSelCorrection");
+
+    // Fig name
+    {
+    std::stringstream figname; 
+    figname << "unfolding_step3_" ;
+    if (iUfoldMCType == 10 )  figname << "MC_D6T_" ;
+    if (iUfoldMCType == 11 )  figname << "MC_DW_" ;
+    if (iUfoldMCType == 12 )  figname << "MC_P0_" ;
+    if (iUfoldMCType == 13 )  figname << "MC_ProQ20_" ;
+    if (globalEnergy == 0.9  ) figname << "0.9TeV_";
+    if (globalEnergy == 2.36 ) figname << "2.36TeV_";
+    if (itracking == 1 )  figname << "gTr_" ;
+    if (itracking == 2 )  figname << "mbTr_" ;
+    globalFigBaseName = figname.str();
+    }    
+
    
     plot(dir,"AUTO",1,2);
     
@@ -1234,6 +1299,19 @@ SetId.push_back(10);
     std::stringstream LD2("");
     LD1 << datatype << " - genTracks p_{T}>" << ptReco ;
     LD2 << datatype << " - mbiasTracks p_{T}>" << ptReco ;
+
+    // Fig name
+
+    std::stringstream figname; 
+    figname << "nch_ctracking_" ;
+    if (iUfoldMCType == 10 )  figname << "MC_D6T_" ;
+    if (iUfoldMCType == 11 )  figname << "MC_DW_" ;
+    if (iUfoldMCType == 12 )  figname << "MC_P0_" ;
+    if (iUfoldMCType == 13 )  figname << "MC_ProQ20_" ;
+    if (globalEnergy == 0.9  ) figname << "0.9TeV_";
+    if (globalEnergy == 2.36 ) figname << "2.36TeV_";
+    globalFigBaseName = figname.str();
+
 
     plotReset();
     ptcutstr = BIN.str();
@@ -1358,6 +1436,21 @@ SetId.push_back(10);
     LD3 << datatype << " - genTracks p_{T}>"   << ptReco2 ;
     LD4 << datatype << " - mbiasTracks p_{T}>" << ptReco2 ;
 
+    // Fig name
+
+    std::stringstream figname; 
+    figname << "nch_cbin_" ;
+    if (iUfoldMCType == 10 )  figname << "MC_D6T_" ;
+    if (iUfoldMCType == 11 )  figname << "MC_DW_" ;
+    if (iUfoldMCType == 12 )  figname << "MC_P0_" ;
+    if (iUfoldMCType == 13 )  figname << "MC_ProQ20_" ;
+    if (globalEnergy == 0.9  ) figname << "0.9TeV_";
+    if (globalEnergy == 2.36 ) figname << "2.36TeV_";
+    if (itracking == 1 )  figname << "gTr_" ;
+    if (itracking == 2 )  figname << "mbTr_" ;
+    globalFigBaseName = figname.str();
+
+
     plotReset();
     LegendTitle = LT.str();
     ExtLegTitle = ELT.str();
@@ -1466,6 +1559,17 @@ SetId.push_back(10);
     LD1 << datatype << " - Unf.= D6T" ;
     LD2 << datatype << " - Unf.= P0"  ;
 
+    // Fig name
+
+    std::stringstream figname; 
+    figname << "nch_cunfold_D6T_P0_" ;
+    if (globalEnergy == 0.9  ) figname << "0.9TeV_";
+    if (globalEnergy == 2.36 ) figname << "2.36TeV_";
+    if (itracking == 1 )  figname << "gTr_" ;
+    if (itracking == 2 )  figname << "mbTr_" ;
+    globalFigBaseName = figname.str();
+
+
     plotReset();
     ptcutstr = BIN.str();
     LegendTitle = LT.str();
@@ -1554,6 +1658,21 @@ SetId.push_back(10);
     std::stringstream LD2("");
     LD1 << datatype << " - Hyp.= 0";
     LD2 << datatype << " - Hyp.= 1";
+
+    // Fig name
+
+    std::stringstream figname; 
+    figname << "nch_chyp_0-1_" ;
+    if (iUfoldMCType == 10 )  figname << "MC_D6T_" ;
+    if (iUfoldMCType == 11 )  figname << "MC_DW_" ;
+    if (iUfoldMCType == 12 )  figname << "MC_P0_" ;
+    if (iUfoldMCType == 13 )  figname << "MC_ProQ20_" ;
+    if (globalEnergy == 0.9  ) figname << "0.9TeV_";
+    if (globalEnergy == 2.36 ) figname << "2.36TeV_";
+    if (itracking == 1 )  figname << "gTr_" ;
+    if (itracking == 2 )  figname << "mbTr_" ;
+    globalFigBaseName = figname.str();
+
 
     plotReset();
     LegendTitle = LT.str();
@@ -1653,6 +1772,22 @@ SetId.push_back(10);
     LD2 << datatype << " - N_{iter}= 5";
     LD3 << datatype << " - N_{iter}= 10";
 //    LD4 << datatype << " - N_{iter}= 15";
+
+    // Fig name
+
+    std::stringstream figname; 
+    figname << "nch_citr_3-5-10_" ;
+    if (iUfoldMCType == 10 )  figname << "MC_D6T_" ;
+    if (iUfoldMCType == 11 )  figname << "MC_DW_" ;
+    if (iUfoldMCType == 12 )  figname << "MC_P0_" ;
+    if (iUfoldMCType == 13 )  figname << "MC_ProQ20_" ;
+    if (globalEnergy == 0.9  ) figname << "0.9TeV_";
+    if (globalEnergy == 2.36 ) figname << "2.36TeV_";
+    if (itracking == 1 )  figname << "gTr_" ;
+    if (itracking == 2 )  figname << "mbTr_" ;
+    globalFigBaseName = figname.str();
+
+
 
     plotReset();
     LegendTitle = LT.str();
@@ -1811,6 +1946,22 @@ SetId.push_back(10);
     LD3 << datatype << " - |#eta|<" << etaReco3 ;
     LD4 << datatype << " - |#eta|<" << etaReco4 ;
     LD5 << datatype << " - |#eta|<" << etaReco5 ;
+
+    // Fig name
+
+    std::stringstream figname; 
+    figname << "nch_" ;
+    if (iUfoldMCType == 10 )  figname << "MC_D6T_" ;
+    if (iUfoldMCType == 11 )  figname << "MC_DW_" ;
+    if (iUfoldMCType == 12 )  figname << "MC_P0_" ;
+    if (iUfoldMCType == 13 )  figname << "MC_ProQ20_" ;
+    if (globalEnergy == 0.9  ) figname << "0.9TeV_";
+    if (globalEnergy == 2.36 ) figname << "2.36TeV_";
+    if (itracking == 1 )  figname << "gTr_" ;
+    if (itracking == 2 )  figname << "mbTr_" ;
+    globalFigBaseName = figname.str();
+
+    // Plot
 
     plotReset();
     LegendTitle = LT.str();
@@ -2026,6 +2177,22 @@ SetId.push_back(10);
     LD3 << datatype << " - |#eta|<" << etaReco3 ;
     LD4 << datatype << " - |#eta|<" << etaReco4 ;
     LD5 << datatype << " - |#eta|<" << etaReco5 ;
+
+    // Fig name
+
+    std::stringstream figname; 
+    figname << "kno_" ;
+    if (iUfoldMCType == 10 )  figname << "MC_D6T_" ;
+    if (iUfoldMCType == 11 )  figname << "MC_DW_" ;
+    if (iUfoldMCType == 12 )  figname << "MC_P0_" ;
+    if (iUfoldMCType == 13 )  figname << "MC_ProQ20_" ;
+    if (globalEnergy == 0.9  ) figname << "0.9TeV_";
+    if (globalEnergy == 2.36 ) figname << "2.36TeV_";
+    if (itracking == 1 )  figname << "gTr_" ;
+    if (itracking == 2 )  figname << "mbTr_" ;
+    globalFigBaseName = figname.str();
+
+    // Plot
 
     plotReset();
     LegendTitle = LT.str();
@@ -2257,6 +2424,21 @@ SetId.push_back(10);
     LD4 << datatype << " - |#eta|<" << etaReco4 ;
     LD5 << datatype << " - |#eta|<" << etaReco5 ;
 
+    // Fig name
+
+    std::stringstream figname; 
+    if (nch2ene ) figname << "nch_" ; 
+    if (kno2ene ) figname << "kno_" ;
+    if (iUfoldMCType == 10 )  figname << "MC_D6T_" ;
+    if (iUfoldMCType == 11 )  figname << "MC_DW_" ;
+    if (iUfoldMCType == 12 )  figname << "MC_P0_" ;
+    if (iUfoldMCType == 13 )  figname << "MC_ProQ20_" ;
+    figname << "0.9+2.36TeV_";
+    if (itracking == 1 )  figname << "gTr_" ;
+    if (itracking == 2 )  figname << "mbTr_" ;
+    globalFigBaseName = figname.str();
+
+    // Define plot
     plotReset();
     globalLabel = "CMS";
 

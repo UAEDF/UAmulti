@@ -237,6 +237,7 @@ void plot (TString dir , TString histo , bool logY = false , int iLegendPos = 0 
 
   string sdir    (dir);
   string shisto  (histo);
+  if ( histo == "AUTO") shisto = globalFigBaseName;
   
   if (globalWait) gPad->WaitPrimitive();
   
