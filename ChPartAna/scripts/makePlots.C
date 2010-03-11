@@ -62,6 +62,7 @@ bool nchcbin = 0;
 bool nchcunf = 0;
 bool nchchyp = 0;
 bool nchcitr = 0;
+bool nchcene = 0;
 
 bool nchstak = 0;
 bool knostak = 0;
@@ -264,6 +265,9 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
       plot(dir,"dzOsz_"+all,1);
       plot(dir,"dxybsOsxy_"+all);
       plot(dir,"dxybsOsxy_"+all,1);
+      plot(dir,"eptOpt_"+all);
+      plot(dir,"eptOpt_"+all,1);
+
 
 //    gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"sxy_"+all+"\",1");
 //    gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"ed0_"+all+"\",1");
@@ -1609,6 +1613,121 @@ SetId.push_back(10);
     
   }
 
+  //-------- Mch Unfold -------- Compare Unf. MC at different energies
+  if( nchcene ){
+
+    globalDirPlot = "../plots.romain/unfoldingv2/";
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+    cout << "globalDirPlot= " << globalDirPlot << endl;
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+
+    // Retrieve bin info
+    if ( iUfoldBin > (signed) accMap.size() ) {
+      cout << "[makePlots] iUfoldBin > accMap.size()" << endl;
+      return;
+    }
+
+    double ptGen   = accMap[iUfoldBin].at(0);
+    double etaGen  = accMap[iUfoldBin].at(1);
+    double ptReco  = accMap[iUfoldBin].at(2);
+    double etaReco = accMap[iUfoldBin].at(3);
+    cout << ptGen << " " << etaGen << " " << ptReco << " " << etaReco << endl;
+  
+    std::stringstream BIN1 ("");
+    std::stringstream BIN2 ("");
+    BIN1 << "hyp" << iUfoldHyp << "_niter" << iUfoldNIter << "_cut" << iUfoldBin << "_DataType" << iUfoldDataType;
+    BIN2 << "hyp" << iUfoldHyp << "_niter" << iUfoldNIter << "_cut" << iUfoldBin << "_DataType" << iUfoldDataType;
+    if (globalEnergy == 0.9 ) BIN2 << "_Emc2.36";
+    if (globalEnergy == 2.36) BIN2 << "_Emc0.9";
+
+    std::stringstream LT("");
+    LT << "  |#eta|<" << etaGen ;
+    LT << "  p_{T}>"  << ptGen ;
+
+    std::stringstream ELT("");
+    if ( iUfoldMCType == 10 )  ELT << "  Unf.=D6T" ;
+    if ( iUfoldMCType == 11 )  ELT << "  Unf.=DW" ;
+    if ( iUfoldMCType == 12 )  ELT << "  Unf.=P0" ;
+    if ( iUfoldMCType == 13 )  ELT << "  Unf.=ProQ20" ;
+    ELT << "  Hyp.="      << iUfoldHyp; 
+    ELT << "  N_{iter}=" << iUfoldNIter;  
+    if (globalTraking==0) ELT << "  gTr - PT>" << ptReco;
+    if (globalTraking==1) ELT << " mbTr - PT>" << ptReco;
+
+    std::string datatype;
+    if ( iUfoldDataType ==  0 ) datatype = "Data";
+    if ( iUfoldDataType == 10 ) datatype = "D6T";
+    if ( iUfoldDataType == 11 ) datatype = "DW";
+    if ( iUfoldDataType == 12 ) datatype = "P0";
+    if ( iUfoldDataType == 13 ) datatype = "ProQ20";
+
+    std::stringstream LD1("");
+    std::stringstream LD2("");
+    if (globalEnergy == 0.9 ) {
+      LD1 << datatype << " - Unf@0.9" ;
+      LD2 << datatype << " - Unf@2.36"  ;
+    } else {
+      LD2 << datatype << " - Unf@0.9" ;
+      LD1 << datatype << " - Unf@2.36"  ;
+    }
+
+    // Fig name
+
+    std::stringstream figname; 
+    figname << "nch_cenergy_0.9-2.36_" ;
+    if (iUfoldMCType == 10 )  figname << "MC_D6T_" ;
+    if (iUfoldMCType == 11 )  figname << "MC_DW_" ;
+    if (iUfoldMCType == 12 )  figname << "MC_P0_" ;
+    if (iUfoldMCType == 13 )  figname << "MC_ProQ20_" ;
+    if (globalEnergy == 0.9  ) figname << "0.9TeV_";
+    if (globalEnergy == 2.36 ) figname << "2.36TeV_";
+    if (itracking == 1 )  figname << "gTr_" ;
+    if (itracking == 2 )  figname << "mbTr_" ;
+    globalFigBaseName = figname.str();
+
+
+    plotReset();
+    LegendTitle = LT.str();
+    ExtLegTitle = ELT.str();
+    // Plot settings
+    globalNorm     = 2;
+    globalFileType = 3;
+    globalHistoType= 1;
+
+    dir   = "unfolding";
+    
+    ptcutstr = BIN1.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,iUfoldMCType,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(20);
+    dataSetColor.push_back(kRed);
+    dataSetLegend.push_back(LD1.str());
+    dataSetHisto.push_back("nch_data_corrected");
+
+    ptcutstr = BIN2.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,iUfoldMCType,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(20);
+    dataSetColor.push_back(kBlue);
+    dataSetLegend.push_back(LD2.str());
+    dataSetHisto.push_back("nch_data_corrected");
+
+    ptcutstr = BIN1.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,iUfoldMCType,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(1);
+    dataSetColor.push_back(1);
+    dataSetLegend.push_back("NSD - PYTHIA D6T");
+    dataSetHisto.push_back("nch_MC_gen_afterEvtSelCorrection");
+   
+    plot(dir,"AUTO",1,2);
+    
+  }
+
+
   //-------- Mch Unfold -------- Compare Unf. Hypothesis
   if( nchchyp ){
 
@@ -2527,7 +2646,7 @@ SetId.push_back(10);
       dataSetLegend.push_back(LD5.str());
       dataSetHisto.push_back(hdata);
   
-  
+  /*
       ptcutstr = BIN1.str();
       dataSetId.push_back(-1);
       dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
@@ -2573,7 +2692,7 @@ SetId.push_back(10);
       dataSetColor.push_back(kColor);
       dataSetLegend.push_back("NONE");
       dataSetHisto.push_back(hmoca);
-  
+  */
   
       // Data scaling Factor
       dataSetFactor.push_back(10000);
@@ -2581,13 +2700,14 @@ SetId.push_back(10);
       dataSetFactor.push_back(100);
       dataSetFactor.push_back(10);
       dataSetFactor.push_back(1);
-     
+    /* 
       // MC  scaling Factor
       dataSetFactor.push_back(10000);
       dataSetFactor.push_back(1000);
       dataSetFactor.push_back(100);
       dataSetFactor.push_back(10);
       dataSetFactor.push_back(1);
+   */
 
     } // end for (iE)
 
@@ -2634,6 +2754,8 @@ void makeUPlots ( int iplot            = 1   ,
  nchcunf = 0;
  nchchyp = 0;
  nchcitr = 0;
+ nchcene = 0;
+
  nchstak = 0;
  knostak = 0;
  nch2ene = 0;
@@ -2645,6 +2767,7 @@ void makeUPlots ( int iplot            = 1   ,
  else if ( iplot == 4 ) nchcunf = 1;
  else if ( iplot == 5 ) nchchyp = 1;
  else if ( iplot == 6 ) nchcitr = 1;
+ else if ( iplot == 7 ) nchcene = 1;
 
  else if ( iplot == 10) nchstak = 1;  
  else if ( iplot == 11) knostak = 1;  
