@@ -2197,6 +2197,10 @@ SetId.push_back(10);
     globalFileType = 3;
     globalHistoType= 1;
 
+    xGlobalLabel  = 0.3;
+    xLegendWidth = 0.24; 
+    yLegendWidth = 0.025;
+
     XaxisTitle = "n_{ch}";
     YaxisTitle = "#frac{1}{N} #frac{dN}{dn_{ch}}";
 
@@ -2354,7 +2358,7 @@ SetId.push_back(10);
     dataSetFactor.push_back(1);
 
 
-    plot(dir,"AUTO",1,0);
+    plot(dir,"AUTO",1,4);
     
   }
 
@@ -2732,8 +2736,19 @@ SetId.push_back(10);
     globalHistoType= 1;
 
     if (nch2ene) {
+
+      xGlobalLabel  = 0.3;
+      xLegendWidth = 0.24; 
+      yLegendWidth = 0.025;
+
       XaxisTitle = "n_{ch}";
       YaxisTitle = "#frac{1}{N} #frac{dN}{dn_{ch}}";
+    } else {
+
+      xGlobalLabel  = 0.6;
+      xLegendWidth = 0.24; 
+      yLegendWidth = 0.025;
+
     }
 
       if ( iUfoldBin == 0  || iUfoldBin == 5 )
@@ -2892,7 +2907,10 @@ SetId.push_back(10);
 
     } // end for (iE)
 
-    plot(dir,"AUTO",1,2);
+    if (nch2ene) 
+      plot(dir,"AUTO",1,5); 
+    else 
+      plot(dir,"AUTO",1,2);
     
   }
 
@@ -2961,6 +2979,9 @@ void makeUPlots ( int iplot            = 1   ,
 
 void setnchrangeX(int iUfoldBin )
 {
+
+    
+
     if ( globalEnergy == 0.9 ) 
     {
       if ( iUfoldBin == 0  || iUfoldBin == 5 )

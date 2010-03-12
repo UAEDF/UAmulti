@@ -42,9 +42,9 @@ using namespace std;
  // TLegend position +  Title 
 
  TString  LegendTitle ("NONE"); 
- float    xLegendMin[] = { 0.57 , 0.35 , 0.20 , 0.70 };
+ float    xLegendMin[] = { 0.57 , 0.35 , 0.20 , 0.70 , 0.70 , 0.75 };
  float    xLegendWidth = 0.35;
- float    yLegendMax[] = { 0.80 , 0.40 , 0.40 , 0.80 };
+ float    yLegendMax[] = { 0.80 , 0.40 , 0.40 , 0.80 , 0.90 , 1.00 };
  float    yLegendWidth = 0.03;
  TString  ExtLegTitle ("NONE");
 
