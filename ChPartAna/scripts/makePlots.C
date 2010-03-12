@@ -2239,7 +2239,9 @@ SetId.push_back(10);
 
 
     dir   = "unfolding";
-    
+   
+
+ 
     ptcutstr = BIN1.str();
     dataSetId.push_back(-1);
     dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
@@ -2257,6 +2259,17 @@ SetId.push_back(10);
     dataSetColor.push_back(kBlack);
     dataSetLegend.push_back(LD2.str());
     dataSetHisto.push_back("nch_data_corrected");
+
+
+    if (globalEnergy == 0.9 && ( iUfoldBin == 0 || iUfoldBin == 5 ) ) {
+      dataSetId.push_back(-1);
+      dataSetFile.push_back("../expdata/ua5_dsigdn_eta15");
+      dataSetIsMc.push_back(0);
+      dataSetStyle.push_back(24);
+      dataSetColor.push_back(kRed);
+      dataSetLegend.push_back("UA5 - |#eta|<1.5");
+      dataSetHisto.push_back("UA5");
+    }
 
 
     ptcutstr = BIN3.str();
@@ -2286,15 +2299,6 @@ SetId.push_back(10);
     dataSetLegend.push_back(LD5.str());
     dataSetHisto.push_back("nch_data_corrected");
 
-    if (globalEnergy == 0.9 && ( iUfoldBin == 0 || iUfoldBin == 5 ) ) {
-      dataSetId.push_back(-1);
-      dataSetFile.push_back("../expdata/ua5_dsigdn_eta15");
-      dataSetIsMc.push_back(0);
-      dataSetStyle.push_back(24);
-      dataSetColor.push_back(kRed);
-      dataSetLegend.push_back("UA5 - |#eta|<1.5");
-      dataSetHisto.push_back("UA5");
-    }
 
     ptcutstr = BIN1.str();
     dataSetId.push_back(-1);
@@ -2345,10 +2349,10 @@ SetId.push_back(10);
     // Data scaling Factor
     dataSetFactor.push_back(10000);
     dataSetFactor.push_back(1000);
+    if (globalEnergy == 0.9 && ( iUfoldBin == 0 || iUfoldBin == 5 ) ) { dataSetFactor.push_back(100); }   
     dataSetFactor.push_back(100);
     dataSetFactor.push_back(10);
     dataSetFactor.push_back(1);
-    if (globalEnergy == 0.9 && ( iUfoldBin == 0 || iUfoldBin == 5 ) ) { dataSetFactor.push_back(100); }   
 
     // MC  scaling Factor
     dataSetFactor.push_back(10000);
@@ -2480,13 +2484,13 @@ SetId.push_back(10);
     globalHistoType= 1;
 
       if ( iUfoldBin == 0  || iUfoldBin == 5 )
-        { histoYMin = 0.000001    ; histoYMax = 10000 ; }
+        { histoYMin = 0.0001    ; histoYMax = 10000 ; }
       if ( iUfoldBin == 10 )
-        { histoYMin = 0.0000001   ; histoYMax = 10000 ; }
+        { histoYMin = 0.00001   ; histoYMax = 10000 ; }
       if ( iUfoldBin == 15 )
-        { histoYMin = 0.00000001  ; histoYMax = 10000 ; }
+        { histoYMin = 0.000001  ; histoYMax = 10000 ; }
       if ( iUfoldBin == 20 )
-        { histoYMin = 0.000000001 ; histoYMax = 10000 ; }
+        { histoYMin = 0.0000001 ; histoYMax = 10000 ; }
 
     dir   = "unfolding";
     
@@ -2743,15 +2747,8 @@ SetId.push_back(10);
 
       XaxisTitle = "n_{ch}";
       YaxisTitle = "#frac{1}{N} #frac{dN}{dn_{ch}}";
-    } else {
 
-      xGlobalLabel  = 0.6;
-      xLegendWidth = 0.24; 
-      yLegendWidth = 0.025;
-
-    }
-
-      if ( iUfoldBin == 0  || iUfoldBin == 5 )
+     if ( iUfoldBin == 0  || iUfoldBin == 5 )
         { histoYMin = 0.000001    ; histoYMax = 10000 ;
           histoXMin = -0.5        ; histoXMax = 110.5  ; }
       if ( iUfoldBin == 10 )
@@ -2763,6 +2760,29 @@ SetId.push_back(10);
       if ( iUfoldBin == 20 )
         { histoYMin = 0.000000001 ; histoYMax = 10000 ;
           histoXMin = -0.5        ; histoXMax =  50.5  ; }
+
+
+    } else {
+
+      xGlobalLabel  = 0.6;
+      xLegendWidth = 0.24; 
+      yLegendWidth = 0.025;
+
+
+      if ( iUfoldBin == 0  || iUfoldBin == 5 )
+        { histoYMin = 0.0001    ; histoYMax = 10000 ; }
+          
+      if ( iUfoldBin == 10 )
+        { histoYMin = 0.00001   ; histoYMax = 10000 ; }
+          
+      if ( iUfoldBin == 15 )
+        { histoYMin = 0.000001  ; histoYMax = 10000 ; }
+          
+      if ( iUfoldBin == 20 )
+        { histoYMin = 0.0000001 ; histoYMax = 10000 ; }
+          
+
+    }
 
     dir   = "unfolding";
       
