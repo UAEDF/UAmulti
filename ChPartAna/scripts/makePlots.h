@@ -29,6 +29,16 @@ using namespace std;
  // 2: to Integral of each histo
  int           globalNorm    = 0 ;
 
+ // histo limit 
+ float           histoXMin = -99999.;   
+ float           histoXMax = -99999.;   
+ float           histoYMin = -99999.;   
+ float           histoYMax = -99999.;   
+
+ // Axis Title
+ TString         XaxisTitle = "NONE";
+ TString         YaxisTitle = "NONE";
+
  // TLegend position +  Title 
 
  TString  LegendTitle ("NONE"); 
@@ -45,10 +55,6 @@ using namespace std;
  TString       globalFigBaseName  ("NONE");
 
  // Dataset Settings
-
- float           histoXMin = -99999.;   
- float           histoXMax = -99999.;   
-
  vector<int>     dataSetId     (1,0);
  vector<bool>    dataSetIsMc   (1,0);
  vector<int>     dataSetStyle  (1,20);
@@ -97,6 +103,11 @@ void plotReset()
 
   histoXMin = -99999.;
   histoXMax = -99999.;
+  histoYMin = -99999.;
+  histoYMax = -99999.;
+
+  XaxisTitle = "NONE";
+  YaxisTitle = "NONE";
 
   dataSetId.clear();     
   dataSetIsMc.clear();   

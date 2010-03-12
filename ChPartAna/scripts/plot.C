@@ -194,19 +194,33 @@ void plot (TString dir , TString histo , bool logY = false , int iLegendPos = 0 
     }
   }
 
-  // Global Style
+  // Global Style (histo)
   if ( rData.at(0) ) {
+
     hData.at(0)->GetYaxis()->SetTitleOffset(2);
+    if (XaxisTitle != "NONE" ) hData.at(0)->GetXaxis()->SetTitle(XaxisTitle);
+    if (YaxisTitle != "NONE" ) hData.at(0)->GetYaxis()->SetTitle(YaxisTitle);
+
     if(!logY) {
       hData.at(0)->SetMinimum(0);
       hData.at(0)->SetMaximum(hMax*1.1 );
     }
+    if (histoYMin != histoYMax) hData.at(0)->GetYaxis()->SetRangeUser(histoYMin,histoYMax);
+    if (histoXMin != histoXMax) hData.at(0)->GetXaxis()->SetRangeUser(histoXMin,histoXMax);
+
+  // Global Style (TGraph) 
   } else {
+
     gData.at(0)->GetYaxis()->SetTitleOffset(2);
+    if (XaxisTitle != "NONE" ) gData.at(0)->GetXaxis()->SetTitle(XaxisTitle);
+    if (YaxisTitle != "NONE" ) gData.at(0)->GetYaxis()->SetTitle(YaxisTitle);
+
     if(!logY) {
       gData.at(0)->SetMinimum(0);
       gData.at(0)->SetMaximum(hMax*1.1 );
     }
+    if (histoYMin != histoYMax) gData.at(0)->GetYaxis()->SetRangeUser(histoYMin,histoYMax);
+    if (histoXMin != histoXMax) gData.at(0)->GetXaxis()->SetRangeUser(histoXMin,histoXMax);
   }
 
   TString opt;

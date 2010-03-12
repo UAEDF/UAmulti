@@ -928,6 +928,8 @@ SetId.push_back(10);
     globalFileType = 3;
     globalHistoType= 1;
     globalLabel = "CMS internal";
+    XaxisTitle = "#eta";
+    YaxisTitle = "#frac{1}{N} #frac{dn_{ch}}{d#eta}";
  
     TString bin("5");
 //    std::stringstream BIN ("");
@@ -1068,6 +1070,8 @@ SetId.push_back(10);
     globalNorm     = 0;
     globalFileType = 3;
     globalHistoType= 1;
+    XaxisTitle = "n_{ch}";
+    YaxisTitle = "#frac{1}{N} #frac{dN}{dn_{ch}}";
 
 
     dir   = "unfolding";
@@ -1132,6 +1136,8 @@ SetId.push_back(10);
     globalNorm     = 2;
     globalFileType = 3;
     globalHistoType= 1;
+    XaxisTitle = "n_{ch}";
+    YaxisTitle = "#frac{1}{N} #frac{dN}{dn_{ch}}";
     
     dataSetId.push_back(-1);
     dataSetFile.push_back(fileManager(globalFileType,iUfoldMCType,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
@@ -1192,6 +1198,8 @@ SetId.push_back(10);
     globalNorm     = 2;
     globalFileType = 3;
     globalHistoType= 1;
+    XaxisTitle = "n_{ch}";
+    YaxisTitle = "#frac{1}{N} #frac{dN}{dn_{ch}}";
 
     dataSetId.push_back(-1);
     dataSetFile.push_back(fileManager(globalFileType,iUfoldMCType,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
@@ -1325,6 +1333,8 @@ SetId.push_back(10);
     globalNorm     = 2;
     globalFileType = 3;
     globalHistoType= 1;
+    XaxisTitle = "n_{ch}";
+    YaxisTitle = "#frac{1}{N} #frac{dN}{dn_{ch}}";
 
     dir   = "unfolding";
     
@@ -1462,6 +1472,8 @@ SetId.push_back(10);
     globalNorm     = 3;
     globalFileType = 3;
     globalHistoType= 1;
+    XaxisTitle = "n_{ch}";
+    YaxisTitle = "#frac{1}{N} #frac{dN}{dn_{ch}}";
 
     dir   = "unfolding";
     
@@ -1582,6 +1594,8 @@ SetId.push_back(10);
     globalNorm     = 2;
     globalFileType = 3;
     globalHistoType= 1;
+    XaxisTitle = "n_{ch}";
+    YaxisTitle = "#frac{1}{N} #frac{dN}{dn_{ch}}";
 
     dir   = "unfolding";
     
@@ -1693,6 +1707,8 @@ SetId.push_back(10);
     globalNorm     = 2;
     globalFileType = 3;
     globalHistoType= 1;
+    XaxisTitle = "n_{ch}";
+    YaxisTitle = "#frac{1}{N} #frac{dN}{dn_{ch}}";
 
     dir   = "unfolding";
     
@@ -1800,6 +1816,8 @@ SetId.push_back(10);
     globalNorm     = 2;
     globalFileType = 3;
     globalHistoType= 1;
+    XaxisTitle = "n_{ch}";
+    YaxisTitle = "#frac{1}{N} #frac{dN}{dn_{ch}}";
 
     dir   = "unfolding";
     
@@ -1916,6 +1934,9 @@ SetId.push_back(10);
     globalFileType = 3;
     globalHistoType= 1;
 
+    XaxisTitle = "n_{ch}";
+    YaxisTitle = "#frac{1}{N} #frac{dN}{dn_{ch}}";
+
     dir   = "unfolding";
     
     ptcutstr = BIN1.str();
@@ -2018,7 +2039,8 @@ SetId.push_back(10);
     cout << ptGen3 << " " << etaGen3 << " " << ptReco3 << " " << etaReco3 << endl;
     cout << ptGen4 << " " << etaGen4 << " " << ptReco4 << " " << etaReco4 << endl;
     cout << ptGen5 << " " << etaGen5 << " " << ptReco5 << " " << etaReco5 << endl;
-  
+ 
+ 
     std::stringstream BIN1 ("");
     std::stringstream BIN2 ("");
     std::stringstream BIN3 ("");
@@ -2089,6 +2111,43 @@ SetId.push_back(10);
     globalNorm     = 2;
     globalFileType = 3;
     globalHistoType= 1;
+
+    XaxisTitle = "n_{ch}";
+    YaxisTitle = "#frac{1}{N} #frac{dN}{dn_{ch}}";
+
+
+    if ( globalEnergy == 0.9 ) 
+    {
+      if ( iUfoldBin == 0  || iUfoldBin == 5 )
+        { histoYMin = 0.000001    ; histoYMax = 10000 ;
+          histoXMin = -0.5        ; histoXMax = 90.5  ; }
+      if ( iUfoldBin == 10 )
+        { histoYMin = 0.0000001   ; histoYMax = 10000 ; 
+          histoXMin = -0.5        ; histoXMax = 80.5  ; }
+      if ( iUfoldBin == 15 )
+        { histoYMin = 0.00000001  ; histoYMax = 10000 ; 
+          histoXMin = -0.5        ; histoXMax = 50.5  ; }
+      if ( iUfoldBin == 20 )
+        { histoYMin = 0.000000001 ; histoYMax = 10000 ; 
+          histoXMin = -0.5        ; histoXMax = 30.5  ; }
+    }
+
+    if ( globalEnergy == 2.36 )
+    {
+      if ( iUfoldBin == 0  || iUfoldBin == 5 )
+        { histoYMin = 0.000001    ; histoYMax = 10000 ;
+          histoXMin = -0.5        ; histoXMax = 110.5  ; }
+      if ( iUfoldBin == 10 )
+        { histoYMin = 0.0000001   ; histoYMax = 10000 ;
+          histoXMin = -0.5        ; histoXMax = 100.5  ; }
+      if ( iUfoldBin == 15 )
+        { histoYMin = 0.00000001  ; histoYMax = 10000 ;
+          histoXMin = -0.5        ; histoXMax =  80.5  ; }
+      if ( iUfoldBin == 20 )
+        { histoYMin = 0.000000001 ; histoYMax = 10000 ;
+          histoXMin = -0.5        ; histoXMax =  50.5  ; }
+    }
+
 
     dir   = "unfolding";
     
@@ -2210,7 +2269,7 @@ SetId.push_back(10);
     dataSetFactor.push_back(1);
 
 
-    plot(dir,"AUTO",1,2);
+    plot(dir,"AUTO",1,0);
     
   }
 
@@ -2330,6 +2389,15 @@ SetId.push_back(10);
     globalNorm     = 2;
     globalFileType = 3;
     globalHistoType= 1;
+
+      if ( iUfoldBin == 0  || iUfoldBin == 5 )
+        { histoYMin = 0.000001    ; histoYMax = 10000 ; }
+      if ( iUfoldBin == 10 )
+        { histoYMin = 0.0000001   ; histoYMax = 10000 ; }
+      if ( iUfoldBin == 15 )
+        { histoYMin = 0.00000001  ; histoYMax = 10000 ; }
+      if ( iUfoldBin == 20 )
+        { histoYMin = 0.000000001 ; histoYMax = 10000 ; }
 
     dir   = "unfolding";
     
@@ -2577,6 +2645,24 @@ SetId.push_back(10);
     globalNorm     = 3;
     globalFileType = 3;
     globalHistoType= 1;
+
+    if (nch2ene) {
+      XaxisTitle = "n_{ch}";
+      YaxisTitle = "#frac{1}{N} #frac{dN}{dn_{ch}}";
+    }
+
+      if ( iUfoldBin == 0  || iUfoldBin == 5 )
+        { histoYMin = 0.000001    ; histoYMax = 10000 ;
+          histoXMin = -0.5        ; histoXMax = 110.5  ; }
+      if ( iUfoldBin == 10 )
+        { histoYMin = 0.0000001   ; histoYMax = 10000 ;
+          histoXMin = -0.5        ; histoXMax = 100.5  ; }
+      if ( iUfoldBin == 15 )
+        { histoYMin = 0.00000001  ; histoYMax = 10000 ;
+          histoXMin = -0.5        ; histoXMax =  80.5  ; }
+      if ( iUfoldBin == 20 )
+        { histoYMin = 0.000000001 ; histoYMax = 10000 ;
+          histoXMin = -0.5        ; histoXMax =  50.5  ; }
 
     dir   = "unfolding";
       
