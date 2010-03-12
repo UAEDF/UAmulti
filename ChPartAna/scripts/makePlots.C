@@ -76,6 +76,8 @@ int iUfoldDataType;
 int iUfoldHyp;
 int iUfoldMCType;
 
+void setnchrangeX(int );
+
 // ------------------------ trackPlot
 
 void trackPlots()
@@ -615,18 +617,18 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
   //-------- EFFICIENCIES --------
   if(effplot){
 
+    globalDirPlot = "../plots.romain/unfoldingv2/";
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+    cout << "globalDirPlot= " << globalDirPlot << endl;
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+
+
+    plotReset();
+    ptcutstr = "newbinning";
     
     // Plot settings
     globalNorm     = 0;
     globalFileType = 2;
-
-    dataSetId.clear();
-    dataSetIsMc.clear();
-    dataSetStyle.clear();
-    dataSetColor.clear();
-    dataSetLegend.clear();
-    dataSetDir.clear();
-    dataSetHisto.clear();
 
     dataSetId.push_back(10);
     dataSetIsMc.push_back(1);
@@ -657,6 +659,24 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
 
     dir   = "ptGen0_etaGen2.4_ptReco0.4_etaReco2.4" ;  
     all = "_cut0";
+    dataSetHisto.clear();
+    dataSetHisto.push_back("eff_L1"+all); 
+    dataSetHisto.push_back("eff_hf"+all); 
+    dataSetHisto.push_back("eff_vtx"+all); 
+    dataSetHisto.push_back("eff_evtSel"+all); 
+    plot(dir,"AUTO");
+
+    dir   = "ptGen0_etaGen2.4_ptReco0.15_etaReco2.4" ;  
+    all = "_cut5";
+    dataSetHisto.clear();
+    dataSetHisto.push_back("eff_L1"+all); 
+    dataSetHisto.push_back("eff_hf"+all); 
+    dataSetHisto.push_back("eff_vtx"+all); 
+    dataSetHisto.push_back("eff_evtSel"+all); 
+    plot(dir,"AUTO");
+
+    dir   = "ptGen0.2_etaGen2.4_ptReco0.2_etaReco2.4" ;  
+    all = "_cut10";
     dataSetHisto.clear();
     dataSetHisto.push_back("eff_L1"+all); 
     dataSetHisto.push_back("eff_hf"+all); 
@@ -729,12 +749,20 @@ SetId.push_back(10);
   //-------- MATRIX --------
   if(mtxplot){
 
+    globalDirPlot = "../plots.romain/unfoldingv2/";
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+    cout << "globalDirPlot= " << globalDirPlot << endl;
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+
+
     plotReset();
+    ptcutstr = "newbinning";
 
     // Plot settings
     globalNorm     = 0;
     globalFileType = 2;
     globalHistoType= 2;
+    global2DplotOpt = "col" ;
 
     dataSetId.push_back(10);
     dataSetIsMc.push_back(1);
@@ -758,6 +786,38 @@ SetId.push_back(10);
     all = "_cut0";
     plot(dir,"nch_matrix_evtSel"+all);
 
+
+    // Legend Title
+    {
+      ExtLegTitle = "    genPart:  |#eta|<2.4  p_{T}>0"; 
+      std::stringstream LT(""); 
+      if (itracking == 1 ) LT << "   genTracks: " ;
+      if (itracking == 2 ) LT << "   mbiasTracks: " ;
+      LT << "  |#eta|<" << "2.4" ;
+      LT << "  p_{T}>"  << "0.15" ;
+      LegendTitle = LT.str();
+    }
+
+    dir   = "ptGen0_etaGen2.4_ptReco0.15_etaReco2.4/MatrixPlots_evtSel_cut5" ;
+    all = "_cut5";
+    plot(dir,"nch_matrix_evtSel"+all);
+
+
+    // Legend Title
+    {
+      ExtLegTitle = "    genPart:  |#eta|<2.4  p_{T}>0.2"; 
+      std::stringstream LT("");
+      if (itracking == 1 ) LT << "   genTracks: " ;
+      if (itracking == 2 ) LT << "   mbiasTracks: " ;
+      LT << "  |#eta|<" << "2.4" ;
+      LT << "  p_{T}>"  << "0.2"  ;
+      LegendTitle = LT.str();
+    }
+
+    dir   = "ptGen0.2_etaGen2.4_ptReco0.2_etaReco2.4/MatrixPlots_evtSel_cut10" ;
+    all = "_cut10";
+    plot(dir,"nch_matrix_evtSel"+all);
+
     // Legend Title
     {
       ExtLegTitle = "    genPart:  |#eta|<2.4  p_{T}>0.5"; 
@@ -771,6 +831,21 @@ SetId.push_back(10);
 
     dir   = "ptGen0.5_etaGen2.4_ptReco0.5_etaReco2.4/MatrixPlots_evtSel_cut15" ;
     all = "_cut15";
+    plot(dir,"nch_matrix_evtSel"+all);
+
+    // Legend Title
+    {
+      ExtLegTitle = "    genPart:  |#eta|<2.4  p_{T}>1.0"; 
+      std::stringstream LT("");
+      if (itracking == 1 ) LT << "   genTracks: " ;
+      if (itracking == 2 ) LT << "   mbiasTracks: " ;
+      LT << "  |#eta|<" << "2.4" ;
+      LT << "  p_{T}>"  << "1.0"  ;
+      LegendTitle = LT.str();
+    }
+
+    dir   = "ptGen1.0_etaGen2.4_ptReco1.0_etaReco2.4/MatrixPlots_evtSel_cut20" ;
+    all = "_cut20";
     plot(dir,"nch_matrix_evtSel"+all);
 
   }
@@ -1072,6 +1147,7 @@ SetId.push_back(10);
     globalHistoType= 1;
     XaxisTitle = "n_{ch}";
     YaxisTitle = "#frac{1}{N} #frac{dN}{dn_{ch}}";
+    setnchrangeX(iUfoldBin);
 
 
     dir   = "unfolding";
@@ -1138,6 +1214,7 @@ SetId.push_back(10);
     globalHistoType= 1;
     XaxisTitle = "n_{ch}";
     YaxisTitle = "#frac{1}{N} #frac{dN}{dn_{ch}}";
+    setnchrangeX(iUfoldBin);
     
     dataSetId.push_back(-1);
     dataSetFile.push_back(fileManager(globalFileType,iUfoldMCType,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
@@ -1200,6 +1277,7 @@ SetId.push_back(10);
     globalHistoType= 1;
     XaxisTitle = "n_{ch}";
     YaxisTitle = "#frac{1}{N} #frac{dN}{dn_{ch}}";
+    setnchrangeX(iUfoldBin);
 
     dataSetId.push_back(-1);
     dataSetFile.push_back(fileManager(globalFileType,iUfoldMCType,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
@@ -1335,6 +1413,7 @@ SetId.push_back(10);
     globalHistoType= 1;
     XaxisTitle = "n_{ch}";
     YaxisTitle = "#frac{1}{N} #frac{dN}{dn_{ch}}";
+    setnchrangeX(iUfoldBin);
 
     dir   = "unfolding";
     
@@ -1474,6 +1553,7 @@ SetId.push_back(10);
     globalHistoType= 1;
     XaxisTitle = "n_{ch}";
     YaxisTitle = "#frac{1}{N} #frac{dN}{dn_{ch}}";
+    setnchrangeX(iUfoldBin);
 
     dir   = "unfolding";
     
@@ -1596,6 +1676,7 @@ SetId.push_back(10);
     globalHistoType= 1;
     XaxisTitle = "n_{ch}";
     YaxisTitle = "#frac{1}{N} #frac{dN}{dn_{ch}}";
+    setnchrangeX(iUfoldBin);
 
     dir   = "unfolding";
     
@@ -1709,6 +1790,7 @@ SetId.push_back(10);
     globalHistoType= 1;
     XaxisTitle = "n_{ch}";
     YaxisTitle = "#frac{1}{N} #frac{dN}{dn_{ch}}";
+    setnchrangeX(iUfoldBin);
 
     dir   = "unfolding";
     
@@ -1819,6 +1901,7 @@ SetId.push_back(10);
     XaxisTitle = "n_{ch}";
     YaxisTitle = "#frac{1}{N} #frac{dN}{dn_{ch}}";
 
+    setnchrangeX(iUfoldBin);
     dir   = "unfolding";
     
     ptcutstr = BIN1.str();
@@ -1933,6 +2016,8 @@ SetId.push_back(10);
     globalNorm     = 2;
     globalFileType = 3;
     globalHistoType= 1;
+
+    setnchrangeX(iUfoldBin);
 
     XaxisTitle = "n_{ch}";
     YaxisTitle = "#frac{1}{N} #frac{dN}{dn_{ch}}";
@@ -2874,4 +2959,37 @@ void makeUPlots ( int iplot            = 1   ,
 
 }
 
+void setnchrangeX(int iUfoldBin )
+{
+    if ( globalEnergy == 0.9 ) 
+    {
+      if ( iUfoldBin == 0  || iUfoldBin == 5 )
+        { 
+          histoXMin = -0.5        ; histoXMax = 90.5  ; }
+      if ( iUfoldBin == 10 )
+        { 
+          histoXMin = -0.5        ; histoXMax = 80.5  ; }
+      if ( iUfoldBin == 15 )
+        { 
+          histoXMin = -0.5        ; histoXMax = 50.5  ; }
+      if ( iUfoldBin == 20 )
+        { 
+          histoXMin = -0.5        ; histoXMax = 30.5  ; }
+    }
 
+    if ( globalEnergy == 2.36 )
+    {
+      if ( iUfoldBin == 0  || iUfoldBin == 5 )
+        { 
+          histoXMin = -0.5        ; histoXMax = 110.5  ; }
+      if ( iUfoldBin == 10 )
+        { 
+          histoXMin = -0.5        ; histoXMax = 100.5  ; }
+      if ( iUfoldBin == 15 )
+        { 
+          histoXMin = -0.5        ; histoXMax =  80.5  ; }
+      if ( iUfoldBin == 20 )
+        { 
+          histoXMin = -0.5        ; histoXMax =  50.5  ; }
+    }
+}
