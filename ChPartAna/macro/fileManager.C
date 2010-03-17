@@ -14,6 +14,7 @@
 //#             12 : MC - PYTHIA P0 
 //#             13 : MC - PYTHIA ProQ20
 //#             20 : MC - PHOJET
+//#             30 : MC - PYTHIA D6T <--- V8P file
 //#
 //# Energy    = 0.9  : 900 GeV  Data/MC
 //#             2.36 : 2.36 TeV Data/MC
@@ -82,6 +83,12 @@ TString fileManager ( int     iFileType  = 0
         TreeBase = "ChPartTree_v005c_mc900";
         DataSet  = "__MinBias__Summer09-STARTUP3X_V8K_900GeV_ProQ20-v1__GEN-SIM-RECO";
       }
+
+      else if ( iDataType == 30 ) {
+        TreeBase = "ChPartTree_v005c_mc900_V8P";
+        DataSet  = "__MinBias__Summer09-STARTUP3X_V8P_900GeV_ProQ20-v1__GEN-SIM-RECO";
+      }
+
 
       else {
         cout << "[fileManager] Unknown DataType: " << iDataType << endl;
