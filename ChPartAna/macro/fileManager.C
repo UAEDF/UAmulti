@@ -86,7 +86,7 @@ TString fileManager ( int     iFileType  = 0
 
       else if ( iDataType == 30 ) {
         TreeBase = "ChPartTree_v005c_mc900_V8P";
-        DataSet  = "__MinBias__Summer09-STARTUP3X_V8P_900GeV_ProQ20-v1__GEN-SIM-RECO";
+        DataSet  = "__MinBias__Summer09-STARTUP3X_V8P_900GeV-v1__GEN-SIM-RECO";
       }
 
 
@@ -143,7 +143,8 @@ TString fileManager ( int     iFileType  = 0
     if ( iDataType == 12) DataSet = "_MC_P0" ; 
     if ( iDataType == 13) DataSet = "_MC_ProQ20" ; 
     if ( iDataType == 20) DataSet = "_MC_PHOJET" ;
-
+    if ( iDataType == 30) DataSet = "_MC_D6T_newBS" ; 
+    
     if ( Energy == 0.9  ) SEnergy = "_0.9TeV"  ;
     if ( Energy == 2.36 ) SEnergy = "_2.36TeV" ;
     
