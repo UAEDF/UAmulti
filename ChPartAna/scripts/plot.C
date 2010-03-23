@@ -1,4 +1,3 @@
-
 #include <TROOT.h>
 #include <TH1F.h>
 #include <TH2F.h>
@@ -333,6 +332,21 @@ void plot (TString dir , TString histo , bool logY = false , int iLegendPos = 0 
      fngif += "_" + ptcutstr;
      if(logY) fngif +="_logY";
      fngif += ".eps";
+     c1->SaveAs(fngif.c_str(),"");
+    }
+  
+    {
+     string fngif ("");
+     fngif += basedir;
+     fngif += "pdf/"; 
+     fngif += sdir;
+     fngif += "/";
+  
+     if (!gSystem->OpenDirectory(fngif.c_str())) gSystem->mkdir(fngif.c_str(),true);
+     fngif += shisto;
+     fngif += "_" + ptcutstr;
+     if(logY) fngif +="_logY";
+     fngif += ".pdf";
      c1->SaveAs(fngif.c_str(),"");
     }
   
