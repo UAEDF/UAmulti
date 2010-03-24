@@ -55,7 +55,7 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
 {
   if(type==0) isMC = false;
   
-  int nbinmulti = 110;
+  //int nbinmulti = 110;
   
   #include "acceptanceMap.C"
   
@@ -87,7 +87,8 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
   
   for(int acc = 0 ; acc < (signed) accMap.size() ; ++acc){
     vector< vector<double> > binning;
-    binning = getBins(1,0,1);
+    //binning = getBins(1,0,1);//nch,pt,eta
+    binning = getBins(acc,E);//nch,pt,eta
     baseplot->setBinning(binning);
     
     //----------------------  RECO  ----------------------
@@ -110,24 +111,24 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
   
     //return;
     //-----
-    L1_before.at(acc) = new TH1F(st("L1_before",acc),st("L1_before",acc),binning.at(0).size()-1,&binning[0][0]);
-    L1_after.at(acc) = new TH1F(st("L1_after",acc),st("L1_after",acc),binning.at(0).size()-1,&binning[0][0]);
+    L1_before.at(acc) = new TH1F(st("L1_before",acc),st("L1_before",acc)+";Efficiency;N_{ch}^{gen}",binning.at(0).size()-1,&binning[0][0]);
+    L1_after.at(acc) = new TH1F(st("L1_after",acc),st("L1_after",acc)+";Efficiency;N_{ch}^{gen}",binning.at(0).size()-1,&binning[0][0]);
     L1_before.at(acc)->Sumw2();
     L1_after.at(acc)->Sumw2();
-    hf_before.at(acc) = new TH1F(st("hf_before",acc),st("hf_before",acc),binning.at(0).size()-1,&binning[0][0]);
-    hf_after.at(acc) = new TH1F(st("hf_after",acc),st("hf_after",acc),binning.at(0).size()-1,&binning[0][0]);
+    hf_before.at(acc) = new TH1F(st("hf_before",acc),st("hf_before",acc)+";Efficiency;N_{ch}^{gen}",binning.at(0).size()-1,&binning[0][0]);
+    hf_after.at(acc) = new TH1F(st("hf_after",acc),st("hf_after",acc)+";Efficiency;N_{ch}^{gen}",binning.at(0).size()-1,&binning[0][0]);
     hf_before.at(acc)->Sumw2();
     hf_after.at(acc)->Sumw2();
-    vtxqual_before.at(acc) = new TH1F(st("vtxqual_before",acc),st("vtxqual_before",acc),binning.at(0).size()-1,&binning[0][0]);
-    vtxqual_after.at(acc) = new TH1F(st("vtxqual_after",acc),st("vtxqual_after",acc),binning.at(0).size()-1,&binning[0][0]);
+    vtxqual_before.at(acc) = new TH1F(st("vtxqual_before",acc),st("vtxqual_before",acc)+";Efficiency;N_{ch}^{gen}",binning.at(0).size()-1,&binning[0][0]);
+    vtxqual_after.at(acc) = new TH1F(st("vtxqual_after",acc),st("vtxqual_after",acc)+";Efficiency;N_{ch}^{gen}",binning.at(0).size()-1,&binning[0][0]);
     vtxqual_before.at(acc)->Sumw2();
     vtxqual_after.at(acc)->Sumw2();
-    vtx_before.at(acc) = new TH1F(st("vtx_before",acc),st("vtx_before",acc),binning.at(0).size()-1,&binning[0][0]);
-    vtx_after.at(acc) = new TH1F(st("vtx_after",acc),st("vtx_after",acc),binning.at(0).size()-1,&binning[0][0]);
+    vtx_before.at(acc) = new TH1F(st("vtx_before",acc),st("vtx_before",acc)+";Efficiency;N_{ch}^{gen}",binning.at(0).size()-1,&binning[0][0]);
+    vtx_after.at(acc) = new TH1F(st("vtx_after",acc),st("vtx_after",acc)+";Efficiency;N_{ch}^{gen}",binning.at(0).size()-1,&binning[0][0]);
     vtx_before.at(acc)->Sumw2();
     vtx_after.at(acc)->Sumw2();
-    evtSel_before.at(acc) = new TH1F(st("evtSel_before",acc),st("evtSel_before",acc),binning.at(0).size()-1,&binning[0][0]);
-    evtSel_after.at(acc) = new TH1F(st("evtSel_after",acc),st("evtSel_after",acc),binning.at(0).size()-1,&binning[0][0]);
+    evtSel_before.at(acc) = new TH1F(st("evtSel_before",acc),st("evtSel_before",acc)+";Efficiency;N_{ch}^{gen}",binning.at(0).size()-1,&binning[0][0]);
+    evtSel_after.at(acc) = new TH1F(st("evtSel_after",acc),st("evtSel_after",acc)+";Efficiency;N_{ch}^{gen}",binning.at(0).size()-1,&binning[0][0]);
     evtSel_before.at(acc)->Sumw2();
     evtSel_after.at(acc)->Sumw2();
   }
