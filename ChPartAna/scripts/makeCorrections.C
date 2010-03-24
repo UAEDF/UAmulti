@@ -16,6 +16,7 @@
 #include "TPad.h"
 #include "TRandom.h"
 #include "TGraphAsymmErrors.h"
+#include "TProfile.h"
 
 #include "TFrame.h"
 
@@ -30,6 +31,7 @@
 using namespace std;
 using namespace TMath;
  
+ int ttt = 111;
 const int matrixsize = 111;
 bool useData = false;
 //TString name = "data_uniform_0.9_eta2.5_v004";
@@ -42,9 +44,9 @@ TString st(string input , int cut){
 }
 
 void transform2Matrix(TH2F* matrixhist,double matrix[][matrixsize]);
-TH1F resample(double matrix[][matrixsize], TH1F*, TH1F*, int = 5 , bool = false);
+TH1F resample(double matrix[][matrixsize], TH1F*, TH1F* , TH1F* , TH1F*, int = 5 , bool = false , TH1F* = NULL, bool = false);
 void makeEff(TH1F*,TH1F*,TH1F*);
-
+double getRMS(TH1F*);
 double NBD(double,double,double);
 double NBD2(double,double,double);
 Double_t nbdfunc(Double_t*, Double_t*);
@@ -56,9 +58,10 @@ Double_t nbdfunc3(Double_t*, Double_t*);
 //iFileType,iDataType,Energy,iTracking,iSystType,iSystSign,STest
 #include "../macro/fileManager.C"
 #include "unfolding.cc"
+//#include "makeFakeMatrix.C"
 
 void makeCorrections(int typeData, int hyp=0 , int niter=5 , int acc = 0 , 
-                     double E = 0.9 , double typeMC = 10 , int iTr = 0 , TString filename = "" ,
+                     double E = 0.9 , int typeMC = 10 , int iTr = 0 , TString filename = "" ,
 		     int scaleWbin0 = true , double Emc = 0 , bool drawcanv = true , float mu = 14 , float sigma = 15 ){
 
    
@@ -67,15 +70,20 @@ void makeCorrections(int typeData, int hyp=0 , int niter=5 , int acc = 0 ,
      
    #include "../macro/acceptanceMap.C"
   //Get the MC file
+  TString mcfile = fileManager(2,typeMC,Emc,iTr,0,0,"");
   //TFile* mc = new TFile("/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/macro/collectionPlotter_MC_finalv2_900GeV.root","READ");
   //TFile* mc = new TFile("../macro/GOODFILES/MC_v005b_2.36TeV_eta2.5_pt0.4_gTr.root","READ");
   //TFile* mc = new TFile("../macro/GOODFILES/MC_v005b_0.9TeV_eta2.5_pt0.4_gTr.root","READ");
-  TFile* mc = new TFile(fileManager(2,typeMC,Emc,iTr,0,0,"newbinning"),"READ");
+  TFile* mc = new TFile(mcfile,"READ");//"newbinning","../plots/unfoldingv2/"
+  cout<<"MC input file : "<<mcfile<<endl;
   
   //Get the data file
+  TString datafile = fileManager(2,typeData,E,iTr,0,0,"");
+  //TString datafile = fileManager(2,typeData,E,iTr,0,0,"newbinning","../plots/unfoldingv2/");
   //TFile* data = new TFile("../macro/GOODFILES/data_v005b_2.36TeV_eta2.5_pt0.4_gTr.root","READ");
   //TFile* data = new TFile("../macro/GOODFILES/data_v005b_0.9TeV_eta2.5_pt0.4_gTr.root","READ");
-  TFile* data = new TFile(fileManager(2,typeData,E,iTr,0,0,"newbinning"),"READ");
+  TFile* data = new TFile(datafile,"READ");
+  cout<<"Data input file : "<<datafile<<endl;
   
   ostringstream dirstr("");
   dirstr << "/ptGen" << accMap.at(acc).at(0) << "_etaGen" << accMap.at(acc).at(1) 
@@ -112,7 +120,7 @@ void makeCorrections(int typeData, int hyp=0 , int niter=5 , int acc = 0 ,
   //TH2F* matrixhist = (TH2F*) mc_matrix->Get(dir+st("MatrixPlots_evtSel",acc)+st("/nch_matrix_evtSel",acc));
   TH2F* matrixhist = (TH2F*) mc->Get(dir+st("MatrixPlots_evtSel",acc)+st("/nch_matrix_evtSel",acc));
   matrixhist->SetName("nch_matrix");
-  matrixhist->Write();
+  //matrixhist->Write();
 /*
   for(int i=1;i<=matrixhist->GetNbinsX();++i){
     matrixhist->SetBinContent(i,1,0);
@@ -121,6 +129,7 @@ void makeCorrections(int typeData, int hyp=0 , int niter=5 , int acc = 0 ,
 */
   if(drawcanv){
     TCanvas* cm = new TCanvas("cm","c",2500,10,500,500);
+    cm->cd();
     matrixhist->Draw("colz");
     //gPad->WaitPrimitive();
   }
@@ -196,6 +205,7 @@ void makeCorrections(int typeData, int hyp=0 , int niter=5 , int acc = 0 ,
   
   if(drawcanv){
     TCanvas* c_SDsub = new TCanvas("c_SDsub","c_SDsub",2500,510,500,500);
+    c_SDsub->cd();
     nch_INC->Draw();
     nch_evtSel_SD->SetLineColor(kRed);
     nch_evtSel_SD->Draw("hist same");
@@ -224,6 +234,20 @@ void makeCorrections(int typeData, int hyp=0 , int niter=5 , int acc = 0 ,
   nch_evtSel_NSD->Write();
   nch_evtSel_INC->Write();
   
+  if(  nch_evtSel_INC->GetEntries()!=mp_INC_evtSel_reco_MC->nbEvts
+    || nch_INC->GetEntries()!=mp_INC_evtSel_reco_data->nbEvts){
+    cout<<"Problem in normalization of SD MC component, please correct it or resampling will be wrong !"<<endl;
+    return;
+  }
+  if(nch_INC->GetEntries()!=nch_INC->Integral())
+    cout<<"Warning !! nch_INC->Integral differs from the #entries ==> there are some over/underflows ..."<<endl;
+    
+  ////////////////////////////////////////////////////////////////////////////////
+  ////////// TEMP TO CHECK ERRORS
+  
+ // makeFakeMatrix(matrixhist,nch_toUnfold,1);
+ // transform2Matrix(matrixhist,matrix);
+ // matrixhist->Write();
   
   //------------------------------------------------------------------------------
   //---------------------------- Unfolding ---------------------------------------
@@ -275,7 +299,7 @@ void makeCorrections(int typeData, int hyp=0 , int niter=5 , int acc = 0 ,
   //---------------------------- Resampling -------------------------------------
   //------------------------------------------------------------------------------
   
-  TH1F nch_resampled = resample(matrix,nch_toUnfold,hypothesis,niter);
+  TH1F nch_resampled = resample(matrix,nch_INC,nch_NSD,nch_unfoldedPtr,hypothesis,niter,0,nch_evtSel_SD,true);
   TH1F* nch_resampledPtr = &nch_resampled;
   
   if(drawcanv){
@@ -318,6 +342,7 @@ void makeCorrections(int typeData, int hyp=0 , int niter=5 , int acc = 0 ,
   
   if(drawcanv){
     TCanvas* c_effcorr = new TCanvas("c_effcorr","c_effcorr",1980,510,500,500);
+    c_effcorr->cd();
     nch_trueGen->Draw("hist");
     nch_corrected->Draw("same e");
     nch_trueGen_afterUnfolding->Draw("same hist");
@@ -351,6 +376,7 @@ void makeCorrections(int typeData, int hyp=0 , int niter=5 , int acc = 0 ,
   }
   if(drawcanv){
     TCanvas* c_kno = new TCanvas("c_kno","c_kno",200,510,500,500);
+    c_kno->cd();
     kno->Draw();
   }
   
@@ -865,8 +891,12 @@ void transform2Matrix(TH2F* matrixhist,double matrix[][matrixsize]){
   
   //j-->RECO || i-->GEN
   for(int i=0;i<matrixsize;++i){
-    for(int j=0;j<matrixsize;++j)
-      matrix[j][i] = matrixhist->GetBinContent(i+1,j+1);
+    for(int j=0;j<matrixsize;++j){
+      if(i<matrixhist->GetNbinsX() && j<matrixhist->GetNbinsY())
+        matrix[j][i] = matrixhist->GetBinContent(i+1,j+1);
+      else
+        matrix[j][i] = 0;
+    }
   }
 }
 
@@ -877,57 +907,83 @@ void makeKNO(TH1F* multi,TH1F* kno){
   }
 }
 
-TH1F resample(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hyp, int niter, bool doFit ){
+TH1F resample(double matrix[][matrixsize], TH1F* nch_INC , TH1F* toUnfold , TH1F* nch_unfoldedPtr, TH1F* hyp, int niter, bool doFit , TH1F* nch_mc_SD , bool printErrors){
 
-  const int nresampling = 1000;
+  const int nresampling = 10000;
   
   TH1F sample[nresampling];
 
+  TH1F bins_beforeU[matrixsize];
   TH1F bins[matrixsize];// = new vector<TH1F>;
   char* name = "bin_%d";
+  char* name_beforeU = "bin_beforeU_%d";
   char name2[60];
-  for(int k=1;k<=toUnfold->GetNbinsX();++k){
+  for(int k=1;k<=nch_INC->GetNbinsX();++k){
     sprintf(name2,name,k);
     //cout<<name2<<endl;
     //cout<<bins.size()<<endl;
-    //TH1F temp = (TH1F) toUnfold->Clone(name2);
+    //TH1F temp = (TH1F) nch_INC->Clone(name2);
     //(name2,name2,71,-0.5,70.5);
     //temp.SetLineColor(kRed);
     //temp.Draw();
     //gPad->WaitPrimitive();
     //if(temp==0) cout<<"pb"<<endl;
-    if(toUnfold->Integral()<2)
+    if(nch_INC->Integral()<2)
       bins[k-1] = TH1F(name2,name2,1000,0.,1.);
     else
-      bins[k-1] = TH1F(name2,name2,(int)toUnfold->GetMaximum()+501,-0.5,(int)toUnfold->GetMaximum()+500.5);
-    //cout<<bins.size()<<"  "<<toUnfold->GetNbinsX()<<endl;
+      bins[k-1] = TH1F(name2,name2,(int)nch_INC->GetMaximum()+951,-50.5,(int)nch_INC->GetMaximum()+900.5);
+      
+    //bins before U
+    sprintf(name2,name_beforeU,k);
+    if(nch_INC->Integral()<2)
+      bins_beforeU[k-1] = TH1F(name2,name2,1000,0.,1.);
+    else
+      bins_beforeU[k-1] = TH1F(name2,name2,(int)nch_INC->GetMaximum()+951,-50.5,(int)nch_INC->GetMaximum()+900.5);
+    //cout<<bins.size()<<"  "<<nch_INC->GetNbinsX()<<endl;
     //delete temp;
   }
   
   
-  TH1F* out = (TH1F*) toUnfold->Clone("nch_resampled");
+  TH1F* out = (TH1F*) nch_INC->Clone("nch_resampled");
+  TH1F* nch_beforeUnfolding_resampled = (TH1F*) nch_INC->Clone("nch_beforeUnfolding_resampled");
+  TProfile* nch_resampled_profile = new TProfile("nch_resampled_profile","nch_resampled_profile",out->GetNbinsX(),out->GetXaxis()->GetXmin(),out->GetXaxis()->GetXmax());
+  nch_resampled_profile->SetErrorOption("s");
 
   TF1*Gauss = new TF1("Gauss","gaus");
 
+  TCanvas* c_kno = new TCanvas("c_kno2","c_kno2",200,510,500,500);
+  c_kno->cd();
   for(int i=0;i<nresampling;++i){
     char tmp[160] = "sample_nsample%d";
     char samplechar[160] = "";
     sprintf(samplechar,tmp,i+1);
     //cout<<samplechar<<endl;
-    TH1F* nch_temp = new TH1F(samplechar,samplechar,matrixsize,-0.5,matrixsize-0.5);
-    for(int n=1;n<=matrixsize;++n){
-      nch_temp->SetBinContent(n,gRandom->Poisson(toUnfold->GetBinContent(n)));
-    }
+
+    TH1F* nch_temp = new TH1F(samplechar,samplechar,toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray());
+    for(int n=1;n<=toUnfold->GetNbinsX();++n)
+      nch_temp->SetBinContent(n,gRandom->Poisson(nch_INC->GetBinContent(n)));
+      //nch_temp->SetBinContent(n,gRandom->Gaus(nch_INC->GetBinContent(n),nch_INC->GetBinError(n)));
+    
+    //substract SD with factor derived from resampled nch
+    nch_temp->Add(nch_mc_SD,-1*(double(nch_temp->Integral())/double(nch_INC->GetEntries())));    
+    
+    for(int n=1;n<=toUnfold->GetNbinsX();++n) 
+      bins_beforeU[n-1].Fill(nch_temp->GetBinContent(n));
+      
     //TCanvas* c_kno = new TCanvas("c_kno","c_kno",200,510,500,500);
     //nch_temp->Draw();
 
     if(hyp==0) cout<<"PROBLEM -----> the hypothesis is void !!"<<endl;
     sample[i] = (runalgo(matrix,nch_temp,hyp,niter,i+1));
     //sample[i].SetLineColor(kRed);
-    //sample[i].Draw("same");
+    if(i==0)
+      sample[i].Draw();
+    else
+      sample[i].Draw("same");
   
-    for(int k=1;k<=matrixsize;++k){
+    for(int k=1;k<=toUnfold->GetNbinsX();++k){
       bins[k-1].Fill(sample[i].GetBinContent(k));
+      nch_resampled_profile->Fill(double(k)-1.,sample[i].GetBinContent(k));
       //bins[k-1].SetLineColor(kBlue);
       //bins[k-1].Draw("same");
     }  
@@ -935,23 +991,93 @@ TH1F resample(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hyp, int niter,
     //gPad->Update();
     //gPad->WaitPrimitive();
   }
+  gPad->WaitPrimitive();
+  gPad->Write();
+
   //TCanvas* c_kno = new TCanvas("c_kno","c_kno",200,510,500,500);
-  for(int k=1;k<=matrixsize;++k){
+  for(int k=1;k<=toUnfold->GetNbinsX();++k){
     if(doFit){
       bins[k-1].Fit("Gauss","Q");
       out->SetBinContent(k,Gauss->GetParameter(1));
       out->SetBinError(k,Gauss->GetParameter(2));
+      bins_beforeU[k-1].Fit("Gauss","Q");
+      nch_beforeUnfolding_resampled->SetBinContent(k,Gauss->GetParameter(1));
+      nch_beforeUnfolding_resampled->SetBinError(k,Gauss->GetParameter(2));
     }
     else {
       out->SetBinContent(k,bins[k-1].GetMean());
       out->SetBinError(k,bins[k-1].GetRMS());
+      nch_beforeUnfolding_resampled->SetBinContent(k,bins_beforeU[k-1].GetMean());
+      /*if(k<10)
+        nch_beforeUnfolding_resampled->SetBinError(k,sqrt(bins_beforeU[k-1].GetMean()));
+      else*/
+        //nch_beforeUnfolding_resampled->SetBinError(k,bins_beforeU[k-1].GetRMS());
+        nch_beforeUnfolding_resampled->SetBinError(k,getRMS(&bins_beforeU[k-1]));
+	
+       //cout<<k<<"  "<<getRMS(&bins[k-1])<<"  "<<bins[k-1].GetRMS()<<endl;
     }
-    //bins[k-1].Draw();
-    //gPad->Update();
-    //gPad->WaitPrimitive();   
+    
+    if(k>=0){
+      bins_beforeU[k-1].Draw();
+      gPad->Update();
+      gPad->WaitPrimitive();   
+    }
   }
   
+  //Making plots to check all the errors:
+  TH1F* error_diff_resampled_bU_aU = (TH1F*) toUnfold->Clone("error_diff_resampled_bU_aU");
+  TH1F* error_diff_resampled_data_bU = (TH1F*) toUnfold->Clone("error_diff_resampled_data_bU");
   
+  TH1F* error_diff_data_bU_aU = (TH1F*) toUnfold->Clone("error_diff_data_bU_aU");
+  TH1F* error_diff_data_aU_rms_poiss = (TH1F*) toUnfold->Clone("error_diff_data_aU_rms_poiss");
+  
+  for(int i=1;i<=toUnfold->GetNbinsX()*printErrors;++i){
+    /*error_diff_resampled_bU_aU->SetBinContent(i,0);
+    error_diff_data_bU_aU->SetBinContent(i,0);
+    error_diff_resampled_data_bU->SetBinContent(i,0);
+    
+    error_diff_resampled_bU_aU->SetBinError(i,nch_beforeUnfolding_resampled->GetBinError(i) - out->GetBinError(i));
+    error_diff_data_bU_aU->SetBinError(i,toUnfold->GetBinError(i) - out->GetBinError(i));
+    error_diff_resampled_data_bU->SetBinError(i,toUnfold->GetBinError(i) - nch_beforeUnfolding_resampled->GetBinError(i));
+    
+    error_diff_resampled_bU_aU->SetBinContent(i,nch_beforeUnfolding_resampled->GetBinError(i) - out->GetBinError(i));
+    error_diff_data_bU_aU->SetBinContent(i,toUnfold->GetBinError(i) - out->GetBinError(i));
+    error_diff_resampled_data_bU->SetBinContent(i,toUnfold->GetBinError(i) - nch_beforeUnfolding_resampled->GetBinError(i));*/
+    
+    cout << "*** BIN " << i << " ***" << endl;
+    cout<<"dbU_rbU_daU_raU (content,sqrt(content),error) : " 
+    						 << toUnfold->GetBinContent(i) << " , " << sqrt(toUnfold->GetBinContent(i)) << " , " << toUnfold->GetBinError(i)
+    				       <<"  |  " << nch_beforeUnfolding_resampled->GetBinContent(i) << " , " << sqrt(nch_beforeUnfolding_resampled->GetBinContent(i)) << " , " << nch_beforeUnfolding_resampled->GetBinError(i)
+    				       <<"  |  " << nch_unfoldedPtr->GetBinContent(i) << " , " << sqrt(nch_unfoldedPtr->GetBinContent(i)) << " , " << out->GetBinError(i)
+    				       <<"  |  " << out->GetBinContent(i) << " , " << sqrt(out->GetBinContent(i))  << " , " << out->GetBinError(i) << endl;
+    
+    
+    double error = 0;
+    if(nch_beforeUnfolding_resampled->GetBinError(i)!=0) error = (nch_beforeUnfolding_resampled->GetBinError(i) - out->GetBinError(i))/nch_beforeUnfolding_resampled->GetBinError(i);
+    cout << "relative err resampled_bU_aU: " <<"  "<<error << " == " << nch_beforeUnfolding_resampled->GetBinError(i) << " - " <<out->GetBinError(i) << "/first" <<endl;
+    error_diff_resampled_bU_aU->SetBinContent(i,error);
+        
+    if(toUnfold->GetBinError(i)!=0) error = (nch_beforeUnfolding_resampled->GetBinError(i) - toUnfold->GetBinError(i))/nch_beforeUnfolding_resampled->GetBinError(i);
+    cout << "relative err resampled-data_bU: " <<"  "<<error << " == " << nch_beforeUnfolding_resampled->GetBinError(i) << " - " <<toUnfold->GetBinError(i) << "/first" <<endl;
+    error_diff_resampled_data_bU->SetBinContent(i,error);
+    
+    
+    
+    if(toUnfold->GetBinError(i)!=0) error = (toUnfold->GetBinError(i) - out->GetBinError(i))/toUnfold->GetBinError(i);
+    cout << "relative err data_bU_aU: " <<"  "<<error << " == " << toUnfold->GetBinError(i) << " - " <<out->GetBinError(i) << "/first" <<endl;
+    error_diff_data_bU_aU->SetBinContent(i,error);
+    
+    if(toUnfold->GetBinError(i)!=0) error = (out->GetBinError(i)-sqrt(out->GetBinContent(i)))/out->GetBinError(i);
+    cout << "relative err data_aU_rms_poiss: " <<"  "<<error << " == " << out->GetBinError(i) << " - " <<sqrt(out->GetBinContent(i)) << "/first" <<endl;
+    error_diff_data_aU_rms_poiss->SetBinContent(i,error);
+  
+  }
+  
+  error_diff_resampled_bU_aU->Write();
+  error_diff_data_bU_aU->Write();
+  error_diff_resampled_data_bU->Write();
+  nch_beforeUnfolding_resampled->Write();
+  nch_resampled_profile->Write();
   //out->Draw();
   //gPad->WaitPrimitive();
   return *out;
@@ -969,6 +1095,30 @@ void makeEff(TH1F* eff , TH1F* num , TH1F* denom){
       eff->SetBinError(i,kerr);
     }
   }
+}
+
+double getRMS(TH1F* in){
+  double m  = 0;
+  double m2 = 0;
+  for(int i = 1 ; i <= in->GetNbinsX() ; ++i){
+    m+=in->GetBinContent(i)*in->GetBinCenter(i);
+    m2+=in->GetBinContent(i)*pow(in->GetBinCenter(i),2);
+  }
+  m/=double(in->Integral());
+  
+  double sig1 = sqrt( m2/double(in->Integral()) - pow(m,2)  );
+  
+  /*double sig2 = 0;
+  for(int i = 1 ; i <= in->GetNbinsX() ; ++i)
+    sig2+=in->GetBinContent(i)*pow(in->GetBinCenter(i)-m,2);
+  sig2/=double(in->Integral());
+  sig2=sqrt(sig2);
+  
+  cout<<"means (Mine, root): "<<m<<"  "<<in->GetMean()<<endl;;
+  cout<<"RMSs  (Mine1,Mine2,root,sqrt(mean)): "<<sig1<<"  "<<sig2<<"  "<<in->GetRMS()<<"  "<<sqrt(in->GetMean())<<endl;
+  */
+  
+  return sig1;
 }
 
 //From websight

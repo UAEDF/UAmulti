@@ -68,7 +68,7 @@ TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hypothesis, int 
     strcat(name,"_nsample%d");
     sprintf(name,name,nsample);
     vtoUnfold->at(it)->SetNameTitle(name,name);
-    vtoUnfold->at(it)->SetBins(Ngen1,-0.5,double(Ngen1)-0.5);
+    vtoUnfold->at(it)->SetBins(toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray());
     //vtoUnfold->at(it)->Sumw2();
     
     tmp = "toUnfold_scaled_step%d";
@@ -76,7 +76,7 @@ TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hypothesis, int 
     strcat(name,"_nsample%d");
     sprintf(name,name,nsample);
     vtoUnfold_scaled->at(it)->SetNameTitle(name,name);
-    vtoUnfold_scaled->at(it)->SetBins(Ngen1,-0.5,double(Ngen1)-0.5);
+    vtoUnfold_scaled->at(it)->SetBins(toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray());
     //vtoUnfold_scaled->at(it)->Sumw2();
     
     tmp = "err_obs_step%d";
@@ -84,7 +84,7 @@ TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hypothesis, int 
     strcat(name,"_nsample%d");
     sprintf(name,name,nsample);
     verr_obs->at(it)->SetNameTitle(name,name);
-    verr_obs->at(it)->SetBins(Ngen1,-0.5,double(Ngen1)-0.5);
+    verr_obs->at(it)->SetBins(toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray());
     //verr_obs->at(it)->Sumw2();
     
     if(it==0)
@@ -184,6 +184,8 @@ TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hypothesis, int 
 
 void unfold(TH1F* unfoldedDistr,TH1F* unfoldedProb,double inputMat[][matrixsize],TH1F* auxEffect,TH1F* hypothesis,TH1F* err){
   ++iterStep;
+  
+  err->GetName();
   
   if (debug_){
     cout<<"Iteration "<<iterStep<<" of unfolding process"<<endl;
@@ -325,6 +327,7 @@ bool checkMatrix(double inputMat[][matrixsize],double inputMatNormalized[][matri
   }
   
   if (debug_)  std::cout<<"                ...matrix normalized"<<std::endl;
+  return true;
 }
 
 
