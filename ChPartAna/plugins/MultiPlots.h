@@ -50,16 +50,10 @@ class MultiPlots : public BasePlots {
   private:
   TString multiname;
   
-  Double_t nch_width;
-  Double_t rapidity_width;
-  Double_t eta_width;
-  Double_t pt_width;
-  Double_t pt2_width;
-  
   void writeSummary();
   void init();
   
-  ClassDef(MultiPlots,1);
+  ClassDef(MultiPlots,2);
 
 };
 

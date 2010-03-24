@@ -77,17 +77,17 @@ void MatrixPlots::write(bool scale){
   gDirectory->cd("MatrixPlots_"+plotsname);
   
   
-  if(scale) nch_gen->Scale(1./nbEvts);
+  if(scale) nch_gen->Scale(1./nbEvts,"width");
   nch_gen->Write();
   eta_gen->Write();
   pt_gen->Write();
   
-  if(scale) nch_reco->Scale(1./nbEvts);
+  if(scale) nch_reco->Scale(1./nbEvts,"width");
   nch_reco->Write();
   eta_reco->Write();
   pt_reco->Write();
   
-  if(scale) nch_matrix->Scale(1./nbEvts);
+  if(scale) nch_matrix->Scale(1./nbEvts,"width");
   nch_matrix->Write();
   eta_matrix->Write();
   pt_matrix->Write();

@@ -28,12 +28,6 @@ void MultiPlots::init(){
   pt       = new TH1F("pt_"+plotsname,"pt_"+plotsname+";p_{T} [GeV];#frac{1}{N} #frac{d#sigma_{ch}}{dp_{T}}",pt_nbin,pt_array);
   pt2      = new TH1F("pt2_"+plotsname,"pt2_"+plotsname+";p_{T}^{2} [GeV^{2}];#frac{1}{N} #frac{d#sigma_{ch}}{dp_{T}^{2}}",100,0.,9.);
   
-  nch_width      = nch->GetXaxis()->GetBinWidth(1);
-  rapidity_width = rapidity->GetXaxis()->GetBinWidth(1);
-  eta_width      = eta->GetXaxis()->GetBinWidth(1);
-  pt_width       = pt->GetXaxis()->GetBinWidth(1);
-  pt2_width      = pt2->GetXaxis()->GetBinWidth(1);
-  
   nch->Sumw2();
   rapidity->Sumw2();
   eta->Sumw2();
@@ -47,16 +41,16 @@ void MultiPlots::init(){
 
 void MultiPlots::fill(MyPart& p , double weight){
   ++nch_inEvt;
-  rapidity->Fill( p.v.Rapidity() , weight / rapidity_width );
-  eta->Fill( p.v.Eta() , weight / eta_width );
-  pt->Fill( p.v.Pt() , weight / pt_width );
-  pt2->Fill( pow(p.v.Pt(),2) , weight / pt2_width );
+  rapidity->Fill( p.v.Rapidity() , weight );
+  eta->Fill( p.v.Eta() , weight );
+  pt->Fill( p.v.Pt() , weight );
+  pt2->Fill( pow(p.v.Pt(),2) , weight );
 }
 
 void MultiPlots::nextEvent(bool laccept , double weight){
   ++nbEvts;
   if(laccept){
-    nch->Fill( nch_inEvt , weight / nch_width );
+    nch->Fill( nch_inEvt , weight );
     nch_mean->Add( nch_inEvt , weight );
     for(int i = 0 ; unsigned(i) < moments->size() ; ++i)
       moments->at(i).Add( pow(double(nch_inEvt),i+1) , weight );
@@ -79,22 +73,22 @@ void MultiPlots::write(bool scale){
   gDirectory->mkdir("MultiPlots_"+plotsname);
   gDirectory->cd("MultiPlots_"+plotsname);
   
-  if(scale) nch->Scale( 1. / nbEvts );
+  if(scale) nch->Scale( 1. / nbEvts , "width" );
   nch->Write();
   
   makeKNO();
   kno->Write();
   
-  if(scale) rapidity->Scale(1./nbEvts);
+  if(scale) rapidity->Scale(1./nbEvts , "width");
   rapidity->Write();
   
-  if(scale) eta->Scale(1./nbEvts);
+  if(scale) eta->Scale(1./nbEvts , "width");
   eta->Write();
   
-  if(scale) pt->Scale(1./nbEvts);
+  if(scale) pt->Scale(1./nbEvts , "width");
   pt->Write();
   
-  if(scale) pt2->Scale(1./nbEvts);
+  if(scale) pt2->Scale(1./nbEvts , "width");
   pt2->Write();
 
   this->Write("multi_class_"+plotsname);
