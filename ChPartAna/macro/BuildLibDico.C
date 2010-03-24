@@ -12,6 +12,7 @@
   gROOT->ProcessLine(".L ../plugins/VertexPlots.C+");
   gROOT->ProcessLine(".L ../plugins/EvtSelPlots.C+");
   gROOT->ProcessLine(".L ../plugins/TMean.C+");
+  gROOT->ProcessLine(".L ../plugins/BasePlots.C+");
   gROOT->ProcessLine(".L ../plugins/MultiPlots.C+");
   gROOT->ProcessLine(".L ../plugins/GenMultiPlots.C+");
   gROOT->ProcessLine(".L ../plugins/MatrixPlots.C+");
