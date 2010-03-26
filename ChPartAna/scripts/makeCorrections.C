@@ -30,9 +30,8 @@
 
 using namespace std;
 using namespace TMath;
- 
- int ttt = 111;
-const int matrixsize = 111;
+
+const int matrixsize = 200;
 bool useData = false;
 //TString name = "data_uniform_0.9_eta2.5_v004";
 TString name = "test";
@@ -53,6 +52,9 @@ Double_t nbdfunc(Double_t*, Double_t*);
 Double_t nbdfunc2(Double_t*, Double_t*);
 Double_t nbdfunc2bis(Double_t*, Double_t*);
 Double_t nbdfunc3(Double_t*, Double_t*);
+double* Divide( const TArrayD* , double );
+void divideByWidth(TH1F*);
+void divideByWidth(TH2F*);
 
 
 //iFileType,iDataType,Energy,iTracking,iSystType,iSystSign,STest
@@ -60,8 +62,8 @@ Double_t nbdfunc3(Double_t*, Double_t*);
 #include "unfolding.cc"
 //#include "makeFakeMatrix.C"
 
-void makeCorrections(int typeData, int hyp=0 , int niter=5 , int acc = 0 , 
-                     double E = 0.9 , int typeMC = 10 , int iTr = 0 , TString filename = "" ,
+void makeCorrections(int typeData, int hyp=1 , int niter=5 , int acc = 10 , 
+                     double E = 0.9 , int typeMC = 30 , int iTr = 1 , TString filename = "" ,
 		     int scaleWbin0 = true , double Emc = 0 , bool drawcanv = true , float mu = 14 , float sigma = 15 ){
 
    
@@ -120,13 +122,20 @@ void makeCorrections(int typeData, int hyp=0 , int niter=5 , int acc = 0 ,
   //TH2F* matrixhist = (TH2F*) mc_matrix->Get(dir+st("MatrixPlots_evtSel",acc)+st("/nch_matrix_evtSel",acc));
   TH2F* matrixhist = (TH2F*) mc->Get(dir+st("MatrixPlots_evtSel",acc)+st("/nch_matrix_evtSel",acc));
   matrixhist->SetName("nch_matrix");
-  //matrixhist->Write();
+ 
 /*
   for(int i=1;i<=matrixhist->GetNbinsX();++i){
     matrixhist->SetBinContent(i,1,0);
     matrixhist->SetBinContent(1,i,0);
   }
 */
+
+  //Setting the limits from the matrix
+  Ngen1  = matrixhist->GetNbinsX();
+  Nreco1 = matrixhist->GetNbinsX();
+
+
+
   if(drawcanv){
     TCanvas* cm = new TCanvas("cm","c",2500,10,500,500);
     cm->cd();
@@ -203,9 +212,21 @@ void makeCorrections(int typeData, int hyp=0 , int niter=5 , int acc = 0 ,
   TH1F* nch_NSD = (TH1F*) nch_INC->Clone("nch_data_NSD_afterSDsub");
   nch_NSD->Add(nch_evtSel_SD,-1);
   
+  
+ /*int bintochange = 15;
+ int nsigma = 3;
+ nch_NSD->SetBinContent(bintochange,nch_NSD->GetBinContent(bintochange)- nsigma * nch_NSD->GetBinError(bintochange));
+ //nch_NSD->SetBinContent(bintochange+1,nch_NSD->GetBinContent(bintochange+1)- nsigma * nch_NSD->GetBinError(bintochange+1));
+ bintochange +=4;
+ //nch_NSD->SetBinContent(bintochange,nch_NSD->GetBinContent(bintochange)- nsigma * nch_NSD->GetBinError(bintochange));
+ */
+ 
+ 
+ 
   if(drawcanv){
     TCanvas* c_SDsub = new TCanvas("c_SDsub","c_SDsub",2500,510,500,500);
     c_SDsub->cd();
+    nch_INC->SetLineColor(kGreen);
     nch_INC->Draw();
     nch_evtSel_SD->SetLineColor(kRed);
     nch_evtSel_SD->Draw("hist same");
@@ -230,9 +251,6 @@ void makeCorrections(int typeData, int hyp=0 , int niter=5 , int acc = 0 ,
   TH1F* nch_toUnfold = (TH1F*) nch_NSD->Clone("nch_toUnfold");
   //nch_toUnfold->Divide(eff_evtSel);
   
-  nch_evtSel_SD->Write();
-  nch_evtSel_NSD->Write();
-  nch_evtSel_INC->Write();
   
   if(  nch_evtSel_INC->GetEntries()!=mp_INC_evtSel_reco_MC->nbEvts
     || nch_INC->GetEntries()!=mp_INC_evtSel_reco_data->nbEvts){
@@ -241,13 +259,38 @@ void makeCorrections(int typeData, int hyp=0 , int niter=5 , int acc = 0 ,
   }
   if(nch_INC->GetEntries()!=nch_INC->Integral())
     cout<<"Warning !! nch_INC->Integral differs from the #entries ==> there are some over/underflows ..."<<endl;
-    
-  ////////////////////////////////////////////////////////////////////////////////
+  
+  
+  
+  
+  divideByWidth(nch_evtSel_SD);
+  divideByWidth(nch_evtSel_NSD);
+  divideByWidth(nch_evtSel_INC);
+  nch_evtSel_SD->Write();
+  nch_evtSel_NSD->Write();
+  nch_evtSel_INC->Write();
+  
+  
+  
+  
+  
+  
+  
+  //////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////          TEST AREA           ///////////////////////////
+  //////////////////////////////////////////////////////////////////////////////////
+  
+  
   ////////// TEMP TO CHECK ERRORS
   
  // makeFakeMatrix(matrixhist,nch_toUnfold,1);
  // transform2Matrix(matrixhist,matrix);
+ // matrixhist->Scale(1,"width");
  // matrixhist->Write();
+ 
+ ////////// TEMP TO CHECK ERRORS
+ 
+ 
   
   //------------------------------------------------------------------------------
   //---------------------------- Unfolding ---------------------------------------
@@ -289,17 +332,15 @@ void makeCorrections(int typeData, int hyp=0 , int niter=5 , int acc = 0 ,
   }
   
   
-  hypothesis->Write();
-  
   nch_unfolded = (runalgo(matrix,nch_toUnfold,hypothesis,niter));
   TH1F* nch_unfoldedPtr = (TH1F*) nch_unfolded.Clone("nch_unfoldedPtr");
   
   
   //------------------------------------------------------------------------------
-  //---------------------------- Resampling -------------------------------------
+  //---------------------------- Resampling --------------------------------------
   //------------------------------------------------------------------------------
   
-  TH1F nch_resampled = resample(matrix,nch_INC,nch_NSD,nch_unfoldedPtr,hypothesis,niter,0,nch_evtSel_SD,true);
+  TH1F nch_resampled = resample(matrix,nch_INC,nch_NSD,nch_unfoldedPtr,hypothesis,niter,0,nch_evtSel_SD,false);
   TH1F* nch_resampledPtr = &nch_resampled;
   
   if(drawcanv){
@@ -360,13 +401,26 @@ void makeCorrections(int typeData, int hyp=0 , int niter=5 , int acc = 0 ,
   cout<<"Mean of multiplicity --------> "<<nch_corrected->GetMean()<<endl;
   cout<<"RMS of multiplicity  --------> "<<nch_corrected->GetRMS()<<endl;
   
+  //------------------------------------------------------------------------------
+  //--------------------------------- Rescaling ----------------------------------
+  //------------------------------------------------------------------------------
   
+  divideByWidth(nch_trueGen);
+  divideByWidth(nch_trueGen_afterUnfolding);
+  divideByWidth(nch_INC);
+  divideByWidth(nch_NSD);
+  divideByWidth(nch_unfoldedPtr);
+  divideByWidth(nch_corrected);
+  divideByWidth(nch_resampledPtr);
   
-    //------------------------------------------------------------------------------
+  divideByWidth(matrixhist);
+  divideByWidth(hypothesis);
+  
+  //------------------------------------------------------------------------------
   //------------------------------------ KNO -------------------------------------
   //------------------------------------------------------------------------------
   
-  TH1F* kno = new TH1F("kno_corrected","kno_corrected;z = n_{ch} / < n_{ch} >;#psi(z)",nch_corrected->GetNbinsX(),0.,double(nch_corrected->GetXaxis()->GetXmax()/nch_corrected->GetMean()));
+  TH1F* kno = new TH1F("kno_corrected","kno_corrected;z = n_{ch} / < n_{ch} >;#psi(z)",nch_corrected->GetNbinsX(),Divide(nch_corrected->GetXaxis()->GetXbins(),nch_corrected->GetMean()));
   kno->Sumw2();
   /*for( int k = 60 ; k <= nch_corrected->GetNbinsX() ; ++k)
     nch_corrected->SetBinContent(k,0);*/
@@ -380,7 +434,7 @@ void makeCorrections(int typeData, int hyp=0 , int niter=5 , int acc = 0 ,
     kno->Draw();
   }
   
-  TH1F* kno_gen = new TH1F("kno_gen","kno_gen;z = n_{ch} / < n_{ch} >;#psi(z)",nch_trueGen->GetNbinsX(),0.,double(nch_trueGen->GetXaxis()->GetXmax()/nch_trueGen->GetMean()));
+  TH1F* kno_gen = new TH1F("kno_gen","kno_gen;z = n_{ch} / < n_{ch} >;#psi(z)",nch_trueGen->GetNbinsX(),Divide(nch_trueGen->GetXaxis()->GetXbins(),nch_trueGen->GetMean()));
   kno_gen->Sumw2();
   for( int k = 1 ; k <= nch_trueGen->GetNbinsX() ; ++k){
     kno_gen->SetBinContent(k , nch_trueGen->GetMean() * nch_trueGen->GetBinContent(k));
@@ -532,6 +586,7 @@ if(drawcanv){
 }//End of if(drawcanv) for final plot
   
   //Unfolding
+  hypothesis->Write();
   nch_trueGen->Write();
   nch_trueGen_afterUnfolding->Write();
   nch_INC->Write();
@@ -542,7 +597,7 @@ if(drawcanv){
 
   //eff_nch_L1_hf_vtxSel->Write();
   kno->Write();
-
+  matrixhist->Write();
   
   gDirectory->cd("../");
 
@@ -572,11 +627,11 @@ if(drawcanv){
   eta_evtSel_INC_reco->SetName("eta_MC_reco_beforeCorrection");
     
   eta_noSel_NSD_gen->Scale(1./(mp_etaCut_noSel_NSD_gen->nbEvts
-                              - scaleWbin0 * mp_etaCut_noSel_NSD_gen->nch->GetBinContent(1)));
+                              - scaleWbin0 * mp_etaCut_noSel_NSD_gen->nch->GetBinContent(1)),"width");
   eta_evtSel_INC_reco->Scale(1./(mp_etaCut_evtSel_INC_reco_MC->nbEvts
-                              - scaleWbin0 * mp_etaCut_evtSel_INC_reco_MC->nch->GetBinContent(1)));
+                              - scaleWbin0 * mp_etaCut_evtSel_INC_reco_MC->nch->GetBinContent(1)),"width");
   eta_toCorrect->Scale(1./(mp_etaCut_evtSel_INC_reco_data->nbEvts
-                              - scaleWbin0 * mp_etaCut_evtSel_INC_reco_data->nch->GetBinContent(1)));
+                              - scaleWbin0 * mp_etaCut_evtSel_INC_reco_data->nch->GetBinContent(1)),"width");
   
   TH1F* eff_eta = (TH1F*) eta_evtSel_INC_reco->Clone("eff_eta");
   eff_eta->Divide(eff_eta,eta_noSel_NSD_gen,1,1,"B");
@@ -657,11 +712,11 @@ if(drawcanv){
   pt_evtSel_INC_reco->SetName("pt_MC_reco_beforeCorrection");
     
   pt_noSel_NSD_gen->Scale(1./(mp_etaCut_noSel_NSD_gen->nbEvts
-                              - scaleWbin0 * mp_etaCut_noSel_NSD_gen->nch->GetBinContent(1)));
+                              - scaleWbin0 * mp_etaCut_noSel_NSD_gen->nch->GetBinContent(1)),"width");
   pt_evtSel_INC_reco->Scale(1./(mp_etaCut_evtSel_INC_reco_MC->nbEvts
-                              - scaleWbin0 * mp_etaCut_evtSel_INC_reco_MC->nch->GetBinContent(1)));
+                              - scaleWbin0 * mp_etaCut_evtSel_INC_reco_MC->nch->GetBinContent(1)),"width");
   pt_toCorrect->Scale(1./(mp_etaCut_evtSel_INC_reco_data->nbEvts
-                              - scaleWbin0 * mp_etaCut_evtSel_INC_reco_data->nch->GetBinContent(1)));
+                              - scaleWbin0 * mp_etaCut_evtSel_INC_reco_data->nch->GetBinContent(1)),"width");
     
   TH1F* eff_pt = (TH1F*) pt_evtSel_INC_reco->Clone("eff_pt");
   eff_pt->Divide(eff_pt,pt_noSel_NSD_gen,1,1,"B");
@@ -735,11 +790,11 @@ if(drawcanv){
   pt2_evtSel_INC_reco->SetName("pt2_MC_reco_beforeCorrection");
     
   pt2_noSel_NSD_gen->Scale(1./(mp_etaCut_noSel_NSD_gen->nbEvts
-                              - scaleWbin0 * mp_etaCut_noSel_NSD_gen->nch->GetBinContent(1)));
+                              - scaleWbin0 * mp_etaCut_noSel_NSD_gen->nch->GetBinContent(1)),"width");
   pt2_evtSel_INC_reco->Scale(1./(mp_etaCut_evtSel_INC_reco_MC->nbEvts
-                              - scaleWbin0 * mp_etaCut_evtSel_INC_reco_MC->nch->GetBinContent(1)));
+                              - scaleWbin0 * mp_etaCut_evtSel_INC_reco_MC->nch->GetBinContent(1)),"width");
   pt2_toCorrect->Scale(1./(mp_etaCut_evtSel_INC_reco_data->nbEvts
-                              - scaleWbin0 * mp_etaCut_evtSel_INC_reco_data->nch->GetBinContent(1)));
+                              - scaleWbin0 * mp_etaCut_evtSel_INC_reco_data->nch->GetBinContent(1)),"width");
     
   TH1F* eff_pt2 = (TH1F*) pt2_evtSel_INC_reco->Clone("eff_pt2");
   eff_pt2->Divide(eff_pt2,pt2_noSel_NSD_gen,1,1,"B");
@@ -813,11 +868,11 @@ if(drawcanv){
   nch2_evtSel_INC_reco->SetName("nch_MC_reco_beforeCorrection");
     
   nch2_noSel_NSD_gen->Scale(1./(mp_etaCut_noSel_NSD_gen->nbEvts
-                              - scaleWbin0 * mp_etaCut_noSel_NSD_gen->nch->GetBinContent(1)));
+                              - scaleWbin0 * mp_etaCut_noSel_NSD_gen->nch->GetBinContent(1)),"width");
   nch2_evtSel_INC_reco->Scale(1./(mp_etaCut_evtSel_INC_reco_MC->nbEvts
-                              - scaleWbin0 * mp_etaCut_evtSel_INC_reco_MC->nch->GetBinContent(1)));
+                              - scaleWbin0 * mp_etaCut_evtSel_INC_reco_MC->nch->GetBinContent(1)),"width");
   nch2_toCorrect->Scale(1./(mp_etaCut_evtSel_INC_reco_data->nbEvts
-                              - scaleWbin0 * mp_etaCut_evtSel_INC_reco_data->nch->GetBinContent(1)));
+                              - scaleWbin0 * mp_etaCut_evtSel_INC_reco_data->nch->GetBinContent(1)),"width");
     
   TH1F* eff_nch2 = (TH1F*) nch2_evtSel_INC_reco->Clone("eff_nch");
   eff_nch2->Divide(eff_nch2,nch2_noSel_NSD_gen,1,1,"B");
@@ -909,12 +964,14 @@ void makeKNO(TH1F* multi,TH1F* kno){
 
 TH1F resample(double matrix[][matrixsize], TH1F* nch_INC , TH1F* toUnfold , TH1F* nch_unfoldedPtr, TH1F* hyp, int niter, bool doFit , TH1F* nch_mc_SD , bool printErrors){
 
-  const int nresampling = 10000;
+  const int nresampling = 1000;
   
   TH1F sample[nresampling];
 
-  TH1F bins_beforeU[matrixsize];
-  TH1F bins[matrixsize];// = new vector<TH1F>;
+  //TH1F bins_beforeU[matrixsize];
+  vector<TH1F> bins_beforeU(nch_INC->GetNbinsX(),TH1F());
+  //TH1F bins[matrixsize];
+  vector<TH1F> bins(nch_INC->GetNbinsX(),TH1F());// = new vector<TH1F>;
   char* name = "bin_%d";
   char* name_beforeU = "bin_beforeU_%d";
   char name2[60];
@@ -951,8 +1008,8 @@ TH1F resample(double matrix[][matrixsize], TH1F* nch_INC , TH1F* toUnfold , TH1F
 
   TF1*Gauss = new TF1("Gauss","gaus");
 
-  TCanvas* c_kno = new TCanvas("c_kno2","c_kno2",200,510,500,500);
-  c_kno->cd();
+  //TCanvas* c_kno = new TCanvas("c_kno2","c_kno2",200,510,500,500);
+  //c_kno->cd();
   for(int i=0;i<nresampling;++i){
     char tmp[160] = "sample_nsample%d";
     char samplechar[160] = "";
@@ -976,10 +1033,10 @@ TH1F resample(double matrix[][matrixsize], TH1F* nch_INC , TH1F* toUnfold , TH1F
     if(hyp==0) cout<<"PROBLEM -----> the hypothesis is void !!"<<endl;
     sample[i] = (runalgo(matrix,nch_temp,hyp,niter,i+1));
     //sample[i].SetLineColor(kRed);
-    if(i==0)
+    /*if(i==0)
       sample[i].Draw();
     else
-      sample[i].Draw("same");
+      sample[i].Draw("same");*/
   
     for(int k=1;k<=toUnfold->GetNbinsX();++k){
       bins[k-1].Fill(sample[i].GetBinContent(k));
@@ -1017,11 +1074,11 @@ TH1F resample(double matrix[][matrixsize], TH1F* nch_INC , TH1F* toUnfold , TH1F
        //cout<<k<<"  "<<getRMS(&bins[k-1])<<"  "<<bins[k-1].GetRMS()<<endl;
     }
     
-    if(k>=0){
+    /*if(k>=0){
       bins_beforeU[k-1].Draw();
       gPad->Update();
       gPad->WaitPrimitive();   
-    }
+    }*/
   }
   
   //Making plots to check all the errors:
@@ -1147,6 +1204,34 @@ Double_t nbdfunc2bis(Double_t* x, Double_t* par){
 Double_t nbdfunc3(Double_t* x, Double_t* par){
   return par[0]*NBD(x[0],par[1],par[2])+par[3]*NBD(x[0],par[4],par[5])+(1-par[0]-par[3])*NBD(x[0],par[6],par[7]);
 }
+
+double* Divide(const TArrayD* array , double val){
+  TArrayD* temp = new TArrayD();
+  array->Copy(*temp);
+  for(int i = 0 ; i < temp->GetSize() ; i++)
+    temp->SetAt(array->At(i) / val , i);
+  
+  return temp->GetArray();  
+}
+
+void divideByWidth(TH1F* hist){
+  for(int i=1;i<=hist->GetNbinsX();++i){
+    hist->SetBinContent(i,double(hist->GetBinContent(i))/double(hist->GetBinWidth(i)));
+    hist->SetBinError(i,double(hist->GetBinError(i))/double(hist->GetBinWidth(i)));
+  }
+}
+
+void divideByWidth(TH2F* hist){
+  double width = 1;
+  for(int i=1;i<=hist->GetNbinsX();++i){
+    for(int j=1;j<=hist->GetNbinsX();++j){
+      width = hist->GetXaxis()->GetBinWidth(i) * hist->GetYaxis()->GetBinWidth(j);
+      hist->SetBinContent(i,j,double(hist->GetBinContent(i,j))/width);
+      hist->SetBinError(i,j,double(hist->GetBinError(i,j))/width);
+    }
+  }
+}
+
 /*
 //From websight
 double NBD(double x, double nmean, double k){
