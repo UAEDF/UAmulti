@@ -1838,7 +1838,7 @@ SetId.push_back(10);
   //-------- Mch Unfold -------- Compare Unf. MC at different energies
   if( nchchi2 ){
 
-   globalDirPlot = "../plots.romain/";
+   globalDirPlot = "../plots.romain/unfoldingv7/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -2267,7 +2267,7 @@ SetId.push_back(10);
   //-------- Mch Unfold -------- Stack
   if( nchstak ){
 
-    globalDirPlot = "../plots.romain/";
+    globalDirPlot = "../plots.romain/unfoldingvtmp/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -2345,6 +2345,7 @@ SetId.push_back(10);
     if ( iUfoldDataType == 11 ) datatype = "DW";
     if ( iUfoldDataType == 12 ) datatype = "P0";
     if ( iUfoldDataType == 13 ) datatype = "ProQ20";
+    if ( iUfoldDataType == 30 ) datatype = "D6T_newBS";
 
     std::stringstream LD1("");
     std::stringstream LD2("");
@@ -2365,6 +2366,7 @@ SetId.push_back(10);
     if (iUfoldMCType == 11 )  figname << "MC_DW_" ;
     if (iUfoldMCType == 12 )  figname << "MC_P0_" ;
     if (iUfoldMCType == 13 )  figname << "MC_ProQ20_" ;
+    if (iUfoldMCType == 13 )  figname << "MC_D6T_newBS_" ;
     if (globalEnergy == 0.9  ) figname << "0.9TeV_";
     if (globalEnergy == 2.36 ) figname << "2.36TeV_";
     if (itracking == 1 )  figname << "gTr_" ;
@@ -2428,7 +2430,7 @@ SetId.push_back(10);
  
     ptcutstr = BIN1.str();
     dataSetId.push_back(-1);
-    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetFile.push_back(fileManager(globalFileType,iUfoldMCType,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
     dataSetIsMc.push_back(0);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(kBlack);
@@ -2437,7 +2439,7 @@ SetId.push_back(10);
 
     ptcutstr = BIN2.str();
     dataSetId.push_back(-1);
-    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetFile.push_back(fileManager(globalFileType,iUfoldMCType,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
     dataSetIsMc.push_back(0);
     dataSetStyle.push_back(21);
     dataSetColor.push_back(kBlack);
@@ -2458,7 +2460,7 @@ SetId.push_back(10);
 
     ptcutstr = BIN3.str();
     dataSetId.push_back(-1);
-    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetFile.push_back(fileManager(globalFileType,iUfoldMCType,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
     dataSetIsMc.push_back(0);
     dataSetStyle.push_back(22);
     dataSetColor.push_back(kBlack);
@@ -2467,7 +2469,7 @@ SetId.push_back(10);
 
     ptcutstr = BIN4.str();
     dataSetId.push_back(-1);
-    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetFile.push_back(fileManager(globalFileType,iUfoldMCType,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
     dataSetIsMc.push_back(0);
     dataSetStyle.push_back(23);
     dataSetColor.push_back(kBlack);
@@ -2476,7 +2478,7 @@ SetId.push_back(10);
 
     ptcutstr = BIN5.str();
     dataSetId.push_back(-1);
-    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetFile.push_back(fileManager(globalFileType,iUfoldMCType,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
     dataSetIsMc.push_back(0);
     dataSetStyle.push_back(24);
     dataSetColor.push_back(kBlack);
@@ -2486,7 +2488,7 @@ SetId.push_back(10);
 
     ptcutstr = BIN1.str();
     dataSetId.push_back(-1);
-    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
+    dataSetFile.push_back(fileManager(globalFileType,iUfoldMCType,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
     dataSetIsMc.push_back(1);
     dataSetStyle.push_back(1);
     dataSetColor.push_back(1);
@@ -2495,7 +2497,7 @@ SetId.push_back(10);
 
     ptcutstr = BIN2.str();
     dataSetId.push_back(-1);
-    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
+    dataSetFile.push_back(fileManager(globalFileType,iUfoldMCType,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
     dataSetIsMc.push_back(1);
     dataSetStyle.push_back(1);
     dataSetColor.push_back(1);
@@ -2504,7 +2506,7 @@ SetId.push_back(10);
 
     ptcutstr = BIN3.str();
     dataSetId.push_back(-1);
-    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
+    dataSetFile.push_back(fileManager(globalFileType,iUfoldMCType,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
     dataSetIsMc.push_back(1);
     dataSetStyle.push_back(1);
     dataSetColor.push_back(1);
@@ -2513,7 +2515,7 @@ SetId.push_back(10);
 
     ptcutstr = BIN4.str();
     dataSetId.push_back(-1);
-    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
+    dataSetFile.push_back(fileManager(globalFileType,iUfoldMCType,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
     dataSetIsMc.push_back(1);
     dataSetStyle.push_back(1);
     dataSetColor.push_back(1);
@@ -2522,7 +2524,7 @@ SetId.push_back(10);
 
     ptcutstr = BIN5.str();
     dataSetId.push_back(-1);
-    dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
+    dataSetFile.push_back(fileManager(globalFileType,iUfoldMCType,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
     dataSetIsMc.push_back(1);
     dataSetStyle.push_back(1);
     dataSetColor.push_back(1);
