@@ -1,9 +1,6 @@
 #ifndef _MAKECORRECTIONS_
 #define _MAKECORRECTIONS_
 
-#include <gsl/gsl_rng.h>
-#include <gsl/gsl_randist.h>
-
 #include "TMath.h"
 #include "TH1F.h"
 #include "TF1.h"
@@ -60,16 +57,21 @@ void divideByWidth(TH2F*);
 //iFileType,iDataType,Energy,iTracking,iSystType,iSystSign,STest
 #include "../macro/fileManager.C"
 #include "unfolding.cc"
+#include "getNIter.C"
 //#include "makeFakeMatrix.C"
 
-void makeCorrections(int typeData, int hyp=1 , int niter=5 , int acc = 10 , 
+void makeCorrections(int typeData, int hyp=1 , int niter=0 , int acc = 10 , 
                      double E = 0.9 , int typeMC = 30 , int iTr = 1 , TString filename = "" ,
 		     int scaleWbin0 = true , double Emc = 0 , bool drawcanv = true , float mu = 14 , float sigma = 15 ){
 
    
    useData = true;
    if(Emc==0) Emc = E;
-     
+   if(niter==0){
+     niter = getNIter(acc,E);
+     cout<<"Will use "<<niter<<" iterations for the unfolding ..."<<endl;
+   }
+    
    #include "../macro/acceptanceMap.C"
   //Get the MC file
   TString mcfile = fileManager(2,typeMC,Emc,iTr,0,0,"");
@@ -86,7 +88,17 @@ void makeCorrections(int typeData, int hyp=1 , int niter=5 , int acc = 10 ,
   //TFile* data = new TFile("../macro/GOODFILES/data_v005b_0.9TeV_eta2.5_pt0.4_gTr.root","READ");
   TFile* data = new TFile(datafile,"READ");
   cout<<"Data input file : "<<datafile<<endl;
-  
+
+  //Checking if both files exist
+  if(mc == 0){
+    cout<<"The MC input file doesn't exist ..."<<endl;
+  }
+  if(data == 0){
+    cout<<"The Data input file doesn't exist ..."<<endl;
+  }
+  if(mc == 0 || data == 0)
+    return;
+
   ostringstream dirstr("");
   dirstr << "/ptGen" << accMap.at(acc).at(0) << "_etaGen" << accMap.at(acc).at(1) 
       << "_ptReco" << accMap.at(acc).at(2) << "_etaReco" << accMap.at(acc).at(3) ;
@@ -939,6 +951,8 @@ if(drawcanv){
   out->Close();
   data->Close();
   mc->Close();
+  delete mc;
+  delete data;
 */
 }
 
