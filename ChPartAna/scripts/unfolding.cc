@@ -1,11 +1,13 @@
-void unfold(TH1F* unfoldedDistr,TH1F* unfoldedProb,double inputMat[][matrixsize],TH1F* auxEffect,TH1F* hypothesis, TH1F* err);
+void unfold(TH1F* unfoldedDistr,TH1F* unfoldedProb,TH1F* hyp_reco,double inputMat[][matrixsize],TH1F* auxEffect,TH1F* hypothesis, TH1F* err);
 bool checkMatrix(double inputMat[][matrixsize],double inputMatNormalized[][matrixsize]);
 //void specifyHypothesis(std::string curveShape, TH1F* hypothesis);
 bool isGenLineVoid(double inputMat[][matrixsize],int indx_gen);
 bool isRecoLineVoid(double inputMat[][matrixsize],int indx_reco);
+double getChi2(TH1F*,TH1F*,int = 0);
+
 
 //TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold);
-
+ 
 
 //All this is defined outside, to be valid everywhere
 //-------> TO FIX !
@@ -56,15 +58,23 @@ TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hypothesis, int 
   //out->cd();
   //gDirectory->cd();
   
+  if(nsample == 0){
+    gDirectory->mkdir("iterations");
+    gDirectory->cd("iterations");
+  }
   
-  vector<TH1F*>* vtoUnfold = new vector<TH1F*>(niter,new TH1F()) ;
+  TH1F* chi2VSniter = NULL;
+  if(nsample == 0) chi2VSniter = new TH1F("chi2VSniter","chi2VSniter",niter-1,0.5,niter-0.5);
+  
+  vector<TH1F*>* vtoUnfold        = new vector<TH1F*>(niter,new TH1F());
   vector<TH1F*>* vtoUnfold_scaled = new vector<TH1F*>(niter,new TH1F());
-  vector<TH1F*>* verr_obs = new vector<TH1F*>(niter,new TH1F());
+  vector<TH1F*>* verr_obs         = new vector<TH1F*>(niter,new TH1F());
+  vector<TH1F*>* vhyp_reco        = new vector<TH1F*>(niter,new TH1F());
   
   for(int it = 0 ; it < niter ; ++it){
     char* tmp = "toUnfold_step%d";
     char name[160] = "";
-    sprintf(name,tmp,niter);
+    sprintf(name,tmp,it);
     strcat(name,"_nsample%d");
     sprintf(name,name,nsample);
     vtoUnfold->at(it)->SetNameTitle(name,name);
@@ -72,7 +82,7 @@ TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hypothesis, int 
     //vtoUnfold->at(it)->Sumw2();
     
     tmp = "toUnfold_scaled_step%d";
-    sprintf(name,tmp,niter);
+    sprintf(name,tmp,it);
     strcat(name,"_nsample%d");
     sprintf(name,name,nsample);
     vtoUnfold_scaled->at(it)->SetNameTitle(name,name);
@@ -80,109 +90,47 @@ TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hypothesis, int 
     //vtoUnfold_scaled->at(it)->Sumw2();
     
     tmp = "err_obs_step%d";
-    sprintf(name,tmp,niter);
+    sprintf(name,tmp,it);
     strcat(name,"_nsample%d");
     sprintf(name,name,nsample);
     verr_obs->at(it)->SetNameTitle(name,name);
     verr_obs->at(it)->SetBins(toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray());
+    
+    tmp = "recoHypothesis_step%d";
+    sprintf(name,tmp,it);
+    strcat(name,"_nsample%d");
+    sprintf(name,name,nsample);
+    vhyp_reco->at(it)->SetNameTitle(name,name);
+    vhyp_reco->at(it)->SetBins(toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray());
     //verr_obs->at(it)->Sumw2();
     
     if(it==0)
-      unfold(vtoUnfold->at(it),vtoUnfold_scaled->at(it),matrix_normalized,toUnfold,hypothesis,verr_obs->at(it));
+      unfold(vtoUnfold->at(it),vtoUnfold_scaled->at(it),vhyp_reco->at(it),matrix_normalized,toUnfold,hypothesis,verr_obs->at(it));
     else
-      unfold(vtoUnfold->at(it),vtoUnfold_scaled->at(it),matrix_normalized,toUnfold,vtoUnfold->at(it-1),verr_obs->at(it));
+      unfold(vtoUnfold->at(it),vtoUnfold_scaled->at(it),vhyp_reco->at(it),matrix_normalized,toUnfold,vtoUnfold->at(it-1),verr_obs->at(it));
+  
+    if(nsample==0){
+      vtoUnfold->at(it)->Write();
+      vhyp_reco->at(it)->Write();
+      if(it!=0){
+        cout<<"iter "<<it<<"  chi2 : "<<getChi2(vhyp_reco->at(it) , toUnfold , 1)<<endl;
+        chi2VSniter->SetBinContent(it , getChi2(vhyp_reco->at(it) , toUnfold, 1));
+      }
+    }
   }
   
+  if(nsample==0){
+    chi2VSniter->Write();  
+    gDirectory->cd("../");
+  }
   
   //cout<<"Finished the unfolding, returning the unfolded histo"<<endl;
   return *(vtoUnfold->at(niter-1));
   
-  /*char* tmp = "toUnfold_step%d";
-  char nsamplebis[60] = "";
-  printf(nsamplebis,tmp,nsample);
-  //1st ITERATION
-  TH1F* toUnfold_step1         = new TH1F(("toUnfold_step1_"+(string)nsamplebis).c_str(),"toUnfold_step1",Ngen1,-0.5,double(Ngen1)-0.5);
-  TH1F* toUnfold_scaled_step1  = new TH1F("toUnfold_scaled_step1","toUnfold_scaled_step1",Ngen1,-0.5,double(Ngen1)-0.5);
-  TH1F* err_obs_step1          = new TH1F("err_obs_step1","err_obs_step1",Ngen1,-0.5,double(Ngen1)-0.5);
-  toUnfold_step1->Sumw2();
-  toUnfold_scaled_step1->Sumw2();
-  err_obs_step1->Sumw2();
   
-  unfold(toUnfold_step1,toUnfold_scaled_step1,matrix_normalized,toUnfold,hypothesis,err_obs_step1);
-
-  //2nd ITERATION
-  TH1F* toUnfold_step2         = new TH1F(("toUnfold_step2_"+(string)nsamplebis).c_str(),"toUnfold_step2",Ngen1,-0.5,double(Ngen1)-0.5);
-  TH1F* toUnfold_scaled_step2  = new TH1F("toUnfold_scaled_step2","toUnfold_scaled_step2",Ngen1,-0.5,double(Ngen1)-0.5);
-  TH1F* err_obs_step2          = new TH1F("err_obs_step2","err_obs_step2",Ngen1,-0.5,double(Ngen1)-0.5);
-  toUnfold_step2->Sumw2();
-  toUnfold_scaled_step2->Sumw2();
-  err_obs_step2->Sumw2();
-  
-  unfold(toUnfold_step2,toUnfold_scaled_step2,matrix_normalized,toUnfold,toUnfold_scaled_step1,err_obs_step2);
-  
-  //3rd ITERATION
-  TH1F* toUnfold_step3         = new TH1F(("toUnfold_step3_"+(string)nsamplebis).c_str(),"toUnfold_step3",Ngen1,-0.5,double(Ngen1)-0.5);
-  TH1F* toUnfold_scaled_step3  = new TH1F("toUnfold_scaled_step3","toUnfold_scaled_step3",Ngen1,-0.5,double(Ngen1)-0.5);
-  TH1F* err_obs_step3          = new TH1F("err_obs_step3","err_obs_step3",Ngen1,-0.5,double(Ngen1)-0.5);
-  toUnfold_step3->Sumw2();
-  toUnfold_scaled_step3->Sumw2();
-  err_obs_step3->Sumw2();
-  
-  unfold(toUnfold_step3,toUnfold_scaled_step3,matrix_normalized,toUnfold,toUnfold_scaled_step2,err_obs_step3);
-  
-  //4th ITERATION
-  TH1F* toUnfold_step4         = new TH1F(("toUnfold_step4_"+(string)nsamplebis).c_str(),"toUnfold_step4",Ngen1,-0.5,double(Ngen1)-0.5);
-  TH1F* toUnfold_scaled_step4  = new TH1F("toUnfold_scaled_step4","toUnfold_scaled_step4",Ngen1,-0.5,double(Ngen1)-0.5);
-  TH1F* err_obs_step4          = new TH1F("err_obs_step4","err_obs_step4",Ngen1,-0.5,double(Ngen1)-0.5);
-  toUnfold_step4->Sumw2();
-  toUnfold_scaled_step4->Sumw2();
-  err_obs_step4->Sumw2();
-  
-  unfold(toUnfold_step4,toUnfold_scaled_step4,matrix_normalized,toUnfold,toUnfold_scaled_step3,err_obs_step4);
-  
-  //5th ITERATION
-  TH1F* toUnfold_step5         = new TH1F(("toUnfold_step5_"+(string)nsamplebis).c_str(),"toUnfold_step5",Ngen1,-0.5,double(Ngen1)-0.5);
-  TH1F* toUnfold_scaled_step5  = new TH1F("toUnfold_scaled_step5","toUnfold_scaled_step5",Ngen1,-0.5,double(Ngen1)-0.5);
-  TH1F* err_obs_step5          = new TH1F("err_obs_step5","err_obs_step5",Ngen1,-0.5,double(Ngen1)-0.5);
-  toUnfold_step5->Sumw2();
-  toUnfold_scaled_step5->Sumw2();
-  err_obs_step5->Sumw2();
-  
-  unfold(toUnfold_step5,toUnfold_scaled_step5,matrix_normalized,toUnfold,toUnfold_scaled_step4,err_obs_step5);
-  
-  
-  //Copy previous to make more iterations
-  
-  toUnfold->Write();
-  toUnfold_step1->Write();
-  toUnfold_step2->Write();
-  toUnfold_step3->Write();
-  toUnfold_step4->Write();
-  toUnfold_step5->Write();
-  hypothesis->Write();
-  
-  delete toUnfold_scaled_step1;
-  delete err_obs_step1;
-  delete toUnfold_scaled_step2;
-  delete err_obs_step2;
-  delete toUnfold_scaled_step3;
-  delete err_obs_step3;
-  delete toUnfold_scaled_step4;
-  delete err_obs_step4;
-  delete toUnfold_scaled_step5;
-  delete err_obs_step5;
-  delete hypothesis;
-  
-  cout<<"Finished the unfolding, returning the unfolded histo"<<endl;
-  
-  if(niter == 1) return *toUnfold_step1;
-  if(niter == 2) return *toUnfold_step2;
-  if(niter == 3) return *toUnfold_step3;
-  if(niter == 4) return *toUnfold_step4;
-  if(niter == 5) return *toUnfold_step5;*/
 }
 
-void unfold(TH1F* unfoldedDistr,TH1F* unfoldedProb,double inputMat[][matrixsize],TH1F* auxEffect,TH1F* hypothesis,TH1F* err){
+void unfold(TH1F* unfoldedDistr,TH1F* unfoldedProb,TH1F* hyp_reco,double inputMat[][matrixsize],TH1F* auxEffect,TH1F* hypothesis,TH1F* err){
   ++iterStep;
   
   err->GetName();
@@ -252,6 +200,18 @@ void unfold(TH1F* unfoldedDistr,TH1F* unfoldedProb,double inputMat[][matrixsize]
     //else
     //  if (debug_) std::cout<<"skipped smeared gen line"<<i<<" while filling unfoldedDistr"<<std::endl;  
   }
+  
+  
+  //Doing the hyp_reco
+  for(int i=0;i<Nreco1;i++){
+    double auxFill = 0.;
+    for(int j=0;j<Ngen1;j++)
+      auxFill+=hypothesis->GetBinContent(j+1) * inputMat[i][j];
+      
+    hyp_reco->SetBinContent(i+1,auxFill);
+  }
+  
+  
 
   if (debug_) std::cout<<"     ... finished algo kernel of the iteration"<<std::endl;
    
@@ -330,6 +290,19 @@ bool checkMatrix(double inputMat[][matrixsize],double inputMatNormalized[][matri
   return true;
 }
 
+double getChi2(TH1F* hist1 , TH1F* hist2 , int errortype){
+  double bin = 0 , error = 0 , sumbin = 0 , ndof = 0;
+  for(int i=1;i<=hist1->GetNbinsX();++i){
+    if(hist2->GetBinContent(i)!=0){
+      ++ndof;
+      bin = pow( hist1->GetBinContent(i) - hist2->GetBinContent(i) , 2 );
+      if(errortype==0) error = hist2->GetBinContent(i);
+      if(errortype==1) error = pow(hist2->GetBinError(i),2);
+      sumbin += bin / error ;
+    }
+  }
+  return sumbin / ndof ;
+}
 
 bool isGenLineVoid(double inputMat[][matrixsize],int indx_gen){
   double sum=0;
