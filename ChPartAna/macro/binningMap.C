@@ -460,11 +460,12 @@ if(E==2.36){
 
 
 //old version
+/*
 vector< vector<double> > getBins(int icut , double E = 0.9){
   vector< vector<double> > bins;
   
   int start = 112;
-  /*int step = 4;
+  int step = 4;
   if( double(icut) % 5 == 0 )
     start = 38;
   if( double(icut) % 5 == 0 )
@@ -472,7 +473,8 @@ vector< vector<double> > getBins(int icut , double E = 0.9){
   
   start-=(icut - (icut % 5)) * step;
   if((icut - (icut % 5))>2)
-    start-= 4 * ( (icut - (icut % 5)) - 2);*/
+  
+    start-= 4 * ( (icut - (icut % 5)) - 2);
     
     
 if(E==0.9){  
@@ -517,3 +519,4 @@ if(E==0.9){
   bins.push_back(makeBins(20,-2.4,2.4));
   return bins;
 }
+*/
