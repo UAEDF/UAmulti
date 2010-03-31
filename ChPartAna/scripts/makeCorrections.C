@@ -33,14 +33,14 @@ bool useData = false;
 //TString name = "data_uniform_0.9_eta2.5_v004";
 TString name = "test";
 
-TString st(string input , int cut){
+TString st(TString input , int cut){
   stringstream out("");
   out<<cut;
   return input+"_cut"+out.str();
 }
 
 void transform2Matrix(TH2F* matrixhist,double matrix[][matrixsize]);
-TH1F resample(double matrix[][matrixsize], TH1F*, TH1F* , TH1F* , TH1F*, int = 5 , bool = false , TH1F* = NULL, bool = false);
+//TH1F resample(double matrix[][matrixsize], TH1F*, TH1F* , TH1F* , TH1F*, int = 5 , bool = false , TH1F* = NULL, bool = false);
 void makeEff(TH1F*,TH1F*,TH1F*);
 double getRMS(TH1F*);
 double NBD(double,double,double);
@@ -58,6 +58,7 @@ void divideByWidth(TH2F*);
 #include "../macro/fileManager.C"
 #include "unfolding.cc"
 #include "getNIter.C"
+#include "resamplings.C"
 //#include "makeFakeMatrix.C"
 
 void makeCorrections(int typeData, int hyp=1 , int niter=0 , int acc = 10 , 
@@ -67,10 +68,7 @@ void makeCorrections(int typeData, int hyp=1 , int niter=0 , int acc = 10 ,
    
    useData = true;
    if(Emc==0) Emc = E;
-   if(niter==0){
-     niter = getNIter(acc,E);
-     cout<<"Will use "<<niter<<" iterations for the unfolding ..."<<endl;
-   }
+   
     
    #include "../macro/acceptanceMap.C"
   //Get the MC file
@@ -120,6 +118,13 @@ void makeCorrections(int typeData, int hyp=1 , int niter=0 , int acc = 10 ,
   cout<<"Output file : "<<fileManager(3,typeMC,E,iTr,0,0,outstr.str())<<endl;
   TFile* out = new TFile(fileManager(3,typeMC,E,iTr,0,0,outstr.str()),"RECREATE");
   out->cd();
+  
+  //Getting the good #iter if adaptive.
+  //BEWARE : needs to be after output file naming/creation.
+  if(niter==0){
+    niter = getNIter(acc,E);
+    cout<<"Will use "<<niter<<" iterations for the unfolding ..."<<endl;
+  }
   
   
   //------------------------------------------------------------------------------
@@ -363,10 +368,21 @@ void makeCorrections(int typeData, int hyp=1 , int niter=0 , int acc = 10 ,
     nch_resampledPtr->Draw("e");
     //gPad->WaitPrimitive();
   }
+      
+    
+  gDirectory->mkdir("mtx_resampling");
+  gDirectory->cd("mtx_resampling");
+
+    
+  TH1F nch_mtxresampled = resample(matrix,nch_toUnfold,hypothesis,niter);
+  TH1F* nch_mtxresampledPtr = &nch_mtxresampled;
+  
+  gDirectory->cd("../");
+  
+  
   
   for(int nbin = 1 ; nbin<=nch_unfoldedPtr->GetNbinsX() ; ++nbin)
-    nch_unfoldedPtr->SetBinError(nbin , nch_resampledPtr->GetBinError(nbin));
-  
+    nch_unfoldedPtr->SetBinError(nbin , sqrt(pow(nch_resampledPtr->GetBinError(nbin),2)+pow(nch_mtxresampledPtr->GetBinError(nbin),2)));
   
   //------------------------------------------------------------------------------
   //---------------------------- ReScaling -------------------------------------
@@ -424,6 +440,7 @@ void makeCorrections(int typeData, int hyp=1 , int niter=0 , int acc = 10 ,
   divideByWidth(nch_unfoldedPtr);
   divideByWidth(nch_corrected);
   divideByWidth(nch_resampledPtr);
+  divideByWidth(nch_mtxresampledPtr);
   
   divideByWidth(matrixhist);
   divideByWidth(hypothesis);
@@ -606,6 +623,8 @@ if(drawcanv){
   nch_unfoldedPtr->Write();
   nch_corrected->Write();
   nch_resampledPtr->Write();
+  nch_mtxresampledPtr->Write();
+  
 
   //eff_nch_L1_hf_vtxSel->Write();
   kno->Write();
@@ -626,325 +645,8 @@ if(drawcanv){
   cout << " nbEvts MC gen,reco : " << mp_etaCut_noSel_NSD_gen->nbEvts << "  " << mp_etaCut_evtSel_INC_reco_data->nbEvts  <<  endl;
   
   
-  //----------------------------------    ETA    ---------------------------------
-  TH1F* eta_toCorrect;
-  if(!useData) eta_toCorrect = (TH1F*) mc->Get(dir+st("MultiPlots_evtSel_INC_reco",acc)+st("/eta_evtSel_INC_reco",acc));
-  else         eta_toCorrect = (TH1F*) data->Get(dir+st("MultiPlots_evtSel_INC_reco",acc)+st("/eta_evtSel_INC_reco",acc));
-  eta_toCorrect->SetName("eta_data_toCorrect");
-   
-  
-  TH1F* eta_noSel_NSD_gen = (TH1F*) mc->Get(dir+st("MultiPlots_etaCut_noSel_NSD_gen",acc)+st("/eta_etaCut_noSel_NSD_gen",acc));
-  TH1F* eta_evtSel_INC_reco = (TH1F*) mc->Get(dir+st("MultiPlots_evtSel_INC_reco",acc)+st("/eta_evtSel_INC_reco",acc));
-  eta_noSel_NSD_gen->SetName("eta_MC_gen_afterCorrection");
-  eta_evtSel_INC_reco->SetName("eta_MC_reco_beforeCorrection");
-    
-  eta_noSel_NSD_gen->Scale(1./(mp_etaCut_noSel_NSD_gen->nbEvts
-                              - scaleWbin0 * mp_etaCut_noSel_NSD_gen->nch->GetBinContent(1)),"width");
-  eta_evtSel_INC_reco->Scale(1./(mp_etaCut_evtSel_INC_reco_MC->nbEvts
-                              - scaleWbin0 * mp_etaCut_evtSel_INC_reco_MC->nch->GetBinContent(1)),"width");
-  eta_toCorrect->Scale(1./(mp_etaCut_evtSel_INC_reco_data->nbEvts
-                              - scaleWbin0 * mp_etaCut_evtSel_INC_reco_data->nch->GetBinContent(1)),"width");
-  
-  TH1F* eff_eta = (TH1F*) eta_evtSel_INC_reco->Clone("eff_eta");
-  eff_eta->Divide(eff_eta,eta_noSel_NSD_gen,1,1,"B");
-    
-  /*TCanvas* nn = new TCanvas();
-  //TH1F* eff_eta_bayes = (TH1F*) eta_evtSel_INC_reco->Clone("eff_eta_bayes");
-  TGraphAsymmErrors* eff_eta_bayes = new TGraphAsymmErrors(matrixsize);//eta_evtSel_INC_reco,eta_noSel_NSD_gen);
-  eff_eta_bayes->BayesDivide(eta_evtSel_INC_reco,eta_noSel_NSD_gen);
-  //eff_eta_bayes->SetLineColor(kBlue);*/
-  
-  
-  TH1F* eta_corrected  = (TH1F*) eta_toCorrect->Clone("eta_corrected");
-  eta_corrected->Divide(eta_corrected,eff_eta,1,1);
-  
-if(drawcanv){
-  TCanvas* c_eta = new TCanvas("c_eta","c_eta",1460,10,500,500);
-  c_eta->SetLeftMargin(0.17);
-  c_eta->SetBottomMargin(0.10);
-  c_eta->SetFillColor(0);
-  c_eta->GetFrame()->SetFillColor(21);
-  c_eta->GetFrame()->SetBorderSize(12);
-  c_eta->SetGrid();
-  
-  
-  gStyle->SetOptStat(0);
-  gStyle->SetOptTitle(kFALSE);
-
-
-  //eta plot
-  eta_noSel_NSD_gen->SetLineWidth(2);
-  eta_toCorrect->SetLineWidth(2);
-  eta_corrected->SetLineWidth(2);
-  eta_noSel_NSD_gen->SetLineColor(kRed);
-  eta_toCorrect->SetLineColor(kBlue);
-  eta_corrected->SetLineColor(kBlack);
-
-  
-  TLegend *leg = new TLegend (.65,.90,.90,.99);
-  leg->AddEntry(eta_noSel_NSD_gen,"PYTHIA D6T","l" );
-  leg->AddEntry(eta_toCorrect,"Data - Raw","l" );
-  leg->AddEntry(eta_corrected,"Data - Corrected","l" );
-  leg->SetBorderSize(0);
-  leg->SetFillColor(0);
-  
-  eta_corrected->Draw("hist");
-  eta_toCorrect->Draw("samee");
-  eta_noSel_NSD_gen->Draw("samee");
-  leg->Draw();
-  /*c1->SaveAs("eta_"+name+".gif","");
-  c1->SaveAs("eta_"+name+".eps","");
-  c1->SaveAs("eta_"+name+".root","");*/
-  
-  gPad->WaitPrimitive();
-}
-  
-  gDirectory->mkdir("eta");
-  gDirectory->cd("eta");
-
-  eta_noSel_NSD_gen->Write();
-  eta_evtSel_INC_reco->Write();
-  eta_toCorrect->Write();
-  eff_eta->Write();
-  eta_corrected->Write();
-  
-  gDirectory->cd("../");
-  
-  
-  //----------------------------------    pt    ---------------------------------
-  TH1F* pt_toCorrect;
-  if(!useData) pt_toCorrect = (TH1F*) mc->Get(dir+st("MultiPlots_evtSel_INC_reco",acc)+st("/pt_evtSel_INC_reco",acc));
-  else         pt_toCorrect = (TH1F*) data->Get(dir+st("MultiPlots_evtSel_INC_reco",acc)+st("/pt_evtSel_INC_reco",acc));
-  pt_toCorrect->SetName("pt_data_toCorrect");
-   
-  
-  TH1F* pt_noSel_NSD_gen = (TH1F*) mc->Get(dir+st("MultiPlots_etaCut_noSel_NSD_gen",acc)+st("/pt_etaCut_noSel_NSD_gen",acc));
-  TH1F* pt_evtSel_INC_reco = (TH1F*) mc->Get(dir+st("MultiPlots_evtSel_INC_reco",acc)+st("/pt_evtSel_INC_reco",acc));
-  pt_noSel_NSD_gen->SetName("pt_MC_gen_afterCorrection");
-  pt_evtSel_INC_reco->SetName("pt_MC_reco_beforeCorrection");
-    
-  pt_noSel_NSD_gen->Scale(1./(mp_etaCut_noSel_NSD_gen->nbEvts
-                              - scaleWbin0 * mp_etaCut_noSel_NSD_gen->nch->GetBinContent(1)),"width");
-  pt_evtSel_INC_reco->Scale(1./(mp_etaCut_evtSel_INC_reco_MC->nbEvts
-                              - scaleWbin0 * mp_etaCut_evtSel_INC_reco_MC->nch->GetBinContent(1)),"width");
-  pt_toCorrect->Scale(1./(mp_etaCut_evtSel_INC_reco_data->nbEvts
-                              - scaleWbin0 * mp_etaCut_evtSel_INC_reco_data->nch->GetBinContent(1)),"width");
-    
-  TH1F* eff_pt = (TH1F*) pt_evtSel_INC_reco->Clone("eff_pt");
-  eff_pt->Divide(eff_pt,pt_noSel_NSD_gen,1,1,"B");
-  
-  TH1F* pt_corrected  = (TH1F*) pt_toCorrect->Clone("pt_corrected");
-  pt_corrected->Divide(eff_pt);
-  
-  
-if(drawcanv){
-  TCanvas* c_pt = new TCanvas("c_pt","c_pt",1460,10,500,500);
-  c_pt->SetLeftMargin(0.17);
-  c_pt->SetBottomMargin(0.10);
-  c_pt->SetFillColor(0);
-  c_pt->GetFrame()->SetFillColor(21);
-  c_pt->GetFrame()->SetBorderSize(12);
-  c_pt->SetGrid();
-  
-  
-  gStyle->SetOptStat(0);
-  gStyle->SetOptTitle(kFALSE);
-
-
-  //pt plot
-  pt_noSel_NSD_gen->SetLineWidth(2);
-  pt_toCorrect->SetLineWidth(2);
-  pt_corrected->SetLineWidth(2);
-  pt_noSel_NSD_gen->SetLineColor(kRed);
-  pt_toCorrect->SetLineColor(kBlue);
-  pt_corrected->SetLineColor(kBlack);
-
-  
-  TLegend *leg = new TLegend (.65,.90,.90,.99);
-  leg->AddEntry(pt_noSel_NSD_gen,"PYTHIA D6T","l" );
-  leg->AddEntry(pt_toCorrect,"Data - Raw","l" );
-  leg->AddEntry(pt_corrected,"Data - Corrected","l" );
-  leg->SetBorderSize(0);
-  leg->SetFillColor(0);
-  
-  pt_corrected->Draw("hist");
-  pt_toCorrect->Draw("samee");
-  pt_noSel_NSD_gen->Draw("samee");
-  leg->Draw();
-  /*c1->SaveAs("pt_"+name+".gif","");
-  c1->SaveAs("pt_"+name+".eps","");
-  c1->SaveAs("pt_"+name+".root","");*/
-  
-  gPad->WaitPrimitive();
-}
-  
-  gDirectory->mkdir("pt");
-  gDirectory->cd("pt");
-
-  pt_noSel_NSD_gen->Write();
-  pt_evtSel_INC_reco->Write();
-  pt_toCorrect->Write();
-  eff_pt->Write();
-  pt_corrected->Write();
-  
-  gDirectory->cd("../");
-    
-  //----------------------------------    pt2    ---------------------------------
-  TH1F* pt2_toCorrect;
-  if(!useData) pt2_toCorrect = (TH1F*) mc->Get(dir+st("MultiPlots_evtSel_INC_reco",acc)+st("/pt2_evtSel_INC_reco",acc));
-  else         pt2_toCorrect = (TH1F*) data->Get(dir+st("MultiPlots_evtSel_INC_reco",acc)+st("/pt2_evtSel_INC_reco",acc));
-  pt2_toCorrect->SetName("pt2_data_toCorrect");
-   
-  
-  TH1F* pt2_noSel_NSD_gen = (TH1F*) mc->Get(dir+st("MultiPlots_etaCut_noSel_NSD_gen",acc)+st("/pt2_etaCut_noSel_NSD_gen",acc));
-  TH1F* pt2_evtSel_INC_reco = (TH1F*) mc->Get(dir+st("MultiPlots_evtSel_INC_reco",acc)+st("/pt2_evtSel_INC_reco",acc));
-  pt2_noSel_NSD_gen->SetName("pt2_MC_gen_afterCorrection");
-  pt2_evtSel_INC_reco->SetName("pt2_MC_reco_beforeCorrection");
-    
-  pt2_noSel_NSD_gen->Scale(1./(mp_etaCut_noSel_NSD_gen->nbEvts
-                              - scaleWbin0 * mp_etaCut_noSel_NSD_gen->nch->GetBinContent(1)),"width");
-  pt2_evtSel_INC_reco->Scale(1./(mp_etaCut_evtSel_INC_reco_MC->nbEvts
-                              - scaleWbin0 * mp_etaCut_evtSel_INC_reco_MC->nch->GetBinContent(1)),"width");
-  pt2_toCorrect->Scale(1./(mp_etaCut_evtSel_INC_reco_data->nbEvts
-                              - scaleWbin0 * mp_etaCut_evtSel_INC_reco_data->nch->GetBinContent(1)),"width");
-    
-  TH1F* eff_pt2 = (TH1F*) pt2_evtSel_INC_reco->Clone("eff_pt2");
-  eff_pt2->Divide(eff_pt2,pt2_noSel_NSD_gen,1,1,"B");
-  
-  TH1F* pt2_corrected  = (TH1F*) pt2_toCorrect->Clone("pt2_corrected");
-  pt2_corrected->Divide(eff_pt2);
-  
-  
-if(drawcanv){
-  TCanvas* c_pt2 = new TCanvas("c_pt2","c_pt2",1460,10,500,500);
-  c_pt2->SetLeftMargin(0.17);
-  c_pt2->SetBottomMargin(0.10);
-  c_pt2->SetFillColor(0);
-  c_pt2->GetFrame()->SetFillColor(21);
-  c_pt2->GetFrame()->SetBorderSize(12);
-  c_pt2->SetGrid();
-  
-  
-  gStyle->SetOptStat(0);
-  gStyle->SetOptTitle(kFALSE);
-
-
-  //pt2 plot
-  pt2_noSel_NSD_gen->SetLineWidth(2);
-  pt2_toCorrect->SetLineWidth(2);
-  pt2_corrected->SetLineWidth(2);
-  pt2_noSel_NSD_gen->SetLineColor(kRed);
-  pt2_toCorrect->SetLineColor(kBlue);
-  pt2_corrected->SetLineColor(kBlack);
-
-  
-  TLegend *leg = new TLegend (.65,.90,.90,.99);
-  leg->AddEntry(pt2_noSel_NSD_gen,"PYTHIA D6T","l" );
-  leg->AddEntry(pt2_toCorrect,"Data - Raw","l" );
-  leg->AddEntry(pt2_corrected,"Data - Corrected","l" );
-  leg->SetBorderSize(0);
-  leg->SetFillColor(0);
-  
-  pt2_corrected->Draw("hist");
-  pt2_toCorrect->Draw("samee");
-  pt2_noSel_NSD_gen->Draw("samee");
-  leg->Draw();
-  /*c1->SaveAs("pt2_"+name+".gif","");
-  c1->SaveAs("pt2_"+name+".eps","");
-  c1->SaveAs("pt2_"+name+".root","");*/
-  
-  gPad->WaitPrimitive();
-}
-  
-  gDirectory->mkdir("pt2");
-  gDirectory->cd("pt2");
-
-  pt2_noSel_NSD_gen->Write();
-  pt2_evtSel_INC_reco->Write();
-  pt2_toCorrect->Write();
-  eff_pt2->Write();
-  pt2_corrected->Write();
-  
-  gDirectory->cd("../");
-  
-  //----------------------------------    nch2    ---------------------------------
-  TH1F* nch2_toCorrect;
-  if(!useData) nch2_toCorrect = (TH1F*) mc->Get(dir+st("MultiPlots_evtSel_INC_reco",acc)+st("/nch_evtSel_INC_reco",acc));
-  else         nch2_toCorrect = (TH1F*) data->Get(dir+st("MultiPlots_evtSel_INC_reco",acc)+st("/nch_evtSel_INC_reco",acc));
-  nch2_toCorrect->SetName("nch_data_toCorrect");
-   
-  
-  TH1F* nch2_noSel_NSD_gen = (TH1F*) mc->Get(dir+st("MultiPlots_etaCut_noSel_NSD_gen",acc)+st("/nch_etaCut_noSel_NSD_gen",acc));
-  TH1F* nch2_evtSel_INC_reco = (TH1F*) mc->Get(dir+st("MultiPlots_evtSel_INC_reco",acc)+st("/nch_evtSel_INC_reco",acc));
-  nch2_noSel_NSD_gen->SetName("nch_MC_gen_afterCorrection");
-  nch2_evtSel_INC_reco->SetName("nch_MC_reco_beforeCorrection");
-    
-  nch2_noSel_NSD_gen->Scale(1./(mp_etaCut_noSel_NSD_gen->nbEvts
-                              - scaleWbin0 * mp_etaCut_noSel_NSD_gen->nch->GetBinContent(1)),"width");
-  nch2_evtSel_INC_reco->Scale(1./(mp_etaCut_evtSel_INC_reco_MC->nbEvts
-                              - scaleWbin0 * mp_etaCut_evtSel_INC_reco_MC->nch->GetBinContent(1)),"width");
-  nch2_toCorrect->Scale(1./(mp_etaCut_evtSel_INC_reco_data->nbEvts
-                              - scaleWbin0 * mp_etaCut_evtSel_INC_reco_data->nch->GetBinContent(1)),"width");
-    
-  TH1F* eff_nch2 = (TH1F*) nch2_evtSel_INC_reco->Clone("eff_nch");
-  eff_nch2->Divide(eff_nch2,nch2_noSel_NSD_gen,1,1,"B");
-  
-  TH1F* nch2_corrected  = (TH1F*) nch2_toCorrect->Clone("nch_corrected");
-  nch2_corrected->Divide(eff_nch2);
-  
-  
-if(drawcanv){
-  TCanvas* c_nch2 = new TCanvas("c_nch","c_nch",1460,10,500,500);
-  c_nch2->SetLeftMargin(0.17);
-  c_nch2->SetBottomMargin(0.10);
-  c_nch2->SetFillColor(0);
-  c_nch2->GetFrame()->SetFillColor(21);
-  c_nch2->GetFrame()->SetBorderSize(12);
-  c_nch2->SetGrid();
-  
-  
-  gStyle->SetOptStat(0);
-  gStyle->SetOptTitle(kFALSE);
-
-
-  //nch2 plot
-  nch2_noSel_NSD_gen->SetLineWidth(2);
-  nch2_toCorrect->SetLineWidth(2);
-  nch2_corrected->SetLineWidth(2);
-  nch2_noSel_NSD_gen->SetLineColor(kRed);
-  nch2_toCorrect->SetLineColor(kBlue);
-  nch2_corrected->SetLineColor(kBlack);
-
-  
-  TLegend *leg = new TLegend (.65,.90,.90,.99);
-  leg->AddEntry(nch2_noSel_NSD_gen,"PYTHIA D6T","l" );
-  leg->AddEntry(nch2_toCorrect,"Data - Raw","l" );
-  leg->AddEntry(nch2_corrected,"Data - Corrected","l" );
-  leg->SetBorderSize(0);
-  leg->SetFillColor(0);
-  
-  nch2_corrected->Draw("hist");
-  nch2_toCorrect->Draw("samee");
-  nch2_noSel_NSD_gen->Draw("samee");
-  leg->Draw();
-  /*c1->SaveAs("nch2_"+name+".gif","");
-  c1->SaveAs("nch2_"+name+".eps","");
-  c1->SaveAs("nch2_"+name+".root","");*/
-  
-  gPad->WaitPrimitive();
-}
-  
-  gDirectory->mkdir("nch");
-  gDirectory->cd("nch");
-
-  nch2_noSel_NSD_gen->Write();
-  nch2_evtSel_INC_reco->Write();
-  nch2_toCorrect->Write();
-  eff_nch2->Write();
-  nch2_corrected->Write();
-  
-  gDirectory->cd("../");
-  
+ #include "makeBasicCorrections.C"
+ 
 /*
   delete c1;
   delete cm; 
@@ -974,184 +676,6 @@ void makeKNO(TH1F* multi,TH1F* kno){
     kno->SetBinContent(k , multi->GetMean() * multi->GetBinContent(k));
     kno->SetBinError(k , multi->GetMean() * multi->GetBinError(k));
   }
-}
-
-TH1F resample(double matrix[][matrixsize], TH1F* nch_INC , TH1F* toUnfold , TH1F* nch_unfoldedPtr, TH1F* hyp, int niter, bool doFit , TH1F* nch_mc_SD , bool printErrors){
-
-  const int nresampling = 1000;
-  
-  TH1F sample[nresampling];
-
-  //TH1F bins_beforeU[matrixsize];
-  vector<TH1F> bins_beforeU(nch_INC->GetNbinsX(),TH1F());
-  //TH1F bins[matrixsize];
-  vector<TH1F> bins(nch_INC->GetNbinsX(),TH1F());// = new vector<TH1F>;
-  char* name = "bin_%d";
-  char* name_beforeU = "bin_beforeU_%d";
-  char name2[60];
-  for(int k=1;k<=nch_INC->GetNbinsX();++k){
-    sprintf(name2,name,k);
-    //cout<<name2<<endl;
-    //cout<<bins.size()<<endl;
-    //TH1F temp = (TH1F) nch_INC->Clone(name2);
-    //(name2,name2,71,-0.5,70.5);
-    //temp.SetLineColor(kRed);
-    //temp.Draw();
-    //gPad->WaitPrimitive();
-    //if(temp==0) cout<<"pb"<<endl;
-    if(nch_INC->Integral()<2)
-      bins[k-1] = TH1F(name2,name2,1000,0.,1.);
-    else
-      bins[k-1] = TH1F(name2,name2,(int)nch_INC->GetMaximum()+951,-50.5,(int)nch_INC->GetMaximum()+900.5);
-      
-    //bins before U
-    sprintf(name2,name_beforeU,k);
-    if(nch_INC->Integral()<2)
-      bins_beforeU[k-1] = TH1F(name2,name2,1000,0.,1.);
-    else
-      bins_beforeU[k-1] = TH1F(name2,name2,(int)nch_INC->GetMaximum()+951,-50.5,(int)nch_INC->GetMaximum()+900.5);
-    //cout<<bins.size()<<"  "<<nch_INC->GetNbinsX()<<endl;
-    //delete temp;
-  }
-  
-  
-  TH1F* out = (TH1F*) nch_INC->Clone("nch_resampled");
-  TH1F* nch_beforeUnfolding_resampled = (TH1F*) nch_INC->Clone("nch_beforeUnfolding_resampled");
-  TProfile* nch_resampled_profile = new TProfile("nch_resampled_profile","nch_resampled_profile",out->GetNbinsX(),out->GetXaxis()->GetXmin(),out->GetXaxis()->GetXmax());
-  nch_resampled_profile->SetErrorOption("s");
-
-  TF1*Gauss = new TF1("Gauss","gaus");
-
-  //TCanvas* c_kno = new TCanvas("c_kno2","c_kno2",200,510,500,500);
-  //c_kno->cd();
-  for(int i=0;i<nresampling;++i){
-    char tmp[160] = "sample_nsample%d";
-    char samplechar[160] = "";
-    sprintf(samplechar,tmp,i+1);
-    //cout<<samplechar<<endl;
-
-    TH1F* nch_temp = new TH1F(samplechar,samplechar,toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray());
-    for(int n=1;n<=toUnfold->GetNbinsX();++n)
-      nch_temp->SetBinContent(n,gRandom->Poisson(nch_INC->GetBinContent(n)));
-      //nch_temp->SetBinContent(n,gRandom->Gaus(nch_INC->GetBinContent(n),nch_INC->GetBinError(n)));
-    
-    //substract SD with factor derived from resampled nch
-    nch_temp->Add(nch_mc_SD,-1*(double(nch_temp->Integral())/double(nch_INC->GetEntries())));    
-    
-    for(int n=1;n<=toUnfold->GetNbinsX();++n) 
-      bins_beforeU[n-1].Fill(nch_temp->GetBinContent(n));
-      
-    //TCanvas* c_kno = new TCanvas("c_kno","c_kno",200,510,500,500);
-    //nch_temp->Draw();
-
-    if(hyp==0) cout<<"PROBLEM -----> the hypothesis is void !!"<<endl;
-    sample[i] = (runalgo(matrix,nch_temp,hyp,niter,i+1));
-    //sample[i].SetLineColor(kRed);
-    /*if(i==0)
-      sample[i].Draw();
-    else
-      sample[i].Draw("same");*/
-  
-    for(int k=1;k<=toUnfold->GetNbinsX();++k){
-      bins[k-1].Fill(sample[i].GetBinContent(k));
-      nch_resampled_profile->Fill(double(k)-1.,sample[i].GetBinContent(k));
-      //bins[k-1].SetLineColor(kBlue);
-      //bins[k-1].Draw("same");
-    }  
-      
-    //gPad->Update();
-    //gPad->WaitPrimitive();
-  }
-  gPad->WaitPrimitive();
-  gPad->Write();
-
-  //TCanvas* c_kno = new TCanvas("c_kno","c_kno",200,510,500,500);
-  for(int k=1;k<=toUnfold->GetNbinsX();++k){
-    if(doFit){
-      bins[k-1].Fit("Gauss","Q");
-      out->SetBinContent(k,Gauss->GetParameter(1));
-      out->SetBinError(k,Gauss->GetParameter(2));
-      bins_beforeU[k-1].Fit("Gauss","Q");
-      nch_beforeUnfolding_resampled->SetBinContent(k,Gauss->GetParameter(1));
-      nch_beforeUnfolding_resampled->SetBinError(k,Gauss->GetParameter(2));
-    }
-    else {
-      out->SetBinContent(k,bins[k-1].GetMean());
-      out->SetBinError(k,bins[k-1].GetRMS());
-      nch_beforeUnfolding_resampled->SetBinContent(k,bins_beforeU[k-1].GetMean());
-      /*if(k<10)
-        nch_beforeUnfolding_resampled->SetBinError(k,sqrt(bins_beforeU[k-1].GetMean()));
-      else*/
-        //nch_beforeUnfolding_resampled->SetBinError(k,bins_beforeU[k-1].GetRMS());
-        nch_beforeUnfolding_resampled->SetBinError(k,getRMS(&bins_beforeU[k-1]));
-	
-       //cout<<k<<"  "<<getRMS(&bins[k-1])<<"  "<<bins[k-1].GetRMS()<<endl;
-    }
-    
-    /*if(k>=0){
-      bins_beforeU[k-1].Draw();
-      gPad->Update();
-      gPad->WaitPrimitive();   
-    }*/
-  }
-  
-  //Making plots to check all the errors:
-  TH1F* error_diff_resampled_bU_aU = (TH1F*) toUnfold->Clone("error_diff_resampled_bU_aU");
-  TH1F* error_diff_resampled_data_bU = (TH1F*) toUnfold->Clone("error_diff_resampled_data_bU");
-  
-  TH1F* error_diff_data_bU_aU = (TH1F*) toUnfold->Clone("error_diff_data_bU_aU");
-  TH1F* error_diff_data_aU_rms_poiss = (TH1F*) toUnfold->Clone("error_diff_data_aU_rms_poiss");
-  
-  for(int i=1;i<=toUnfold->GetNbinsX()*printErrors;++i){
-    /*error_diff_resampled_bU_aU->SetBinContent(i,0);
-    error_diff_data_bU_aU->SetBinContent(i,0);
-    error_diff_resampled_data_bU->SetBinContent(i,0);
-    
-    error_diff_resampled_bU_aU->SetBinError(i,nch_beforeUnfolding_resampled->GetBinError(i) - out->GetBinError(i));
-    error_diff_data_bU_aU->SetBinError(i,toUnfold->GetBinError(i) - out->GetBinError(i));
-    error_diff_resampled_data_bU->SetBinError(i,toUnfold->GetBinError(i) - nch_beforeUnfolding_resampled->GetBinError(i));
-    
-    error_diff_resampled_bU_aU->SetBinContent(i,nch_beforeUnfolding_resampled->GetBinError(i) - out->GetBinError(i));
-    error_diff_data_bU_aU->SetBinContent(i,toUnfold->GetBinError(i) - out->GetBinError(i));
-    error_diff_resampled_data_bU->SetBinContent(i,toUnfold->GetBinError(i) - nch_beforeUnfolding_resampled->GetBinError(i));*/
-    
-    cout << "*** BIN " << i << " ***" << endl;
-    cout<<"dbU_rbU_daU_raU (content,sqrt(content),error) : " 
-    						 << toUnfold->GetBinContent(i) << " , " << sqrt(toUnfold->GetBinContent(i)) << " , " << toUnfold->GetBinError(i)
-    				       <<"  |  " << nch_beforeUnfolding_resampled->GetBinContent(i) << " , " << sqrt(nch_beforeUnfolding_resampled->GetBinContent(i)) << " , " << nch_beforeUnfolding_resampled->GetBinError(i)
-    				       <<"  |  " << nch_unfoldedPtr->GetBinContent(i) << " , " << sqrt(nch_unfoldedPtr->GetBinContent(i)) << " , " << out->GetBinError(i)
-    				       <<"  |  " << out->GetBinContent(i) << " , " << sqrt(out->GetBinContent(i))  << " , " << out->GetBinError(i) << endl;
-    
-    
-    double error = 0;
-    if(nch_beforeUnfolding_resampled->GetBinError(i)!=0) error = (nch_beforeUnfolding_resampled->GetBinError(i) - out->GetBinError(i))/nch_beforeUnfolding_resampled->GetBinError(i);
-    cout << "relative err resampled_bU_aU: " <<"  "<<error << " == " << nch_beforeUnfolding_resampled->GetBinError(i) << " - " <<out->GetBinError(i) << "/first" <<endl;
-    error_diff_resampled_bU_aU->SetBinContent(i,error);
-        
-    if(toUnfold->GetBinError(i)!=0) error = (nch_beforeUnfolding_resampled->GetBinError(i) - toUnfold->GetBinError(i))/nch_beforeUnfolding_resampled->GetBinError(i);
-    cout << "relative err resampled-data_bU: " <<"  "<<error << " == " << nch_beforeUnfolding_resampled->GetBinError(i) << " - " <<toUnfold->GetBinError(i) << "/first" <<endl;
-    error_diff_resampled_data_bU->SetBinContent(i,error);
-    
-    
-    
-    if(toUnfold->GetBinError(i)!=0) error = (toUnfold->GetBinError(i) - out->GetBinError(i))/toUnfold->GetBinError(i);
-    cout << "relative err data_bU_aU: " <<"  "<<error << " == " << toUnfold->GetBinError(i) << " - " <<out->GetBinError(i) << "/first" <<endl;
-    error_diff_data_bU_aU->SetBinContent(i,error);
-    
-    if(toUnfold->GetBinError(i)!=0) error = (out->GetBinError(i)-sqrt(out->GetBinContent(i)))/out->GetBinError(i);
-    cout << "relative err data_aU_rms_poiss: " <<"  "<<error << " == " << out->GetBinError(i) << " - " <<sqrt(out->GetBinContent(i)) << "/first" <<endl;
-    error_diff_data_aU_rms_poiss->SetBinContent(i,error);
-  
-  }
-  
-  error_diff_resampled_bU_aU->Write();
-  error_diff_data_bU_aU->Write();
-  error_diff_resampled_data_bU->Write();
-  nch_beforeUnfolding_resampled->Write();
-  nch_resampled_profile->Write();
-  //out->Draw();
-  //gPad->WaitPrimitive();
-  return *out;
 }
 
 
