@@ -65,6 +65,8 @@ bool nchcitr = 0;
 bool nchcene = 0;
 bool nchchi2 = 0;
 
+bool nchua5 = 0;
+
 bool nchstak = 0;
 bool knostak = 0;
 
@@ -627,7 +629,7 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
   //-------- EFFICIENCIES --------
   if(effplot){
 
-    globalDirPlot = "../plots.romain/unfoldingv2/";
+    globalDirPlot = "../plots.romain/unfoldingv8/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -759,7 +761,7 @@ SetId.push_back(10);
   //-------- MATRIX --------
   if(mtxplot){
 
-    globalDirPlot = "../plots.romain/unfoldingv2/";
+    globalDirPlot = "../plots.romain/unfoldingv8/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -864,7 +866,7 @@ SetId.push_back(10);
   //-------- ETA/PT/PT2 -------- Correction history
   if( corplot ){
 
-    globalDirPlot = "../plots.romain/unfoldingv2/";
+    globalDirPlot = "../plots.romain/unfoldingv8/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -987,7 +989,7 @@ SetId.push_back(10);
   //-------- ETA -------- Final Plot
   if( etaplot ){
 
-    globalDirPlot = "../plots.romain/unfoldingv4/";
+    globalDirPlot = "../plots.romain/unfoldingv8/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -1110,7 +1112,7 @@ SetId.push_back(10);
   //-------- Mch Unfold --------
   if( nchplot ){
 
-    globalDirPlot = "../plots.romain/unfoldingv2/";
+    globalDirPlot = "../plots.romain/unfoldingv8/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -1356,7 +1358,7 @@ SetId.push_back(10);
   //-------- Mch Unfold -------- Compare Trackings
   if( nchctrk ){
 
-    globalDirPlot = "../plots.romain/unfoldingv2/";
+    globalDirPlot = "../plots.romain/unfoldingv8/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -1465,7 +1467,7 @@ SetId.push_back(10);
 
 //    iUfoldDataType = 0;
 
-    globalDirPlot = "../plots.romain/unfoldingv2/";
+    globalDirPlot = "../plots.romain/unfoldingv8/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -1623,7 +1625,7 @@ SetId.push_back(10);
   //-------- Mch Unfold -------- Compare Unf. MC
   if( nchcunf ){
 
-    globalDirPlot = "../plots.romain/unfoldingv2/";
+    globalDirPlot = "../plots.romain/unfoldingv8/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -1721,7 +1723,7 @@ SetId.push_back(10);
   //-------- Mch Unfold -------- Compare Unf. MC at different energies
   if( nchcene ){
 
-    globalDirPlot = "../plots.romain/unfoldingv2/";
+    globalDirPlot = "../plots.romain/unfoldingv8/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -1838,7 +1840,7 @@ SetId.push_back(10);
   //-------- Mch Unfold -------- Compare Unf. MC at different energies
   if( nchchi2 ){
 
-   globalDirPlot = "../plots.romain/unfoldingv7/";
+   globalDirPlot = "../plots.romain/unfoldingv8/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -2013,7 +2015,7 @@ SetId.push_back(10);
   //-------- Mch Unfold -------- Compare Unf. Hypothesis
   if( nchchyp ){
 
-    globalDirPlot = "../plots.romain/unfoldingv2/";
+    globalDirPlot = "../plots.romain/unfoldingv8/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -2121,7 +2123,7 @@ SetId.push_back(10);
   //-------- Mch Unfold -------- Compare Unf. Iterations
   if( nchcitr ){
 
-    globalDirPlot = "../plots.romain/unfoldingv2/";
+    globalDirPlot = "../plots.romain/unfoldingv8/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -2267,7 +2269,7 @@ SetId.push_back(10);
   //-------- Mch Unfold -------- Stack
   if( nchstak ){
 
-    globalDirPlot = "../plots.romain/unfoldingvtmp/";
+    globalDirPlot = "../plots.romain/unfoldingv8/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -2552,11 +2554,106 @@ SetId.push_back(10);
     
   }
 
+  if(nchua5){
+   
+   
+   
+
+    globalDirPlot = "../plots.romain/unfoldingv2/";
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+    cout << "globalDirPlot= " << globalDirPlot << endl;
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+
+    // Retrieve bin info
+    if ( iUfoldBin > (signed) accMap.size() ) {
+      cout << "[makePlots] iUfoldBin > accMap.size()" << endl;
+      return;
+    }
+    
+    globalLabel = "900 GeV";
+    globalSaveFig = true;
+    
+    std::stringstream BIN ("");
+    BIN << "hyp" << 1 << "_niter" << 5 << "_cut" << 7 << "_DataType" << 0;
+    
+    
+    
+    // Fig name
+
+    std::stringstream figname; 
+    figname << "nch_UA5_nodata_allMC" ;
+    globalFigBaseName = figname.str();
+
+    // Plot
+
+    plotReset();
+    // Plot settings
+    globalNorm     = 2;
+    globalFileType = 3;
+    globalHistoType= 1;
+
+    histoXMax = 60.5; histoXMin = -0.5;
+    /*xGlobalLabel  = 0.3;
+    xLegendWidth = 0.24; 
+    yLegendWidth = 0.025;*/
+
+    XaxisTitle = "n_{ch}";
+    YaxisTitle = "#frac{1}{N} #frac{dN}{dn_{ch}}";
+
+   
+   dir   = "unfolding";
+      
+   ptcutstr = BIN.str();
+   dataSetId.push_back(-1);
+   dataSetFile.push_back(fileManager(globalFileType,10,0.9,0,0,0,ptcutstr,globalDirPlot));
+   dataSetIsMc.push_back(1);
+   dataSetStyle.push_back(20);
+   dataSetColor.push_back(1);
+   dataSetLegend.push_back("PYTHIA D6T");
+   dataSetHisto.push_back("nch_MC_gen_afterEvtSelCorrection");
+   
+   dataSetId.push_back(-1);
+   dataSetFile.push_back(fileManager(globalFileType,11,0.9,0,0,0,ptcutstr,globalDirPlot));
+   dataSetIsMc.push_back(1);
+   dataSetStyle.push_back(20);
+   dataSetColor.push_back(kBlue);
+   dataSetLegend.push_back("PYTHIA DW");
+   dataSetHisto.push_back("nch_MC_gen_afterEvtSelCorrection");
+   
+   dataSetId.push_back(-1);
+   dataSetFile.push_back(fileManager(globalFileType,12,0.9,0,0,0,ptcutstr,globalDirPlot));
+   dataSetIsMc.push_back(1);
+   dataSetStyle.push_back(20);
+   dataSetColor.push_back(kOrange);
+   dataSetLegend.push_back("PYTHIA P0");
+   dataSetHisto.push_back("nch_MC_gen_afterEvtSelCorrection");
+   
+   dataSetId.push_back(-1);
+   dataSetFile.push_back(fileManager(globalFileType,13,0.9,0,0,0,ptcutstr,globalDirPlot));
+   dataSetIsMc.push_back(1);
+   dataSetStyle.push_back(20);
+   dataSetColor.push_back(kGreen);
+   dataSetLegend.push_back("PYTHIA ProQ20");
+   dataSetHisto.push_back("nch_MC_gen_afterEvtSelCorrection");
+  
+
+   dataSetId.push_back(-1);
+   dataSetFile.push_back("../expdata/ua5_dsigdn_eta15");
+   dataSetIsMc.push_back(0);
+   dataSetStyle.push_back(24);
+   dataSetColor.push_back(kRed);
+   dataSetLegend.push_back("UA5 - |#eta|<1.5");
+   dataSetHisto.push_back("UA5");
+   
+
+    plot(dir,"AUTO",1,4);
+    
+  }
 
   //-------- Mch Unfold -------- Stack
   if( knostak ){
 
-    globalDirPlot = "../plots.romain/unfoldingv2/";
+    globalDirPlot = "../plots.romain/unfoldingv8/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -2811,7 +2908,7 @@ SetId.push_back(10);
       hmoca = "kno_gen";
     }
 
-    globalDirPlot = "../plots.romain/unfoldingv2/";
+    globalDirPlot = "../plots.romain/unfoldingv8/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -3161,7 +3258,8 @@ void makeUPlots ( int iplot            = 1   ,
  nchcitr = 0;
  nchcene = 0;
  nchchi2 = 0;
-
+ nchua5  = 0;
+ 
  nchstak = 0;
  knostak = 0;
  nch2ene = 0;
@@ -3176,6 +3274,7 @@ void makeUPlots ( int iplot            = 1   ,
  else if ( iplot == 6 ) nchcitr = 1;
  else if ( iplot == 7 ) nchcene = 1;
  else if ( iplot == 8 ) nchchi2 = 1;
+ else if ( iplot == 9 ) nchua5  = 1;
 
  else if ( iplot == 10) nchstak = 1;  
  else if ( iplot == 11) knostak = 1;  
