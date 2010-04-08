@@ -1,6 +1,7 @@
 #ifndef _MAKECORRECTIONS_
 #define _MAKECORRECTIONS_
 
+
 #include "TMath.h"
 #include "TH1F.h"
 #include "TF1.h"
@@ -14,6 +15,8 @@
 #include "TRandom.h"
 #include "TGraphAsymmErrors.h"
 #include "TProfile.h"
+#include "TROOT.h"
+#include "TDirectory.h"
 
 #include "TFrame.h"
 
@@ -27,6 +30,9 @@
 
 using namespace std;
 using namespace TMath;
+
+int debug_ = 0;
+
 
 const int matrixsize = 200;
 bool useData = false;
@@ -49,6 +55,7 @@ Double_t nbdfunc(Double_t*, Double_t*);
 Double_t nbdfunc2(Double_t*, Double_t*);
 Double_t nbdfunc2bis(Double_t*, Double_t*);
 Double_t nbdfunc3(Double_t*, Double_t*);
+Double_t nbdfunc3bis(Double_t*, Double_t*);
 double* Divide( const TArrayD* , double );
 void divideByWidth(TH1F*);
 void divideByWidth(TH2F*);
@@ -61,16 +68,21 @@ void divideByWidth(TH2F*);
 #include "resamplings.C"
 //#include "makeFakeMatrix.C"
 
-void makeCorrections(int typeData, int hyp=1 , int niter=0 , int acc = 10 , 
-                     double E = 0.9 , int typeMC = 30 , int iTr = 1 , TString filename = "" ,
-		     int scaleWbin0 = true , double Emc = 0 , bool drawcanv = true , float mu = 14 , float sigma = 15 ){
+void makeCorrections(int typeData, int hyp=1 , int niter=0 , int acc = 10 , double E = 0.9 ,
+                     int typeMC = 30 , int iTr = 1 , int syst = 0 , int syst_sign = 0 , double Emc = 0 ,
+		     TString filename = "" , int scaleWbin0 = true , bool drawcanv = true ,
+		     float mu = 14 , float sigma = 15 ){
 
    
-   useData = true;
-   if(Emc==0) Emc = E;
    
-    
-   #include "../macro/acceptanceMap.C"
+//gROOT->ProcessLine(".x ../macro/BuildLibDico.C+");
+   
+  useData = true;
+  if(Emc==0) Emc = E;
+  double syst_val = 0;
+  if(syst==0) syst_sign=0;
+       
+  #include "../macro/acceptanceMap.C"
   //Get the MC file
   TString mcfile = fileManager(2,typeMC,Emc,iTr,0,0,"");
   //TFile* mc = new TFile("/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/macro/collectionPlotter_MC_finalv2_900GeV.root","READ");
@@ -109,15 +121,37 @@ void makeCorrections(int typeData, int hyp=1 , int niter=0 , int acc = 10 ,
   //cout<<dir<<endl;
   //return;
   
-  //TEMP ----- TO CHANGE !!!
+  //------------------------------------------------------------
+  //Don't even create the output file if can't do the systematic.
+  if(syst%100==typeMC){
+    cout<<"!! WARNING : this is not a systematic, the MC tune for the SD distri is the same as for the rest. Exiting now ..."<<endl;
+    return;
+  }
+  if( (getNIter(acc,E)-(syst%300)) < 1 && int(syst/100) == 3 && syst_sign == -1){
+    cout<<"!! WARNING : can't do the negative systematic, niter is already 1. Exiting now ..."<<endl;
+    return;
+  }
+  if(syst==401 && E==2.36){
+    cout<<"!! WARNING : can't do this systematic, don't have the right energy mc. Exiting now ..."<<endl;
+    return;
+  }
+  if(syst%400==typeMC){
+    cout<<"!! WARNING : this is not a systematic, the MC tune for the matrix is the same as for the rest. Exiting now ..."<<endl;
+    return;
+  }
+  
+  
+  //------------------------------------------------------------
   //Opening the output file
   ostringstream outstr("");
   outstr << "hyp" << hyp << "_niter" << niter << "_cut" << acc << "_DataType" << typeData;
   if(E!=Emc) outstr << "_Emc"<<Emc;
   if(filename!="") outstr << "__" << filename;
-  cout<<"Output file : "<<fileManager(3,typeMC,E,iTr,0,0,outstr.str())<<endl;
-  TFile* out = new TFile(fileManager(3,typeMC,E,iTr,0,0,outstr.str()),"RECREATE");
+  cout<<"Output file : "<<fileManager(3,typeMC,E,iTr,syst,syst_sign,outstr.str())<<endl;
+  TFile* out = new TFile(fileManager(3,typeMC,E,iTr,syst,syst_sign,outstr.str()),"RECREATE");
   out->cd();
+  
+  TDirectory* currentdir = gDirectory;
   
   //Getting the good #iter if adaptive.
   //BEWARE : needs to be after output file naming/creation.
@@ -125,6 +159,13 @@ void makeCorrections(int typeData, int hyp=1 , int niter=0 , int acc = 10 ,
     niter = getNIter(acc,E);
     cout<<"Will use "<<niter<<" iterations for the unfolding ..."<<endl;
   }
+  
+  //including the systematic on #iterations
+  #include "syst_niter.C"
+  
+  
+  
+  
   
   
   //------------------------------------------------------------------------------
@@ -138,7 +179,9 @@ void makeCorrections(int typeData, int hyp=1 , int niter=0 , int acc = 10 ,
   //TFile* mc_matrix = new TFile(fileManager(2,type,0.9,iTr),"READ");
   //TH2F* matrixhist = (TH2F*) mc_matrix->Get(dir+st("MatrixPlots_evtSel",acc)+st("/nch_matrix_evtSel",acc));
   TH2F* matrixhist = (TH2F*) mc->Get(dir+st("MatrixPlots_evtSel",acc)+st("/nch_matrix_evtSel",acc));
+  #include "syst_matrix.C"
   matrixhist->SetName("nch_matrix");
+  
  
 /*
   for(int i=1;i<=matrixhist->GetNbinsX();++i){
@@ -188,6 +231,9 @@ void makeCorrections(int typeData, int hyp=1 , int niter=0 , int acc = 10 ,
   
   //nch_INC->SetBinContent(1,0);
   
+  //insertion of systematic code:
+  #include "syst_tracking.C"
+  
   
   //Getting the class
   MultiPlots* mp_INC_evtSel_reco_MC;
@@ -227,6 +273,37 @@ void makeCorrections(int typeData, int hyp=1 , int niter=0 , int acc = 10 ,
   nch_evtSel_NSD->Scale(MC_factor);
   nch_evtSel_INC->Scale(MC_factor);
   TH1F* nch_NSD = (TH1F*) nch_INC->Clone("nch_data_NSD_afterSDsub");
+  
+  //Checking the integral, nentries & nevts
+  if(  nch_evtSel_INC->GetEntries()!=mp_INC_evtSel_reco_MC->nbEvts
+    || nch_INC->GetEntries()!=mp_INC_evtSel_reco_data->nbEvts){
+    cout<<"Problem in normalization of SD MC component, please correct it or resampling will be wrong !"<<endl;
+    return;
+  }
+  if( int(nch_INC->GetEntries() - nch_INC->Integral()) != 0 ){
+    cout<<"!! WARNING : nch_INC->Integral differs from the #entries ==> there are some over/underflows ..."<<endl;
+    cout<<"   ===> Integral   : "<<nch_INC->Integral()<<"  |  #Entries : "<<nch_INC->GetEntries()
+        <<"  |  Diff : "<<nch_INC->Integral()-nch_INC->GetEntries()<<endl;
+    cout<<"   ===> #Overflows : "<<nch_INC->GetBinContent(nch_INC->GetNbinsX()+1)<<endl;
+  }
+  
+  
+  //Current % of SD & NSD
+  /*double frac_SD  = nch_evtSel_SD->Integral() / nch_evtSel_INC->GetEntries();
+  double frac_NSD = nch_evtSel_NSD->Integral() / nch_evtSel_INC->GetEntries();*/
+  double frac_SD  = nch_evtSel_SD->Integral() / nch_evtSel_INC->Integral();
+  double frac_NSD = nch_evtSel_NSD->Integral() / nch_evtSel_INC->Integral();
+  if(nch_evtSel_INC->GetBinContent(nch_evtSel_INC->GetNbinsX()+1)!=0)
+    cout<<"!! WARNING : the MC INC distri has overflows ..."<<endl;
+  cout<<"Fraction of SD events : "<< frac_SD * 100. << endl;
+  cout<<"Fraction of NSD events : "<< frac_NSD * 100. << endl;
+  
+  
+  //inserting the SD systematic
+  #include "syst_SDsub.C"
+  
+  
+  //Doing the SD substraction
   nch_NSD->Add(nch_evtSel_SD,-1);
   
   
@@ -267,18 +344,7 @@ void makeCorrections(int typeData, int hyp=1 , int niter=0 , int acc = 10 ,
   eff_evtSel->SetName("eff_evtSel");
   TH1F* nch_toUnfold = (TH1F*) nch_NSD->Clone("nch_toUnfold");
   //nch_toUnfold->Divide(eff_evtSel);
-  
-  
-  if(  nch_evtSel_INC->GetEntries()!=mp_INC_evtSel_reco_MC->nbEvts
-    || nch_INC->GetEntries()!=mp_INC_evtSel_reco_data->nbEvts){
-    cout<<"Problem in normalization of SD MC component, please correct it or resampling will be wrong !"<<endl;
-    return;
-  }
-  if(nch_INC->GetEntries()!=nch_INC->Integral())
-    cout<<"Warning !! nch_INC->Integral differs from the #entries ==> there are some over/underflows ..."<<endl;
-  
-  
-  
+    
   
   divideByWidth(nch_evtSel_SD);
   divideByWidth(nch_evtSel_NSD);
@@ -403,6 +469,11 @@ void makeCorrections(int typeData, int hyp=1 , int niter=0 , int acc = 10 ,
   
   TH1F* nch_corrected = (TH1F*) nch_unfoldedPtr->Clone("nch_data_corrected");
   //eff_evtSel->Sumw2();
+  
+  //including the systematic for evtSel Eff
+  #include "syst_evtSelEff.C"
+  
+  
   nch_corrected->Divide(nch_corrected,eff_evtSel,1,1);
   /*
   nch_corrected->Scale(1./nch_corrected->Integral());
@@ -559,58 +630,7 @@ if(drawcanv){
   //---------------------------------- Fits -------------------------------------
   //------------------------------------------------------------------------------
   
-  // ONE NBD
-  /*TF1* nbd = new TF1("nbd",nbdfunc,2,30,2);
-  nbd->SetParNames("nmean","k");
-  nbd->SetParameters(14,9);*/
-  
-  //TWO NBDs
-  /*TF1* nbd = new TF1("nbd",nbdfunc2,3,70,5);
-  nbd->SetParNames("alpha","nmean1","k1","nmean2","k2");
-  nbd->SetParameters(0.72,12,2,24,7);
-  nbd->SetParLimits(0,0,1);
-  nbd->SetParLimits(1,5,35);
-  nbd->SetParLimits(2,2,12);
-  nbd->SetParLimits(3,10,70);
-  nbd->SetParLimits(4,5,30);*/
-  
-  //TWO NBDs bis
- /* TF1* nbd = new TF1("nbd",nbdfunc2bis,3,70,3);
-  nbd->SetParNames("alpha","nmean1","k1");
-  nbd->SetParameters(0.72,12,2);
-  */
-  
-  /*
-  //THREE NBDs
-  TF1* nbd = new TF1("nbd",nbdfunc3,1,100,8);
-  nbd->SetParNames("alpha1","nmean1","k1","alpha2","nmean2","k2","nmean3","k3");
-  nbd->SetParameters(0.70,12,8,0.25,24,15,50,20);
-  nbd->SetParLimits(0,0,1);
-  nbd->SetParLimits(1,5,35);
-  nbd->SetParLimits(2,2,12);
-  nbd->SetParLimits(3,0.2,0.8);
-  nbd->SetParLimits(4,10,70);
-  nbd->SetParLimits(5,5,80);
-  nbd->SetParLimits(6,20,80);
-  nbd->SetParLimits(7,5,50);
-  */
-  
-  
-  /*nch_corrected->Fit("nbd","RO0");
-  
-  
-  nbd->Draw("same");
-  
-  TH1F* sigmaFit = (TH1F*) nch_corrected->Clone("sigmaFit");
-  sigmaFit->Divide(nbd);
-  
-  TCanvas* c_sigmafit = new TCanvas("c_sigmafit","c_sigmafit");
-  sigmaFit->Draw();
-  gPad->WaitPrimitive();*/
-  
-  
-  
-  //gPad->WaitPrimitive();
+  #include "fittingV2.C"
   
 }//End of if(drawcanv) for final plot
   
@@ -647,6 +667,11 @@ if(drawcanv){
   
  #include "makeBasicCorrections.C"
  
+ 
+ 
+ // out->Close();
+  //data->Close();
+  //mc->Close();
 /*
   delete c1;
   delete cm; 
@@ -728,19 +753,23 @@ double NBD2(double x, double nmean, double k){
 }
 
 Double_t nbdfunc(Double_t* x, Double_t* par){
-  return NBD(x[0],par[0],par[1]);
+  return par[2] * NBD(x[0],par[0],par[1]);
 }
 
 Double_t nbdfunc2(Double_t* x, Double_t* par){
-  return par[0]*NBD(x[0],par[1],par[2])+(1-par[0])*NBD(x[0],par[3],par[4]);
+  return par[5] * (par[0]*NBD(x[0],par[1],par[2])+(1-par[0])*NBD(x[0],par[3],par[4]));
 }
 
 Double_t nbdfunc2bis(Double_t* x, Double_t* par){
-  return par[0]*NBD(x[0],par[1],par[2])+(1-par[0])*NBD(x[0],2*par[1],2*par[2]);
+  return par[3] * (par[0]*NBD(x[0],par[1],par[2])+(1-par[0])*NBD(x[0],2*par[1],2*par[2]));
 }
 
 Double_t nbdfunc3(Double_t* x, Double_t* par){
-  return par[0]*NBD(x[0],par[1],par[2])+par[3]*NBD(x[0],par[4],par[5])+(1-par[0]-par[3])*NBD(x[0],par[6],par[7]);
+  return par[8] * (par[0]*NBD(x[0],par[1],par[2])+par[3]*NBD(x[0],par[4],par[5])+(1-par[0]-par[3])*NBD(x[0],par[6],par[7]));
+}
+
+Double_t nbdfunc3bis(Double_t* x, Double_t* par){
+  return par[4] * (par[0]*NBD(x[0],par[1],par[2])+par[3]*NBD(x[0],2*par[1],2*par[2])+(1-par[0]-par[3])*NBD(x[0],3*par[1],3*par[2]));
 }
 
 double* Divide(const TArrayD* array , double val){
