@@ -22,8 +22,6 @@ typedef double matrix4dObj_smear [matrixsize][matrixsize];//inverse from previou
 //Generator true distribution
 //TH1F* truegen=new TH1F("truegen","truegen",Ngen1,0,Ngen1);
 
-int debug_ = 0;
-
 using namespace std;
 
 int iterStep=0;
