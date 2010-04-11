@@ -139,6 +139,8 @@ void collectionPlotter(int type , double E , double ptcut , TString filename , i
   //TTree* tree =(TTree*)file->Get("evt");
   
   TChain* tree = new TChain("evt","");
+
+  //cout << fileManager(0,type,E) << endl;
   
   tree->Add(fileManager(0,type,E));
   
@@ -269,7 +271,7 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/
 	  
 	  
 	  //eta cut + good evt sel
-	  if(isEvtGood(*L1Trig , *MITEvtSel , vertexToCut) && fabs(p->Part.v.Eta()) < eta_cut && !isSD(genKin)){
+	  if(isEvtGood( E,*L1Trig , *MITEvtSel , vertexToCut) && fabs(p->Part.v.Eta()) < eta_cut && !isSD(genKin)){
 	    mtxp_etaGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->fillGen(p->Part);
 	    mtxp_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx->fillGen(p->Part);
 	    laccept_etaCut_NSD = true;
@@ -326,19 +328,19 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/
     offlinePV->push_back(*beamSpot);
     ferencVtx->push_back(*beamSpot);
     
-    evtselp_PV_mbTr_fVtx->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
-    evtselp_PV_gTr_oVtx->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
-    evtselp_fPV_gTr_oVtx->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
-    evtselp_PV_mbTr_pVtx->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
+    evtselp_PV_mbTr_fVtx->setSelBits(passL1(E,*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
+    evtselp_PV_gTr_oVtx->setSelBits(passL1(E,*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
+    evtselp_fPV_gTr_oVtx->setSelBits(passL1(E,*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
+    evtselp_PV_mbTr_pVtx->setSelBits(passL1(E,*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
 
-    evtselp_allTr_mbTr_fVtx->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
-    evtselp_allTr_gTr_oVtx->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
-    evtselp_allTr_mbTr_pVtx->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
+    evtselp_allTr_mbTr_fVtx->setSelBits(passL1(E,*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
+    evtselp_allTr_gTr_oVtx->setSelBits(passL1(E,*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
+    evtselp_allTr_mbTr_pVtx->setSelBits(passL1(E,*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
     
-    evtselp_PV_mbTr_bs->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
-    evtselp_PV_gTr_bs->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
-    evtselp_allTr_mbTr_bs->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
-    evtselp_allTr_gTr_bs->setSelBits(passL1(*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
+    evtselp_PV_mbTr_bs->setSelBits(passL1(E,*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
+    evtselp_PV_gTr_bs->setSelBits(passL1(E,*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
+    evtselp_allTr_mbTr_bs->setSelBits(passL1(E,*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
+    evtselp_allTr_gTr_bs->setSelBits(passL1(E,*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
     
     if(debug) cout<<"Starting to fill all classes ..."<<endl;
     evtselp_allTr_mbTr_fVtx->fill(*minbiasTracks,*ferencVtx,bs,vtxId_ferencVtx,MITEvtSel->eClusVtxQual,MITEvtSel->ePxHits);
@@ -394,8 +396,8 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/
 
     //------------- ZERO BIN TRACKS -----------------------------
 
-    //if( isEvtGood ( *L1Trig , *MITEvtSel , vertexToCut )  ) {  
-    if( isEvtGoodNoVtx( *L1Trig , *MITEvtSel )  ) {
+    //if( isEvtGood( E, *L1Trig , *MITEvtSel , vertexToCut )  ) {  
+    if( isEvtGoodNoVtx( E, *L1Trig , *MITEvtSel )  ) {
 
       // general Tracks
       if(getnPrimaryTracks(generalTracks,offlinePV)==0){
@@ -453,9 +455,9 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/
     //------------- FILLING MULTI && MATRIX----------------------- 
     if(debug) cout<<"Starting to fill Mtx ..."<<endl;
     
-    if( isEvtGood( *L1Trig , *MITEvtSel , vertexToCut) ){
+    if( isEvtGood( E, *L1Trig , *MITEvtSel , vertexToCut) ){
       
-      if(isEvtGood(*L1Trig , *MITEvtSel , vertexToCut) && getnInAccTracks(generalTracks,0,eta_cut)!=0)
+      if(isEvtGood( E,*L1Trig , *MITEvtSel , vertexToCut) && getnInAccTracks(generalTracks,0,eta_cut)!=0)
         laccept_reco_etaCut = true;
       
       trcoll = getPrimaryTracks(*minbiasTracks,ferencVtx,bs);

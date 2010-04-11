@@ -4,12 +4,13 @@
 //#  6 possible functions returning a bool:
 //#
 //#  passBit40    (*MyL1Trig)
-//#  passL1       (*MyL1Trig)
+//#  passL1       (Energy, *MyL1Trig)
 //#  passHF       (*MyMITEvtSel)
 //#  passVtxQual  (*MyMITEvtSel)
 //#  passVtx      (vector<MyVertex>*)
 //#
-//#  isEvtGood    (*MyL1Trig , *MyMITEvtSel , vector<MyVertex>*)
+//#  isEvtGood    (Energy, *MyL1Trig , *MyMITEvtSel , vector<MyVertex>*)
+//#  isEvtGoodNoVtx(Energy, *MyL1Trig, *MyMITEvtSel )
 //#
 //#  goodBX       (irun,bx)
 //#
@@ -21,17 +22,33 @@
 
 
 //-------- L1 TRIGGER CUT --------
-bool passL1(MyL1Trig& L1Trig){
-  if(   !L1Trig.TechTrigWord[36]
-     && !L1Trig.TechTrigWord[37]
-     && !L1Trig.TechTrigWord[38]
-     && !L1Trig.TechTrigWord[39]
-     && L1Trig.TechTrigWord[34]
-     && (L1Trig.TechTrigWord[0] || isMC) )
+bool passL1(double Energy, MyL1Trig& L1Trig){
+
+  if ( Energy == 0.9 || Energy == 2.36 ) {
+    if(   !L1Trig.TechTrigWord[36]
+       && !L1Trig.TechTrigWord[37]
+       && !L1Trig.TechTrigWord[38]
+       && !L1Trig.TechTrigWord[39]
+       && L1Trig.TechTrigWord[34]
+       && (L1Trig.TechTrigWord[0] || isMC) )
   //   && L1Trig.TechTrigWord[40])
-  {
-    return true;
+    {
+      return true;
+    }
   }
+  else if ( Energy == 7.0 ) { 
+    if(   !L1Trig.TechTrigWord[36]
+       && !L1Trig.TechTrigWord[37]
+       && !L1Trig.TechTrigWord[38]
+       && !L1Trig.TechTrigWord[39]
+       && L1Trig.PhysTrigWord[124]
+       && (L1Trig.TechTrigWord[0] || isMC) )
+    {
+      return true;
+    }
+  }
+
+
   return false;
 }
 
@@ -75,8 +92,8 @@ bool passVtx(vector<MyVertex>* vtxcoll){
 }
 
 //----------- GLOBAL CUT ---------
-bool isEvtGoodNoVtx(MyL1Trig& L1Trig, MyMITEvtSel& evtSel){
-  if(  passL1(L1Trig)
+bool isEvtGoodNoVtx(double Energy,MyL1Trig& L1Trig, MyMITEvtSel& evtSel){
+  if(  passL1(Energy,L1Trig)
     && passHF(evtSel)
     && passVtxQual(evtSel)
     )
@@ -87,8 +104,8 @@ bool isEvtGoodNoVtx(MyL1Trig& L1Trig, MyMITEvtSel& evtSel){
 
 
 //----------- GLOBAL CUT ---------
-bool isEvtGood(MyL1Trig& L1Trig, MyMITEvtSel& evtSel, vector<MyVertex>* vtxcoll){
-  if(  passL1(L1Trig)
+bool isEvtGood(double Energy,MyL1Trig& L1Trig, MyMITEvtSel& evtSel, vector<MyVertex>* vtxcoll){
+  if(  passL1(Energy,L1Trig)
     && passHF(evtSel)
     && passVtxQual(evtSel)
     && passVtx(vtxcoll) )
@@ -172,6 +189,15 @@ else if (irun==123906 || irun==123908) {
         accepted=true;
     }
   }
+
+ else if (irun==132440) {
+  accepted=true;
+ }
+
+ else if (irun==132471) {
+  accepted=true;
+ }
+
 
   return accepted;
 

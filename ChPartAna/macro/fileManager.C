@@ -45,7 +45,12 @@ TString fileManager ( int     iFileType  = 0
 
   TString FileName ;
 
-  TString CMSSW       = "CMSSW_3_3_6_patch3";
+  TString CMSSW;
+  if        ( Energy == 0.9 || Energy == 2.36 )
+    CMSSW       = "CMSSW_3_3_6_patch3";
+  else if   ( Energy == 7.0 )
+    CMSSW       = "CMSSW_3_5_6";
+
   TString BaseDirTree = "/user/xjanssen/data/" ;
   TString BaseDirPlot = "../plots/";
   
@@ -115,6 +120,28 @@ TString fileManager ( int     iFileType  = 0
 
     }
 
+    // --- 7.00 TeV ---
+
+    else if ( Energy == 7.00 ){
+
+      if      ( iDataType == 0 ) {
+        TreeBase = "ChPartTree_v005_d7000";
+        DataSet  = "__MinimumBias__Commissioning10-Apr1ReReco-v2__RECO";
+      }
+      else if ( iDataType == 10 ) {
+        TreeBase = "ChPartTree_v005_mc7000";
+        DataSet  = "__MinBias__Spring10-START3X_V26A_356ReReco-v1__GEN-SIM-RECO";
+      }
+      else {
+        cout << "[fileManager] Unknown DataType: " << iDataType << endl;
+        return "NONE";
+      }
+
+    }
+
+
+
+
     // ---- ??? TeV ---
     else {
        cout << "[fileManager] Unknown energy: " << Energy << endl;
@@ -147,6 +174,7 @@ TString fileManager ( int     iFileType  = 0
     
     if ( Energy == 0.9  ) SEnergy = "_0.9TeV"  ;
     if ( Energy == 2.36 ) SEnergy = "_2.36TeV" ;
+    if ( Energy == 7.0  ) SEnergy = "_7.0TeV" ;
     
     if ( iTracking == 0 ) STracking= "_gTr"  ;
     if ( iTracking == 1 ) STracking= "_mbTr" ;
