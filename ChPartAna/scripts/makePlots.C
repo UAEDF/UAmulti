@@ -98,6 +98,7 @@ void trackPlots()
   mtxplot = 0;
 */
 
+/*
   gROOT->ProcessLine(".x cmsStyleRoot.C");
   gROOT->ProcessLine("makePlots(1,0.9,0.15)");
   gROOT->ProcessLine("makePlots(1,0.9,0.4)");
@@ -107,6 +108,11 @@ void trackPlots()
   gROOT->ProcessLine("makePlots(1,2.36,0.4)");
   gROOT->ProcessLine("makePlots(2,2.36,0.15)");
   gROOT->ProcessLine("makePlots(2,2.36,0.4)");
+*/
+
+  gROOT->ProcessLine("makePlots(1,7.0,0.2)");
+  gROOT->ProcessLine("makePlots(2,7.0,0.2)");
+
 
 }
 
@@ -127,6 +133,7 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
 
   if ( globalEnergy == 0.9 ) globalLabel =  "CMS 0.9 TeV";
   if ( globalEnergy == 2.36) globalLabel =  "CMS 2.36 TeV";  
+  if ( globalEnergy == 7.00) globalLabel =  "CMS 7 TeV";  
 
   //------ TRACK & VTX PLOTS CONFIG ---------
   if ( trkplot || vqlplot || vtxplot || nvtplot || tvtplot || mltplot ) { 
@@ -216,7 +223,27 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
       dataSetLegend.push_back("PYTHIA D6T");
   
     }
-  
+ 
+    if ( energy == 7.0 ) {
+
+      // DATA
+      dataSetId.push_back(0);
+      dataSetIsMc.push_back(0);
+      dataSetStyle.push_back(20);
+      dataSetColor.push_back(2);
+      dataSetLegend.push_back("Data");
+
+      // PYTHIA - D6T
+      dataSetId.push_back(10);
+      dataSetIsMc.push_back(1);
+      dataSetStyle.push_back(1);
+      dataSetColor.push_back(1);
+      dataSetLegend.push_back("PYTHIA D6T");
+
+    }
+
+
+ 
   } // if trkplot || vtxplot
   
   //------ TRACK PLOTS ---------
@@ -1207,6 +1234,7 @@ SetId.push_back(10);
     if (iUfoldMCType == 13 )  figname << "MC_ProQ20_" ;
     if (globalEnergy == 0.9  ) figname << "0.9TeV_";
     if (globalEnergy == 2.36 ) figname << "2.36TeV_";
+    if (globalEnergy == 7.0  ) figname << "7.0TeV_";
     if (itracking == 1 )  figname << "gTr_" ;
     if (itracking == 2 )  figname << "mbTr_" ;
     globalFigBaseName = figname.str();
@@ -1270,6 +1298,7 @@ SetId.push_back(10);
     if (iUfoldMCType == 13 )  figname << "MC_ProQ20_" ;
     if (globalEnergy == 0.9  ) figname << "0.9TeV_";
     if (globalEnergy == 2.36 ) figname << "2.36TeV_";
+    if (globalEnergy == 7.0  ) figname << "7.0TeV_";
     if (itracking == 1 )  figname << "gTr_" ;
     if (itracking == 2 )  figname << "mbTr_" ;
     globalFigBaseName = figname.str();
@@ -1333,6 +1362,7 @@ SetId.push_back(10);
     if (iUfoldMCType == 13 )  figname << "MC_ProQ20_" ;
     if (globalEnergy == 0.9  ) figname << "0.9TeV_";
     if (globalEnergy == 2.36 ) figname << "2.36TeV_";
+    if (globalEnergy == 7.0  ) figname <<  "7.0TeV_";
     if (itracking == 1 )  figname << "gTr_" ;
     if (itracking == 2 )  figname << "mbTr_" ;
     globalFigBaseName = figname.str();
@@ -1412,6 +1442,7 @@ SetId.push_back(10);
     if (iUfoldMCType == 13 )  figname << "MC_ProQ20_" ;
     if (globalEnergy == 0.9  ) figname << "0.9TeV_";
     if (globalEnergy == 2.36 ) figname << "2.36TeV_";
+    if (globalEnergy == 7.0  ) figname << "7.0TeV_";
     globalFigBaseName = figname.str();
 
 
@@ -1551,6 +1582,7 @@ SetId.push_back(10);
     if (iUfoldMCType == 13 )  figname << "MC_ProQ20_" ;
     if (globalEnergy == 0.9  ) figname << "0.9TeV_";
     if (globalEnergy == 2.36 ) figname << "2.36TeV_";
+    if (globalEnergy == 7.0  ) figname << "7.0TeV_";
     if (itracking == 1 )  figname << "gTr_" ;
     if (itracking == 2 )  figname << "mbTr_" ;
     globalFigBaseName = figname.str();
@@ -1673,6 +1705,7 @@ SetId.push_back(10);
     figname << "nch_cunfold_D6T_P0_" ;
     if (globalEnergy == 0.9  ) figname << "0.9TeV_";
     if (globalEnergy == 2.36 ) figname << "2.36TeV_";
+    if (globalEnergy == 7.0  ) figname << "7.0TeV_";
     if (itracking == 1 )  figname << "gTr_" ;
     if (itracking == 2 )  figname << "mbTr_" ;
     globalFigBaseName = figname.str();
@@ -1746,6 +1779,7 @@ SetId.push_back(10);
     BIN2 << "hyp" << iUfoldHyp << "_niter" << iUfoldNIter << "_cut" << iUfoldBin << "_DataType" << iUfoldDataType;
     if (globalEnergy == 0.9 ) BIN2 << "_Emc2.36";
     if (globalEnergy == 2.36) BIN2 << "_Emc0.9";
+    if (globalEnergy == 7.0 ) BIN2 << "_Emc2.36";
 
     std::stringstream LT("");
     LT << "  |#eta|<" << etaGen ;
@@ -1773,8 +1807,11 @@ SetId.push_back(10);
     if (globalEnergy == 0.9 ) {
       LD1 << datatype << " - Unf@0.9" ;
       LD2 << datatype << " - Unf@2.36"  ;
-    } else {
+    } else if ( globalEnergy == 2.36 ) {
       LD2 << datatype << " - Unf@0.9" ;
+      LD1 << datatype << " - Unf@2.36"  ;
+    } else if ( globalEnergy == 7.0 ) {
+      LD2 << datatype << " - Unf@7.0" ;
       LD1 << datatype << " - Unf@2.36"  ;
     }
 
@@ -1788,6 +1825,7 @@ SetId.push_back(10);
     if (iUfoldMCType == 13 )  figname << "MC_ProQ20_" ;
     if (globalEnergy == 0.9  ) figname << "0.9TeV_";
     if (globalEnergy == 2.36 ) figname << "2.36TeV_";
+    if (globalEnergy == 7.0  ) figname << "7.0TeV_";
     if (itracking == 1 )  figname << "gTr_" ;
     if (itracking == 2 )  figname << "mbTr_" ;
     globalFigBaseName = figname.str();
@@ -1941,6 +1979,7 @@ SetId.push_back(10);
     if (iUfoldMCType == 30 )  figname << "MC_D6T_newBS_" ;
     if (globalEnergy == 0.9  ) figname << "0.9TeV_";
     if (globalEnergy == 2.36 ) figname << "2.36TeV_";
+    if (globalEnergy == 7.0  ) figname << "7.0TeV_";
     if (itracking == 1 )  figname << "gTr_" ;
     if (itracking == 2 )  figname << "mbTr_" ;
     globalFigBaseName = figname.str();
@@ -2072,6 +2111,7 @@ SetId.push_back(10);
     if (iUfoldMCType == 13 )  figname << "MC_ProQ20_" ;
     if (globalEnergy == 0.9  ) figname << "0.9TeV_";
     if (globalEnergy == 2.36 ) figname << "2.36TeV_";
+    if (globalEnergy == 7.0  ) figname << "7.0TeV_";
     if (itracking == 1 )  figname << "gTr_" ;
     if (itracking == 2 )  figname << "mbTr_" ;
     globalFigBaseName = figname.str();
@@ -2189,6 +2229,7 @@ SetId.push_back(10);
     if (iUfoldMCType == 13 )  figname << "MC_ProQ20_" ;
     if (globalEnergy == 0.9  ) figname << "0.9TeV_";
     if (globalEnergy == 2.36 ) figname << "2.36TeV_";
+    if (globalEnergy == 7.0  ) figname << "7.0TeV_";
     if (itracking == 1 )  figname << "gTr_" ;
     if (itracking == 2 )  figname << "mbTr_" ;
     globalFigBaseName = figname.str();
@@ -2371,6 +2412,7 @@ SetId.push_back(10);
     if (iUfoldMCType == 13 )  figname << "MC_D6T_newBS_" ;
     if (globalEnergy == 0.9  ) figname << "0.9TeV_";
     if (globalEnergy == 2.36 ) figname << "2.36TeV_";
+    if (globalEnergy == 7.0  ) figname << "7.0TeV_";
     if (itracking == 1 )  figname << "gTr_" ;
     if (itracking == 2 )  figname << "mbTr_" ;
     globalFigBaseName = figname.str();
@@ -2410,6 +2452,22 @@ SetId.push_back(10);
     }
 
     if ( globalEnergy == 2.36 )
+    {
+      if ( iUfoldBin == 0  || iUfoldBin == 5 )
+        { histoYMin = 0.000001    ; histoYMax = 10000 ;
+          histoXMin = -0.5        ; histoXMax = 110.5  ; }
+      if ( iUfoldBin == 10 )
+        { histoYMin = 0.0000001   ; histoYMax = 10000 ;
+          histoXMin = -0.5        ; histoXMax = 100.5  ; }
+      if ( iUfoldBin == 15 )
+        { histoYMin = 0.00000001  ; histoYMax = 10000 ;
+          histoXMin = -0.5        ; histoXMax =  80.5  ; }
+      if ( iUfoldBin == 20 )
+        { histoYMin = 0.000000001 ; histoYMax = 10000 ;
+          histoXMin = -0.5        ; histoXMax =  50.5  ; }
+    }
+
+    if ( globalEnergy == 7.0  )
     {
       if ( iUfoldBin == 0  || iUfoldBin == 5 )
         { histoYMin = 0.000001    ; histoYMax = 10000 ;
@@ -2752,6 +2810,7 @@ SetId.push_back(10);
     if (iUfoldMCType == 13 )  figname << "MC_ProQ20_" ;
     if (globalEnergy == 0.9  ) figname << "0.9TeV_";
     if (globalEnergy == 2.36 ) figname << "2.36TeV_";
+    if (globalEnergy == 7.0  ) figname << "7.0TeV_";
     if (itracking == 1 )  figname << "gTr_" ;
     if (itracking == 2 )  figname << "mbTr_" ;
     globalFigBaseName = figname.str();
@@ -3099,6 +3158,18 @@ SetId.push_back(10);
         LD5 << datatype << " 2.36 TeV - |#eta|<" << etaReco5 ;
       }
 
+      if ( iE==3 ) {
+        globalEnergy = 7.0 ;
+        kColor = kBlue ;
+        LD1 << datatype << " 7.0 TeV - |#eta|<" << etaReco1 ;
+        LD2 << datatype << " 7.0 TeV - |#eta|<" << etaReco2 ;
+        LD3 << datatype << " 7.0 TeV - |#eta|<" << etaReco3 ;
+        LD4 << datatype << " 7.0 TeV - |#eta|<" << etaReco4 ;
+        LD5 << datatype << " 7.0 TeV - |#eta|<" << etaReco5 ;
+      }
+
+
+
       ptcutstr = BIN1.str();
       dataSetId.push_back(-1);
       dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
@@ -3321,4 +3392,21 @@ void setnchrangeX(int iUfoldBin )
         { 
           histoXMin = -0.5        ; histoXMax =  50.5  ; }
     }
+
+    if ( globalEnergy == 7.0  )
+    {
+      if ( iUfoldBin == 0  || iUfoldBin == 5 )
+        {
+          histoXMin = -0.5        ; histoXMax = 110.5  ; }
+      if ( iUfoldBin == 10 )
+        {
+          histoXMin = -0.5        ; histoXMax = 100.5  ; }
+      if ( iUfoldBin == 15 )
+        {
+          histoXMin = -0.5        ; histoXMax =  80.5  ; }
+      if ( iUfoldBin == 20 )
+        {
+          histoXMin = -0.5        ; histoXMax =  50.5  ; }
+    }
+
 }
