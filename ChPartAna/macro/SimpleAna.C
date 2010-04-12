@@ -207,7 +207,7 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
     //----------------------------------------------------------------------
     
     
-    if(isEvtGood(*L1Trig , *MITEvtSel , vertex)){
+    if(isEvtGood(E,*L1Trig , *MITEvtSel , vertex)){
       for(int acc = 0 ; acc < (signed)accMap.size() ; ++acc){
 	if(isMC){
           for(vector<MyGenPart>::iterator p=genPart->begin() ; p!=genPart->end() ; p++ )
@@ -250,7 +250,7 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
     
       //L1 CUT
       if(isMC) L1_before.at(acc)->Fill(getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4)));
-      if(passL1(*L1Trig))
+      if(passL1(E,*L1Trig))
         if(isMC) L1_after.at(acc)->Fill(getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4)));
     
       //HF CUT
@@ -268,13 +268,13 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
       if(getBestVertex(vertexToCut)>-1)
         if(isMC) vtx_after.at(acc)->Fill(getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4)));
     
-      //if(!isEvtGood(*L1Trig , *MITEvtSel) || getBestVertex(vertexToCut)==-1) continue;
-      if(isEvtGood(*L1Trig , *MITEvtSel , vertex))
+      //if(!isEvtGood(E,*L1Trig , *MITEvtSel) || getBestVertex(vertexToCut)==-1) continue;
+      if(isEvtGood(E,*L1Trig , *MITEvtSel , vertex))
         if(isMC) evtSel_after.at(acc)->Fill(getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4)));
     
     }
     
-    if(!isEvtGood(*L1Trig , *MITEvtSel , vertex)) continue;
+    if(!isEvtGood(E,*L1Trig , *MITEvtSel , vertex)) continue;
     
     //----------------------------------------------------------------------
     //-----------------------         GEN          -------------------------
