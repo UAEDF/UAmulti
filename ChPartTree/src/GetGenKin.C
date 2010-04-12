@@ -57,10 +57,25 @@ void ChPartTree::GetGenKin(const edm::Event& iEvent)
    const HepMC::GenEvent* GenEvt = hepMCHandle->GetEvent() ;
    int processId = GenEvt->signal_process_id();
    if (GenKinDebug) cout<<"Process ID2: "<<processId<<endl; 
-   double ptHat  = GenEvt->event_scale();
-   if (GenKinDebug) cout<<"PtHat MC : "<<ptHat<<endl; 
+//   double ptHat  = GenEvt->event_scale();
+//   if (GenKinDebug) cout<<"PtHat MC : "<<ptHat<<endl; 
 
    GenKin.MCProcId  = processId ; 
+
+   GenKin.Scale     = 0. ;
+   GenKin.x1 = 0. ;
+   GenKin.x2 = 0. ;
+   GenKin.Q  = 0. ;
+   GenKin.Part1Id = 0 ; 
+   GenKin.Part2Id = 0 ; 
+ 
+   GenKin.Met    = 0. ;
+   GenKin.MetX   = 0. ;
+   GenKin.MetY   = 0. ;
+   GenKin.MetPhi = 0. ;
+
+
+/*
    GenKin.Scale     = ptHat ;
 
    // PDF Info -> x,Q, parton id's -> see HepMC manual
@@ -141,6 +156,10 @@ void ChPartTree::GetGenKin(const edm::Event& iEvent)
    // ... Set Missing Et 4-Vector
    GenKin.MetGP1.SetPxPyPzE( met1Px , met1Py , met1Pz , met1E ) ;
    GenKin.MetGP3.SetPxPyPzE( met3Px , met3Py , met3Pz , met3E ) ;
+*/
+
+   GenKin.MetGP1.SetPxPyPzE( 0. , 0. , 0. , 0. ) ;
+   GenKin.MetGP3.SetPxPyPzE( 0. , 0. , 0. , 0. ) ;  
 
 }
 
