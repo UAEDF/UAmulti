@@ -75,10 +75,15 @@ bool passHF(MyMITEvtSel& evtSel){
 //----------- VERTEX QUALITY CUT ---------
 bool passVtxQual(MyMITEvtSel& evtSel){
   // construct polynomial cut on cluster vertex quality vs. npixelhits
-  double polyCut = 0.5 + 0.0045 * (evtSel.ePxHits);
+
+  double polyCut = 0.  + 0.0045 * (evtSel.ePxHits);
   
   if((evtSel.ePxHits) < 150) 
     polyCut=0;             // don't use cut below nhitsTrunc_ pixel hits
+
+  double clusterTrunc = 2.; 
+  if(polyCut > clusterTrunc && clusterTrunc > 0) 
+    polyCut=clusterTrunc; 
     
   if( evtSel.eClusVtxQual >= polyCut )
     return true;
