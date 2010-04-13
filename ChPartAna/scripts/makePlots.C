@@ -656,7 +656,7 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
   //-------- EFFICIENCIES --------
   if(effplot){
 
-    globalDirPlot = "../plots.romain/unfoldingv8/";
+    globalDirPlot = "../plots/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -788,7 +788,7 @@ SetId.push_back(10);
   //-------- MATRIX --------
   if(mtxplot){
 
-    globalDirPlot = "../plots.romain/unfoldingv8/";
+    globalDirPlot = "../plots/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -893,7 +893,7 @@ SetId.push_back(10);
   //-------- ETA/PT/PT2 -------- Correction history
   if( corplot ){
 
-    globalDirPlot = "../plots.romain/unfoldingv8/";
+    globalDirPlot = "../plots/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -1016,7 +1016,7 @@ SetId.push_back(10);
   //-------- ETA -------- Final Plot
   if( etaplot ){
 
-    globalDirPlot = "../plots.romain/unfoldingv8/";
+    globalDirPlot = "../plots/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -1139,7 +1139,7 @@ SetId.push_back(10);
   //-------- Mch Unfold --------
   if( nchplot ){
 
-    globalDirPlot = "../plots.romain/unfoldingv8/";
+    globalDirPlot = "../plots/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -1242,7 +1242,49 @@ SetId.push_back(10);
 
     plot(dir,"AUTO");
     
-    
+    // mATRIX		
+    plotReset();
+    ptcutstr = BIN.str();
+    LegendTitle = LT.str();
+    ExtLegTitle = ELT.str();
+
+    globalNorm     = 0;
+    globalFileType = 3;
+    globalHistoType= 2;
+    global2DplotOpt = "col" ;
+
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,iUfoldMCType,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(2);
+    dataSetColor.push_back(2);
+    dataSetLegend.push_back("MC");
+    dataSetHisto.push_back("nch_matrix");
+
+   // Fig name
+    {
+    std::stringstream figname;
+    figname << "unfolding_matrix_" ;
+    if (iUfoldMCType == 10 )  figname << "MC_D6T_" ;
+    if (iUfoldMCType == 11 )  figname << "MC_DW_" ;
+    if (iUfoldMCType == 12 )  figname << "MC_P0_" ;
+    if (iUfoldMCType == 13 )  figname << "MC_ProQ20_" ;
+    if (globalEnergy == 0.9  ) figname << "0.9TeV_";
+    if (globalEnergy == 2.36 ) figname << "2.36TeV_";
+    if (globalEnergy == 7.0  ) figname << "7.0TeV_";
+    if (itracking == 1 )  figname << "gTr_" ;
+    if (itracking == 2 )  figname << "mbTr_" ;
+    globalFigBaseName = figname.str();
+    }
+
+ 
+    dir   = "unfolding" ;
+    plot(dir,"AUTO");
+
+
+
+
+    // UNFOLDING
     plotReset();
     ptcutstr = BIN.str();
     LegendTitle = LT.str();
@@ -1388,7 +1430,7 @@ SetId.push_back(10);
   //-------- Mch Unfold -------- Compare Trackings
   if( nchctrk ){
 
-    globalDirPlot = "../plots.romain/unfoldingv8/";
+    globalDirPlot = "../plots/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -1498,7 +1540,7 @@ SetId.push_back(10);
 
 //    iUfoldDataType = 0;
 
-    globalDirPlot = "../plots.romain/unfoldingv8/";
+    globalDirPlot = "../plots/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -1657,7 +1699,7 @@ SetId.push_back(10);
   //-------- Mch Unfold -------- Compare Unf. MC
   if( nchcunf ){
 
-    globalDirPlot = "../plots.romain/unfoldingv8/";
+    globalDirPlot = "../plots/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -1756,7 +1798,7 @@ SetId.push_back(10);
   //-------- Mch Unfold -------- Compare Unf. MC at different energies
   if( nchcene ){
 
-    globalDirPlot = "../plots.romain/unfoldingv8/";
+    globalDirPlot = "../plots/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -1878,7 +1920,7 @@ SetId.push_back(10);
   //-------- Mch Unfold -------- Compare Unf. MC at different energies
   if( nchchi2 ){
 
-   globalDirPlot = "../plots.romain/unfoldingv8/";
+   globalDirPlot = "../plots/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -2054,7 +2096,7 @@ SetId.push_back(10);
   //-------- Mch Unfold -------- Compare Unf. Hypothesis
   if( nchchyp ){
 
-    globalDirPlot = "../plots.romain/unfoldingv8/";
+    globalDirPlot = "../plots/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -2163,7 +2205,7 @@ SetId.push_back(10);
   //-------- Mch Unfold -------- Compare Unf. Iterations
   if( nchcitr ){
 
-    globalDirPlot = "../plots.romain/unfoldingv8/";
+    globalDirPlot = "../plots/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -2310,7 +2352,7 @@ SetId.push_back(10);
   //-------- Mch Unfold -------- Stack
   if( nchstak ){
 
-    globalDirPlot = "../plots.romain/unfoldingv8/";
+    globalDirPlot = "../plots/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -2711,7 +2753,7 @@ SetId.push_back(10);
   //-------- Mch Unfold -------- Stack
   if( knostak ){
 
-    globalDirPlot = "../plots.romain/unfoldingv8/";
+    globalDirPlot = "../plots/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -2967,7 +3009,7 @@ SetId.push_back(10);
       hmoca = "kno_gen";
     }
 
-    globalDirPlot = "../plots.romain/unfoldingv8/";
+    globalDirPlot = "../plots/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -3077,7 +3119,7 @@ SetId.push_back(10);
     LegendTitle = LT.str();
     ExtLegTitle = ELT.str();
     // Plot settings
-    globalNorm     = 3;
+    globalNorm     = 2;
     globalFileType = 3;
     globalHistoType= 1;
 
@@ -3130,7 +3172,7 @@ SetId.push_back(10);
       
     int kColor = kBlack ;
 
-    for ( int iE = 1 ; iE < 3 ; ++iE ) {
+    for ( int iE = 1 ; iE < 4 ; ++iE ) {
 
       std::stringstream LD1("");
       std::stringstream LD2("");
@@ -3160,7 +3202,7 @@ SetId.push_back(10);
 
       if ( iE==3 ) {
         globalEnergy = 7.0 ;
-        kColor = kBlue ;
+        kColor = kRed ;
         LD1 << datatype << " 7.0 TeV - |#eta|<" << etaReco1 ;
         LD2 << datatype << " 7.0 TeV - |#eta|<" << etaReco2 ;
         LD3 << datatype << " 7.0 TeV - |#eta|<" << etaReco3 ;
