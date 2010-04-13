@@ -88,6 +88,10 @@ TString fileManager ( int     iFileType  = 0
         TreeBase = "ChPartTree_v005c_mc900";
         DataSet  = "__MinBias__Summer09-STARTUP3X_V8K_900GeV_ProQ20-v1__GEN-SIM-RECO";
       }
+      else if ( iDataType == 20 ) {
+        TreeBase = "ChPartTree_v005c_phojet_mc900";
+        DataSet  = "__PhojetMB900GeV__yilmaz-PhojetMB900GeV-39e473178bd7b30aa2784bced713eb86__USER";
+      }
 
       else if ( iDataType == 30 ) {
         TreeBase = "ChPartTree_v005c_mc900_V8P";
@@ -112,6 +116,10 @@ TString fileManager ( int     iFileType  = 0
       else if ( iDataType == 10 ) {
         TreeBase = "ChPartTree_v005c_mc236";
         DataSet  = "__MinBias__Summer09-STARTUP3X_V8L_2360GeV-v1__GEN-SIM-RECO";
+      }
+      else if ( iDataType == 20 ) {
+        TreeBase = "ChPartTree_v005c_phojet_mc236";
+        DataSet  = "__Phojet2360GeV_test01__yilmaz-Phojet2360GeV_test01-a1981d928dd3baaabee57744658c3360__USER";
       }
       else {
         cout << "[fileManager] Unknown DataType: " << iDataType << endl;
