@@ -140,10 +140,21 @@ TString fileManager ( int     iFileType  = 0
         TreeBase = "ChPartTree_v005_mc7000";
         DataSet  = "__MinBias__Spring10-START3X_V26A_356ReReco-v1__GEN-SIM-RECO";
       }
+      else if ( iDataType == 20 ) {
+        TreeBase = "ChPartTree_v005_mc7000_v25b";
+        DataSet  = "__MinBiasPhojet_SIM_0413__yilmaz-MinBiasPhojet_RECO_0413_v1-309b694e9ccf1df48e24b126fab6958b__USER";
+      }
+      else if ( iDataType == 30 ) {
+        TreeBase = "ChPartTree_v005_mc7000_v25b";
+        DataSet  = "__MinBiasD6T_SIM_0334__yilmaz-MinBiasD6T_RECO_0334_v1-309b694e9ccf1df48e24b126fab6958b__USER";
+      }
       else {
         cout << "[fileManager] Unknown DataType: " << iDataType << endl;
         return "NONE";
       }
+
+
+
 
     }
 
