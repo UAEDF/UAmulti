@@ -237,8 +237,24 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
       dataSetId.push_back(10);
       dataSetIsMc.push_back(1);
       dataSetStyle.push_back(1);
+      dataSetColor.push_back(kBlue);
+      dataSetLegend.push_back("PYTHIA D6T (CMS)");
+
+      // PYTHIA - D6T
+      dataSetId.push_back(30);
+      dataSetIsMc.push_back(1);
+      dataSetStyle.push_back(1);
       dataSetColor.push_back(1);
-      dataSetLegend.push_back("PYTHIA D6T");
+      dataSetLegend.push_back("PYTHIA D6T (dNdeta)");
+
+
+     // PYTHIA - D6T
+      dataSetId.push_back(20);
+      dataSetIsMc.push_back(1);
+      dataSetStyle.push_back(1);
+      dataSetColor.push_back(kRed);
+      dataSetLegend.push_back("PHOJET");
+
 
     }
 
@@ -1053,7 +1069,7 @@ SetId.push_back(10);
     // 0.9 TeV
 
     dataSetId.push_back(-1);
-    ptcutstr = "hyp1_niter5_cut" + bin + "_DataType0";
+    ptcutstr = "hyp1_niter0_cut" + bin + "_DataType0";
     dataSetFile.push_back(fileManager(globalFileType,10,0.9,0,0,0,ptcutstr,globalDirPlot));
     dataSetIsMc.push_back(0);
     dataSetStyle.push_back(20);
@@ -1063,7 +1079,7 @@ SetId.push_back(10);
 
 
     dataSetId.push_back(-1);
-    ptcutstr = "hyp1_niter5_cut" + bin + "_DataType0";
+    ptcutstr = "hyp1_niter0_cut" + bin + "_DataType0";
     dataSetFile.push_back(fileManager(globalFileType,10,0.9,1,0,0,ptcutstr,globalDirPlot));
     dataSetIsMc.push_back(0);
     dataSetStyle.push_back(20);
@@ -1093,7 +1109,7 @@ SetId.push_back(10);
     // 2.36 TeV
 
     dataSetId.push_back(-1);
-    ptcutstr = "hyp1_niter5_cut" + bin + "_DataType0";
+    ptcutstr = "hyp1_niter0_cut" + bin + "_DataType0";
     dataSetFile.push_back(fileManager(globalFileType,10,2.36,0,0,0,ptcutstr,globalDirPlot));
     dataSetIsMc.push_back(0);
     dataSetStyle.push_back(21);
@@ -1103,7 +1119,7 @@ SetId.push_back(10);
 
 
     dataSetId.push_back(-1);
-    ptcutstr = "hyp1_niter5_cut" + bin + "_DataType0";
+    ptcutstr = "hyp1_niter0_cut" + bin + "_DataType0";
     dataSetFile.push_back(fileManager(globalFileType,10,2.36,1,0,0,ptcutstr,globalDirPlot));
     dataSetIsMc.push_back(0);
     dataSetStyle.push_back(21);
@@ -1129,6 +1145,50 @@ SetId.push_back(10);
     dataSetLegend.push_back("PYTHIA D6T 2.36 TeV");
     dataSetHisto.push_back("eta_corrected"); 
 */
+
+
+    // 7.00 TeV
+
+    dataSetId.push_back(-1);
+    ptcutstr = "hyp1_niter0_cut" + bin + "_DataType0";
+    dataSetFile.push_back(fileManager(globalFileType,10,7.00,0,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(22);
+    dataSetColor.push_back(kRed);
+    dataSetLegend.push_back("Data 7.0 TeV - gTr");
+    dataSetHisto.push_back("eta_corrected"); 
+
+
+    dataSetId.push_back(-1);
+    ptcutstr = "hyp1_niter0_cut" + bin + "_DataType0";
+    dataSetFile.push_back(fileManager(globalFileType,10,7.00,1,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(22);
+    dataSetColor.push_back(kBlue);
+    dataSetLegend.push_back("Data 7.0  TeV - mbTr");
+    dataSetHisto.push_back("eta_corrected"); 
+
+/*
+    dataSetId.push_back(-1);
+    dataSetFile.push_back("../expdata/cms09_dndeta_2.36TeV");
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(22);
+    dataSetColor.push_back(kBlack);
+    dataSetLegend.push_back("CMS 2.36 TeV");
+    dataSetHisto.push_back("EXTDATA");
+*/
+
+/*
+    dataSetId.push_back(-1);
+    ptcutstr = "hyp1_niter5_cut" + bin + "_DataType10";
+    dataSetFile.push_back(fileManager(globalFileType,10,2.36,0,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(2);
+    dataSetColor.push_back(1);
+    dataSetLegend.push_back("PYTHIA D6T 2.36 TeV");
+    dataSetHisto.push_back("eta_corrected"); 
+*/
+
 
     // eta
     plot("eta","AUTO",0,1);
@@ -3145,6 +3205,8 @@ SetId.push_back(10);
         { histoYMin = 0.000000001 ; histoYMax = 10000 ;
           histoXMin = -0.5        ; histoXMax =  50.5  ; }
 
+//           histoYMin = 0.0001    ; histoYMax = 0.1 ;
+
 
     } else {
 
@@ -3171,6 +3233,17 @@ SetId.push_back(10);
     dir   = "unfolding";
       
     int kColor = kBlack ;
+
+     ptcutstr = BIN1.str();
+      dataSetId.push_back(-1);
+      dataSetFile.push_back(fileManager(globalFileType,10,7.,globalTraking,0,0,ptcutstr,globalDirPlot));
+      dataSetIsMc.push_back(0);
+      dataSetStyle.push_back(20);
+      dataSetColor.push_back(kWhite);
+      dataSetLegend.push_back(" ");
+      dataSetHisto.push_back(hdata);
+      dataSetFactor.push_back(1000);
+
 
     for ( int iE = 1 ; iE < 4 ; ++iE ) {
 
@@ -3220,7 +3293,8 @@ SetId.push_back(10);
       dataSetColor.push_back(kColor);
       dataSetLegend.push_back(LD1.str());
       dataSetHisto.push_back(hdata);
-  
+
+
       ptcutstr = BIN2.str();
       dataSetId.push_back(-1);
       dataSetFile.push_back(fileManager(globalFileType,10,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
@@ -3257,6 +3331,8 @@ SetId.push_back(10);
       dataSetColor.push_back(kColor);
       dataSetLegend.push_back(LD5.str());
       dataSetHisto.push_back(hdata);
+
+
   
   /*
       ptcutstr = BIN1.str();
@@ -3307,11 +3383,14 @@ SetId.push_back(10);
   */
   
       // Data scaling Factor
+
       dataSetFactor.push_back(10000);
       dataSetFactor.push_back(1000);
       dataSetFactor.push_back(100);
       dataSetFactor.push_back(10);
       dataSetFactor.push_back(1);
+
+
     /* 
       // MC  scaling Factor
       dataSetFactor.push_back(10000);
