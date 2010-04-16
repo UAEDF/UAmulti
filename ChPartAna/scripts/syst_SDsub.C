@@ -27,11 +27,9 @@ if(syst==100){
 
 if(syst==110 || syst==111 || syst==112 || syst==113){
   
-  TString mcfiletmp = fileManager(2,syst%100,Emc,iTr,0,0,"");
-cout<<"tttttt33333333"<<endl;
-  //TFile* mctmp = TFile::Open(mcfiletmp,"READ");
-  TFile* mctmp = new TFile(mcfiletmp,"READ");
-cout<<"tttttt33333333"<<endl;
+  TString mcfiletmp = fileManager(2,syst%100,Emc,iTr,0,0,"",filedir);
+  TFile* mctmp = TFile::Open(mcfiletmp,"READ");
+  //TFile* mctmp = new TFile(mcfiletmp,"READ");
   if(mctmp==0){
     cout<<"!! WARNING : the following file is not present. You nead to create it. Exiting now !"<<endl;
     cout<<mcfiletmp<<endl;

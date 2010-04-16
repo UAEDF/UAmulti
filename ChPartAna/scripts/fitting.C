@@ -6,7 +6,7 @@
       break;
     }
   }
-  maxfit=60;
+  //maxfit=60;
   cout<<"---------------------------------------------------------------"<<endl;
   cout<<"-------------------------   FITTING   -------------------------"<<endl;
   cout<<"---------------------------------------------------------------"<<endl<<endl;
@@ -23,9 +23,9 @@
   
   //TWO NBDs
   TF1* nbd = new TF1("nbd",nbdfunc2,1,maxfit,6);
-  nbd->FixParameter(6,nch_corrected->Integral());
   nbd->SetParNames("alpha","nmean1","k1","nmean2","k2","scalefactor");
-  nbd->SetParameters(0.72,12,3,30,7);
+  nbd->SetParameters(0.72,12,3,30,7,nch_corrected->Integral());
+  //nbd->FixParameter(5,nch_corrected->Integral());
   nbd->SetParLimits(0,0,1);
   nbd->SetParLimits(1,3,35);
   nbd->SetParLimits(2,1,12);
@@ -102,15 +102,36 @@
   sigmaFit->Draw();
   
   
-  
+  nbd->Write();
+  sigmaFit->Write();  
   
   cout<<"Number of free parameters : "<<nbd->GetNumberFreeParameters()<<endl;
   cout<<"Normalized chi2 : "<<nbd->GetChisquare()/nbd->GetNDF()<<endl;
   
-  
-  
-  
   gPad->WaitPrimitive();
   
+
+
+  //Doing an iterative fix of the bin mean for width>2
+  /*TGraphAsymmErrors g_nch_corr_1 = fixBinMean(h2g(nch_corrected),nbd);
+
+  TCanvas* c_fit2 = new TCanvas("c_fit2","c_fit2");
+  c_fit2->cd();
+  c_fit2->SetLogy(true);
+  //g_nch_corr_1.Fit("nbd","RO0");
+  g_nch_corr_1.SetLineColor(kRed);
+  g_nch_corr_1.SetMarkerColor(kRed);
+  g_nch_corr_1.SetMarkerStyle(kDot);
+  g_nch_corr_1.Draw("ap");
+  nbd->Draw("same");
+
+
+  gPad->WaitPrimitive();
+*/
+
+
+
+
+
   
   

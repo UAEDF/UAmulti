@@ -110,8 +110,8 @@ void trackPlots()
   gROOT->ProcessLine("makePlots(2,2.36,0.4)");
 */
 
-  gROOT->ProcessLine("makePlots(1,7.0,0.2)");
-  gROOT->ProcessLine("makePlots(2,7.0,0.2)");
+  gROOT->ProcessLine("makePlots(1,2.36,0.15)");
+  gROOT->ProcessLine("makePlots(2,2.36,0.15)");
 
 
 }
@@ -176,11 +176,11 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
       dataSetLegend.push_back("PYTHIA D6T");
  
    // PYTHIA - D6T - newBS
-      dataSetId.push_back(30);
+      dataSetId.push_back(20);
       dataSetIsMc.push_back(1);
       dataSetStyle.push_back(1);
-      dataSetColor.push_back(1);
-      dataSetLegend.push_back("PYTHIA D6T newBS");
+      dataSetColor.push_back(kRed);
+      dataSetLegend.push_back("PHOJET");
  
   /*
       // PYTHIA - DW
@@ -221,7 +221,14 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
       dataSetStyle.push_back(1);
       dataSetColor.push_back(1);
       dataSetLegend.push_back("PYTHIA D6T");
-  
+      
+      // PYTHIA - D6T
+      dataSetId.push_back(20);
+      dataSetIsMc.push_back(1);
+      dataSetStyle.push_back(1);
+      dataSetColor.push_back(kRed);
+      dataSetLegend.push_back("PHOJET");
+   
     }
  
     if ( energy == 7.0 ) {
@@ -672,7 +679,7 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
   //-------- EFFICIENCIES --------
   if(effplot){
 
-    globalDirPlot = "../plots/";
+    globalDirPlot = "../plots/systv2/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -804,7 +811,7 @@ SetId.push_back(10);
   //-------- MATRIX --------
   if(mtxplot){
 
-    globalDirPlot = "../plots/";
+    globalDirPlot = "../plots/systv2/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -909,7 +916,7 @@ SetId.push_back(10);
   //-------- ETA/PT/PT2 -------- Correction history
   if( corplot ){
 
-    globalDirPlot = "../plots/";
+    globalDirPlot = "../plots/systv2/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -1032,7 +1039,7 @@ SetId.push_back(10);
   //-------- ETA -------- Final Plot
   if( etaplot ){
 
-    globalDirPlot = "../plots/";
+    globalDirPlot = "../plots/systv2/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -1199,7 +1206,7 @@ SetId.push_back(10);
   //-------- Mch Unfold --------
   if( nchplot ){
 
-    globalDirPlot = "../plots/";
+    globalDirPlot = "../plots/systv2/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -1490,7 +1497,7 @@ SetId.push_back(10);
   //-------- Mch Unfold -------- Compare Trackings
   if( nchctrk ){
 
-    globalDirPlot = "../plots/";
+    globalDirPlot = "../plots/systv2/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -1600,7 +1607,7 @@ SetId.push_back(10);
 
 //    iUfoldDataType = 0;
 
-    globalDirPlot = "../plots/";
+    globalDirPlot = "../plots/systv2/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -1759,7 +1766,7 @@ SetId.push_back(10);
   //-------- Mch Unfold -------- Compare Unf. MC
   if( nchcunf ){
 
-    globalDirPlot = "../plots/";
+    globalDirPlot = "../plots/systv2/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -1858,7 +1865,7 @@ SetId.push_back(10);
   //-------- Mch Unfold -------- Compare Unf. MC at different energies
   if( nchcene ){
 
-    globalDirPlot = "../plots/";
+    globalDirPlot = "../plots/systv2/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -1980,7 +1987,7 @@ SetId.push_back(10);
   //-------- Mch Unfold -------- Compare Unf. MC at different energies
   if( nchchi2 ){
 
-   globalDirPlot = "../plots/";
+   globalDirPlot = "../plots/systv2/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -2156,7 +2163,7 @@ SetId.push_back(10);
   //-------- Mch Unfold -------- Compare Unf. Hypothesis
   if( nchchyp ){
 
-    globalDirPlot = "../plots/";
+    globalDirPlot = "../plots/systv2/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -2265,7 +2272,7 @@ SetId.push_back(10);
   //-------- Mch Unfold -------- Compare Unf. Iterations
   if( nchcitr ){
 
-    globalDirPlot = "../plots/";
+    globalDirPlot = "../plots/systv2/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -2412,7 +2419,7 @@ SetId.push_back(10);
   //-------- Mch Unfold -------- Stack
   if( nchstak ){
 
-    globalDirPlot = "../plots/";
+    globalDirPlot = "../plots/systv2/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -2734,7 +2741,7 @@ SetId.push_back(10);
     globalSaveFig = true;
     
     std::stringstream BIN ("");
-    BIN << "hyp" << 1 << "_niter" << 5 << "_cut" << 7 << "_DataType" << 0;
+    BIN << "hyp" << 1 << "_niter" << 0 << "_cut" << 7 << "_DataType" << 0;
     
     
     
@@ -2813,7 +2820,7 @@ SetId.push_back(10);
   //-------- Mch Unfold -------- Stack
   if( knostak ){
 
-    globalDirPlot = "../plots/";
+    globalDirPlot = "../plots/systv2/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -3069,7 +3076,7 @@ SetId.push_back(10);
       hmoca = "kno_gen";
     }
 
-    globalDirPlot = "../plots/";
+    globalDirPlot = "../plots/systv2/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -3422,7 +3429,7 @@ void makeUPlots ( int iplot            = 1   ,
                   int iUfoldDataTypein = 0   , 
                   int iUfoldMCTypein   = 10  , 
                   int iUfoldHypin      = 1   , 
-                  int iUfoldNIterin    = 5   )
+                  int iUfoldNIterin    = 0   )
 {
   iUfoldDataType = iUfoldDataTypein ; iUfoldHyp = iUfoldHypin ; iUfoldNIter = iUfoldNIterin;  iUfoldMCType =  iUfoldMCTypein ;
 

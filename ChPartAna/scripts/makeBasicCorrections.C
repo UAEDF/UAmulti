@@ -4,6 +4,7 @@ pname->push_back("pt");
 pname->push_back("pt2");
 pname->push_back("eta");
 pname->push_back("ptVSnch");
+pname->push_back("ptmVSnch");
   
   
 for(vector<TString>::iterator itplot=pname->begin() ; itplot!=pname->end() ; ++itplot){
@@ -97,6 +98,10 @@ if(drawcanv){
   plot_toCorrect->Write();
   eff_plot->Write();
   plot_corrected->Write();
+  
+  if(itplot->Contains("eta")){
+    cout<<"Integral(eta) * binwidth = "<<plot_corrected->Integral()*plot_corrected->GetBinWidth(1)<<endl;
+  }
   
   gDirectory->cd("../");
 }  

@@ -25,7 +25,7 @@ if(syst==401){
 
 if(syst==410 || syst==411 || syst==412 || syst==413){
   
-  TString mcfiletmp = fileManager(2,syst%400,Emc,iTr,0,0,"");
+  TString mcfiletmp = fileManager(2,syst%400,Emc,iTr,0,0,"",filedir);
   TFile* mctmp = TFile::Open(mcfiletmp,"READ");
   if(mctmp==0){
     cout<<"!! WARNING : the following file is not present. You nead to create it. Exiting now !"<<endl;

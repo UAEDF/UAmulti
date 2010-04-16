@@ -66,10 +66,13 @@ void divideByWidth(TH2F*);
 #include "unfolding.cc"
 #include "getNIter.C"
 #include "resamplings.C"
+
+#include "fitting_funcs.C"
+
 //#include "makeFakeMatrix.C"
 
-void makeCorrections(int typeData, int hyp=1 , int niter=0 , int acc = 10 , double E = 0.9 ,
-                     int typeMC = 30 , int iTr = 1 , int syst = 0 , int syst_sign = 0 , double Emc = 0 ,
+void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 10 , double E = 0.9 ,
+                     int typeMC = 10 , int iTr = 1 , int syst = 0 , int syst_sign = 0 , double Emc = 0 ,
 		     TString filename = "" , int scaleWbin0 = true , bool drawcanv = true ,
 		     float mu = 14 , float sigma = 15 ){
 
@@ -83,20 +86,23 @@ void makeCorrections(int typeData, int hyp=1 , int niter=0 , int acc = 10 , doub
   if(syst==0) syst_sign=0;
        
   #include "../macro/acceptanceMap.C"
+  
+  TString filedir("../plots/simpleanav5/");
+  
   //Get the MC file
-  TString mcfile = fileManager(2,typeMC,Emc,iTr,0,0,"");
+  TString mcfile = fileManager(2,typeMC,Emc,iTr,0,0,"",filedir);
   //TFile* mc = new TFile("/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/macro/collectionPlotter_MC_finalv2_900GeV.root","READ");
   //TFile* mc = new TFile("../macro/GOODFILES/MC_v005b_2.36TeV_eta2.5_pt0.4_gTr.root","READ");
   //TFile* mc = new TFile("../macro/GOODFILES/MC_v005b_0.9TeV_eta2.5_pt0.4_gTr.root","READ");
-  TFile* mc = new TFile(mcfile,"READ");//"newbinning","../plots/unfoldingv2/"
+  TFile* mc = TFile::Open(mcfile,"READ");//"newbinning","../plots/unfoldingv2/"
   cout<<"MC input file : "<<mcfile<<endl;
   
   //Get the data file
-  TString datafile = fileManager(2,typeData,E,iTr,0,0,"");
+  TString datafile = fileManager(2,typeData,E,iTr,0,0,"",filedir);
   //TString datafile = fileManager(2,typeData,E,iTr,0,0,"newbinning","../plots/unfoldingv2/");
   //TFile* data = new TFile("../macro/GOODFILES/data_v005b_2.36TeV_eta2.5_pt0.4_gTr.root","READ");
   //TFile* data = new TFile("../macro/GOODFILES/data_v005b_0.9TeV_eta2.5_pt0.4_gTr.root","READ");
-  TFile* data = new TFile(datafile,"READ");
+  TFile* data = TFile::Open(datafile,"READ");
   cout<<"Data input file : "<<datafile<<endl;
 
   //Checking if both files exist
@@ -263,6 +269,9 @@ void makeCorrections(int typeData, int hyp=1 , int niter=0 , int acc = 10 , doub
   //------------------------------------------------------------------------------
   
   
+  
+  cout<<" ++++ DOING SD SUB ++++" <<endl;
+  
   TH1F* nch_evtSel_SD =  (TH1F*) mc->Get(dir+st("GenMultiPlots_evtSel_reco",acc)+st("/MultiPlots_SD_evtSel_reco",acc)+st("/nch_SD_evtSel_reco",acc));
   TH1F* nch_evtSel_NSD = (TH1F*) mc->Get(dir+st("GenMultiPlots_evtSel_reco",acc)+st("/MultiPlots_NSD_evtSel_reco",acc)+st("/nch_NSD_evtSel_reco",acc));
   TH1F* nch_evtSel_INC = (TH1F*) mc->Get(dir+st("GenMultiPlots_evtSel_reco",acc)+st("/MultiPlots_INC_evtSel_reco",acc)+st("/nch_INC_evtSel_reco",acc));
@@ -379,6 +388,9 @@ void makeCorrections(int typeData, int hyp=1 , int niter=0 , int acc = 10 , doub
   //---------------------------- Unfolding ---------------------------------------
   //------------------------------------------------------------------------------
   
+  
+  cout<<" ++++ DOING UNFOLDING ++++" <<endl;
+  
   TH1F nch_unfolded("","",1,0,1);
   TH1F* hypothesis = (TH1F*) nch_trueGen->Clone("hypothesis");
   if   (hyp == 0){
@@ -423,8 +435,16 @@ void makeCorrections(int typeData, int hyp=1 , int niter=0 , int acc = 10 , doub
   //---------------------------- Resampling --------------------------------------
   //------------------------------------------------------------------------------
   
+  
+  cout<<" ++++ DOING RESAMPLING ++++" <<endl;
+  
+  gDirectory->mkdir("hist_resampling");
+  gDirectory->cd("hist_resampling");
+
   TH1F nch_resampled = resample(matrix,nch_INC,nch_NSD,nch_unfoldedPtr,hypothesis,niter,0,nch_evtSel_SD,false);
   TH1F* nch_resampledPtr = &nch_resampled;
+  
+  gDirectory->cd("../");
   
   if(drawcanv){
     TCanvas* c_resample = new TCanvas("resampling","resampling",1460,510,500,500);
@@ -467,6 +487,9 @@ void makeCorrections(int typeData, int hyp=1 , int niter=0 , int acc = 10 , doub
   //---------------------------- EvtSel Correction -------------------------------
   //------------------------------------------------------------------------------
   
+  
+  cout<<" ++++ DOING EVT SEL CORRECTION ++++" <<endl;
+  
   TH1F* nch_corrected = (TH1F*) nch_unfoldedPtr->Clone("nch_data_corrected");
   //eff_evtSel->Sumw2();
   
@@ -504,6 +527,9 @@ void makeCorrections(int typeData, int hyp=1 , int niter=0 , int acc = 10 , doub
   //--------------------------------- Rescaling ----------------------------------
   //------------------------------------------------------------------------------
   
+  
+  cout<<" ++++ RESCALING ++++" <<endl;
+  
   divideByWidth(nch_trueGen);
   divideByWidth(nch_trueGen_afterUnfolding);
   divideByWidth(nch_INC);
@@ -519,6 +545,9 @@ void makeCorrections(int typeData, int hyp=1 , int niter=0 , int acc = 10 , doub
   //------------------------------------------------------------------------------
   //------------------------------------ KNO -------------------------------------
   //------------------------------------------------------------------------------
+  
+  
+  cout<<" ++++ DOING KNO ++++" <<endl;
   
   TH1F* kno = new TH1F("kno_corrected","kno_corrected;z = n_{ch} / < n_{ch} >;#psi(z)",nch_corrected->GetNbinsX(),Divide(nch_corrected->GetXaxis()->GetXbins(),nch_corrected->GetMean()));
   kno->Sumw2();
@@ -541,6 +570,31 @@ void makeCorrections(int typeData, int hyp=1 , int niter=0 , int acc = 10 , doub
     kno_gen->SetBinError(k , nch_trueGen->GetMean() * nch_trueGen->GetBinError(k));
   }
   kno_gen->Write();
+  
+  
+  //------------------------------------------------------------------------------
+  //--------------------------------- Moments ------------------------------------
+  //------------------------------------------------------------------------------
+  
+  cout<<" ++++ DOING MOMENTS ++++" <<endl;
+  
+  gDirectory->mkdir("moments");
+  gDirectory->cd("moments");
+  
+  const int nmoments = 6;
+  TH1F** moments = new TH1F*[nmoments];
+  vector<double> mom      = getMoments(nch_corrected);
+  vector<double> momerror = getMomentErrors(nch_corrected);
+  for(int m = 0 ; m < nmoments ; ++m){
+    ostringstream momname("");
+    momname << "moment_" << m;
+    moments[m] = new TH1F(momname.str().c_str() , momname.str().c_str() , 1 , E*1000.-0.5 , E*1000.+0.5);
+    moments[m]->SetBinContent(1, mom[m]);
+    moments[m]->SetBinError(1, momerror[m]);
+    moments[m]->Write();
+  }
+  
+  gDirectory->cd("../");
   
   
   //------------------------------------------------------------------------------
@@ -630,7 +684,10 @@ if(drawcanv){
   //---------------------------------- Fits -------------------------------------
   //------------------------------------------------------------------------------
   
-  #include "fittingV2.C"
+  
+  cout<<" ++++ DOING FITS ++++" <<endl;
+  
+  #include "fitting.C"
   
 }//End of if(drawcanv) for final plot
   
@@ -656,6 +713,10 @@ if(drawcanv){
   //------------------------------------------------------------------------------
   //-------------------------------- Corrections ---------------------------------
   //------------------------------------------------------------------------------
+  
+  
+  cout<<" ++++ DOING BASIC CORRECTIONS ++++" <<endl;
+  
   MultiPlots* mp_etaCut_noSel_NSD_gen         = (MultiPlots*) mc->Get(dir+st("MultiPlots_etaCut_noSel_NSD_gen",acc)+st("/multi_class_etaCut_noSel_NSD_gen",acc));
   MultiPlots* mp_etaCut_evtSel_INC_reco_MC    = (MultiPlots*) mc->Get(dir+st("MultiPlots_evtSel_INC_reco",acc)+st("/multi_class_evtSel_INC_reco",acc));
   MultiPlots* mp_etaCut_evtSel_INC_reco_data; 

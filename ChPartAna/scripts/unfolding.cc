@@ -62,7 +62,7 @@ TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hypothesis, int 
   }
   
   TH1F* chi2VSniter = NULL;
-  if(nsample == 0) chi2VSniter = new TH1F("chi2VSniter","chi2VSniter",niter-1,0.5,niter-0.5);
+  if(nsample == 0) chi2VSniter = new TH1F("chi2VSniter","chi2VSniter;# iter;#chi^2",niter-1,0.5,niter-0.5);
   
   vector<TH1F*>* vtoUnfold        = new vector<TH1F*>(niter,new TH1F());
   vector<TH1F*>* vtoUnfold_scaled = new vector<TH1F*>(niter,new TH1F());
