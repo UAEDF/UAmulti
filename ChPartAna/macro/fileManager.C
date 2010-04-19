@@ -148,6 +148,11 @@ TString fileManager ( int     iFileType  = 0
         TreeBase = "ChPartTree_v005_mc7000_v25b";
         DataSet  = "__MinBiasD6T_SIM_0334__yilmaz-MinBiasD6T_RECO_0334_v1-309b694e9ccf1df48e24b126fab6958b__USER";
       }
+      else if ( iDataType == 31 ) {
+        TreeBase = "ChPartTree_v005_mc7000_v25b";
+        DataSet  = "__MinBiasATLAS_SIM_0332__yilmaz-MinBiasATLAS_RECO_0332_v1-a68e153adb2dbe2ae110cdf8cea4b2da__USER";
+      }
+
       else {
         cout << "[fileManager] Unknown DataType: " << iDataType << endl;
         return "NONE";
