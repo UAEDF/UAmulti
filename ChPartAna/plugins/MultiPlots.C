@@ -13,6 +13,7 @@ MultiPlots::~MultiPlots(){
   delete eta;
   delete pt;
   delete pt2;
+  delete ptmVSnch;
 }
 
 
@@ -27,16 +28,26 @@ void MultiPlots::init(){
   eta      = new TH1F("eta_"+plotsname,"eta_"+plotsname+";#eta;#frac{1}{N} #frac{d#sigma_{ch}}{d#eta}",eta_nbin,eta_array);
   pt       = new TH1F("pt_"+plotsname,"pt_"+plotsname+";p_{T} [GeV];#frac{1}{N} #frac{d#sigma_{ch}}{dp_{T}}",pt_nbin,pt_array);
   pt2      = new TH1F("pt2_"+plotsname,"pt2_"+plotsname+";p_{T}^{2} [GeV^{2}];#frac{1}{N} #frac{d#sigma_{ch}}{dp_{T}^{2}}",100,0.,9.);
+  ptmVSnch = new TProfile("ptmVSnch_"+plotsname,"ptmVSnch_"+plotsname+";N_{ch};< <p_{t}>^{evt} >",nch_nbin,nch_array);
+  ptVSnch  = new TProfile("ptVSnch_"+plotsname,"ptVSnch_"+plotsname+";N_{ch};<p_{t}>",nch_nbin,nch_array);
   
   nch->Sumw2();
   rapidity->Sumw2();
   eta->Sumw2();
   pt->Sumw2();
   pt2->Sumw2();
+  //ptmVSnch->Sumw2();
+  //ptVSnch->Sumw2();
+    
+  ptmVSnch->SetErrorOption("s");
+  ptVSnch->SetErrorOption("s");
+  
   
   energy    = 900;
   nbEvts    = 0;
   nch_inEvt = 0;
+  ptm_inEvt = new TMean();
+  //vpt_inEvt = new vector<double>();
 }
 
 void MultiPlots::fill(MyPart& p , double weight){
@@ -45,6 +56,9 @@ void MultiPlots::fill(MyPart& p , double weight){
   eta->Fill( p.v.Eta() , weight );
   pt->Fill( p.v.Pt() , weight );
   pt2->Fill( pow(p.v.Pt(),2) , weight );
+  
+  ptm_inEvt->Add( p.v.Pt() , weight );
+  vpt_inEvt.push_back( p.v.Pt() * weight );
 }
 
 void MultiPlots::nextEvent(bool laccept , double weight){
@@ -54,9 +68,15 @@ void MultiPlots::nextEvent(bool laccept , double weight){
     nch_mean->Add( nch_inEvt , weight );
     for(int i = 0 ; unsigned(i) < moments->size() ; ++i)
       moments->at(i).Add( pow(double(nch_inEvt),i+1) , weight );
-  }  
-  //re-initializing nch
-  nch_inEvt = 0; 
+    ptmVSnch->Fill(nch_inEvt,ptm_inEvt->GetMean());
+    for(unsigned int i=0;i<vpt_inEvt.size();++i)
+      ptVSnch->Fill(nch_inEvt,vpt_inEvt.at(i));
+  }
+  
+  //re-initializing nch & <pt>
+  nch_inEvt = 0;
+  ptm_inEvt->Reset();
+  vpt_inEvt.clear();
 }
 
 void MultiPlots::makeKNO(){
@@ -91,11 +111,29 @@ void MultiPlots::write(bool scale){
   if(scale) pt2->Scale(1./nbEvts , "width");
   pt2->Write();
 
+  if(scale) ptmVSnch->Scale(1./nbEvts , "width");
+  ptmVSnch->Write();
+  
+  if(scale) ptVSnch->Scale(1./nbEvts , "width");
+  ptVSnch->Write();
+  
   this->Write("multi_class_"+plotsname);
   
   gDirectory->cd("../");
   
   //this->writeSummary();
+}
+
+TH1* MultiPlots::get(TString plot){
+  if(plot=="nch")           return nch;
+  else if(plot=="kno")      return kno;
+  else if(plot=="rapidity") return rapidity;
+  else if(plot=="eta")      return eta;
+  else if(plot=="pt")       return pt;
+  else if(plot=="pt2")      return pt2;
+  else if(plot=="ptmVSnch") return ptmVSnch;
+  else if(plot=="ptVSnch")  return ptVSnch;
+  return NULL;  
 }
 
 void MultiPlots::writeSummary(){
