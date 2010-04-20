@@ -25,6 +25,8 @@
 #include <sstream>
 
 #include "../plugins/MultiPlots.h"
+#include "../plugins/TMean.h"
+#include "../plugins/TMoments.h"
 
 #endif
 
@@ -66,6 +68,7 @@ void divideByWidth(TH2F*);
 #include "unfolding.cc"
 #include "getNIter.C"
 #include "resamplings.C"
+//#include "moments.C"
 
 #include "fitting_funcs.C"
 
@@ -78,7 +81,7 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 10 , 
 
    
    
-//gROOT->ProcessLine(".x ../macro/BuildLibDico.C+");
+  //gROOT->ProcessLine(".x ../macro/BuildLibDico.C+");
    
   useData = true;
   if(Emc==0) Emc = E;
@@ -581,18 +584,51 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 10 , 
   gDirectory->mkdir("moments");
   gDirectory->cd("moments");
   
-  const int nmoments = 6;
+  /*const int nmoments = 6;
   TH1F** moments = new TH1F*[nmoments];
-  vector<double> mom      = getMoments(nch_corrected);
-  vector<double> momerror = getMomentErrors(nch_corrected);
+  vector<double> cmom      = getCMoments(nch_corrected);
+  vector<double> fmom      = getFMoments(nch_corrected);
+  vector<double> cmomerror = getMomentErrors(nch_corrected);
   for(int m = 0 ; m < nmoments ; ++m){
+    cout<<cmom[m]<<"  "<<cmomerror[m]<<endl;
     ostringstream momname("");
     momname << "moment_" << m;
     moments[m] = new TH1F(momname.str().c_str() , momname.str().c_str() , 1 , E*1000.-0.5 , E*1000.+0.5);
-    moments[m]->SetBinContent(1, mom[m]);
-    moments[m]->SetBinError(1, momerror[m]);
+    moments[m]->SetBinContent(1, cmom[m]);
+    moments[m]->SetBinError(1, cmomerror[m]);
     moments[m]->Write();
+  }*/
+  
+    
+  TMoments* moment = new TMoments(nch_corrected);
+  moment->ComputeMoments();
+  moment->ComputeErrorsFromResampling(nch_corrected);
+  moment->Print();
+  moment->Write();
+  
+  
+ /* TH1F* test = new TH1F("jj","jj",3,4.5,7.5);
+  test->Fill(5,10);
+  test->Fill(6,10);
+  test->Fill(7,10);
+  TH1F* test = new TH1F("jj","jj",20000,-5,20);
+  for(int t=0;t<1000000;++t)
+    test->Fill(gRandom->Poisson(1));
+  cout<<"--------------------------"<<endl;
+  getCMoments(test);
+  getFMoments(test);
+  
+  
+  TMoments* moment = new TMoments();
+  for(int ll = 1 ; ll <= test->GetNbinsX() ; ++ll){
+    cout<<"hjkhkjhkjhkhkjhjkhjkhjkhkjhjkhjkhjkhjkhkj   "<<ll<<endl;
+    moment->Add(test->GetBinCenter(ll) , test->GetBinContent(ll));
   }
+  moment->ComputeMoments();
+  moment->Print();
+  */
+  
+  
   
   gDirectory->cd("../");
   
