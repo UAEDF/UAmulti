@@ -11,22 +11,11 @@ TMean::TMean(){
 TMean::~TMean(){
 }
 
-void TMean::Add(Double_t value){
-_TotalSum+=value;
-_TotalSumSquare+=value*value;
-_TotalNumber++;
-}
 
 void TMean::Add(Double_t value, Double_t weight){
 _TotalSum+=value*weight;
 _TotalSumSquare+=value*value*weight;
 _TotalNumber+=weight;
-}
-
-void TMean::Substract(Double_t value){
-_TotalSum-=value;
-_TotalSumSquare-=value*value;
-_TotalNumber--;
 }
 
 void TMean::Substract(Double_t value, Double_t weight){
@@ -55,6 +44,21 @@ Double_t TMean::GetRMS(){
   ComputeRMS();
   return _RMS;
 }
+
+void TMean::Reset(){
+  _Mean = 0 ;
+  _RMS = 0 ;
+  _TotalNumber = 0 ;
+  _TotalSum = 0 ;
+  _TotalSumSquare = 0 ;
+}
+
+void TMean::Scale(Double_t factor){
+  //_TotalNumber /= factor ;
+  _TotalSum /= factor ;
+  _TotalSumSquare /= factor ;
+}
+
 void TMean::write(){
   ComputeMean();
   ComputeRMS();
