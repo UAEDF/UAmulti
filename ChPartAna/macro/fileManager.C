@@ -141,15 +141,15 @@ TString fileManager ( int     iFileType  = 0
         DataSet  = "__MinBias__Spring10-START3X_V26A_356ReReco-v1__GEN-SIM-RECO";
       }
       else if ( iDataType == 20 ) {
-        TreeBase = "ChPartTree_v005_mc7000_v25b";
+        TreeBase = "ChPartTree_v005c_mc7000_v25b";
         DataSet  = "__MinBiasPhojet_SIM_0413__yilmaz-MinBiasPhojet_RECO_0413_v1-309b694e9ccf1df48e24b126fab6958b__USER";
       }
       else if ( iDataType == 30 ) {
-        TreeBase = "ChPartTree_v005_mc7000_v25b";
+        TreeBase = "ChPartTree_v005c_mc7000_v25b";
         DataSet  = "__MinBiasD6T_SIM_0334__yilmaz-MinBiasD6T_RECO_0334_v1-309b694e9ccf1df48e24b126fab6958b__USER";
       }
       else if ( iDataType == 31 ) {
-        TreeBase = "ChPartTree_v005_mc7000_v25b";
+        TreeBase = "ChPartTree_v005c_mc7000_v25b";
         DataSet  = "__MinBiasATLAS_SIM_0332__yilmaz-MinBiasATLAS_RECO_0332_v1-a68e153adb2dbe2ae110cdf8cea4b2da__USER";
       }
 
@@ -195,6 +195,7 @@ TString fileManager ( int     iFileType  = 0
     if ( iDataType == 13) DataSet = "_MC_ProQ20" ; 
     if ( iDataType == 20) DataSet = "_MC_PHOJET" ;
     if ( iDataType == 30) DataSet = "_MC_D6T_newBS" ; 
+    if ( iDataType == 31) DataSet = "_MC_ATLAS" ; 
     
     if ( Energy == 0.9  ) SEnergy = "_0.9TeV"  ;
     if ( Energy == 2.36 ) SEnergy = "_2.36TeV" ;
