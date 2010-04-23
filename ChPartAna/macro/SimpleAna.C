@@ -49,9 +49,9 @@ TString st(string input , int cut){
   return input+"_cut"+out.str();
 }
 
-void SimpleAna(int = 10 , double = 0.9 , TString = "test" , int = 20000 , int = 0 , int = 0 );
+void SimpleAna(int = 10 , double = 0.9 , TString = "test" , int = 20000 , int = 0 , double = 0.9 , int = 0 );
 
-void SimpleAna(int type , double E , TString filename , int nevt_max , int iTracking , int irun)
+void SimpleAna(int type , double E , TString filename , int nevt_max , int iTracking , double Ebinning , int irun)
 {
   if(type==0) isMC = false;
   
@@ -88,7 +88,7 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
   for(int acc = 0 ; acc < (signed) accMap.size() ; ++acc){
     vector< vector<double> > binning;
     //binning = getBins(1,0,1);//nch,pt,eta
-    binning = getBins(acc,E);//nch,pt,eta
+    binning = getBins(acc,Ebinning);//nch,pt,eta
     baseplot->setBinning(binning);
     
     //----------------------  RECO  ----------------------
@@ -201,7 +201,17 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
         if(irun!=(signed)evtId->Run)
 	  continue;
     
-        
+    vector< bool > nPTr_inacc;
+    for(int acc = 0 ; acc < (signed)accMap.size() ; ++acc){
+      int n = 0;
+      if(iTracking==0) n = getnPrimaryTracks(tracks,vertex,accMap[acc].at(2),accMap[acc].at(3),accMap[acc].at(4));
+      if(iTracking==1) n = getnPrimaryTracks(tracks,vertex,bs,accMap[acc].at(2),accMap[acc].at(3),accMap[acc].at(4));
+      
+      if(n>=1) nPTr_inacc.push_back(true);   
+      else     nPTr_inacc.push_back(false);  
+    }
+    
+    
     //----------------------------------------------------------------------
     //----------------------- USED TO SUBSTRACT SD -------------------------
     //----------------------------------------------------------------------
@@ -209,6 +219,8 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
     
     if(isEvtGood(E,*L1Trig , *MITEvtSel , vertex)){
       for(int acc = 0 ; acc < (signed)accMap.size() ; ++acc){
+        if(! nPTr_inacc.at(acc)) continue;
+	
 	if(isMC){
           for(vector<MyGenPart>::iterator p=genPart->begin() ; p!=genPart->end() ; p++ )
             if ( isGenPartGood(*p) && isInAcceptance(p->Part,accMap[acc].at(2),accMap[acc].at(3),accMap[acc].at(4)) )//--->RECO acc cuts !!
@@ -239,6 +251,8 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
     //----------------------------------------------------------------------
     
     for(int acc = 0 ; acc < (signed)accMap.size() ; ++acc){
+      if(! nPTr_inacc.at(acc)) continue;
+      
       if(isMC){
         for(vector<MyGenPart>::iterator p=genPart->begin() ; p!=genPart->end() ; p++ )
           if ( isGenPartGood(*p) && isInAcceptance(p->Part,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4)) )
@@ -283,6 +297,8 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
     
     if(isMC){
       for(int acc = 0 ; acc < (signed)accMap.size() ; ++acc){
+        if(! nPTr_inacc.at(acc)) continue;
+	
         for(vector<MyGenPart>::iterator p=genPart->begin() ; p!=genPart->end() ; p++ ){
           if ( isGenPartGood(*p) && isInAcceptance(p->Part,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4))){
 	    gmp_etaCut.at(acc)->fill(*genKin,p->Part);
@@ -312,6 +328,8 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
     //FILLING THE MATRIX && MULTI
     
     for(int acc = 0 ; acc < (signed)accMap.size() ; ++acc){
+      if(! nPTr_inacc.at(acc)) continue;
+      
       vector<MyTracks> trcoll;
       if(iTracking==0) trcoll = getPrimaryTracks(*tracks,vertex,accMap[acc].at(2),accMap[acc].at(3),accMap[acc].at(4));
       if(iTracking==1) trcoll = getPrimaryTracks(*tracks,vertex,bs,accMap[acc].at(2),accMap[acc].at(3),accMap[acc].at(4));
