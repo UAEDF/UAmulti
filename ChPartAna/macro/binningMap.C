@@ -54,7 +54,7 @@ vector< vector<double> > getBins(int inch , int ipt , int ieta){
 
 
 //used with the output of getLowStatBinsv2() !!
-vector< vector<double> > getBins(int icut , double E = 0.9){
+vector< vector<double> > getBins(int icut , double Ebinning = 0.9){
   vector< vector<double> > bins;
   vector<double> tmp;
   
@@ -64,7 +64,7 @@ vector< vector<double> > getBins(int icut , double E = 0.9){
 //-------------      0.9 TeV      ------------------
 //--------------------------------------------------
 
-if(E==0.9)
+if(Ebinning==0.9)
 {
   if(icut==0){
     tmp = makeBins(40,-0.5,39.5);
@@ -235,7 +235,7 @@ if(E==0.9)
 //--------------------------------------------------
 //-------------      2.36 TeV      -----------------
 //--------------------------------------------------
-if(E==2.36){
+if(Ebinning==2.36){
   if(icut==0){
     tmp = makeBins(37,-0.5,36.5);
     addBins(1,2,tmp);
@@ -455,7 +455,7 @@ if(E==2.36){
 //--------------------------------------------------
 //-------------      7.0  TeV      -----------------
 //--------------------------------------------------
-if(E==7.0 ){
+if(Ebinning==7.0 ){
     if(icut==0){
     tmp = makeBins(80,-0.5,79.5);
     addBins(1,2,tmp);
@@ -680,7 +680,17 @@ if(E==7.0 ){
   }
   
 } 
-  
+    
+//--------------------------------------------------
+//-------------     All bins 1     -----------------
+//--------------------------------------------------
+if(Ebinning==0 )
+  tmp = makeBins(181,-0.5,180.5);
+
+
+
+
+
   bins.push_back(tmp);
   
   //adding default pt and eta bins 
