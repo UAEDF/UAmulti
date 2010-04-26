@@ -1,6 +1,7 @@
 #!/bin/bash
 
 rm -fr LinkDef.C LinkDef.h tmp.h
+rm -fr *.d *.so
 
 wget http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/UAmulti/ChPartTree/interface/MyEvtId.h?view=co -O MyEvtId.h -o /dev/null
 wget http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/UAmulti/ChPartTree/interface/MyGenKin.h?view=co -O MyGenKin.h -o /dev/null
@@ -23,10 +24,13 @@ sed "s:#endif::" < tmp.h > LinkDef.h
 echo "#pragma link C++ class TrackPlots+;">>LinkDef.h
 echo "#pragma link C++ class VertexPlots+;">>LinkDef.h
 echo "#pragma link C++ class EvtSelPlots+;">>LinkDef.h
+echo "#pragma link C++ class BasePlots+;">>LinkDef.h
 echo "#pragma link C++ class MultiPlots+;">>LinkDef.h
 echo "#pragma link C++ class TMean+;">>LinkDef.h
 echo "#pragma link C++ class MatrixPlots+;">>LinkDef.h
 echo "#pragma link C++ class GenMultiPlots+;">>LinkDef.h
+echo "#pragma link C++ class TMoments+;">>LinkDef.h
+echo "#pragma link C++ class vector<TMoments>+;">>LinkDef.h
 echo "#endif">>LinkDef.h
 rm -f tmp.h
 

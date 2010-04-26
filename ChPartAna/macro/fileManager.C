@@ -50,6 +50,8 @@ TString fileManager ( int     iFileType  = 0
     CMSSW       = "CMSSW_3_3_6_patch3";
   else if   ( Energy == 7.0 )
     CMSSW       = "CMSSW_3_5_6";
+  if ( Energy == 2.36 && iDataType == 1  ) CMSSW       = "CMSSW_3_5_6";
+  if ( Energy == 2.36 && iDataType == 40 ) CMSSW       = "CMSSW_3_5_6";
 
   TString BaseDirTree = "/user/xjanssen/data/" ;
   TString BaseDirPlot = "../plots/";
@@ -93,7 +95,7 @@ TString fileManager ( int     iFileType  = 0
         DataSet  = "__PhojetMB900GeV__yilmaz-PhojetMB900GeV-39e473178bd7b30aa2784bced713eb86__USER";
       }
 
-      else if ( iDataType == 30 ) {
+      else if ( iDataType == 40 ) {
         TreeBase = "ChPartTree_v005c_mc900_V8P";
         DataSet  = "__MinBias__Summer09-STARTUP3X_V8P_900GeV-v1__GEN-SIM-RECO";
       }
@@ -113,6 +115,10 @@ TString fileManager ( int     iFileType  = 0
         TreeBase = "ChPartTree_v005b_d236";
         DataSet  = "__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO";
       }
+      else if ( iDataType == 1  ) {
+        TreeBase = "ChPartTree_v005_d236_35X";
+        DataSet  = "__MinimumBias__BeamCommissioning09-Mar24thReReco_PreProduction_v2__RECO";
+      }
       else if ( iDataType == 10 ) {
         TreeBase = "ChPartTree_v005c_mc236";
         DataSet  = "__MinBias__Summer09-STARTUP3X_V8L_2360GeV-v1__GEN-SIM-RECO";
@@ -120,6 +126,10 @@ TString fileManager ( int     iFileType  = 0
       else if ( iDataType == 20 ) {
         TreeBase = "ChPartTree_v005c_phojet_mc236";
         DataSet  = "__Phojet2360GeV_test01__yilmaz-Phojet2360GeV_test01-a1981d928dd3baaabee57744658c3360__USER";
+      }
+      else if ( iDataType == 40 ) {
+        TreeBase = "ChPartTree_v005_mc236_V22B";
+        DataSet  = "__MinBias__Summer09-START3X_V22B_2360GeV-v1__GEN-SIM-RECO";
       }
       else {
         cout << "[fileManager] Unknown DataType: " << iDataType << endl;
@@ -189,6 +199,7 @@ TString fileManager ( int     iFileType  = 0
     if ( iFileType == 3 ) PlotBase = "unfolding";  
 
     if ( iDataType == 0 ) DataSet = "_data" ; 
+    if ( iDataType == 1 ) DataSet = "_data_35X" ; 
     if ( iDataType == 10) DataSet = "_MC_D6T" ; 
     if ( iDataType == 11) DataSet = "_MC_DW" ; 
     if ( iDataType == 12) DataSet = "_MC_P0" ; 
@@ -196,6 +207,7 @@ TString fileManager ( int     iFileType  = 0
     if ( iDataType == 20) DataSet = "_MC_PHOJET" ;
     if ( iDataType == 30) DataSet = "_MC_D6T_newBS" ; 
     if ( iDataType == 31) DataSet = "_MC_ATLAS" ; 
+    if ( iDataType == 40) DataSet = "_MC_D6T_35X" ; 
     
     if ( Energy == 0.9  ) SEnergy = "_0.9TeV"  ;
     if ( Energy == 2.36 ) SEnergy = "_2.36TeV" ;

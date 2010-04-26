@@ -72,6 +72,9 @@ bool knostak = 0;
 
 bool nch2ene = 0;
 bool kno2ene = 0;
+bool momplot = 0;
+
+TString hMoment;
 
 // Unfolding options
 int iUfoldNIter;
@@ -110,8 +113,8 @@ void trackPlots()
   gROOT->ProcessLine("makePlots(2,2.36,0.4)");
 */
 
-  gROOT->ProcessLine("makePlots(1,2.36,0.15)");
-  gROOT->ProcessLine("makePlots(2,2.36,0.15)");
+  gROOT->ProcessLine("makePlots(1,2.36,0.2 )");
+  gROOT->ProcessLine("makePlots(2,2.36,0.2 )");
 
 
 }
@@ -147,6 +150,7 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
     if (etacut != 2.5) {
       PT << "_eta" << etacut; 
     }
+    PT << "_35X";
     ptcutstr = PT.str();
   
     // Legend Title
@@ -209,26 +213,26 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
     if ( energy == 2.36) {
   
       // DATA
-      dataSetId.push_back(0);
+      dataSetId.push_back(1);
       dataSetIsMc.push_back(0);
       dataSetStyle.push_back(20);
       dataSetColor.push_back(2);
       dataSetLegend.push_back("Data");
   
       // PYTHIA - D6T
-      dataSetId.push_back(10);
+      dataSetId.push_back(40);
       dataSetIsMc.push_back(1);
       dataSetStyle.push_back(1);
       dataSetColor.push_back(1);
       dataSetLegend.push_back("PYTHIA D6T");
-      
+/*      
       // PYTHIA - D6T
       dataSetId.push_back(20);
       dataSetIsMc.push_back(1);
       dataSetStyle.push_back(1);
       dataSetColor.push_back(kRed);
       dataSetLegend.push_back("PHOJET");
-   
+*/   
     }
  
     if ( energy == 7.0 ) {
@@ -254,13 +258,22 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
       dataSetColor.push_back(1);
       dataSetLegend.push_back("PYTHIA D6T (dNdeta)");
 
+      // PYTHIA - ATLAS
+      dataSetId.push_back(31);
+      dataSetIsMc.push_back(1);
+      dataSetStyle.push_back(2);
+      dataSetColor.push_back(1);
+      dataSetLegend.push_back("PYTHIA ATLAS");
 
+/*
      // PYTHIA - D6T
       dataSetId.push_back(20);
       dataSetIsMc.push_back(1);
       dataSetStyle.push_back(1);
       dataSetColor.push_back(kRed);
       dataSetLegend.push_back("PHOJET");
+*/
+
 
 
     }
@@ -2596,7 +2609,7 @@ SetId.push_back(10);
     dir   = "unfolding";
    
 
- 
+/* 
     ptcutstr = BIN1.str();
     dataSetId.push_back(-1);
     dataSetFile.push_back(fileManager(globalFileType,iUfoldMCType,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
@@ -2605,6 +2618,7 @@ SetId.push_back(10);
     dataSetColor.push_back(kBlack);
     dataSetLegend.push_back(LD1.str());
     dataSetHisto.push_back("nch_data_corrected");
+
 
     ptcutstr = BIN2.str();
     dataSetId.push_back(-1);
@@ -2636,6 +2650,7 @@ SetId.push_back(10);
     dataSetLegend.push_back(LD3.str());
     dataSetHisto.push_back("nch_data_corrected");
 
+
     ptcutstr = BIN4.str();
     dataSetId.push_back(-1);
     dataSetFile.push_back(fileManager(globalFileType,iUfoldMCType,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
@@ -2644,7 +2659,7 @@ SetId.push_back(10);
     dataSetColor.push_back(kBlack);
     dataSetLegend.push_back(LD4.str());
     dataSetHisto.push_back("nch_data_corrected");
-
+*/
     ptcutstr = BIN5.str();
     dataSetId.push_back(-1);
     dataSetFile.push_back(fileManager(globalFileType,iUfoldMCType,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
@@ -2655,6 +2670,8 @@ SetId.push_back(10);
     dataSetHisto.push_back("nch_data_corrected");
 
 
+
+/*
     ptcutstr = BIN1.str();
     dataSetId.push_back(-1);
     dataSetFile.push_back(fileManager(globalFileType,iUfoldMCType,globalEnergy,0,0,0,ptcutstr,globalDirPlot));
@@ -2699,8 +2716,9 @@ SetId.push_back(10);
     dataSetColor.push_back(1);
     dataSetLegend.push_back("NONE");
     dataSetHisto.push_back("nch_MC_gen_afterEvtSelCorrection");
+*/
 
-
+/*
     // Data scaling Factor
     dataSetFactor.push_back(10000);
     dataSetFactor.push_back(1000);
@@ -2716,6 +2734,42 @@ SetId.push_back(10);
     dataSetFactor.push_back(10);
     dataSetFactor.push_back(1);
 
+*/
+
+      if (globalEnergy == 7.0) {
+/*
+        dataSetId.push_back(-1);
+        dataSetFile.push_back("../plots/yenjie-7TeV-2.0.root");
+        dataSetIsMc.push_back(0);
+        dataSetStyle.push_back(25);
+        dataSetColor.push_back(kRed);
+        dataSetLegend.push_back("Tracklets - 7 TeV - eta 2");
+        dataSetHisto.push_back("hReco");
+
+        dataSetFactor.push_back(1000);
+
+
+        dataSetId.push_back(-1);
+        dataSetFile.push_back("../plots/yenjie-7TeV-1.5.root");
+        dataSetIsMc.push_back(0);
+        dataSetStyle.push_back(26);
+        dataSetColor.push_back(kRed);
+        dataSetLegend.push_back("Tracklets - 7 TeV - eta 1.5");
+        dataSetHisto.push_back("hReco");
+
+        dataSetFactor.push_back(100);
+*/
+        dataSetId.push_back(-1);
+        dataSetFile.push_back("../plots/yenjie-7TeV-0.5.root");
+        dataSetIsMc.push_back(0);
+        dataSetStyle.push_back(27);
+        dataSetColor.push_back(kRed);
+        dataSetLegend.push_back("Tracklets - 7 TeV - eta 0.5");
+        dataSetHisto.push_back("hReco");
+//        dataSetFactor.push_back(1);
+
+
+      }
 
     plot(dir,"AUTO",1,4);
     
@@ -3339,6 +3393,38 @@ SetId.push_back(10);
       dataSetLegend.push_back(LD5.str());
       dataSetHisto.push_back(hdata);
 
+      if (iE ==3) {
+
+        dataSetId.push_back(-1);
+        dataSetFile.push_back("../plots/yenjie-7TeV-2.0.root");
+        dataSetIsMc.push_back(0);
+        dataSetStyle.push_back(25);
+        dataSetColor.push_back(kGreen);
+        dataSetLegend.push_back("Tracklets - 7 TeV - eta 2");
+        dataSetHisto.push_back("hReco");
+/*
+        dataSetFactor.push_back(1000);
+
+        dataSetId.push_back(-1);
+        dataSetFile.push_back("../plots/yenjie-7TeV-1.5.root");
+        dataSetIsMc.push_back(0);
+        dataSetStyle.push_back(25);
+        dataSetColor.push_back(kGreen);
+        dataSetLegend.push_back("Tracklets - 7 TeV - eta 1.5");
+        dataSetHisto.push_back("hReco");
+        dataSetFactor.push_back(100);
+
+        dataSetId.push_back(-1);
+        dataSetFile.push_back("../plots/yenjie-7TeV-0.5.root");
+        dataSetIsMc.push_back(0);
+        dataSetStyle.push_back(25);
+        dataSetColor.push_back(kGreen);
+        dataSetLegend.push_back("Tracklets - 7 TeV - eta 0.5");
+        dataSetHisto.push_back("hReco");
+        dataSetFactor.push_back(1);
+*/
+
+      }
 
   
   /*
@@ -3407,6 +3493,41 @@ SetId.push_back(10);
       dataSetFactor.push_back(1);
    */
 
+
+/*
+      if (iE ==3) {
+
+        dataSetId.push_back(-1);
+        dataSetFile.push_back("../plots/yenjie-7TeV-2.0.root");
+        dataSetIsMc.push_back(0);
+        dataSetStyle.push_back(25);
+        dataSetColor.push_back(kGreen);
+        dataSetLegend.push_back("Tracklets - 7 TeV - eta 2");
+        dataSetHisto.push_back("hReco");
+        dataSetFactor.push_back(1000);
+
+        dataSetId.push_back(-1);
+        dataSetFile.push_back("../plots/yenjie-7TeV-1.5.root");
+        dataSetIsMc.push_back(0);
+        dataSetStyle.push_back(25);
+        dataSetColor.push_back(kGreen);
+        dataSetLegend.push_back("Tracklets - 7 TeV - eta 1.5");
+        dataSetHisto.push_back("hReco");
+        dataSetFactor.push_back(100);
+
+        dataSetId.push_back(-1);
+        dataSetFile.push_back("../plots/yenjie-7TeV-0.5.root");
+        dataSetIsMc.push_back(0);
+        dataSetStyle.push_back(25);
+        dataSetColor.push_back(kGreen);
+        dataSetLegend.push_back("Tracklets - 7 TeV - eta 0.5");
+        dataSetHisto.push_back("hReco");
+        dataSetFactor.push_back(1);
+
+
+      }
+*/
+
     } // end for (iE)
 
     if (nch2ene) 
@@ -3417,6 +3538,142 @@ SetId.push_back(10);
   }
 
 
+//----------------------------------------- Moments --------------------------------------------
+
+  if ( momplot) {   
+
+    globalDirPlot = "../plots/";
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+    cout << "globalDirPlot= " << globalDirPlot << endl;
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+
+    // Retrieve bin info
+    if ( iUfoldBin > (signed) accMap.size() ) {
+      cout << "[makePlots] iUfoldBin > accMap.size()" << endl;
+      return;
+    }
+
+    double ptGen1   = accMap[iUfoldBin+0].at(0);
+    double etaGen1  = accMap[iUfoldBin+0].at(1);
+    double ptReco1  = accMap[iUfoldBin+0].at(2);
+    double etaReco1 = accMap[iUfoldBin+0].at(3);
+
+
+    cout << ptGen1 << " " << etaGen1 << " " << ptReco1 << " " << etaReco1 << endl;
+
+    std::stringstream BIN1 ("");
+
+    BIN1 << "hyp" << iUfoldHyp << "_niter" << iUfoldNIter << "_cut" << (iUfoldBin+0) << "_DataType" << iUfoldDataType;
+
+    std::stringstream LT("");
+    if (itracking == 1 ) LT << "   genTracks: " ;
+    if (itracking == 2 ) LT << "   mbiasTracks: " ;
+    LT << " |#eta|<" << etaReco1 ; 
+    LT << "  p_{T}>"  << ptGen1 ;
+
+    std::stringstream ELT("");
+
+    std::string datatype;
+    if ( iUfoldDataType ==  0 ) datatype = "Data";
+    if ( iUfoldDataType == 10 ) datatype = "D6T";
+    if ( iUfoldDataType == 11 ) datatype = "DW";
+    if ( iUfoldDataType == 12 ) datatype = "P0";
+    if ( iUfoldDataType == 13 ) datatype = "ProQ20";
+    if ( iUfoldDataType == 30 ) datatype = "D6T_newBS";
+
+    std::stringstream LD1("");
+    std::stringstream LD2("");
+    std::stringstream LD3("");
+    std::stringstream LD4("");
+    std::stringstream LD5("");
+
+    LD1 << datatype << " - C_{2}" ;
+    LD2 << datatype << " - C_{3}" ;
+    LD3 << datatype << " - C_{4}" ;
+    LD4 << datatype << " - C_{5}" ;
+
+    // Fig name
+
+    std::stringstream figname;
+    figname << "moment_" ;
+    if (iUfoldMCType == 10 )  figname << "MC_D6T_" ;
+    if (iUfoldMCType == 11 )  figname << "MC_DW_" ;
+    if (iUfoldMCType == 12 )  figname << "MC_P0_" ;
+    if (iUfoldMCType == 13 )  figname << "MC_ProQ20_" ;
+    if (iUfoldMCType == 13 )  figname << "MC_D6T_newBS_" ;
+    if (globalEnergy == 0.9  ) figname << "0.9TeV_";
+    if (globalEnergy == 2.36 ) figname << "2.36TeV_";
+    if (globalEnergy == 7.0  ) figname << "7.0TeV_";
+    if (itracking == 1 )  figname << "gTr_" ;
+    if (itracking == 2 )  figname << "mbTr_" ;
+    globalFigBaseName = figname.str();
+    plotReset();
+    LegendTitle = LT.str();
+    ExtLegTitle = ELT.str();
+    // Plot settings
+    globalNorm     = 0;
+    globalFileType = 3;
+    globalHistoType= 1;
+
+    xGlobalLabel  = 0.3;
+    xLegendWidth = 0.24;
+    yLegendWidth = 0.025;
+
+    XaxisTitle = "log(s)";
+    YaxisTitle = "Moment";
+
+    dir   = "unfolding/moments";
+/*
+    dataSetId.push_back(-1);
+    dataSetFile.push_back("../plots/hMomentFrame.root");
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(20);
+    dataSetColor.push_back(kWhite);
+    dataSetLegend.push_back("");
+    dataSetHisto.push_back("hMomment");
+*/
+
+    ptcutstr = BIN1.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,iUfoldMCType,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(20);
+    dataSetColor.push_back(kBlack);
+    dataSetLegend.push_back(LD1.str());
+    dataSetHisto.push_back("moment_2");
+
+    ptcutstr = BIN1.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,iUfoldMCType,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(21);
+    dataSetColor.push_back(kBlack);
+    dataSetLegend.push_back(LD2.str());
+    dataSetHisto.push_back("moment_3");
+
+    ptcutstr = BIN1.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,iUfoldMCType,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(22);
+    dataSetColor.push_back(kBlack);
+    dataSetLegend.push_back(LD3.str());
+    dataSetHisto.push_back("moment_4");
+
+    ptcutstr = BIN1.str();
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(globalFileType,iUfoldMCType,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(23);
+    dataSetColor.push_back(kBlack);
+    dataSetLegend.push_back(LD4.str());
+    dataSetHisto.push_back("moment_5");
+
+
+    plot(dir,"AUTO",2,4);
+
+
+  }
 
 
 }
@@ -3479,6 +3736,17 @@ void makeUPlots ( int iplot            = 1   ,
  else if ( iplot == 11) knostak = 1;  
  else if ( iplot == 12) nch2ene = 1; 
  else if ( iplot == 13) kno2ene = 1; 
+
+ else if ( iplot == 20) { momplot = 1; }
+
+/*
+ else if ( iplot == 20) { momplot = 1; hMoment = "moment_0"; }
+ else if ( iplot == 21) { momplot = 1; hMoment = "moment_1"; }
+ else if ( iplot == 22) { momplot = 1; hMoment = "moment_2"; }
+ else if ( iplot == 23) { momplot = 1; hMoment = "moment_3"; } 
+ else if ( iplot == 24) { momplot = 1; hMoment = "moment_4"; } 
+ else if ( iplot == 25) { momplot = 1; hMoment = "moment_5"; } 
+*/
 
  makePlots ( itracking  , energy , 0 , 0 , iUfoldBin ); 
 

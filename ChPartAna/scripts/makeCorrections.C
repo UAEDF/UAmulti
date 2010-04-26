@@ -90,7 +90,7 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 10 , 
        
   #include "../macro/acceptanceMap.C"
   
-  TString filedir("../plots/simpleanav5/");
+  TString filedir("../plots/");
   
   //Get the MC file
   TString mcfile = fileManager(2,typeMC,Emc,iTr,0,0,"",filedir);

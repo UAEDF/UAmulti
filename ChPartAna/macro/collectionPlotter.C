@@ -46,6 +46,7 @@ void collectionPlotter(int = 10 , double = 0.9 , double = 0.2 , TString = "NONE"
 void collectionPlotter(int type , double E , double ptcut , TString filename , int nevt_max )
 {
   if(type==0) isMC = false;
+  if(type==1) isMC = false;
   pt_cut = ptcut;
   
   // General variables
@@ -140,7 +141,7 @@ void collectionPlotter(int type , double E , double ptcut , TString filename , i
   
   TChain* tree = new TChain("evt","");
 
-  //cout << fileManager(0,type,E) << endl;
+  cout << fileManager(0,type,E) << endl;
   
   tree->Add(fileManager(0,type,E));
   

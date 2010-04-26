@@ -17,7 +17,7 @@
 using namespace std;
 
 
-void plot (TString dir , TString histo , bool logY = false , int iLegendPos = 0 )
+void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
 {
 
   if ( dataSetId.size()==0 ) return;
@@ -37,7 +37,8 @@ void plot (TString dir , TString histo , bool logY = false , int iLegendPos = 0 
   c1->GetFrame()->SetBorderSize(12);
   c1->SetGrid(0,0);
 
-  if(logY) c1->SetLogy(true);
+  if(logY == 1 ) c1->SetLogy(true);
+  if(logY == 2 ) c1->SetLogx(true);
 
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(kFALSE);
@@ -200,7 +201,7 @@ void plot (TString dir , TString histo , bool logY = false , int iLegendPos = 0 
     if (XaxisTitle != "NONE" ) hData.at(0)->GetXaxis()->SetTitle(XaxisTitle);
     if (YaxisTitle != "NONE" ) hData.at(0)->GetYaxis()->SetTitle(YaxisTitle);
 
-    if(!logY) {
+    if(!( logY == 1 )) {
       hData.at(0)->SetMinimum(0);
       hData.at(0)->SetMaximum(hMax*1.1 );
     }
@@ -214,7 +215,7 @@ void plot (TString dir , TString histo , bool logY = false , int iLegendPos = 0 
     if (XaxisTitle != "NONE" ) gData.at(0)->GetXaxis()->SetTitle(XaxisTitle);
     if (YaxisTitle != "NONE" ) gData.at(0)->GetYaxis()->SetTitle(YaxisTitle);
 
-    if(!logY) {
+    if(!( logY  == 1)) {
       gData.at(0)->SetMinimum(0);
       gData.at(0)->SetMaximum(hMax*1.1 );
     }
