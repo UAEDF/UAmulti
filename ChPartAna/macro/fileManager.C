@@ -74,6 +74,10 @@ TString fileManager ( int     iFileType  = 0
         TreeBase = "ChPartTree_v005b_d900"; 
         DataSet  = "__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO";
       }
+      else if ( iDataType == 5  ) {
+        TreeBase = "ChPartTree_v005c_d900";
+        DataSet  = "__ZeroBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO";
+      }
       else if ( iDataType == 10 ) {
         TreeBase = "ChPartTree_v005c_mc900";
         DataSet  = "__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO";
@@ -200,6 +204,7 @@ TString fileManager ( int     iFileType  = 0
 
     if ( iDataType == 0 ) DataSet = "_data" ; 
     if ( iDataType == 1 ) DataSet = "_data_35X" ; 
+    if ( iDataType == 5 ) DataSet = "_data_ZeroBias" ; 
     if ( iDataType == 10) DataSet = "_MC_D6T" ; 
     if ( iDataType == 11) DataSet = "_MC_DW" ; 
     if ( iDataType == 12) DataSet = "_MC_P0" ; 

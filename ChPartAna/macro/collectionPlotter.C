@@ -47,6 +47,7 @@ void collectionPlotter(int type , double E , double ptcut , TString filename , i
 {
   if(type==0) isMC = false;
   if(type==1) isMC = false;
+  if(type==5) isMC = false;
   pt_cut = ptcut;
   
   // General variables
