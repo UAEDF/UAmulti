@@ -123,6 +123,10 @@ TString fileManager ( int     iFileType  = 0
         TreeBase = "ChPartTree_v005_d236_35X";
         DataSet  = "__MinimumBias__BeamCommissioning09-Mar24thReReco_PreProduction_v2__RECO";
       }
+      else if ( iDataType == 5  ) {
+        TreeBase = "ChPartTree_v005c_d236";
+        DataSet  = "__ZeroBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO";
+      }
       else if ( iDataType == 10 ) {
         TreeBase = "ChPartTree_v005c_mc236";
         DataSet  = "__MinBias__Summer09-STARTUP3X_V8L_2360GeV-v1__GEN-SIM-RECO";
@@ -191,7 +195,7 @@ TString fileManager ( int     iFileType  = 0
                + TreeBase + "__" + CMSSW + DataSet + "_*.root/evt" ;
 
   //---------------------- collectionPlotter Files --------------------------
-  } else if ( iFileType == 1 || iFileType == 2 || iFileType == 3 ) {
+  } else if ( iFileType == 1 || iFileType == 2 || iFileType == 3 || iFileType == 4 ) {
 
     TString PlotBase;
     TString DataSet  = "_Undef" ;
@@ -201,6 +205,7 @@ TString fileManager ( int     iFileType  = 0
     if ( iFileType == 1 ) PlotBase = "collectionPlotter" ;
     if ( iFileType == 2 ) PlotBase = "simpleAna";
     if ( iFileType == 3 ) PlotBase = "unfolding";  
+    if ( iFileType == 4 ) PlotBase = "ZeroBiasEff";  
 
     if ( iDataType == 0 ) DataSet = "_data" ; 
     if ( iDataType == 1 ) DataSet = "_data_35X" ; 
