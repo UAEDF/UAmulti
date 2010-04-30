@@ -1,13 +1,9 @@
 currentdir = gDirectory;
 
 if(syst==401){
-  if(E==0.9)
-    Emc = 2.36;
-  else
-    cout<<"!! WARNING : can't do this systematic, don't have the right energy mc"<<endl;
   ostringstream ext("");
-  ext<<E<<"binning";
-  TString mcfiletmp = fileManager(2,10,Emc,iTr,0,0,ext.str());
+  ext<<"binningE"<<E;
+  TString mcfiletmp = fileManager(2,31,7.0,iTr,0,0,ext.str(),filedir);
   TFile* mctmp = TFile::Open(mcfiletmp,"READ");
   if(mctmp==0){
     cout<<"!! WARNING : the following file is not present. You nead to create it. Exiting now !"<<endl;
@@ -18,7 +14,7 @@ if(syst==401){
   
   
   cout<<"++ SYSTEMATIC #"<<syst<<" ++"<<endl;
-  cout<<"   ===> The MC matrix is now @ an energy of "<<Emc<<" TeV"<<endl;
+  cout<<"   ===> The MC matrix is now @ an energy of 7 TeV using atlas tune"<<endl;
   cout<<"   ===> taken from file "<<mcfiletmp<<endl;
   cout<<"++ END OF SYSTEMATIC ++"<<endl;
 }
