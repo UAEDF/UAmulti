@@ -16,7 +16,7 @@ if(! (syst == 0 || int(syst/100)!=0)){
   if(syst == 3)
     syst_val = 1.5;
   if(syst == 4)
-    syst_val = 3;
+    syst_val = 2.58;
   if(syst == 5)
     syst_val = 5;
   if(syst == 6)
@@ -76,7 +76,14 @@ if(! (syst == 0 || int(syst/100)!=0)){
     }
   
   }
-
+  
+  if(syst_sign==1){
+    double binc = nch_INC->GetBinContent(1);
+    nch_INC->Fill(0.,(-1)*(syst_val/300.) * binc);
+    nch_INC->Fill(1.,(syst_val/300.) * binc);
+    cout<<binc<<"  "<<(1.-syst_val/300.) * binc<<"  "<<(syst_val/300.) * binc<<endl;
+  }
+ 
   for(int i = 1;i<=nch_INC->GetNbinsX();++i)
     nch_INC->SetBinError(i,sqrt(nch_INC->GetBinContent(i)));
   nch_INC->SetEntries(nch_tmp->GetEntries());
