@@ -6,7 +6,7 @@
 //#  passBit40    (*MyL1Trig)
 //#  passL1       (Energy, *MyL1Trig)
 //#  passHF       (*MyMITEvtSel)
-//#  passVtxQual  (*MyMITEvtSel)
+//#  passVtxQual  (*MyMITEvtSel,Energy)
 //#  passVtx      (vector<MyVertex>*)
 //#
 //#  isEvtGood    (Energy, *MyL1Trig , *MyMITEvtSel , vector<MyVertex>*)
@@ -14,11 +14,15 @@
 //#
 //#  goodBX       (irun,bx)
 //#
-//#  isSD       (MyGenKin)
-//#  isDD       (MyGenKin)
+//#  isSD       (MyGenKin , MCtype)
+//#  isDD       (MyGenKin , MCtype)
 //#
 //#
 //#################################################
+
+
+int evtSelType = 0;
+
 
 
 //-------- L1 TRIGGER CUT --------
@@ -73,16 +77,18 @@ bool passHF(MyMITEvtSel& evtSel){
 }
 
 //----------- VERTEX QUALITY CUT ---------
-bool passVtxQual(MyMITEvtSel& evtSel){
+bool passVtxQual(MyMITEvtSel& evtSel , double Energy){
   // construct polynomial cut on cluster vertex quality vs. npixelhits
 
-  double polyCut = 0.  + 0.0045 * (evtSel.ePxHits);
+  double polyCut = 0.;
+  if(Energy == 0.9)                   polyCut = 0.5  + 0.0045 * (evtSel.ePxHits);
+  if(Energy == 7.0 || Energy == 2.36) polyCut = 0.   + 0.0045 * (evtSel.ePxHits);
   
   if((evtSel.ePxHits) < 150) 
     polyCut=0;             // don't use cut below nhitsTrunc_ pixel hits
 
   double clusterTrunc = 2.; 
-  if(polyCut > clusterTrunc && clusterTrunc > 0) 
+  if( (Energy == 7.0 || Energy == 2.36) && polyCut > clusterTrunc && clusterTrunc > 0) 
     polyCut=clusterTrunc; 
     
   if( evtSel.eClusVtxQual >= polyCut )
@@ -100,7 +106,7 @@ bool passVtx(vector<MyVertex>* vtxcoll){
 bool isEvtGoodNoVtx(double Energy,MyL1Trig& L1Trig, MyMITEvtSel& evtSel){
   if(  passL1(Energy,L1Trig)
     && passHF(evtSel)
-    && passVtxQual(evtSel)
+    && passVtxQual(evtSel,Energy)
     )
       return true;
 
@@ -110,12 +116,20 @@ bool isEvtGoodNoVtx(double Energy,MyL1Trig& L1Trig, MyMITEvtSel& evtSel){
 
 //----------- GLOBAL CUT ---------
 bool isEvtGood(double Energy,MyL1Trig& L1Trig, MyMITEvtSel& evtSel, vector<MyVertex>* vtxcoll){
-  if(  passL1(Energy,L1Trig)
-    && passHF(evtSel)
-    && passVtxQual(evtSel)
-    && passVtx(vtxcoll) )
-      return true;
-   
+  if(evtSelType==0){
+    if(  passL1(Energy,L1Trig)
+      && passHF(evtSel)
+      && passVtxQual(evtSel,Energy)
+      && passVtx(vtxcoll) )
+        return true;
+  }
+  else if(evtSelType==1){
+    if(  passL1(Energy,L1Trig)
+      && passBit40(L1Trig)
+      && passVtxQual(evtSel,Energy)
+      && passVtx(vtxcoll) )
+        return true; 
+  }
    return false;
 }
 
@@ -208,14 +222,20 @@ else if (irun==123906 || irun==123908) {
 
 }
 
-bool isSD(MyGenKin* genKin){
-  if(genKin->MCProcId == 92 || genKin->MCProcId == 93)
+bool isSD(MyGenKin* genKin , TString MCtype = "pythia"){
+  
+  //cout<<MCtype<<"  "<<genKin->MCProcId<<endl;
+  if(MCtype == "pythia" && (genKin->MCProcId == 92 || genKin->MCProcId == 93))
+    return true;
+  if(MCtype == "phojet" && (genKin->MCProcId == 5 || genKin->MCProcId == 6))
     return true;
   return false;
 }
 
-bool isDD(MyGenKin* genKin){
-  if(genKin->MCProcId == 94)
+bool isDD(MyGenKin* genKin , TString MCtype = "pythia"){
+  if(MCtype == "pythia" && genKin->MCProcId == 94)
+    return true;
+  if(MCtype == "phojet" && (genKin->MCProcId == 4 || genKin->MCProcId == 7)) // 4 = DPE , 6 = DD
     return true;
   return false;
 }
