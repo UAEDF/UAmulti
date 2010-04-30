@@ -37,7 +37,6 @@ bool debug = false;
 TString filename = "MC_test_test_900GeV";
 bool isMC = true;
 
-
 #include "fileManager.C"
 #include "cuts.C"
 #include "evtSel.C"
@@ -49,13 +48,20 @@ TString st(string input , int cut){
   return input+"_cut"+out.str();
 }
 
-void SimpleAna(int = 10 , double = 0.9 , TString = "test" , int = 20000 , int = 0 , double = 0.9 , int = 0 );
+void SimpleAna(int = 10 , double = 0.9 , TString = "test" , int = 20000 , int = 0 , double = 0 , int = 0 , int = 0 );
 
-void SimpleAna(int type , double E , TString filename , int nevt_max , int iTracking , double Ebinning , int irun)
+void SimpleAna(int type , double E , TString filename , int nevt_max , int iTracking , double Ebinning , int evtSelIn , int irun)
 {
   if(type==0) isMC = false;
   
+  TString MCtype = "pythia";
+  if(type == 20) MCtype = "phojet";
+  
   //int nbinmulti = 110;
+  
+  if(Ebinning==0) Ebinning=E;
+  
+  evtSelType = evtSelIn;
   
   #include "acceptanceMap.C"
   
@@ -201,7 +207,7 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
         if(irun!=(signed)evtId->Run)
 	  continue;
     
-    vector< bool > nPTr_inacc;
+    /*vector< bool > nPTr_inacc;
     for(int acc = 0 ; acc < (signed)accMap.size() ; ++acc){
       int n = 0;
       if(iTracking==0) n = getnPrimaryTracks(tracks,vertex,accMap[acc].at(2),accMap[acc].at(3),accMap[acc].at(4));
@@ -209,7 +215,7 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
       
       if(n>=1) nPTr_inacc.push_back(true);   
       else     nPTr_inacc.push_back(false);  
-    }
+    }*/
     
     
     //----------------------------------------------------------------------
@@ -219,13 +225,13 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
     
     if(isEvtGood(E,*L1Trig , *MITEvtSel , vertex)){
       for(int acc = 0 ; acc < (signed)accMap.size() ; ++acc){
-        if(! nPTr_inacc.at(acc)) continue;
+        //if(! nPTr_inacc.at(acc)) continue;
 	
 	if(isMC){
           for(vector<MyGenPart>::iterator p=genPart->begin() ; p!=genPart->end() ; p++ )
             if ( isGenPartGood(*p) && isInAcceptance(p->Part,accMap[acc].at(2),accMap[acc].at(3),accMap[acc].at(4)) )//--->RECO acc cuts !!
-              gmp_evtSel.at(acc)->fill(*genKin , p->Part);
-          gmp_evtSel.at(acc)->nextEvent(*genKin);
+              gmp_evtSel.at(acc)->fill(*genKin , p->Part , 1. , MCtype);
+          gmp_evtSel.at(acc)->nextEvent(*genKin , MCtype);
         }
       
         //Making a GenMulti for RECO
@@ -233,17 +239,17 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
 	if(iTracking==0) trcoll = getPrimaryTracks(*tracks,vertex,accMap[acc].at(2),accMap[acc].at(3),accMap[acc].at(4));
 	if(iTracking==1) trcoll = getPrimaryTracks(*tracks,vertex,bs,accMap[acc].at(2),accMap[acc].at(3),accMap[acc].at(4));
         for(vector<MyTracks>::iterator it_tr = trcoll.begin() ; it_tr != trcoll.end() ; ++it_tr){
-          if(isMC) gmp_evtSel_reco.at(acc)->fill(*genKin , it_tr->Part);
+          if(isMC) gmp_evtSel_reco.at(acc)->fill(*genKin , it_tr->Part , 1. , MCtype);
 	  mp_evtSel_INC_reco.at(acc)->fill(it_tr->Part);
         }
-        if(isMC) gmp_evtSel_reco.at(acc)->nextEvent(*genKin);
+        if(isMC) gmp_evtSel_reco.at(acc)->nextEvent(*genKin , MCtype);
         mp_evtSel_INC_reco.at(acc)->nextEvent();
       }
     }
     
     //Skipping the SD events starting from here
     if(isMC)
-      if(isSD(genKin) ) continue;
+      if(isSD(genKin , MCtype) ) continue;
         
     //----------------------------------------------------------------------
     //----------------------- DOING THE SELECTIONS -------------------------
@@ -251,7 +257,7 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
     //----------------------------------------------------------------------
     
     for(int acc = 0 ; acc < (signed)accMap.size() ; ++acc){
-      if(! nPTr_inacc.at(acc)) continue;
+      //if(! nPTr_inacc.at(acc)) continue;
       
       if(isMC){
         for(vector<MyGenPart>::iterator p=genPart->begin() ; p!=genPart->end() ; p++ )
@@ -274,7 +280,7 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
     
       //vtxqual CUT
       if(isMC) vtxqual_before.at(acc)->Fill(getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4)));
-      if(passVtxQual(*MITEvtSel))
+      if(passVtxQual(*MITEvtSel,E))
         if(isMC) vtxqual_after.at(acc)->Fill(getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4)));
     
       //Taking events with only 1 good vertex
@@ -297,15 +303,15 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
     
     if(isMC){
       for(int acc = 0 ; acc < (signed)accMap.size() ; ++acc){
-        if(! nPTr_inacc.at(acc)) continue;
+        //if(! nPTr_inacc.at(acc)) continue;
 	
         for(vector<MyGenPart>::iterator p=genPart->begin() ; p!=genPart->end() ; p++ ){
           if ( isGenPartGood(*p) && isInAcceptance(p->Part,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4))){
-	    gmp_etaCut.at(acc)->fill(*genKin,p->Part);
+	    gmp_etaCut.at(acc)->fill(*genKin,p->Part , 1. , MCtype);
 	    mtxp_evtSel.at(acc)->fillGen(p->Part);
 	  }
         }
-        gmp_etaCut.at(acc)->nextEvent(*genKin);
+        gmp_etaCut.at(acc)->nextEvent(*genKin , MCtype);
       }
     }
     
@@ -328,7 +334,7 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
     //FILLING THE MATRIX && MULTI
     
     for(int acc = 0 ; acc < (signed)accMap.size() ; ++acc){
-      if(! nPTr_inacc.at(acc)) continue;
+      //if(! nPTr_inacc.at(acc)) continue;
       
       vector<MyTracks> trcoll;
       if(iTracking==0) trcoll = getPrimaryTracks(*tracks,vertex,accMap[acc].at(2),accMap[acc].at(3),accMap[acc].at(4));
