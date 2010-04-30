@@ -116,7 +116,9 @@ TString fileManager ( int     iFileType  = 0
     else if ( Energy == 2.36 ){
 
       if      ( iDataType == 0 ) {
-        TreeBase = "ChPartTree_v005b_d236";
+        //TreeBase = "ChPartTree_v005b_d236";
+        //DataSet  = "__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO";
+        TreeBase = "ChPartTree_v005_d236_loosevtxqual";
         DataSet  = "__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO";
       }
       else if ( iDataType == 1  ) {
