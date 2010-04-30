@@ -51,17 +51,11 @@ void transform2Matrix(TH2F* matrixhist,double matrix[][matrixsize]);
 //TH1F resample(double matrix[][matrixsize], TH1F*, TH1F* , TH1F* , TH1F*, int = 5 , bool = false , TH1F* = NULL, bool = false);
 void makeEff(TH1F*,TH1F*,TH1F*);
 double getRMS(TH1F*);
-double NBD(double,double,double);
-double NBD2(double,double,double);
-Double_t nbdfunc(Double_t*, Double_t*);
-Double_t nbdfunc2(Double_t*, Double_t*);
-Double_t nbdfunc2bis(Double_t*, Double_t*);
-Double_t nbdfunc3(Double_t*, Double_t*);
-Double_t nbdfunc3bis(Double_t*, Double_t*);
 double* Divide( const TArrayD* , double );
 void divideByWidth(TH1F*);
 void divideByWidth(TH2F*);
 
+TGraphAsymmErrors h2g(TH1F*);
 
 //iFileType,iDataType,Energy,iTracking,iSystType,iSystSign,STest
 #include "../macro/fileManager.C"
@@ -90,24 +84,33 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 10 , 
        
   #include "../macro/acceptanceMap.C"
   
-  TString filedir("../plots/");
+  TString filedir("../plots/simpleanav8/");
+  TString addstr("");
+  
+  if(syst==201)
+    addstr = "evtSelSyst";
+    
+  TFile* mctmp = NULL;
   
   //Get the MC file
-  TString mcfile = fileManager(2,typeMC,Emc,iTr,0,0,"",filedir);
+  TString mcfile = fileManager(2,typeMC,Emc,iTr,0,0,addstr,filedir);
   //TFile* mc = new TFile("/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/macro/collectionPlotter_MC_finalv2_900GeV.root","READ");
   //TFile* mc = new TFile("../macro/GOODFILES/MC_v005b_2.36TeV_eta2.5_pt0.4_gTr.root","READ");
   //TFile* mc = new TFile("../macro/GOODFILES/MC_v005b_0.9TeV_eta2.5_pt0.4_gTr.root","READ");
   TFile* mc = TFile::Open(mcfile,"READ");//"newbinning","../plots/unfoldingv2/"
   cout<<"MC input file : "<<mcfile<<endl;
   
+  //#include "syst_MCfile.C"
+  
   //Get the data file
-  TString datafile = fileManager(2,typeData,E,iTr,0,0,"",filedir);
+  TString datafile = fileManager(2,typeData,E,iTr,0,0,addstr,filedir);
   //TString datafile = fileManager(2,typeData,E,iTr,0,0,"newbinning","../plots/unfoldingv2/");
   //TFile* data = new TFile("../macro/GOODFILES/data_v005b_2.36TeV_eta2.5_pt0.4_gTr.root","READ");
   //TFile* data = new TFile("../macro/GOODFILES/data_v005b_0.9TeV_eta2.5_pt0.4_gTr.root","READ");
   TFile* data = TFile::Open(datafile,"READ");
   cout<<"Data input file : "<<datafile<<endl;
-
+  
+  
   //Checking if both files exist
   if(mc == 0){
     cout<<"The MC input file doesn't exist ..."<<endl;
@@ -140,7 +143,7 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 10 , 
     cout<<"!! WARNING : can't do the negative systematic, niter is already 1. Exiting now ..."<<endl;
     return;
   }
-  if(syst==401 && E==2.36){
+  if(syst==401 && E==7.0){
     cout<<"!! WARNING : can't do this systematic, don't have the right energy mc. Exiting now ..."<<endl;
     return;
   }
@@ -192,12 +195,12 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 10 , 
   matrixhist->SetName("nch_matrix");
   
  
-/*
-  for(int i=1;i<=matrixhist->GetNbinsX();++i){
+
+  /*for(int i=1;i<=matrixhist->GetNbinsX();++i){
     matrixhist->SetBinContent(i,1,0);
-    matrixhist->SetBinContent(1,i,0);
-  }
-*/
+    //matrixhist->SetBinContent(1,i,0);
+  }*/
+
 
   //Setting the limits from the matrix
   Ngen1  = matrixhist->GetNbinsX();
@@ -319,6 +322,8 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 10 , 
   nch_NSD->Add(nch_evtSel_SD,-1);
   
   
+  //nch_NSD->SetBinContent(1,0);
+  
  /*int bintochange = 15;
  int nsigma = 3;
  nch_NSD->SetBinContent(bintochange,nch_NSD->GetBinContent(bintochange)- nsigma * nch_NSD->GetBinError(bintochange));
@@ -364,7 +369,6 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 10 , 
   nch_evtSel_SD->Write();
   nch_evtSel_NSD->Write();
   nch_evtSel_INC->Write();
-  
   
   
   
@@ -545,34 +549,7 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 10 , 
   divideByWidth(matrixhist);
   divideByWidth(hypothesis);
   
-  //------------------------------------------------------------------------------
-  //------------------------------------ KNO -------------------------------------
-  //------------------------------------------------------------------------------
   
-  
-  cout<<" ++++ DOING KNO ++++" <<endl;
-  
-  TH1F* kno = new TH1F("kno_corrected","kno_corrected;z = n_{ch} / < n_{ch} >;#psi(z)",nch_corrected->GetNbinsX(),Divide(nch_corrected->GetXaxis()->GetXbins(),nch_corrected->GetMean()));
-  kno->Sumw2();
-  /*for( int k = 60 ; k <= nch_corrected->GetNbinsX() ; ++k)
-    nch_corrected->SetBinContent(k,0);*/
-  for( int k = 1 ; k <= nch_corrected->GetNbinsX() ; ++k){
-    kno->SetBinContent(k , nch_corrected->GetMean() * nch_corrected->GetBinContent(k));
-    kno->SetBinError(k , nch_corrected->GetMean() * nch_corrected->GetBinError(k));
-  }
-  if(drawcanv){
-    TCanvas* c_kno = new TCanvas("c_kno","c_kno",200,510,500,500);
-    c_kno->cd();
-    kno->Draw();
-  }
-  
-  TH1F* kno_gen = new TH1F("kno_gen","kno_gen;z = n_{ch} / < n_{ch} >;#psi(z)",nch_trueGen->GetNbinsX(),Divide(nch_trueGen->GetXaxis()->GetXbins(),nch_trueGen->GetMean()));
-  kno_gen->Sumw2();
-  for( int k = 1 ; k <= nch_trueGen->GetNbinsX() ; ++k){
-    kno_gen->SetBinContent(k , nch_trueGen->GetMean() * nch_trueGen->GetBinContent(k));
-    kno_gen->SetBinError(k , nch_trueGen->GetMean() * nch_trueGen->GetBinError(k));
-  }
-  kno_gen->Write();
   
   
   //------------------------------------------------------------------------------
@@ -603,8 +580,8 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 10 , 
   TMoments* moment = new TMoments(nch_corrected);
   moment->ComputeMoments();
   moment->ComputeErrorsFromResampling(nch_corrected);
-  moment->Print();
-  moment->Write();
+  moment->print();
+  moment->Write("moments");
   
   
  /* TH1F* test = new TH1F("jj","jj",3,4.5,7.5);
@@ -625,12 +602,48 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 10 , 
     moment->Add(test->GetBinCenter(ll) , test->GetBinContent(ll));
   }
   moment->ComputeMoments();
-  moment->Print();
+  moment->print();
   */
   
   
   
   gDirectory->cd("../");
+  
+  
+  
+  //------------------------------------------------------------------------------
+  //------------------------------------ KNO -------------------------------------
+  //------------------------------------------------------------------------------
+  
+  
+  cout<<" ++++ DOING KNO ++++" <<endl;
+  
+  TH1F* kno = new TH1F("kno_corrected","kno_corrected;z = n_{ch} / < n_{ch} >;#psi(z)",nch_corrected->GetNbinsX(),Divide(nch_corrected->GetXaxis()->GetXbins(),moment->mean->GetMean()));
+  kno->Sumw2();
+  /*for( int k = 60 ; k <= nch_corrected->GetNbinsX() ; ++k)
+    nch_corrected->SetBinContent(k,0);*/
+  for( int k = 1 ; k <= nch_corrected->GetNbinsX() ; ++k){
+    kno->SetBinContent(k , nch_corrected->GetMean() * nch_corrected->GetBinContent(k));
+    kno->SetBinError(k , nch_corrected->GetMean() * nch_corrected->GetBinError(k));
+  }
+  if(drawcanv){
+    TCanvas* c_kno = new TCanvas("c_kno","c_kno",200,510,500,500);
+    c_kno->cd();
+    kno->Draw();
+  }
+  
+  
+  TMoments* moment_gen = new TMoments(nch_trueGen);
+  moment_gen->ComputeMoments();
+  TH1F* kno_gen = new TH1F("kno_gen","kno_gen;z = n_{ch} / < n_{ch} >;#psi(z)",nch_trueGen->GetNbinsX(),Divide(nch_trueGen->GetXaxis()->GetXbins(),moment_gen->mean->GetMean()));
+  kno_gen->Sumw2();
+  for( int k = 1 ; k <= nch_trueGen->GetNbinsX() ; ++k){
+    kno_gen->SetBinContent(k , nch_trueGen->GetMean() * nch_trueGen->GetBinContent(k));
+    kno_gen->SetBinError(k , nch_trueGen->GetMean() * nch_trueGen->GetBinError(k));
+  }
+  kno_gen->Write();
+  
+  
   
   
   //------------------------------------------------------------------------------
@@ -676,9 +689,9 @@ if(drawcanv){
     while ( ua5 >>  xl[i] >> xh[i] >> y[i] >> eyh[i] >> eyl[i] ) {
       eyl[i] = -eyl[i] ;
       x[i]  = xl[i]+(xh[i]-xl[i])/2;
-      y[i] = 3*50000 * y[i];
-      eyl[i]*=3*50000;
-      eyh[i]*=3*50000;
+      //y[i] = 3*50000 * y[i];
+      //eyl[i]*=3*50000;
+      //eyh[i]*=3*50000;
       //cout<<y[i]<<endl;
       ex[i] = (xh[i]-xl[i])/2;
       i++;
@@ -686,6 +699,7 @@ if(drawcanv){
     
     ua5.close();
     ua5_multi = new TGraphAsymmErrors(i,x,y,ex,ex,eyl,eyh);
+    
     //gr->SetMarkerColor(0);
     //gr->SetMarkerStyle(24);
     ua5_multi->Draw("L");
@@ -737,6 +751,10 @@ if(drawcanv){
   nch_corrected->Write();
   nch_resampledPtr->Write();
   nch_mtxresampledPtr->Write();
+  eff_evtSel->Write();
+  
+  h2g(nch_corrected).Write();
+  
   
 
   //eff_nch_L1_hf_vtxSel->Write();
@@ -838,36 +856,7 @@ double getRMS(TH1F* in){
   return sig1;
 }
 
-//From websight
-double NBD(double x, double nmean, double k){
-  double p = 1. / ( (nmean / k) + 1 );
-  return Gamma(x+k)/( Gamma(x+1) * Gamma(k) ) * pow(p,k) * pow ( 1 - p , x);
-}
 
-//From paper
-double NBD2(double x, double nmean, double k){
-  return Gamma(k+x) / ( Gamma(x+1) * Gamma(k) ) * pow(nmean,x)*pow(k,k)/pow((nmean+k),x+k);
-}
-
-Double_t nbdfunc(Double_t* x, Double_t* par){
-  return par[2] * NBD(x[0],par[0],par[1]);
-}
-
-Double_t nbdfunc2(Double_t* x, Double_t* par){
-  return par[5] * (par[0]*NBD(x[0],par[1],par[2])+(1-par[0])*NBD(x[0],par[3],par[4]));
-}
-
-Double_t nbdfunc2bis(Double_t* x, Double_t* par){
-  return par[3] * (par[0]*NBD(x[0],par[1],par[2])+(1-par[0])*NBD(x[0],2*par[1],2*par[2]));
-}
-
-Double_t nbdfunc3(Double_t* x, Double_t* par){
-  return par[8] * (par[0]*NBD(x[0],par[1],par[2])+par[3]*NBD(x[0],par[4],par[5])+(1-par[0]-par[3])*NBD(x[0],par[6],par[7]));
-}
-
-Double_t nbdfunc3bis(Double_t* x, Double_t* par){
-  return par[4] * (par[0]*NBD(x[0],par[1],par[2])+par[3]*NBD(x[0],2*par[1],2*par[2])+(1-par[0]-par[3])*NBD(x[0],3*par[1],3*par[2]));
-}
 
 double* Divide(const TArrayD* array , double val){
   TArrayD* temp = new TArrayD();
