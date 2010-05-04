@@ -15,6 +15,8 @@ using namespace std;
 
 #include "../macro/fileManager.C"
 
+#include "../plugins/TMoments.h"
+
 
 double energy = 2.36;
 int cut = 5;
@@ -24,6 +26,10 @@ TString plot = "unfolding/nch_data_corrected";
 int typeMC = 10;
 
 void plotSystematics(TString , TString , TString , TString , bool);
+double getMinSyst(double , double , double);
+double getMaxSyst(double , double , double);
+TH1F makeMirrorSyst(TH1F* , TH1F);
+
 
 void plotSystematics(int syst , bool mirror = true){
   
@@ -202,7 +208,7 @@ void plotSystematics(TString tdata, TString tsyst1, TString tsyst2, TString plot
   gPad->SaveAs(figname.str().c_str(),"");
 }
 
-void finaleSystematic(double energy = 0.9, int cut = 10 , bool printFig = false){
+void finaleSystematic(double energy = 0.9, int cut = 5 , bool printFig = false){
   vector<int> syst;
   syst.push_back(4);
   syst.push_back(102);
@@ -215,6 +221,9 @@ void finaleSystematic(double energy = 0.9, int cut = 10 , bool printFig = false)
   
   vector<TH1F> syst1;
   vector<TH1F> syst2;
+  
+  vector<TMoments> msyst1;
+  vector<TMoments> msyst2;
   
   ostringstream outstr("");
   outstr << "hyp" << 1 << "_niter" << 0 << "_cut" << cut << "_DataType" << 0;
@@ -236,11 +245,14 @@ void finaleSystematic(double energy = 0.9, int cut = 10 , bool printFig = false)
   if(hdata==0){
     cout<<"!! ERROR : plot in data file is void. Exiting now."<<endl;
     return;
-  }  
+  }
+  
+  TMoments* mdata = (TMoments*) fdata->Get("unfolding/moments/moments");
    
   TH1F* dummy = new TH1F("dummy","dummy",1,0,1);
   
-  
+  TH1F* systp = new TH1F("nch_systp","nch_systp",hdata->GetNbinsX(),hdata->GetXaxis()->GetXbins()->GetArray());
+  TH1F* systm = new TH1F("nch_systm","nch_systm",hdata->GetNbinsX(),hdata->GetXaxis()->GetXbins()->GetArray());
   
   
   //Getting all histogramms
@@ -293,15 +305,33 @@ void finaleSystematic(double energy = 0.9, int cut = 10 , bool printFig = false)
     if(hsyst1==0 || (fsyst2!=0 && hsyst2==0))
       continue;
     
+    
     syst1.push_back(*hsyst1);
     if(hsyst2==0) syst2.push_back(*dummy);
     else syst2.push_back(*hsyst2);
+    
+    
+    //Getting the moments
+    TMoments* msyst1_tmp = (TMoments*) fsyst1->Get("unfolding/moments/moments");
+    msyst1.push_back(*msyst1_tmp);
+    
+    if(fsyst2==0)
+      msyst2.push_back(*mdata);
+    else{
+      TMoments* msyst2_tmp = (TMoments*) fsyst2->Get("unfolding/moments/moments");
+      msyst2.push_back(*msyst2_tmp);
+    }
+    //msyst1.at(i).print();
+    //msyst2.at(i).print();
+    
     
     /*delete fsyst1;
     delete fsyst2;
     delete hsyst1;
     delete hsyst2;*/
-  }
+    
+    
+  }//end of loop over syst files
   
   
   //-----------------------------------
@@ -371,6 +401,10 @@ void finaleSystematic(double energy = 0.9, int cut = 10 , bool printFig = false)
     
     eyl[i-1] = sqrt(eyl[i-1] + pow(hdata->GetBinError(i),2));
     eyh[i-1] = sqrt(eyh[i-1] + pow(hdata->GetBinError(i),2));
+    
+    systm->SetBinContent(i,eyl[i-1]);
+    systp->SetBinContent(i,eyh[i-1]);
+    
     //cout<<"lllllllllllll   "<<eyl[i-1]<<"  "<<eyh[i-1]<<endl;
     //eyl[i-1] = sqrt(eyl[i-1]);
     //eyh[i-1] = sqrt(eyh[i-1]);   
@@ -382,6 +416,8 @@ void finaleSystematic(double energy = 0.9, int cut = 10 , bool printFig = false)
   fdata->cd("unfolding/");
   gsyst->Write(0,6);
   
+  systm->Write(0,6);
+  systp->Write(0,6);
   
   double max = 0;
   for(;max<hdata->GetNbinsX();++max)
@@ -427,6 +463,117 @@ void finaleSystematic(double energy = 0.9, int cut = 10 , bool printFig = false)
     gPad->SaveAs(TString(figname.str().c_str())+TString(".gif"),"");
     gPad->SaveAs(TString(figname.str().c_str())+TString(".root"),"");
   }
+  
+  
+  
+  //-------------------------------------------------------
+  //--------- Making systematic of mean & moments ---------
+  //-------------------------------------------------------
+  
+  for(int isyst = 0 ; isyst < syst1.size() ; ++isyst){
+    if(TString(syst2.at(isyst).GetName()).Contains("dummy")){
+      syst2.at(isyst) = makeMirrorSyst(hdata , syst1.at(isyst));
+      TH1F* systPtr = &(syst2.at(isyst));
+      TMoments* msyst2_tmp = new TMoments(systPtr);
+      msyst2_tmp->ComputeMoments();
+      msyst2.at(isyst) = *msyst2_tmp;
+    }
+    
+    mdata->mean->_MeanSystM += pow(getMinSyst(mdata->mean->GetMean() , msyst1.at(isyst).mean->GetMean() , msyst2.at(isyst).mean->GetMean()) , 2);
+    mdata->mean->_MeanSystP += pow(getMaxSyst(mdata->mean->GetMean() , msyst1.at(isyst).mean->GetMean() , msyst2.at(isyst).mean->GetMean()) , 2);
+    
+    mdata->mean->_RMSSystM += pow(getMinSyst(mdata->mean->GetRMS() , msyst1.at(isyst).mean->GetRMS() , msyst2.at(isyst).mean->GetRMS()) , 2);
+    mdata->mean->_RMSSystP += pow(getMaxSyst(mdata->mean->GetRMS() , msyst1.at(isyst).mean->GetRMS() , msyst2.at(isyst).mean->GetRMS()) , 2);
+    
+    for(int m =0 ; m < mdata->nmoments ; ++m){
+      mdata->csystmerr->at(m) += pow(getMinSyst(mdata->cmoments->at(m) , msyst1.at(isyst).cmoments->at(m) , msyst2.at(isyst).cmoments->at(m)) , 2);
+      mdata->csystperr->at(m) += pow(getMaxSyst(mdata->cmoments->at(m) , msyst1.at(isyst).cmoments->at(m) , msyst2.at(isyst).cmoments->at(m)) , 2);
+    
+      mdata->fsystmerr->at(m) += pow(getMinSyst(mdata->fmoments->at(m) , msyst1.at(isyst).fmoments->at(m) , msyst2.at(isyst).fmoments->at(m)) , 2);
+      mdata->fsystperr->at(m) += pow(getMaxSyst(mdata->fmoments->at(m) , msyst1.at(isyst).fmoments->at(m) , msyst2.at(isyst).fmoments->at(m)) , 2);
+      
+      mdata->ksystmerr->at(m) += pow(getMinSyst(mdata->kmoments->at(m) , msyst1.at(isyst).kmoments->at(m) , msyst2.at(isyst).kmoments->at(m)) , 2);
+      mdata->ksystperr->at(m) += pow(getMaxSyst(mdata->kmoments->at(m) , msyst1.at(isyst).kmoments->at(m) , msyst2.at(isyst).kmoments->at(m)) , 2);
+      
+      mdata->hsystmerr->at(m) += pow(getMinSyst(mdata->hmoments->at(m) , msyst1.at(isyst).hmoments->at(m) , msyst2.at(isyst).hmoments->at(m)) , 2);
+      mdata->hsystperr->at(m) += pow(getMaxSyst(mdata->hmoments->at(m) , msyst1.at(isyst).hmoments->at(m) , msyst2.at(isyst).hmoments->at(m)) , 2);
+    } 
+  }
+  
+  
+  //------------------------------------------------------------------
+  //------------------    adding the stat errors    ------------------
+  mdata->mean->_MeanSystM += pow(mdata->mean->GetMeanError(), 2);
+  mdata->mean->_MeanSystP += pow(mdata->mean->GetMeanError(), 2);
+    
+  mdata->mean->_RMSSystM  += pow(mdata->mean->GetRMSError(), 2);
+  mdata->mean->_RMSSystP  += pow(mdata->mean->GetRMSError(), 2);
+  
+  
+  for(int m =0 ; m < mdata->nmoments ; ++m){
+    mdata->csystmerr->at(m) += pow(mdata->cstaterr->at(m) , 2);
+    mdata->csystperr->at(m) += pow(mdata->cstaterr->at(m) , 2);
+   
+    mdata->fsystmerr->at(m) += pow(mdata->fstaterr->at(m) , 2);
+    mdata->fsystperr->at(m) += pow(mdata->fstaterr->at(m) , 2);
+  
+    mdata->ksystmerr->at(m) += pow(mdata->kstaterr->at(m) , 2);
+    mdata->ksystperr->at(m) += pow(mdata->kstaterr->at(m) , 2);
+  
+    mdata->hsystmerr->at(m) += pow(mdata->hstaterr->at(m) , 2);
+    mdata->hsystperr->at(m) += pow(mdata->hstaterr->at(m) , 2);
+  }
+  
+  
+  //------------------------------------------------------------------
+  //------------------        taking the SQRT       ------------------
+  mdata->mean->_MeanSystM = sqrt(mdata->mean->_MeanSystM);
+  mdata->mean->_MeanSystP = sqrt(mdata->mean->_MeanSystP);
+    
+  mdata->mean->_RMSSystM  = sqrt(mdata->mean->_RMSSystM);
+  mdata->mean->_RMSSystP  = sqrt(mdata->mean->_RMSSystP);
+  
+  
+  for(int m =0 ; m < mdata->nmoments ; ++m){
+    mdata->csystmerr->at(m) = sqrt(mdata->csystmerr->at(m));
+    mdata->csystperr->at(m) = sqrt(mdata->csystperr->at(m));
+  
+    mdata->fsystmerr->at(m) = sqrt(mdata->fsystmerr->at(m));
+    mdata->fsystperr->at(m) = sqrt(mdata->fsystperr->at(m));
+  
+    mdata->ksystmerr->at(m) = sqrt(mdata->ksystmerr->at(m));
+    mdata->ksystperr->at(m) = sqrt(mdata->ksystperr->at(m));
+  
+    mdata->hsystmerr->at(m) = sqrt(mdata->hsystmerr->at(m));
+    mdata->hsystperr->at(m) = sqrt(mdata->hsystperr->at(m));
+  }
+  
+  fdata->cd("unfolding/moments");
+  mdata->Write("moments_syst",6);
+  mdata->print();
 }
 
+double getMinSyst(double val , double syst1 , double syst2){
+  if(syst1<val && syst1<syst2) return val - syst1;
+  else if(syst1<val && syst1>syst2) return val - syst2;
+  else if(syst1>=val && syst2 < val) return val - syst2;
+  else return 0;
+}
 
+double getMaxSyst(double val , double syst1 , double syst2){
+  if(syst1>val && syst1>syst2) return syst1 - val;
+  else if(syst1>val && syst1<syst2) return syst2 - val;
+  else if(syst1<=val && syst2 > val) return syst2 - val;
+  else return 0;
+}
+
+TH1F makeMirrorSyst(TH1F* h , TH1F syst){
+  TH1F* syst2 = new TH1F("systmirror","systmirror",h->GetNbinsX(),h->GetXaxis()->GetXbins()->GetArray());
+  
+  for(int i = 1 ; i <= h->GetNbinsX() ; ++i){
+    double diff = h->GetBinContent(i) - syst.GetBinContent(i);
+    syst2->SetBinContent(i,h->GetBinContent(i) + diff);
+  }
+  
+  return *syst2;
+}
