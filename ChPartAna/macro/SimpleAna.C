@@ -65,6 +65,13 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
   
   #include "acceptanceMap.C"
   
+  int nL1      = 0;
+  int nHF      = 0;
+  int nVtxQual = 0;
+  int nVtx     = 0;
+  int nNone    = 0;
+  
+    
   BasePlots* baseplot = new BasePlots("BasePlots");
     
   //----------------------  RECO  ----------------------
@@ -217,13 +224,28 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
       else     nPTr_inacc.push_back(false);  
     }*/
     
+    //----------------------------------------------------------------------
+    //------------------- CHECKING #EVENTS AFTER EACH SEL ------------------
+    //----------------------------------------------------------------------
     
+    ++nNone;
+    if(passVtxQual(*MITEvtSel,E)) ++nVtxQual;
+    if(passL1(E,*L1Trig) &&
+       passVtxQual(*MITEvtSel,E)) ++nL1;
+    if(passHF(*MITEvtSel) &&
+       passL1(E,*L1Trig)  &&
+       passVtxQual(*MITEvtSel,E)) ++nHF;
+    if(passVtx(vertexToCut) &&
+       passHF(*MITEvtSel) &&
+       passL1(E,*L1Trig)  &&
+       passVtxQual(*MITEvtSel,E)) ++nVtx;
+        
     //----------------------------------------------------------------------
     //----------------------- USED TO SUBSTRACT SD -------------------------
     //----------------------------------------------------------------------
     
     
-    if(isEvtGood(E,*L1Trig , *MITEvtSel , vertex)){
+    if(isEvtGood(E,*L1Trig , *MITEvtSel , vertexToCut)){
       for(int acc = 0 ; acc < (signed)accMap.size() ; ++acc){
         //if(! nPTr_inacc.at(acc)) continue;
 	
@@ -289,12 +311,12 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
         if(isMC) vtx_after.at(acc)->Fill(getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4)));
     
       //if(!isEvtGood(E,*L1Trig , *MITEvtSel) || getBestVertex(vertexToCut)==-1) continue;
-      if(isEvtGood(E,*L1Trig , *MITEvtSel , vertex))
+      if(isEvtGood(E,*L1Trig , *MITEvtSel , vertexToCut))
         if(isMC) evtSel_after.at(acc)->Fill(getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4)));
     
     }
     
-    if(!isEvtGood(E,*L1Trig , *MITEvtSel , vertex)) continue;
+    if(!isEvtGood(E,*L1Trig , *MITEvtSel , vertexToCut)) continue;
     
     //----------------------------------------------------------------------
     //-----------------------         GEN          -------------------------
@@ -435,7 +457,28 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
     gDirectory->cd("../");
 
   
-  }  
+  }
+  
+  TH1F* nEvts = new TH1F("nEvts","nEvts",5,0,5);
+  nEvts->GetXaxis()->SetBinLabel(1,"NONE");
+  nEvts->SetBinContent(1,nNone);
+  nEvts->GetXaxis()->SetBinLabel(2,"+ VtxQual");
+  nEvts->SetBinContent(2,nVtxQual);
+  nEvts->GetXaxis()->SetBinLabel(3,"+ L1");
+  nEvts->SetBinContent(3,nL1);
+  nEvts->GetXaxis()->SetBinLabel(4,"+ HF");
+  nEvts->SetBinContent(4,nHF);
+  nEvts->GetXaxis()->SetBinLabel(5,"+ Vtx");
+  nEvts->SetBinContent(5,nVtx);
+  
+  nEvts->Write();
+  
+  cout<<"---------- PRINTING #EVENTS ------------"<<endl;
+  cout<<"No evt Sel : "<<nNone<<endl;
+  cout<<"+ VtxQual  : "<<nVtxQual<<endl;
+  cout<<"+ L1       : "<<nL1<<endl;
+  cout<<"+ HF       : "<<nHF<<endl;
+  cout<<"+ Vtx      : "<<nVtx<<endl;
   
   file2->Close();
 }
