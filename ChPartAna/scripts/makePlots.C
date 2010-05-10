@@ -41,12 +41,16 @@ double  globalEnergy = 0.9;
 
 // --- What to Plot ----
 // Control Plots
+int  iSel = 0;
+
 bool trkplot = 0;
 bool vqlplot = 0;
 bool vtxplot = 0;
 bool nvtplot = 0;
 bool tvtplot = 0;
 bool mltplot = 0;
+
+bool zbeffpl = 0;
 
 // eta / pt / pt2
 bool corplot = 0;
@@ -88,6 +92,8 @@ void setnchrangeX(int );
 
 void trackPlots()
 {
+
+  iSel    = 0;
   trkplot = 1;
   vqlplot = 0;
   vtxplot = 1;
@@ -113,8 +119,25 @@ void trackPlots()
   gROOT->ProcessLine("makePlots(2,2.36,0.4)");
 */
 
-  gROOT->ProcessLine("makePlots(1,2.36,0.2 )");
+  
+
+/*  gROOT->ProcessLine("makePlots(1,2.36,0.2 )");
   gROOT->ProcessLine("makePlots(2,2.36,0.2 )");
+*/
+
+gROOT->ProcessLine("makePlots(2,0.9 ,0.  )");
+gROOT->ProcessLine("makePlots(2,2.36,0.  )");
+gROOT->ProcessLine("makePlots(2,7.0 ,0.  )");
+
+  trkplot = 0;
+  vtxplot = 0;
+  nvtplot = 1;
+
+gROOT->ProcessLine("makePlots(3,0.9 ,0.  )");
+gROOT->ProcessLine("makePlots(3,2.36,0.  )");
+gROOT->ProcessLine("makePlots(3,7.0 ,0.  )");
+
+
 
 
 }
@@ -150,7 +173,7 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
     if (etacut != 2.5) {
       PT << "_eta" << etacut; 
     }
-    PT << "_35X";
+    //PT << "_35X";
     ptcutstr = PT.str();
   
     // Legend Title
@@ -176,17 +199,17 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
       dataSetId.push_back(10);
       dataSetIsMc.push_back(1);
       dataSetStyle.push_back(1);
-      dataSetColor.push_back(kBlue);
+      dataSetColor.push_back(kBlack);
       dataSetLegend.push_back("PYTHIA D6T");
  
    // PYTHIA - D6T - newBS
-      dataSetId.push_back(20);
+/*      dataSetId.push_back(20);
       dataSetIsMc.push_back(1);
       dataSetStyle.push_back(1);
       dataSetColor.push_back(kRed);
       dataSetLegend.push_back("PHOJET");
+*/
  
-  /*
       // PYTHIA - DW
       dataSetId.push_back(11);
       dataSetIsMc.push_back(1);
@@ -194,12 +217,14 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
       dataSetColor.push_back(2);
       dataSetLegend.push_back("PYTHIA DW");
   
+/*
       // PYTHIA - P0
       dataSetId.push_back(12);
       dataSetIsMc.push_back(1);
       dataSetStyle.push_back(2);
       dataSetColor.push_back(3);
       dataSetLegend.push_back("PYTHIA P0");
+*/
   
       // PYTHIA - P0
       dataSetId.push_back(13);
@@ -207,23 +232,23 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
       dataSetStyle.push_back(2);
       dataSetColor.push_back(4);
       dataSetLegend.push_back("PYTHIA ProQ20");
-  */
+ 
   
     }
     if ( energy == 2.36) {
   
       // DATA
-      dataSetId.push_back(1);
+      dataSetId.push_back(0);
       dataSetIsMc.push_back(0);
       dataSetStyle.push_back(20);
       dataSetColor.push_back(2);
       dataSetLegend.push_back("Data");
   
       // PYTHIA - D6T
-      dataSetId.push_back(40);
+      dataSetId.push_back(10);
       dataSetIsMc.push_back(1);
       dataSetStyle.push_back(1);
-      dataSetColor.push_back(1);
+      dataSetColor.push_back(kBlack);
       dataSetLegend.push_back("PYTHIA D6T");
 /*      
       // PYTHIA - D6T
@@ -244,35 +269,40 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
       dataSetColor.push_back(2);
       dataSetLegend.push_back("Data");
 
+
       // PYTHIA - D6T
-      dataSetId.push_back(10);
+
+/*      dataSetId.push_back(10);
       dataSetIsMc.push_back(1);
       dataSetStyle.push_back(1);
       dataSetColor.push_back(kBlue);
       dataSetLegend.push_back("PYTHIA D6T (CMS)");
+*/
 
       // PYTHIA - D6T
       dataSetId.push_back(30);
       dataSetIsMc.push_back(1);
       dataSetStyle.push_back(1);
-      dataSetColor.push_back(1);
-      dataSetLegend.push_back("PYTHIA D6T (dNdeta)");
+      dataSetColor.push_back(kBlack);
+      dataSetLegend.push_back("PYTHIA D6T");
+
 
       // PYTHIA - ATLAS
       dataSetId.push_back(31);
       dataSetIsMc.push_back(1);
       dataSetStyle.push_back(2);
-      dataSetColor.push_back(1);
+      dataSetColor.push_back(kBlack);
       dataSetLegend.push_back("PYTHIA ATLAS");
 
-/*
+
+
      // PYTHIA - D6T
       dataSetId.push_back(20);
       dataSetIsMc.push_back(1);
       dataSetStyle.push_back(1);
-      dataSetColor.push_back(kRed);
+      dataSetColor.push_back(kBlue);
       dataSetLegend.push_back("PHOJET");
-*/
+
 
 
 
@@ -287,7 +317,8 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
 
     // Plots.allPlotSetting->clear();
 
-    sel = "L1_hf_vtxqual_vtxSel";
+    if (iSel == 0) sel = "L1_hf_vtxqual_vtxSel";
+    if (iSel == 1) sel = "L1_vtxqual_vtxSel";
     if ( itracking == 1 ) {
       tr  = "PV_gTr_oVtx";
     } else if  ( itracking == 2 ) {
@@ -589,6 +620,7 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
     //plot(dir,"nvtx_"+all,1,0);
     plot(dir,"nvtx_ntrneq0_"+all,1,0);
 
+/*
     //--- Tracks for events with 1 vtx : PV assoc
 
     if ( itracking == 1 ) {
@@ -659,6 +691,7 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
       plot(dir,"dxybsOsxy_"+all,1);
    
     }
+ */
 
   }
 
@@ -687,7 +720,60 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
     plot(dir,"rapidity_"+all,1);
   
   }
+
+  //-------- EFFICIENCIES --- ZEROBIAS -----
+  if(zbeffpl){
+
+    globalLabel =  "Zero Bias Data";
+    globalDirPlot = "../plots/";
+    plotReset();
+   
+    LegendTitle  =  "L1 bit[34] + HF ";
+
  
+    // Plot settings
+    globalNorm     = 0;    
+    globalFileType = 4;
+
+    XaxisTitle = "N_{ch}";
+    YaxisTitle = "Efficiency";
+    globalFigBaseName = "ZeroBias_L1HF_Eff"; 
+
+    dataSetId.push_back(5);
+    dataSetIsMc.push_back(0);
+    dataSetStyle.push_back(20);
+    dataSetColor.push_back(2);
+    dataSetLegend.push_back("Data");
+    dataSetHisto.push_back("effL1HF"); 
+
+    dataSetId.push_back(10);
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(0);
+    dataSetColor.push_back(kBlack);
+    dataSetLegend.push_back("MC");
+    dataSetHisto.push_back("effL1HF"); 
+
+    dataSetId.push_back(10);
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(0);
+    dataSetColor.push_back(kGreen);
+    dataSetLegend.push_back("MC Up");
+    dataSetHisto.push_back("effL1HFup"); 
+
+    dataSetId.push_back(10);
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(0);
+    dataSetColor.push_back(kBlue);
+    dataSetLegend.push_back("MC Down");
+    dataSetHisto.push_back("effL1HFdo"); 
+
+
+
+    dir   = "zbeff" ;  
+
+    plot(dir,"AUTO",0,1);
+
+  }
 
   //-------- EFFICIENCIES --------
   if(effplot){
@@ -704,7 +790,7 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
     // Plot settings
     globalNorm     = 0;
     globalFileType = 2;
-
+  
     dataSetId.push_back(30);
     dataSetIsMc.push_back(1);
     dataSetStyle.push_back(2);
@@ -2432,7 +2518,9 @@ SetId.push_back(10);
   //-------- Mch Unfold -------- Stack
   if( nchstak ){
 
-    globalDirPlot = "../plots/systv2/";
+    bool plsyst = 1;
+
+    globalDirPlot = "../plots/final/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -2547,7 +2635,11 @@ SetId.push_back(10);
     // Plot settings
     globalNorm     = 2;
     globalFileType = 3;
-    globalHistoType= 1;
+    if ( ! plsyst ) {
+      globalHistoType= 1;
+    } else {
+      globalHistoType= 3;
+    }
 
     xGlobalLabel  = 0.3;
     xLegendWidth = 0.24; 
@@ -2592,24 +2684,24 @@ SetId.push_back(10);
     if ( globalEnergy == 7.0  )
     {
       if ( iUfoldBin == 0  || iUfoldBin == 5 )
-        { histoYMin = 0.000001    ; histoYMax = 10000 ;
-          histoXMin = -0.5        ; histoXMax = 110.5  ; }
+        { histoYMin = 0.0000001    ; histoYMax = 10000 ;
+          histoXMin = -0.5        ; histoXMax = 180.5  ; }
       if ( iUfoldBin == 10 )
-        { histoYMin = 0.0000001   ; histoYMax = 10000 ;
-          histoXMin = -0.5        ; histoXMax = 100.5  ; }
+        { histoYMin = 0.00000001   ; histoYMax = 10000 ;
+          histoXMin = -0.5        ; histoXMax = 120.5  ; }
       if ( iUfoldBin == 15 )
-        { histoYMin = 0.00000001  ; histoYMax = 10000 ;
-          histoXMin = -0.5        ; histoXMax =  80.5  ; }
+        { histoYMin = 0.000000001  ; histoYMax = 10000 ;
+          histoXMin = -0.5        ; histoXMax = 100.5  ; }
       if ( iUfoldBin == 20 )
-        { histoYMin = 0.000000001 ; histoYMax = 10000 ;
-          histoXMin = -0.5        ; histoXMax =  50.5  ; }
+        { histoYMin = 0.0000000001 ; histoYMax = 10000 ;
+          histoXMin = -0.5        ; histoXMax =  80.5  ; }
     }
 
 
     dir   = "unfolding";
    
 
-/* 
+
     ptcutstr = BIN1.str();
     dataSetId.push_back(-1);
     dataSetFile.push_back(fileManager(globalFileType,iUfoldMCType,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
@@ -2617,8 +2709,11 @@ SetId.push_back(10);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(kBlack);
     dataSetLegend.push_back(LD1.str());
-    dataSetHisto.push_back("nch_data_corrected");
-
+    if ( ! plsyst ) {
+      dataSetHisto.push_back("nch_data_corrected");
+    } else {
+      dataSetHisto.push_back("gnch_data_corrected");
+    }
 
     ptcutstr = BIN2.str();
     dataSetId.push_back(-1);
@@ -2627,7 +2722,12 @@ SetId.push_back(10);
     dataSetStyle.push_back(21);
     dataSetColor.push_back(kBlack);
     dataSetLegend.push_back(LD2.str());
-    dataSetHisto.push_back("nch_data_corrected");
+    //dataSetHisto.push_back("nch_data_corrected");
+    if ( ! plsyst ) {
+      dataSetHisto.push_back("nch_data_corrected");
+    } else {
+      dataSetHisto.push_back("gnch_data_corrected");
+    }
 
 
     if (globalEnergy == 0.9 && ( iUfoldBin == 0 || iUfoldBin == 5 ) ) {
@@ -2648,7 +2748,12 @@ SetId.push_back(10);
     dataSetStyle.push_back(22);
     dataSetColor.push_back(kBlack);
     dataSetLegend.push_back(LD3.str());
-    dataSetHisto.push_back("nch_data_corrected");
+    //dataSetHisto.push_back("nch_data_corrected");
+    if ( ! plsyst ) {
+      dataSetHisto.push_back("nch_data_corrected");
+    } else {
+      dataSetHisto.push_back("gnch_data_corrected");
+    }
 
 
     ptcutstr = BIN4.str();
@@ -2658,8 +2763,13 @@ SetId.push_back(10);
     dataSetStyle.push_back(23);
     dataSetColor.push_back(kBlack);
     dataSetLegend.push_back(LD4.str());
-    dataSetHisto.push_back("nch_data_corrected");
-*/
+    //dataSetHisto.push_back("nch_data_corrected");
+    if ( ! plsyst ) {
+      dataSetHisto.push_back("nch_data_corrected");
+    } else {
+      dataSetHisto.push_back("gnch_data_corrected");
+    }
+
     ptcutstr = BIN5.str();
     dataSetId.push_back(-1);
     dataSetFile.push_back(fileManager(globalFileType,iUfoldMCType,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
@@ -2667,7 +2777,20 @@ SetId.push_back(10);
     dataSetStyle.push_back(24);
     dataSetColor.push_back(kBlack);
     dataSetLegend.push_back(LD5.str());
-    dataSetHisto.push_back("nch_data_corrected");
+    //dataSetHisto.push_back("nch_data_corrected");
+    if ( ! plsyst ) {
+      dataSetHisto.push_back("nch_data_corrected");
+    } else {
+      dataSetHisto.push_back("gnch_data_corrected");
+    }
+
+    // Data scaling Factor
+    dataSetFactor.push_back(10000);
+    dataSetFactor.push_back(1000);
+    if (globalEnergy == 0.9 && ( iUfoldBin == 0 || iUfoldBin == 5 ) ) { dataSetFactor.push_back(100); }   
+    dataSetFactor.push_back(100);
+    dataSetFactor.push_back(10);
+    dataSetFactor.push_back(1);
 
 
 
@@ -2716,16 +2839,6 @@ SetId.push_back(10);
     dataSetColor.push_back(1);
     dataSetLegend.push_back("NONE");
     dataSetHisto.push_back("nch_MC_gen_afterEvtSelCorrection");
-*/
-
-/*
-    // Data scaling Factor
-    dataSetFactor.push_back(10000);
-    dataSetFactor.push_back(1000);
-    if (globalEnergy == 0.9 && ( iUfoldBin == 0 || iUfoldBin == 5 ) ) { dataSetFactor.push_back(100); }   
-    dataSetFactor.push_back(100);
-    dataSetFactor.push_back(10);
-    dataSetFactor.push_back(1);
 
     // MC  scaling Factor
     dataSetFactor.push_back(10000);
@@ -2736,8 +2849,8 @@ SetId.push_back(10);
 
 */
 
-      if (globalEnergy == 7.0) {
 /*
+      if (globalEnergy == 7.0) {
         dataSetId.push_back(-1);
         dataSetFile.push_back("../plots/yenjie-7TeV-2.0.root");
         dataSetIsMc.push_back(0);
@@ -2758,7 +2871,6 @@ SetId.push_back(10);
         dataSetHisto.push_back("hReco");
 
         dataSetFactor.push_back(100);
-*/
         dataSetId.push_back(-1);
         dataSetFile.push_back("../plots/yenjie-7TeV-0.5.root");
         dataSetIsMc.push_back(0);
@@ -2766,10 +2878,10 @@ SetId.push_back(10);
         dataSetColor.push_back(kRed);
         dataSetLegend.push_back("Tracklets - 7 TeV - eta 0.5");
         dataSetHisto.push_back("hReco");
-//        dataSetFactor.push_back(1);
-
+        dataSetFactor.push_back(1);
 
       }
+*/
 
     plot(dir,"AUTO",1,4);
     

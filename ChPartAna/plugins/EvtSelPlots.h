@@ -54,6 +54,7 @@ class EvtSelPlots : public TObject {
     TrackPlots* trp_L1_hfSel;
     TrackPlots* trp_L1_hf_vtxqualSel;
     TrackPlots* trp_L1_hf_vtxqual_vtxSel;
+    TrackPlots* trp_L1_vtxqual_vtxSel;
     TrackPlots* trp_L1_b40_vtxqualSel;
     
     VertexPlots* vtxp_noSel;
@@ -65,6 +66,7 @@ class EvtSelPlots : public TObject {
     VertexPlots* vtxp_L1_hfSel;
     VertexPlots* vtxp_L1_hf_vtxqualSel;
     VertexPlots* vtxp_L1_hf_vtxqual_vtxSel;
+    VertexPlots* vtxp_L1_vtxqual_vtxSel;
     VertexPlots* vtxp_L1_b40_vtxqualSel;
   
     // To look at #vtx and there quality --> Ferenc vtx problem

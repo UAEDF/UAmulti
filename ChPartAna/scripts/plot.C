@@ -85,35 +85,61 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
   
       if ( globalHistoType == 1 ) hData.at(iData) = (TH1F*) fData.at(iData)->Get(histoName);
       if ( globalHistoType == 2 ) hData.at(iData) = (TH2F*) fData.at(iData)->Get(histoName);
+ //     if ( globalHistoType == 3 ) gData.at(iData) = (TGraphAsymmErrors*) fData.at(iData)->Get(histoName);
   
-      if ( hData.at(iData) == 0 ) {
-        cout << "[plot] Histo does not exist " << endl;
-        return;
-      }
+      
+        if ( hData.at(iData) == 0 ) {
+          cout << "[plot] Histo does not exist " << endl;
+          return;
+        }
    
       // Plot Style
       if ( ! dataSetIsMc.at(iData) ) {
-        hData.at(iData)->SetMarkerColor(dataSetColor.at(iData));
-        hData.at(iData)->SetMarkerStyle(dataSetStyle.at(iData)); 
-        hData.at(iData)->SetLineColor(dataSetColor.at(iData));
+//        if ( ! globalHistoType == 3 ) {
+          hData.at(iData)->SetMarkerColor(dataSetColor.at(iData));
+          hData.at(iData)->SetMarkerStyle(dataSetStyle.at(iData)); 
+          hData.at(iData)->SetLineColor(dataSetColor.at(iData));
+/*        } else {
+          gData.at(iData)->SetMarkerColor(dataSetColor.at(iData));
+          gData.at(iData)->SetMarkerStyle(dataSetStyle.at(iData));
+          gData.at(iData)->SetLineColor(dataSetColor.at(iData));
+        } 
+*/
       } else {
-        hData.at(iData)->SetLineWidth(2);
-        hData.at(iData)->SetLineColor(dataSetColor.at(iData));
-        hData.at(iData)->SetLineStyle(dataSetStyle.at(iData));
+//        if ( ! globalHistoType == 3 ) {
+          hData.at(iData)->SetLineWidth(2);
+          hData.at(iData)->SetLineColor(dataSetColor.at(iData));
+          hData.at(iData)->SetLineStyle(dataSetStyle.at(iData));
+/*        } else {
+          gData.at(iData)->SetLineWidth(2);
+          gData.at(iData)->SetLineColor(dataSetColor.at(iData));
+          gData.at(iData)->SetLineStyle(dataSetStyle.at(iData));
+        }
+*/
       }
       // Normalisation
       if ( iData>0 && globalNorm == 1 ) {
-        Float_t ndata = hData.at(0)->Integral(1, hData.at(0)->GetNbinsX() );
-        Float_t nmoca = hData.at(iData)->Integral(1, hData.at(iData)->GetNbinsX() );
-        hData.at(iData)->Scale(ndata/nmoca);
+//        if ( ! globalHistoType == 3 ) {
+          Float_t ndata = hData.at(0)->Integral(1, hData.at(0)->GetNbinsX() );
+          Float_t nmoca = hData.at(iData)->Integral(1, hData.at(iData)->GetNbinsX() );
+          hData.at(iData)->Scale(ndata/nmoca);
+//        } /*else {
+//          Float_t ndata = gData.at(0)->Integral(1, gData.at(0)->GetNbinsX() );
+//          Float_t nmoca = gData.at(iData)->Integral(1, gData.at(iData)->GetNbinsX() );
+//          gData.at(iData)->Scale(ndata/nmoca);
+//        }   */
       }
       if ( globalNorm == 2 ) {
-        Float_t ndata = hData.at(iData)->Integral(1, hData.at(iData)->GetNbinsX() );
-        hData.at(iData)->Scale(1/ndata,"width"); 
+//        if ( ! globalHistoType == 3 ) {
+          Float_t ndata = hData.at(iData)->Integral(1, hData.at(iData)->GetNbinsX() );
+          hData.at(iData)->Scale(1/ndata,"width");
+//        } 
       }
       if ( globalNorm == 3 ) { // Excluding bin 0 for normalization
-        Float_t ndata = hData.at(iData)->Integral(2, hData.at(iData)->GetNbinsX() );
-        hData.at(iData)->Scale(1/ndata,"width"); 
+//        if ( ! globalHistoType == 3 ) {
+          Float_t ndata = hData.at(iData)->Integral(2, hData.at(iData)->GetNbinsX() );
+          hData.at(iData)->Scale(1/ndata,"width"); 
+//        }
       }
       // Factor
       cout << dataSetFactor.size() << " " << iData << endl;

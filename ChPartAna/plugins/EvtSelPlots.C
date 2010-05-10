@@ -45,7 +45,8 @@ void EvtSelPlots::init(){
   trp_L1_hfSel             = new TrackPlots("L1_hfSel_"+trackcoll);
   trp_L1_hf_vtxqualSel     = new TrackPlots("L1_hf_vtxqualSel_"+trackcoll);
   trp_L1_hf_vtxqual_vtxSel = new TrackPlots("L1_hf_vtxqual_vtxSel_"+trackcoll);
-  trp_L1_b40_vtxqualSel        = new TrackPlots("L1_b40_vtxqualSel_"+trackcoll);
+  trp_L1_vtxqual_vtxSel    = new TrackPlots("L1_vtxqual_vtxSel_"+trackcoll);
+  trp_L1_b40_vtxqualSel    = new TrackPlots("L1_b40_vtxqualSel_"+trackcoll);
   
   //init of eff denom with noSelection histos
   nch_denom = trp_noSel->nch;
@@ -64,6 +65,7 @@ void EvtSelPlots::init(){
   vtxp_L1_hfSel             = new VertexPlots("L1_hfSel_"+trackcoll);
   vtxp_L1_hf_vtxqualSel     = new VertexPlots("L1_hf_vtxqualSel_"+trackcoll);
   vtxp_L1_hf_vtxqual_vtxSel = new VertexPlots("L1_hf_vtxqual_vtxSel_"+trackcoll);
+  vtxp_L1_vtxqual_vtxSel    = new VertexPlots("L1_vtxqual_vtxSel_"+trackcoll);
   vtxp_L1_b40_vtxqualSel    = new VertexPlots("L1_b40_vtxqualSel_"+trackcoll);
 
   nvtx_evtSel    = new TH1F("nvtx_evtSel_"+trackcoll,"nvtx_evtSel_",21,-0.5,20.5);
@@ -189,7 +191,15 @@ void EvtSelPlots::fill(vector<MyTracks>& trcoll, vector<MyVertex>& vtxcoll, MyBe
       if ( fabs(goodVtx->z) >= 5 ) trp_largezvtx_evtSel->fill(trcoll,vtxcoll,vtxId,bs);
     }
   }
-  
+
+  // Final selection but HF 
+  if(passL1 && passVtxQual && passVtx ){
+    //nch_L1_b40_vtxSel->Fill(trcoll.size());
+    trp_L1_vtxqual_vtxSel->fill(trcoll,vtxcoll,vtxId,bs);
+    if(goodVtx != vtxcoll.end()) vtxp_L1_vtxqual_vtxSel->fill(*goodVtx);
+    // vtxqual_L1_b40_vtxqualSel->Fill(npixhits,vtxQual);
+  }
+ 
   if(passL1 && passBit40 && passVtxQual){
     //nch_L1_b40_vtxSel->Fill(trcoll.size());
     trp_L1_b40_vtxqualSel->fill(trcoll,vtxcoll,vtxId,bs);
@@ -242,6 +252,7 @@ void EvtSelPlots::write(){
   trp_L1_hfSel->write();
   trp_L1_hf_vtxqualSel->write();
   trp_L1_hf_vtxqual_vtxSel->write();
+  trp_L1_vtxqual_vtxSel->write();
   trp_L1_b40_vtxqualSel->write();
   
   
@@ -254,6 +265,7 @@ void EvtSelPlots::write(){
   vtxp_L1_hfSel->write();
   vtxp_L1_hf_vtxqualSel->write();
   vtxp_L1_hf_vtxqual_vtxSel->write();
+  vtxp_L1_vtxqual_vtxSel->write();
   vtxp_L1_b40_vtxqualSel->write();
  
   nvtx_evtSel->Write();
@@ -293,6 +305,7 @@ void EvtSelPlots::makeEffPlots(TString denomName){
   this->makeEffVSvar(trp_L1_hfSel);
   this->makeEffVSvar(trp_L1_hf_vtxqualSel);
   this->makeEffVSvar(trp_L1_hf_vtxqual_vtxSel);
+  this->makeEffVSvar(trp_L1_vtxqual_vtxSel);
   this->makeEffVSvar(trp_L1_b40_vtxqualSel);
   
   gDirectory->cd("../../");
