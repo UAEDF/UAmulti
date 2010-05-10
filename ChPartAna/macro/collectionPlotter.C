@@ -31,7 +31,7 @@ using namespace std;
 #include "../plugins/GenMultiPlots.h"
 #include "../plugins/MatrixPlots.h"
 
-bool debug = false;
+bool debug = true;
 
 TString filename = "MC_test_test_900GeV";
 bool isMC = true;
@@ -51,7 +51,7 @@ void collectionPlotter(int type , double E , double ptcut , TString filename , i
   pt_cut = ptcut;
   
   // General variables
-  int nbinmulti = 70;
+  int nbinmulti = 110;
   TH1F* nch_gen_noCut     = new TH1F("nch_gen_noCut","nch_gen_noCut;n_{CH};# events",(int)nbinmulti+1,-0.5,nbinmulti+0.5);
   TH1F* pt_gen_noCut      = new TH1F("pt_gen_noCut","pt_gen_noCut;pT [GeV];# events",100,0.,3.);
   TH1F* eta_gen_noCut     = new TH1F("eta_gen_noCut","eta_gen_noCut;#eta;# events",60,-3.,3.);
@@ -61,6 +61,12 @@ void collectionPlotter(int type , double E , double ptcut , TString filename , i
   TH1F* nch_gen_eta_ptCut = new TH1F("nch_gen_eta_ptCut","nch_gen_eta_ptCut;n_{CH};# events",(int)nbinmulti+1,-0.5,nbinmulti+0.5);
   TH1F* pt_gen_eta_ptCut  = new TH1F("pt_gen_eta_ptCut","pt_gen_eta_ptCut;pT [GeV];# events",100,0.,3.);
   TH1F* eta_gen_eta_ptCut = new TH1F("eta_gen_eta_ptCut","eta_gen_eta_ptCut;#eta;# events",60,-3.,3.);
+
+ 
+  TH1F* beamwidthX = new TH1F("beamwidthX","beamwidthX",400,-4.,4.);
+  TH1F* beamwidthY = new TH1F("beamwidthY","beamwidthY",400,-4.,4.);
+
+
 
   //pt    = new TH1F("pt_"+trackcoll,"pt_"+trackcoll+";pt [GeV];# events",100,0.,3.);
   //eta   = new TH1F("eta_"+trackcoll,"eta_"+trackcoll+";#eta;# events",60,-3.,3.);
@@ -79,6 +85,9 @@ void collectionPlotter(int type , double E , double ptcut , TString filename , i
   TrackPlots* trp_PV_mbTr_fVtx    = new TrackPlots("PV_mbTr_fVtx");
   */
 
+  
+   cout<<"tttttttttttt"<<endl;
+   
   // Bin ZERO BG Plots  
   TrackPlots* trp_ntr0_gTr_novtx      = new TrackPlots("ntr0_gTr_novtx");
   TrackPlots* trp_ntr0_gTr_withvtx    = new TrackPlots("ntr0_gTr_withvtx"); 
@@ -101,6 +110,8 @@ void collectionPlotter(int type , double E , double ptcut , TString filename , i
   VertexPlots* vtxp_PV_ferencVtx = new VertexPlots("PV_fVtx");
   */
   
+  
+   cout<<"tttttttttttt"<<endl;
   //------------- EvtSel COLLECTION -------------
   EvtSelPlots* evtselp_PV_mbTr_fVtx = new EvtSelPlots("PV_mbTr_fVtx");
   EvtSelPlots* evtselp_PV_gTr_oVtx  = new EvtSelPlots("PV_gTr_oVtx");
@@ -118,6 +129,8 @@ void collectionPlotter(int type , double E , double ptcut , TString filename , i
   EvtSelPlots* evtselp_PV_gTr_bs  = new EvtSelPlots("PV_gTr_bs");
 
   
+   cout<<"tttttttttttt"<<endl;
+  
   //------------ MultiPlots ------------------
   MultiPlots* mp_PV_mbTr_fVtx    = new MultiPlots("L1_hf_VtxSel_PV_mbTr_fVtx");
   MultiPlots* mp_PV_gTr_oVtx     = new MultiPlots("L1_hf_VtxSel_PV_gTr_oVtx");
@@ -128,13 +141,15 @@ void collectionPlotter(int type , double E , double ptcut , TString filename , i
   GenMultiPlots* gmp_pt_etaCut_noSel = new GenMultiPlots("pt_etaCut_noSel");
   
   
+   cout<<"tttttttttttt"<<endl;
+  
   //------------ MatrixPlots ------------------
   MatrixPlots* mtxp_etaGenCut_L1_hf_VtxSel_PV_mbTr_fVtx = new MatrixPlots("etaGenCut_L1_hf_VtxSel_PV_mbTr_fVtx");
   MatrixPlots* mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_mbTr_fVtx = new MatrixPlots("eta_ptGenCut_L1_hf_VtxSel_PV_mbTr_fVtx");
   MatrixPlots* mtxp_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx = new MatrixPlots("etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx");
   MatrixPlots* mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_gTr_oVtx = new MatrixPlots("eta_ptGenCut_L1_hf_VtxSel_PV_gTr_oVtx");
   
-    
+   cout<<"tttttttttttt"<<endl;
   
   // Open Tree file 
   //TFile* file=new TFile("/user/xjanssen/cms/MinBias/CMSSW_3_3_6_patch3/src/UAmulti/ChPartTree/test/ChPartTree_2.36_simrecfile103.root","OPEN");
@@ -225,6 +240,7 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/
     
     
     if(i==0) vertexToCut = pixel3Vertex;
+    //if(i==0) vertexToCut = ferencVtx;
     
     
     //Selection of good BX for data && MC
@@ -330,19 +346,19 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/
     offlinePV->push_back(*beamSpot);
     ferencVtx->push_back(*beamSpot);
     
-    evtselp_PV_mbTr_fVtx->setSelBits(passL1(E,*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
-    evtselp_PV_gTr_oVtx->setSelBits(passL1(E,*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
-    evtselp_fPV_gTr_oVtx->setSelBits(passL1(E,*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
-    evtselp_PV_mbTr_pVtx->setSelBits(passL1(E,*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
+    evtselp_PV_mbTr_fVtx->setSelBits(passL1(E,*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel,E),passVtx(vertexToCut),passBit40(*L1Trig));
+    evtselp_PV_gTr_oVtx->setSelBits(passL1(E,*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel,E),passVtx(vertexToCut),passBit40(*L1Trig));
+    evtselp_fPV_gTr_oVtx->setSelBits(passL1(E,*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel,E),passVtx(vertexToCut),passBit40(*L1Trig));
+    evtselp_PV_mbTr_pVtx->setSelBits(passL1(E,*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel,E),passVtx(vertexToCut),passBit40(*L1Trig));
 
-    evtselp_allTr_mbTr_fVtx->setSelBits(passL1(E,*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
-    evtselp_allTr_gTr_oVtx->setSelBits(passL1(E,*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
-    evtselp_allTr_mbTr_pVtx->setSelBits(passL1(E,*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
+    evtselp_allTr_mbTr_fVtx->setSelBits(passL1(E,*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel,E),passVtx(vertexToCut),passBit40(*L1Trig));
+    evtselp_allTr_gTr_oVtx->setSelBits(passL1(E,*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel,E),passVtx(vertexToCut),passBit40(*L1Trig));
+    evtselp_allTr_mbTr_pVtx->setSelBits(passL1(E,*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel,E),passVtx(vertexToCut),passBit40(*L1Trig));
     
-    evtselp_PV_mbTr_bs->setSelBits(passL1(E,*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
-    evtselp_PV_gTr_bs->setSelBits(passL1(E,*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
-    evtselp_allTr_mbTr_bs->setSelBits(passL1(E,*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
-    evtselp_allTr_gTr_bs->setSelBits(passL1(E,*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel),passVtx(vertexToCut),passBit40(*L1Trig));
+    evtselp_PV_mbTr_bs->setSelBits(passL1(E,*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel,E),passVtx(vertexToCut),passBit40(*L1Trig));
+    evtselp_PV_gTr_bs->setSelBits(passL1(E,*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel,E),passVtx(vertexToCut),passBit40(*L1Trig));
+    evtselp_allTr_mbTr_bs->setSelBits(passL1(E,*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel,E),passVtx(vertexToCut),passBit40(*L1Trig));
+    evtselp_allTr_gTr_bs->setSelBits(passL1(E,*L1Trig),passHF(*MITEvtSel),passVtxQual(*MITEvtSel,E),passVtx(vertexToCut),passBit40(*L1Trig));
     
     if(debug) cout<<"Starting to fill all classes ..."<<endl;
     evtselp_allTr_mbTr_fVtx->fill(*minbiasTracks,*ferencVtx,bs,vtxId_ferencVtx,MITEvtSel->eClusVtxQual,MITEvtSel->ePxHits);
