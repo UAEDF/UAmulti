@@ -27,6 +27,7 @@ using namespace std;
 #include "../plugins/TrackPlots.h"
 #include "../plugins/VertexPlots.h"
 #include "../plugins/EvtSelPlots.h"
+#include "../plugins/BasePlots.h"
 #include "../plugins/MultiPlots.h"
 #include "../plugins/GenMultiPlots.h"
 #include "../plugins/MatrixPlots.h"
@@ -40,6 +41,7 @@ bool isMC = true;
 
 #include "cuts.C"
 #include "evtSel.C"
+#include "binningMap.C"
 
 void collectionPlotter(int = 10 , double = 0.9 , double = 0.2 , TString = "NONE" , int = 5000 );
 
@@ -132,6 +134,11 @@ void collectionPlotter(int type , double E , double ptcut , TString filename , i
    cout<<"tttttttttttt"<<endl;
   
   //------------ MultiPlots ------------------
+  BasePlots* baseplot = new BasePlots("BasePlots"); 
+  vector< vector<double> > binning;
+  binning = getBins(0,0,0);
+  baseplot->setBinning(binning);
+
   MultiPlots* mp_PV_mbTr_fVtx    = new MultiPlots("L1_hf_VtxSel_PV_mbTr_fVtx");
   MultiPlots* mp_PV_gTr_oVtx     = new MultiPlots("L1_hf_VtxSel_PV_gTr_oVtx");
   
