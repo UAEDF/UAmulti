@@ -29,7 +29,8 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
   } 
    
   cout<<histo<<endl;
-  TCanvas* c1 = new TCanvas("c1","c",200,10,500,500);
+  //TCanvas* c1 = new TCanvas("c1","c",200,10,510,500);
+  TCanvas* c1 = new TCanvas("c1","c",500,500); 
   c1->SetLeftMargin(0.17);
   c1->SetBottomMargin(0.10);
   c1->SetFillColor(0);
@@ -331,10 +332,23 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
   bool save = globalSaveFig;
   if(save){
 
-    {
+     string fneps ("");
+     fneps += basedir;
+     fneps += "eps/";  
+     fneps += sdir;
+     fneps += "/";
+  
+     if (!gSystem->OpenDirectory(fneps.c_str())) gSystem->mkdir(fneps.c_str(),true);
+     fneps += shisto;
+     fneps += "_" + ptcutstr;
+     if(logY) fneps +="_logY";
+     fneps += ".eps";
+     c1->SaveAs(fneps.c_str(),"");
+  
+    
      string fngif ("");
      fngif += basedir;
-     fngif += "gif/";  
+     fngif += "gif/"; 
      fngif += sdir;
      fngif += "/";
   
@@ -344,38 +358,22 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
      if(logY) fngif +="_logY";
      fngif += ".gif";
      c1->SaveAs(fngif.c_str(),"");
-    }
   
-    
-    {
-     string fngif ("");
-     fngif += basedir;
-     fngif += "eps/"; 
-     fngif += sdir;
-     fngif += "/";
+     string fnpdf ("");
+     fnpdf += basedir;
+     fnpdf += "pdf/"; 
+     fnpdf += sdir;
+     fnpdf += "/";
   
-     if (!gSystem->OpenDirectory(fngif.c_str())) gSystem->mkdir(fngif.c_str(),true);
-     fngif += shisto;
-     fngif += "_" + ptcutstr;
-     if(logY) fngif +="_logY";
-     fngif += ".eps";
-     c1->SaveAs(fngif.c_str(),"");
-    }
-  
-    {
-     string fngif ("");
-     fngif += basedir;
-     fngif += "pdf/"; 
-     fngif += sdir;
-     fngif += "/";
-  
-     if (!gSystem->OpenDirectory(fngif.c_str())) gSystem->mkdir(fngif.c_str(),true);
-     fngif += shisto;
-     fngif += "_" + ptcutstr;
-     if(logY) fngif +="_logY";
-     fngif += ".pdf";
-     c1->SaveAs(fngif.c_str(),"");
-    }
+     if (!gSystem->OpenDirectory(fnpdf.c_str())) gSystem->mkdir(fnpdf.c_str(),true);
+     fnpdf += shisto;
+     fnpdf += "_" + ptcutstr;
+     if(logY) fnpdf +="_logY";
+     fnpdf += ".pdf";
+     string command("convert ") ;
+     command += fneps + " " + fnpdf ;
+     gSystem->Exec(command.c_str());
+     //c1->SaveAs(fnpdf.c_str(),"");
   
   /*  
     {

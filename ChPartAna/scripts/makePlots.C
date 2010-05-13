@@ -125,6 +125,7 @@ void trackPlots()
   gROOT->ProcessLine("makePlots(2,2.36,0.2 )");
 */
 
+/*
 gROOT->ProcessLine("makePlots(2,0.9 ,0.  )");
 gROOT->ProcessLine("makePlots(2,2.36,0.  )");
 gROOT->ProcessLine("makePlots(2,7.0 ,0.  )");
@@ -137,6 +138,17 @@ gROOT->ProcessLine("makePlots(3,0.9 ,0.  )");
 gROOT->ProcessLine("makePlots(3,2.36,0.  )");
 gROOT->ProcessLine("makePlots(3,7.0 ,0.  )");
 
+*/
+
+  trkplot = 0;
+  vtxplot = 0;
+  nvtplot = 0;
+  //effplot = 1;
+  mtxplot = 1;
+
+gROOT->ProcessLine("makePlots(2,0.9 ,0.  )");
+gROOT->ProcessLine("makePlots(2,2.36,0.  )");
+gROOT->ProcessLine("makePlots(2,7.0 ,0.  )");
 
 
 
@@ -778,43 +790,55 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
   //-------- EFFICIENCIES --------
   if(effplot){
 
-    globalDirPlot = "../plots/systv2/";
+    globalDirPlot = "../plots/final2/";
+    globalDirPlot = "/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/plots/simpleanav8/";
+
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
 
 
     plotReset();
-    ptcutstr = "newbinning";
-    
+    //ptcutstr = "newbinning";
+    ptcutstr = "";   
+ 
     // Plot settings
     globalNorm     = 0;
     globalFileType = 2;
-  
-    dataSetId.push_back(30);
+ 
+    int iMC ;
+    if (globalEnergy == 0.9 ) iMC = 10 ;
+    if (globalEnergy == 2.36) iMC = 10 ;
+    if (globalEnergy == 7.0 ) iMC = 31 ;
+ 
+    dataSetId.push_back(iMC);
     dataSetIsMc.push_back(1);
     dataSetStyle.push_back(2);
     dataSetColor.push_back(2);
     dataSetLegend.push_back("L1");
 
-    dataSetId.push_back(30);
+    dataSetId.push_back(iMC);
     dataSetIsMc.push_back(1);
     dataSetStyle.push_back(2);
     dataSetColor.push_back(3);
     dataSetLegend.push_back("HF");
 
-    dataSetId.push_back(30);
+    dataSetId.push_back(iMC);
     dataSetIsMc.push_back(1);
     dataSetStyle.push_back(2);
     dataSetColor.push_back(4);
     dataSetLegend.push_back("Vertex");
 
-    dataSetId.push_back(30);
+    dataSetId.push_back(iMC);
     dataSetIsMc.push_back(1);
     dataSetStyle.push_back(1);
     dataSetColor.push_back(1);
     dataSetLegend.push_back("All");
 
+
+    XaxisTitle = "n_{ch}";
+    YaxisTitle = "Efficiency";
+    histoXMax  = 80.; 
 
     // Plots
 
@@ -827,7 +851,7 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
     dataSetHisto.push_back("eff_evtSel"+all); 
     plot(dir,"AUTO");
 
-    dir   = "ptGen0_etaGen2.4_ptReco0.15_etaReco2.4" ;  
+    dir   = "ptGen0_etaGen2.4_ptReco0.1_etaReco2.4" ;  
     all = "_cut5";
     dataSetHisto.clear();
     dataSetHisto.push_back("eff_L1"+all); 
@@ -836,7 +860,7 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
     dataSetHisto.push_back("eff_evtSel"+all); 
     plot(dir,"AUTO");
 
-    dir   = "ptGen0.2_etaGen2.4_ptReco0.2_etaReco2.4" ;  
+    dir   = "ptGen0.1_etaGen2.4_ptReco0.1_etaReco2.4" ;  
     all = "_cut10";
     dataSetHisto.clear();
     dataSetHisto.push_back("eff_L1"+all); 
@@ -911,6 +935,7 @@ SetId.push_back(10);
   if(mtxplot){
 
     globalDirPlot = "../plots/systv2/";
+    globalDirPlot = "/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/plots/simpleanav8/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -918,6 +943,7 @@ SetId.push_back(10);
 
     plotReset();
     ptcutstr = "newbinning";
+    ptcutstr = "";
 
     // Plot settings
     globalNorm     = 0;
@@ -925,7 +951,12 @@ SetId.push_back(10);
     globalHistoType= 2;
     global2DplotOpt = "col" ;
 
-    dataSetId.push_back(30);
+    int iMC ;
+    if (globalEnergy == 0.9 ) iMC = 10 ;
+    if (globalEnergy == 2.36) iMC = 10 ;
+    if (globalEnergy == 7.0 ) iMC = 31 ;
+
+    dataSetId.push_back(iMC);
     dataSetIsMc.push_back(1);
     dataSetStyle.push_back(2);
     dataSetColor.push_back(2);
@@ -955,11 +986,11 @@ SetId.push_back(10);
       if (itracking == 1 ) LT << "   genTracks: " ;
       if (itracking == 2 ) LT << "   mbiasTracks: " ;
       LT << "  |#eta|<" << "2.4" ;
-      LT << "  p_{T}>"  << "0.15" ;
+      LT << "  p_{T}>"  << "0.1" ;
       LegendTitle = LT.str();
     }
 
-    dir   = "ptGen0_etaGen2.4_ptReco0.15_etaReco2.4/MatrixPlots_evtSel_cut5" ;
+    dir   = "ptGen0_etaGen2.4_ptReco0.1_etaReco2.4/MatrixPlots_evtSel_cut5" ;
     all = "_cut5";
     plot(dir,"nch_matrix_evtSel"+all);
 
@@ -971,11 +1002,11 @@ SetId.push_back(10);
       if (itracking == 1 ) LT << "   genTracks: " ;
       if (itracking == 2 ) LT << "   mbiasTracks: " ;
       LT << "  |#eta|<" << "2.4" ;
-      LT << "  p_{T}>"  << "0.2"  ;
+      LT << "  p_{T}>"  << "0.1"  ;
       LegendTitle = LT.str();
     }
 
-    dir   = "ptGen0.2_etaGen2.4_ptReco0.2_etaReco2.4/MatrixPlots_evtSel_cut10" ;
+    dir   = "ptGen0.1_etaGen2.4_ptReco0.1_etaReco2.4/MatrixPlots_evtSel_cut10" ;
     all = "_cut10";
     plot(dir,"nch_matrix_evtSel"+all);
 
