@@ -54,6 +54,9 @@ TString fileManager ( int     iFileType  = 0
   if ( Energy == 2.36 && iDataType == 40 ) CMSSW       = "CMSSW_3_5_6";
 
   TString BaseDirTree = "/user/xjanssen/data/" ;
+  if(Energy == 7.0 && (iDataType == 51 || iDataType == 52))
+    BaseDirTree = "/user/rougny/data/" ;
+    
   TString BaseDirPlot = "../plots/";
   
   if ( BaseDirPlIn != "NONE" )
@@ -171,6 +174,14 @@ TString fileManager ( int     iFileType  = 0
       else if ( iDataType == 31 ) {
         TreeBase = "ChPartTree_v005c_mc7000_v25b";
         DataSet  = "__MinBiasATLAS_SIM_0332__yilmaz-MinBiasATLAS_RECO_0332_v1-a68e153adb2dbe2ae110cdf8cea4b2da__USER";
+      }
+      else if ( iDataType == 51 ) {
+        TreeBase = "ChPartTree_v005_mc7000_v26_FS";
+        DataSet  = "__MinBias_TuneX1_7TeV-pythia6__Spring10-START3X_V26_FastSim-v1__GEN-SIM-DIGI-RECO";
+      }
+      else if ( iDataType == 52 ) {
+        TreeBase = "ChPartTree_v005_mc7000_v26_FS";
+        DataSet  = "__MinBias_TuneX2_7TeV-pythia6__Spring10-START3X_V26_FastSim-v1__GEN-SIM-DIGI-RECO";
       }
 
       else {
