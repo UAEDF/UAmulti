@@ -52,6 +52,9 @@ bool mltplot = 0;
 
 bool zbeffpl = 0;
 
+// GenMulti
+bool genplot = 0;
+
 // eta / pt / pt2
 bool corplot = 0;
 bool etaplot = 0;
@@ -140,16 +143,28 @@ gROOT->ProcessLine("makePlots(3,7.0 ,0.  )");
 
 */
 
+/*
   trkplot = 0;
   vtxplot = 0;
   nvtplot = 0;
-  //effplot = 1;
+  effplot = 1;
   mtxplot = 1;
+  genplot = 1;
 
 gROOT->ProcessLine("makePlots(2,0.9 ,0.  )");
 gROOT->ProcessLine("makePlots(2,2.36,0.  )");
 gROOT->ProcessLine("makePlots(2,7.0 ,0.  )");
+*/
 
+// Unfolding
+
+gROOT->ProcessLine("makeUPlots(1,2,0.9,5,0,10,1,0)");
+gROOT->ProcessLine("makeUPlots(1,2,2.36,5,0,10,1,0)");
+gROOT->ProcessLine("makeUPlots(1,2,7.0,5,0,31,1,0)");
+
+gROOT->ProcessLine("makeUPlots(1,2,0.9,5,10,10,1,0)");
+gROOT->ProcessLine("makeUPlots(1,2,2.36,5,10,10,1,0)");
+gROOT->ProcessLine("makeUPlots(1,2,7.0,5,31,31,1,0)");
 
 
 }
@@ -731,6 +746,109 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
     plot(dir,"pt2_"+all,1);
     plot(dir,"rapidity_"+all,1);
   
+  }
+
+  // -------- GEN MULTI PLOTS --------------
+  if(genplot){ 
+
+    int iMC ;
+    if (globalEnergy == 0.9 ) iMC = 10 ;
+    if (globalEnergy == 2.36) iMC = 10 ;
+    if (globalEnergy == 7.0 ) iMC = 31 ;
+
+    plotReset();
+ 
+    globalDirPlot = "../plots/";
+    ptcutstr      = "ptcut0_GENMULT";
+    dir   = "GenMultiPlots_pt_etaCut_noSel" ;
+
+    if (globalEnergy == 0.9 ) LegendTitle = "PYTHIA D6T";
+    if (globalEnergy == 2.36) LegendTitle = "PYTHIA D6T";
+    if (globalEnergy == 7.0 ) LegendTitle = "PYTHIA ATLAS";
+
+
+    globalNorm     = 0;
+    globalFileType = 1;
+
+    dataSetId.push_back(iMC);
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(1);
+    dataSetColor.push_back(kBlack);
+    dataSetLegend.push_back("INC");
+    dataSetHisto.push_back("MultiPlots_INC_pt_etaCut_noSel/eta_INC_pt_etaCut_noSel");
+
+    dataSetId.push_back(iMC);
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(1);
+    dataSetColor.push_back(kRed);
+    dataSetLegend.push_back("NSD");
+    dataSetHisto.push_back("MultiPlots_NSD_pt_etaCut_noSel/eta_NSD_pt_etaCut_noSel");
+
+    dataSetId.push_back(iMC);
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(1);
+    dataSetColor.push_back(kBlue);
+    dataSetLegend.push_back("SD");
+    dataSetHisto.push_back("MultiPlots_SD_pt_etaCut_noSel/eta_SD_pt_etaCut_noSel");
+
+    dataSetId.push_back(iMC);
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(1);
+    dataSetColor.push_back(kMagenta);
+    dataSetLegend.push_back("DD");
+    dataSetHisto.push_back("MultiPlots_DD_pt_etaCut_noSel/eta_DD_pt_etaCut_noSel");
+
+    globalFigBaseName = "eta";
+    plot(dir,"AUTO",0,1);
+
+
+    /// nch
+
+    plotReset();
+
+    globalDirPlot = "../plots/";
+    ptcutstr      = "ptcut0_GENMULT";
+    dir   = "GenMultiPlots_pt_etaCut_noSel" ;
+
+    if (globalEnergy == 0.9 ) LegendTitle = "PYTHIA D6T";
+    if (globalEnergy == 2.36) LegendTitle = "PYTHIA D6T";
+    if (globalEnergy == 7.0 ) LegendTitle = "PYTHIA ATLAS";
+
+    globalNorm     = 0;
+    globalFileType = 1;
+
+    dataSetId.push_back(iMC);
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(1);
+    dataSetColor.push_back(kBlack);
+    dataSetLegend.push_back("INC");
+    dataSetHisto.push_back("MultiPlots_INC_pt_etaCut_noSel/nch_INC_pt_etaCut_noSel");
+
+    dataSetId.push_back(iMC);
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(1);
+    dataSetColor.push_back(kRed);
+    dataSetLegend.push_back("NSD");
+    dataSetHisto.push_back("MultiPlots_NSD_pt_etaCut_noSel/nch_NSD_pt_etaCut_noSel");
+
+    dataSetId.push_back(iMC);
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(1);
+    dataSetColor.push_back(kBlue);
+    dataSetLegend.push_back("SD");
+    dataSetHisto.push_back("MultiPlots_SD_pt_etaCut_noSel/nch_SD_pt_etaCut_noSel");
+
+    dataSetId.push_back(iMC);
+    dataSetIsMc.push_back(1);
+    dataSetStyle.push_back(1);
+    dataSetColor.push_back(kMagenta);
+    dataSetLegend.push_back("DD");
+    dataSetHisto.push_back("MultiPlots_DD_pt_etaCut_noSel/nch_DD_pt_etaCut_noSel");
+
+    globalFigBaseName = "nch";
+    plot(dir,"AUTO",1,0);
+
+
   }
 
   //-------- EFFICIENCIES --- ZEROBIAS -----
@@ -1337,6 +1455,9 @@ SetId.push_back(10);
   if( nchplot ){
 
     globalDirPlot = "../plots/systv2/";
+    globalDirPlot = "/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/plots/finalv8/";
+    globalDirPlot = "/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/plots/";
+    globalDirPlot = "/user/xjanssen/Romain/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -1403,7 +1524,7 @@ SetId.push_back(10);
     dataSetColor.push_back(4);
     dataSetLegend.push_back("Data NSD");
     dataSetHisto.push_back("nch_data_NSD_afterSDsub");
-
+/*
     dataSetId.push_back(-1);
     dataSetFile.push_back(fileManager(globalFileType,iUfoldMCType,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
     dataSetIsMc.push_back(1);
@@ -1411,6 +1532,7 @@ SetId.push_back(10);
     dataSetColor.push_back(1);
     dataSetLegend.push_back("NSD PYTHIA D6T");
     dataSetHisto.push_back("nch_MC_gen_NSD");
+*/
 
     dataSetId.push_back(-1);
     dataSetFile.push_back(fileManager(globalFileType,iUfoldMCType,globalEnergy,globalTraking,0,0,ptcutstr,globalDirPlot));
@@ -1544,7 +1666,7 @@ SetId.push_back(10);
     }    
 
    
-    plot(dir,"AUTO");
+    plot(dir,"AUTO",1);
     
     
     plotReset();
@@ -1608,7 +1730,7 @@ SetId.push_back(10);
     }    
 
    
-    plot(dir,"AUTO",1,2);
+    plot(dir,"AUTO",1);
     
     
     /*dataSetHisto.clear();
@@ -3936,16 +4058,16 @@ void setnchrangeX(int iUfoldBin )
     {
       if ( iUfoldBin == 0  || iUfoldBin == 5 )
         {
-          histoXMin = -0.5        ; histoXMax = 110.5  ; }
+          histoXMin = -0.5        ; histoXMax = 180.5  ; }
       if ( iUfoldBin == 10 )
         {
-          histoXMin = -0.5        ; histoXMax = 100.5  ; }
+          histoXMin = -0.5        ; histoXMax = 180.5  ; }
       if ( iUfoldBin == 15 )
         {
-          histoXMin = -0.5        ; histoXMax =  80.5  ; }
+          histoXMin = -0.5        ; histoXMax = 180.5  ; }
       if ( iUfoldBin == 20 )
         {
-          histoXMin = -0.5        ; histoXMax =  50.5  ; }
+          histoXMin = -0.5        ; histoXMax = 180.5  ; }
     }
 
 }
