@@ -208,7 +208,7 @@ TString fileManager ( int     iFileType  = 0
                + TreeBase + "__" + CMSSW + DataSet + "_*.root/evt" ;
 
   //---------------------- collectionPlotter Files --------------------------
-  } else if ( iFileType == 1 || iFileType == 2 || iFileType == 3 || iFileType == 4 ) {
+  } else if ( iFileType == 1 || iFileType == 2 || iFileType == 3 || iFileType == 4 || iFileType == 5) {
 
     TString PlotBase;
     TString DataSet  = "_Undef" ;
@@ -219,6 +219,7 @@ TString fileManager ( int     iFileType  = 0
     if ( iFileType == 2 ) PlotBase = "simpleAna";
     if ( iFileType == 3 ) PlotBase = "unfolding";  
     if ( iFileType == 4 ) PlotBase = "ZeroBiasEff";  
+    if ( iFileType == 5 ) PlotBase = "mptCorr"; 
 
     if ( iDataType == 0 ) DataSet = "_data" ; 
     if ( iDataType == 1 ) DataSet = "_data_35X" ; 
@@ -231,6 +232,8 @@ TString fileManager ( int     iFileType  = 0
     if ( iDataType == 30) DataSet = "_MC_D6T_newBS" ; 
     if ( iDataType == 31) DataSet = "_MC_ATLAS" ; 
     if ( iDataType == 40) DataSet = "_MC_D6T_35X" ; 
+    if ( iDataType == 51) DataSet = "_MC_D6T_X1" ; 
+    if ( iDataType == 52) DataSet = "_MC_D6T_X2" ; 
     
     if ( Energy == 0.9  ) SEnergy = "_0.9TeV"  ;
     if ( Energy == 2.36 ) SEnergy = "_2.36TeV" ;
@@ -242,6 +245,7 @@ TString fileManager ( int     iFileType  = 0
     FileName  = BaseDirPlot +  PlotBase + DataSet + SEnergy ;
     if (iFileType == 2 ) FileName += STracking ;
     if (iFileType == 3 ) FileName += STracking ;
+    if (iFileType == 5 ) FileName += STracking ;
     if (iSystType > 0 ) 
     {
       if ( fabs (iSystSign) == 1 ) 
