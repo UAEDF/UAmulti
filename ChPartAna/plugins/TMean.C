@@ -4,8 +4,11 @@
 ClassImp(TMean)
 
 TMean::TMean(){
-  _Mean = _TotalNumber = _TotalSum = 0;
-  _RMS = -1;
+  _Mean = _TotalNumber = _TotalSum = _TotalSumSquare = 0.;
+  _RMS = -1.;
+  _MeanError = _RMSError  = 0.;
+  _MeanSystP = _MeanSystM = 0.;
+  _RMSSystP  = _RMSSystM  = 0.;
 }
 
 TMean::~TMean(){
@@ -46,11 +49,14 @@ Double_t TMean::GetRMS(){
 }
 
 void TMean::Reset(){
-  _Mean = 0 ;
-  _RMS = 0 ;
-  _TotalNumber = 0 ;
-  _TotalSum = 0 ;
-  _TotalSumSquare = 0 ;
+  _Mean = 0. ;
+  _RMS = -1. ;
+  _TotalNumber = 0. ;
+  _TotalSum = 0. ;
+  _TotalSumSquare = 0. ;
+  _MeanError = _RMSError  = 0;
+  _MeanSystP = _MeanSystM = 0;
+  _RMSSystP  = _RMSSystM  = 0;
 }
 
 void TMean::Scale(Double_t factor){
