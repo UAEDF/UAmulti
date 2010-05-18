@@ -17,6 +17,7 @@ class TMoments : public TObject{
   TMoments(TH1F*);
   
   void Init();
+  void clear();
   ~TMoments();
   
   void Add(Double_t, Double_t);
@@ -26,7 +27,7 @@ class TMoments : public TObject{
   void ComputeMoments();
   void ComputeErrorsFromResampling(TH1F*);
   
-  void Print();
+  void print();
   
   Int_t nmoments;
   TMean* mean;
@@ -39,10 +40,20 @@ class TMoments : public TObject{
   vector<Double_t>* kmoments;
   vector<Double_t>* hmoments;
   
-  vector<Double_t>* cerrors;
-  vector<Double_t>* ferrors;
-  vector<Double_t>* kerrors;
-  vector<Double_t>* herrors;
+  vector<Double_t>* cstaterr;
+  vector<Double_t>* fstaterr;
+  vector<Double_t>* kstaterr;
+  vector<Double_t>* hstaterr;
+  
+  vector<Double_t>* csystmerr;
+  vector<Double_t>* fsystmerr;
+  vector<Double_t>* ksystmerr;
+  vector<Double_t>* hsystmerr;
+  
+  vector<Double_t>* csystperr;
+  vector<Double_t>* fsystperr;
+  vector<Double_t>* ksystperr;
+  vector<Double_t>* hsystperr;
     
   private:
 
