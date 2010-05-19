@@ -1,5 +1,6 @@
 #include "TFile.h"
 #include "TH1F.h"
+#include "TProfile.h"
 #include "TGraphAsymmErrors.h"
 #include "TString.h"
 #include "TPad.h"
@@ -18,10 +19,10 @@ using namespace std;
 #include "../plugins/TMoments.h"
 
 
-double energy = 2.36;
+double energy = 0.9;
 int cut = 5;
 TString plotdir = "../plots/";
-bool logY = false;
+bool logY = true;
 TString plot = "unfolding/nch_data_corrected";
 int typeMC = 10;
 
@@ -31,9 +32,12 @@ double getMaxSyst(double , double , double);
 TH1F makeMirrorSyst(TH1F* , TH1F);
 
 
-void plotSystematics(int syst , bool mirror = true){
+void plotSystematics(int syst , double energy = 0.9 , bool mirror = true){
   
+  if(energy==7.0) typeMC = 31;
+  else            typeMC = 10;
   
+  plotdir = "../plots/systv9/";
   ostringstream outstr("");
   outstr << "hyp" << 1 << "_niter" << 0 << "_cut" << cut << "_DataType" << 0;
 
@@ -158,9 +162,11 @@ void plotSystematics(TString tdata, TString tsyst1, TString tsyst2, TString plot
   for(;max<hdata->GetNbinsX();++max)
     if(y[int(max)]==0)
       max+=exh[int(max)]+1;
-  gsyst->GetXaxis()->SetRangeUser(hdata->GetXaxis()->GetXmin(),max);
-  gsyst->GetXaxis()->SetTitle("nch");//hdata->GetXaxis()->GetTitle());
-  gsyst->GetYaxis()->SetTitle("# events");//hdata->GetXaxis()->GetTitle());
+  gsyst->GetXaxis()->SetRangeUser(-0.5,max);
+  gsyst->SetMinimum(5.);
+  gsyst->GetXaxis()->SetTitle("n");//hdata->GetXaxis()->GetTitle());
+  if(logY) gsyst->GetYaxis()->SetTitle("P_{n}");//hdata->GetXaxis()->GetTitle());
+  else     gsyst->GetYaxis()->SetTitle("# events");
   gsyst->SetFillColor(16);
   gsyst->Draw("a2");
   
@@ -204,6 +210,22 @@ void plotSystematics(TString tdata, TString tsyst1, TString tsyst2, TString plot
   figname << histname << "__" <<filename.ReplaceAll(".root","");
   if(logY) figname << "_logY";
   figname << ".gif";
+  cout<<figname.str()<<endl;
+  gPad->SaveAs(figname.str().c_str(),"");
+  
+  figname.str("");
+  figname << "../figs/" << energy << "Tev/" << "systematics/";
+  figname << histname << "__" <<filename.ReplaceAll(".root","");
+  if(logY) figname << "_logY";
+  cout<<figname.str()<<endl;
+  gPad->SaveAs(TString(figname.str().c_str())+TString(".eps"),"");
+  gSystem->Exec(TString("convert ")+TString(figname.str().c_str())+TString(".eps ")+TString(figname.str().c_str())+TString(".pdf"));
+  
+  figname.str("");
+  figname << "../figs/" << energy << "Tev/" << "systematics/";
+  figname << histname << "__" <<filename.ReplaceAll(".root","");
+  if(logY) figname << "_logY";
+  figname << ".root";
   cout<<figname.str()<<endl;
   gPad->SaveAs(figname.str().c_str(),"");
 }
@@ -549,9 +571,197 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , bool printFig = false){
   }
   
   fdata->cd("unfolding/moments");
-  mdata->Write("moments_syst",6);
+  mdata->Write("moments_syst",5);
   mdata->print();
 }
+
+void mptSyst(double energy = 0.9 , bool printFig = false){
+  vector<int> syst;
+  syst.push_back(4);
+  syst.push_back(102);
+  syst.push_back(200);
+  //syst.push_back(411);
+  //syst.push_back(1000);//always last !!
+  
+  TString plotdir = "../plots/";
+  TString plot = "mptVSnch";
+  
+  if(energy==7.0) typeMC = 31;
+  else            typeMC = 10;
+  
+  vector<TProfile> syst1;
+  vector<TProfile> syst2;
+  
+  
+  cout<<"------------------------------ NEW SYSTEMATIC CALCULATION ------------------------------"<<endl;
+  
+  //Taking the data stuff
+  ostringstream strout("");
+  strout<<"dataType0";
+  TString tdata = fileManager(5,typeMC,energy,1,0,0,strout.str(),plotdir);
+  TFile*  fdata = TFile::Open(tdata,"UPDATE");
+  cout<<"Trying to open data file :"<<endl;
+  cout<<tdata<<endl;
+  
+  if(fdata==0){
+    cout<<"Data file is void. Please correct it. Exiting now ..."<<endl;
+    return;
+  }
+  
+  TProfile* hdata  = (TProfile*) fdata->Get(plot);
+  if(hdata==0){
+    cout<<"!! ERROR : plot in data file is void. Exiting now."<<endl;
+    return;
+  }
+     
+  TProfile* dummy = new TProfile("dummy","dummy",1,0,1);
+  
+  TProfile* systp = new TProfile("mptVSnch_systp","mptVSnch_systp",hdata->GetNbinsX(),hdata->GetXaxis()->GetXbins()->GetArray());
+  TProfile* systm = new TProfile("mptVSnch_systm","mptVSnch_systm",hdata->GetNbinsX(),hdata->GetXaxis()->GetXbins()->GetArray());
+  
+  
+  //Getting all histogramms
+  for(int i = 0 ; i < syst.size() ; ++i){
+    TString tsyst1 = "";
+    TString tsyst2 = "";
+    
+    tsyst1 = fileManager(5,typeMC,energy,1,syst.at(i),1,strout.str(),plotdir);
+    tsyst2 = fileManager(5,typeMC,energy,1,syst.at(i),-1,strout.str(),plotdir);
+    
+    
+    cout<<"Trying to open syst files :"<<endl;
+    cout<<tsyst1<<endl;
+    cout<<tsyst2<<endl;
+  
+    TFile* fsyst1 = TFile::Open(tsyst1,"READ");
+    TFile* fsyst2 = TFile::Open(tsyst2,"READ");
+  
+    if(fsyst1==0 && fsyst2!=0){
+      fsyst1=fsyst2;
+      fsyst2=NULL;
+    }
+
+    if(fsyst1==0){
+      cout<<"Syst1 file is void. Please correct it. Skipping it now ..."<<endl;
+      continue;
+    }
+    if(fsyst2==0){
+      cout<<"Using dummy/mirror for "<<tsyst2<<endl;
+    }
+
+    TProfile* hsyst1 = (TProfile*) fsyst1->Get(plot);
+    TProfile* hsyst2 = NULL;
+    if(fsyst2!=0)
+      hsyst2 = (TProfile*) fsyst2->Get(plot);
+  
+    if(hsyst1==0)
+      cout<<"!! ERROR : plot in syst1 file is void. Exiting now."<<endl;
+    if(fsyst2!=0 && hsyst2==0)
+      cout<<"!! ERROR : plot in syst2 file is void. Exiting now."<<endl;
+    
+    if(hsyst1==0 || (fsyst2!=0 && hsyst2==0))
+      continue;
+    
+    
+    syst1.push_back(*hsyst1);
+    if(hsyst2==0) syst2.push_back(*dummy);
+    else syst2.push_back(*hsyst2);
+    
+  }//end of loop over systematics
+  
+  
+  
+  
+  Double_t* x   = new Double_t[hdata->GetNbinsX()];
+  Double_t* y   = new Double_t[hdata->GetNbinsX()];
+  Double_t* exl = new Double_t[hdata->GetNbinsX()];
+  Double_t* exh = new Double_t[hdata->GetNbinsX()];
+  Double_t* eyl = new Double_t[hdata->GetNbinsX()];
+  Double_t* eyh = new Double_t[hdata->GetNbinsX()];
+  for(int i = 1 ; i <= hdata->GetNbinsX() ; ++i){
+    x[i-1] = hdata->GetBinCenter(i);
+    y[i-1] = hdata->GetBinContent(i);
+    exl[i-1] = hdata->GetBinCenter(i) - hdata->GetXaxis()->GetBinLowEdge(i);
+    exh[i-1] = hdata->GetXaxis()->GetBinUpEdge(i) - hdata->GetBinCenter(i);
+    eyl[i-1] = 0;
+    eyh[i-1] = 0;
+    
+    double binc = hdata->GetBinContent(i);
+    for(int isyst = 0 ; isyst < syst1.size() ; ++isyst){
+    
+      double sbinc1 = syst1.at(isyst).GetBinContent(i);
+      
+      bool s2IsVoid = false;
+      if(TString(syst2.at(isyst).GetName()).Contains("dummy")) s2IsVoid = true;
+      double sbinc2 = 0;
+      if(!s2IsVoid)sbinc2 = syst2.at(isyst).GetBinContent(i);
+      
+      if(sbinc1 > binc){
+        if(!s2IsVoid){
+          if(sbinc2 > sbinc1){
+	    eyh[i-1] += pow(sbinc2-binc , 2);
+	    eyl[i-1] += 0;
+	  }
+	  else{
+	    eyh[i-1] += pow(sbinc1-binc , 2);
+	    if(sbinc2<binc) eyl[i-1] += pow(binc - sbinc2 , 2);
+	    else eyl[i-1] += 0;
+	  }
+	}
+	else {
+	  eyl[i-1] += pow(sbinc1-binc , 2);
+	  eyh[i-1] += pow(sbinc1-binc , 2);
+	}
+      }
+      else{
+        if(!s2IsVoid){
+          if(sbinc2 < sbinc1){
+	    eyl[i-1] += pow(sbinc2-binc , 2);
+	    eyh[i-1] += 0;
+	  }
+	  else{
+	    eyl[i-1] += pow(sbinc1-binc , 2);
+	    if(sbinc2>binc) eyh[i-1] += pow(sbinc2-binc , 2);
+	    else eyh[i-1] += 0;
+	  }
+	}
+	else {
+	  eyl[i-1] += pow(sbinc1-binc , 2);
+	  eyh[i-1] += pow(sbinc1-binc , 2);
+	}      
+      }
+      
+      cout<<i<<"  "<<eyl[i-1]<<"  "<<eyh[i-1]<<endl;
+      cout<<binc<<"  "<<sbinc1<<"  "<<sbinc2<<endl;
+    }//end of loop over syst
+    //cout<<eyl[i-1]<<"  "<< eyh[i-1]<<endl;
+    eyl[i-1] = sqrt(eyl[i-1] + pow(hdata->GetBinError(i),2));
+    eyh[i-1] = sqrt(eyh[i-1] + pow(hdata->GetBinError(i),2));
+    
+    systm->SetBinContent(i,eyl[i-1]);
+    systp->SetBinContent(i,eyh[i-1]);
+    
+    //cout<<"lllllllllllll   "<<eyl[i-1]<<"  "<<eyh[i-1]<<endl;
+    //eyl[i-1] = sqrt(eyl[i-1]);
+    //eyh[i-1] = sqrt(eyh[i-1]);   
+  }//end of loop over bins
+  
+  TGraphAsymmErrors* gsyst = new TGraphAsymmErrors(hdata->GetNbinsX(),x,y,exl,exh,eyl,eyh);
+  gsyst->SetName(TString("g")+hdata->GetName()+TString("_syst"));
+  gsyst->SetTitle(TString("g")+hdata->GetTitle()+TString("_syst"));
+  
+  fdata->cd();
+  gsyst->Write(0,6);
+}
+
+
+
+
+
+
+
+
+
 
 double getMinSyst(double val , double syst1 , double syst2){
   if(syst1<val && syst1<syst2) return val - syst1;
