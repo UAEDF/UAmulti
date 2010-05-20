@@ -225,3 +225,23 @@ tmp.at(2) = 0.5;
 tmp.at(3) = 2.4;
 tmp.at(4) = 1;
 accMap.push_back(tmp);
+
+//-------PT GEN = 0. --------- negative charge
+//***** 28 *****
+tmp.at(0) = 0.;
+tmp.at(1) = 2.4;
+tmp.at(2) = 0.1;
+tmp.at(3) = 2.4;
+tmp.at(4) = -1;
+accMap.push_back(tmp);
+
+
+//-------PT GEN = 0. --------- positive charge
+//***** 29 *****
+tmp.at(0) = 0.;
+tmp.at(1) = 2.4;
+tmp.at(2) = 0.1;
+tmp.at(3) = 2.4;
+tmp.at(4) = 1;
+accMap.push_back(tmp);
+
