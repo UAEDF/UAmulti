@@ -5,6 +5,7 @@
 #include <iostream>
 #include "TObject.h"
 #include "TH1F.h"
+#include "TH2F.h"
 #include "TH1.h"
 #include "TProfile.h"
 #include "TString.h"
@@ -44,6 +45,9 @@ class MultiPlots : public BasePlots {
   TH1F*  pt2;
   TProfile* ptmVSnch;
   TProfile* ptVSnch;
+  
+  TH2F* ptmVSnch_2D;
+  TH2F* ptVSnch_2D;
   
   Int_t nb_moments;
   vector<TMean>* moments;
