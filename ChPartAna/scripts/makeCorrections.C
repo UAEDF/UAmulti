@@ -84,11 +84,13 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 10 , 
        
   #include "../macro/acceptanceMap.C"
   
-  TString filedir("../plots/simpleanav8/");
+  TString filedir("../plots/simpleanav10/");
   TString addstr("");
   
   if(syst==201)
     addstr = "evtSelSyst";
+    
+  
     
   TFile* mctmp = NULL;
   
@@ -143,7 +145,7 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 10 , 
     cout<<"!! WARNING : can't do the negative systematic, niter is already 1. Exiting now ..."<<endl;
     return;
   }
-  if(syst==401 && E==7.0){
+  if((syst==401 ||syst==402 || syst==403) && E==7.0){
     cout<<"!! WARNING : can't do this systematic, don't have the right energy mc. Exiting now ..."<<endl;
     return;
   }
@@ -578,7 +580,10 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 10 , 
   
     
   TMoments* moment = new TMoments(nch_corrected);
+  //moment->print();
+  
   moment->ComputeMoments();
+  //moment->print();
   moment->ComputeErrorsFromResampling(nch_corrected);
   moment->print();
   moment->Write("moments");
@@ -703,7 +708,7 @@ if(drawcanv){
     //gr->SetMarkerColor(0);
     //gr->SetMarkerStyle(24);
     ua5_multi->Draw("L");
-    ua5_multi->Write();
+    ua5_multi->Write("ua5");
   }
  
 
