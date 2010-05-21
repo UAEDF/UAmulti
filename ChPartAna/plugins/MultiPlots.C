@@ -14,6 +14,7 @@ MultiPlots::~MultiPlots(){
   delete pt;
   delete pt2;
   delete ptmVSnch;
+  delete ptmVSnch_2D;
 }
 
 
@@ -31,6 +32,9 @@ void MultiPlots::init(){
   ptmVSnch = new TProfile("ptmVSnch_"+plotsname,"ptmVSnch_"+plotsname+";N_{ch};< <p_{t}>^{evt} >",nch_nbin,nch_array);
   ptVSnch  = new TProfile("ptVSnch_"+plotsname,"ptVSnch_"+plotsname+";N_{ch};<p_{t}>",nch_nbin,nch_array);
   
+  ptmVSnch_2D = new TH2F("ptmVSnch_2D_"+plotsname,"ptmVSnch_2D_"+plotsname+";N_{ch};<p_{t}>;# evts",nch_nbin,nch_array,mpt_nbin,mpt_array);
+  ptVSnch_2D = new TH2F("ptVSnch_2D_"+plotsname,"ptVSnch_2D_"+plotsname+";N_{ch};p_{t};# evts",nch_nbin,nch_array,pt_nbin,pt_array);
+  
   nch->Sumw2();
   rapidity->Sumw2();
   eta->Sumw2();
@@ -38,11 +42,12 @@ void MultiPlots::init(){
   pt2->Sumw2();
   //ptmVSnch->Sumw2();
   //ptVSnch->Sumw2();
+  ptmVSnch_2D->Sumw2();
+  ptVSnch_2D->Sumw2();
     
-  ptmVSnch->SetErrorOption("s");
-  ptVSnch->SetErrorOption("s");
-  
-  
+  ptmVSnch->SetErrorOption("i");
+  ptVSnch->SetErrorOption("i");
+    
   energy    = 900;
   nbEvts    = 0;
   nch_inEvt = 0;
@@ -69,8 +74,11 @@ void MultiPlots::nextEvent(bool laccept , double weight){
     for(int i = 0 ; unsigned(i) < moments->size() ; ++i)
       moments->at(i).Add( pow(double(nch_inEvt),i+1) , weight );
     ptmVSnch->Fill(nch_inEvt,ptm_inEvt->GetMean());
-    for(unsigned int i=0;i<vpt_inEvt.size();++i)
+    ptmVSnch_2D->Fill(nch_inEvt,ptm_inEvt->GetMean() , weight);
+    for(unsigned int i=0;i<vpt_inEvt.size();++i){
       ptVSnch->Fill(nch_inEvt,vpt_inEvt.at(i));
+      ptVSnch_2D->Fill(nch_inEvt,vpt_inEvt.at(i) , weight);
+    }
   }
   
   //re-initializing nch & <pt>
@@ -117,6 +125,12 @@ void MultiPlots::write(bool scale){
   if(scale) ptVSnch->Scale(1./nbEvts , "width");
   ptVSnch->Write();
   
+  if(scale) ptmVSnch_2D->Scale(1./nbEvts , "width");
+  ptmVSnch_2D->Write();
+  
+  if(scale) ptVSnch_2D->Scale(1./nbEvts , "width");
+  ptVSnch_2D->Write();
+  
   this->Write("multi_class_"+plotsname);
   
   gDirectory->cd("../");
@@ -125,14 +139,16 @@ void MultiPlots::write(bool scale){
 }
 
 TH1* MultiPlots::get(TString plot){
-  if(plot=="nch")           return nch;
-  else if(plot=="kno")      return kno;
-  else if(plot=="rapidity") return rapidity;
-  else if(plot=="eta")      return eta;
-  else if(plot=="pt")       return pt;
-  else if(plot=="pt2")      return pt2;
-  else if(plot=="ptmVSnch") return ptmVSnch;
-  else if(plot=="ptVSnch")  return ptVSnch;
+  if(plot.Contains("nch"))              return nch;
+  else if(plot.Contains("kno") )        return kno;
+  else if(plot.Contains("rapidity"))    return rapidity;
+  else if(plot.Contains("eta"))         return eta;
+  else if(plot.Contains("pt"))          return pt;
+  else if(plot.Contains("pt2"))         return pt2;
+  else if(plot.Contains("ptmVSnch"))    return ptmVSnch;
+  else if(plot.Contains("ptVSnch"))     return ptVSnch;
+  else if(plot.Contains("ptmVSnch_2D")) return ptmVSnch_2D;
+  else if(plot.Contains("ptVSnch_2D"))  return ptVSnch_2D;
   return NULL;  
 }
 
