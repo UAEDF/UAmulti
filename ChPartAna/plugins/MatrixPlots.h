@@ -24,14 +24,17 @@ class MatrixPlots : public BasePlots {
     TH2F* nch_matrix;
     TH2F* eta_matrix;
     TH2F* pt_matrix;
+    TH2F* mpt_matrix;
     
     TH1F* nch_gen;
     TH1F* eta_gen;
     TH1F* pt_gen;
+    TH1F* mpt_gen;
     
     TH1F* nch_reco;
     TH1F* eta_reco;
     TH1F* pt_reco;
+    TH1F* mpt_reco;
     
     TH1F* nch_reco_GenBin0;
     TH1F* nch_gen_RecoBin0;
@@ -45,6 +48,9 @@ class MatrixPlots : public BasePlots {
   private:
     Double_t nch_gen_inEvt;
     Double_t nch_reco_inEvt;
+    
+    Double_t mpt_gen_inEvt;
+    Double_t mpt_reco_inEvt;
         
     ClassDef (MatrixPlots,1)
 };
