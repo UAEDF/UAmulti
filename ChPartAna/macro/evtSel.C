@@ -9,6 +9,7 @@
 //#  passVtxQual  (*MyMITEvtSel,Energy)
 //#  passVtx      (vector<MyVertex>*)
 //#
+//#  //beware, needs evtSelType to be defined
 //#  isEvtGood    (Energy, *MyL1Trig , *MyMITEvtSel , vector<MyVertex>*)
 //#  isEvtGoodNoVtx(Energy, *MyL1Trig, *MyMITEvtSel )
 //#
@@ -45,7 +46,7 @@ bool passL1(double Energy, MyL1Trig& L1Trig){
        && !L1Trig.TechTrigWord[37]
        && !L1Trig.TechTrigWord[38]
        && !L1Trig.TechTrigWord[39]
-       && L1Trig.PhysTrigWord[124]
+       && ((L1Trig.PhysTrigWord[124] && !isMC) || (L1Trig.TechTrigWord[34] && isMC))
        && (L1Trig.TechTrigWord[0] || isMC) )
     {
       return true;
