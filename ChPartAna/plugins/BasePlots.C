@@ -13,6 +13,10 @@ ClassImp(BasePlots)
   Double_t  BasePlots::pt_xmax  = 3.;
   Double_t* BasePlots::pt_array;
 
+  Int_t     BasePlots::mpt_nbin  = 160;
+  Double_t  BasePlots::mpt_xmin  = 0.;
+  Double_t  BasePlots::mpt_xmax  = 2;
+  Double_t* BasePlots::mpt_array;
   
   Int_t     BasePlots::eta_nbin  = 60;
   Double_t  BasePlots::eta_xmin  = -3.;
@@ -23,6 +27,7 @@ ClassImp(BasePlots)
 BasePlots::BasePlots(){
   this->makeBins(nch_nbin,nch_xmin,nch_xmax,nch_array);
   this->makeBins(pt_nbin,pt_xmin,pt_xmax,pt_array);
+  this->makeBins(mpt_nbin,mpt_xmin,mpt_xmax,mpt_array);
   this->makeBins(eta_nbin,eta_xmin,eta_xmax,eta_array);
   plotsname = "none";
 }
@@ -30,6 +35,7 @@ BasePlots::BasePlots(){
 BasePlots::BasePlots(TString collname){
   this->makeBins(nch_nbin,nch_xmin,nch_xmax,nch_array);
   this->makeBins(pt_nbin,pt_xmin,pt_xmax,pt_array);
+  this->makeBins(mpt_nbin,mpt_xmin,mpt_xmax,mpt_array);
   this->makeBins(eta_nbin,eta_xmin,eta_xmax,eta_array);
   plotsname = collname;
 }
