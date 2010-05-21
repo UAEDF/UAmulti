@@ -3,11 +3,15 @@
 #include "TProfile.h"
 #include "TGraphAsymmErrors.h"
 #include "TString.h"
+#include "TLatex.h"
+#include "TLegend.h"
 #include "TPad.h"
+#include "TCanvas.h"
 #include "TSystem.h"
 #include "TStyle.h"
 #include "TFrame.h"
 #include "TObject.h"
+#include "TROOT.h"
 
 
 #include <iostream>
@@ -20,7 +24,9 @@ using namespace std;
 
 
 double energy = 0.9;
+TString Estr = "a";
 int cut = 5;
+int SYST = 4;
 TString plotdir = "../plots/";
 bool logY = true;
 TString plot = "unfolding/nch_data_corrected";
@@ -32,12 +38,18 @@ double getMaxSyst(double , double , double);
 TH1F makeMirrorSyst(TH1F* , TH1F);
 
 
-void plotSystematics(int syst , double energy = 0.9 , bool mirror = true){
+void plotSystematics(int syst , double E = 0.9 , bool mirror = true){
+  
+  energy = E;
+  SYST   = syst;
+  if(E==0.9)  Estr = "a";
+  if(E==2.36) Estr = "b";
+  if(E==7.0)  Estr = "c";
   
   if(energy==7.0) typeMC = 31;
   else            typeMC = 10;
   
-  plotdir = "../plots/systv9/";
+  plotdir = "../plots/systv9_bis/";
   ostringstream outstr("");
   outstr << "hyp" << 1 << "_niter" << 0 << "_cut" << cut << "_DataType" << 0;
 
@@ -62,6 +74,8 @@ void plotSystematics(int syst , double energy = 0.9 , bool mirror = true){
 
 void plotSystematics(TString tdata, TString tsyst1, TString tsyst2, TString plot , bool mirror){
 
+  gROOT->ProcessLine(".x cmsStyleRoot.C");
+  
   cout<<"Trying to open files :"<<endl;
   cout<<tdata<<endl;
   cout<<tsyst1<<endl;
@@ -102,12 +116,18 @@ void plotSystematics(TString tdata, TString tsyst1, TString tsyst2, TString plot
     return;
   
 
-  Double_t* x   = new Double_t[hdata->GetNbinsX()];
-  Double_t* y   = new Double_t[hdata->GetNbinsX()];
-  Double_t* exl = new Double_t[hdata->GetNbinsX()];
-  Double_t* exh = new Double_t[hdata->GetNbinsX()];
-  Double_t* eyl = new Double_t[hdata->GetNbinsX()];
-  Double_t* eyh = new Double_t[hdata->GetNbinsX()];
+  Double_t* x    = new Double_t[hdata->GetNbinsX()];
+  Double_t* y    = new Double_t[hdata->GetNbinsX()];
+  Double_t* exl  = new Double_t[hdata->GetNbinsX()];
+  Double_t* exh  = new Double_t[hdata->GetNbinsX()];
+  Double_t* eyl  = new Double_t[hdata->GetNbinsX()];
+  Double_t* eyh  = new Double_t[hdata->GetNbinsX()];
+  
+  Double_t* ry   = new Double_t[hdata->GetNbinsX()];
+  Double_t* reyl = new Double_t[hdata->GetNbinsX()];
+  Double_t* reyh = new Double_t[hdata->GetNbinsX()];
+  double maxr = 1. , minr = 1.;
+  
   for(int i = 1 ; i <= hdata->GetNbinsX() ; ++i){
     x[i-1] = hdata->GetBinCenter(i);
     y[i-1] = hdata->GetBinContent(i);
@@ -153,16 +173,30 @@ void plotSystematics(TString tdata, TString tsyst1, TString tsyst2, TString plot
 	}
       }
     }
-  }
+    
+    //doing the ratio arrays
+    ry[i-1] = 1.;
+    reyl[i-1] = reyh[i-1] = 0;
+    if(hdata->GetBinContent(i)!=0){
+      reyl[i-1] = eyl[i-1]/hdata->GetBinContent(i);
+      reyh[i-1] = eyh[i-1]/hdata->GetBinContent(i);
+      if(1-reyl[i-1]<minr) minr = 1-reyl[i-1];
+      if(1+reyh[i-1]>maxr) maxr = 1+reyh[i-1];
+    }
+    //cout<<eyh[i-1]<<"  "<<hdata->GetBinContent(i)<<"  "<<reyh[i-1]<<endl;
+    
+  }//end of loop over bins
 
 
   TGraphAsymmErrors* gsyst = new TGraphAsymmErrors(hdata->GetNbinsX(),x,y,exl,exh,eyl,eyh);
   
   double max = 0;
   for(;max<hdata->GetNbinsX();++max)
-    if(y[int(max)]==0)
+    if(y[int(max)]==0){
       max+=exh[int(max)]+1;
-  gsyst->GetXaxis()->SetRangeUser(-0.5,max);
+      //break;
+    }
+  /*gsyst->GetXaxis()->SetRangeUser(-0.5,max);
   gsyst->SetMinimum(5.);
   gsyst->GetXaxis()->SetTitle("n");//hdata->GetXaxis()->GetTitle());
   if(logY) gsyst->GetYaxis()->SetTitle("P_{n}");//hdata->GetXaxis()->GetTitle());
@@ -181,12 +215,12 @@ void plotSystematics(TString tdata, TString tsyst1, TString tsyst2, TString plot
   gStyle->SetOptTitle(kFALSE);
 
   
-  /*hsyst1->SetLineColor(kBlue);
+  hsyst1->SetLineColor(kBlue);
   hsyst1->Draw("same");
   if(fsyst2!=0){
     hsyst2->SetLineColor(kOrange);
     hsyst2->Draw("same");
-  }*/
+  }
 
 
   //hdata->SetMarkerStyle(kOpenCircle);
@@ -196,10 +230,10 @@ void plotSystematics(TString tdata, TString tsyst1, TString tsyst2, TString plot
   hdata->SetMarkerColor(kRed);
   hdata->Draw("psame");
   
-  gPad->WaitPrimitive();
+  gPad->WaitPrimitive();*/
   
   //writing the files in gif
-  ostringstream figname("");
+  /*ostringstream figname("");
   figname << "../figs/" << energy << "Tev/" << "systematics/";
   if (!gSystem->OpenDirectory(figname.str().c_str())) gSystem->mkdir(figname.str().c_str(),true);
   TString filename = fsyst1->GetName();
@@ -228,6 +262,71 @@ void plotSystematics(TString tdata, TString tsyst1, TString tsyst2, TString plot
   figname << ".root";
   cout<<figname.str()<<endl;
   gPad->SaveAs(figname.str().c_str(),"");
+  */
+  
+  //---------------------
+  //plotting the ratio
+  TCanvas* c_rsyst = new TCanvas("c_rsyst","c_rsyst",1000,500);
+  c_rsyst->cd();
+  
+  TGraphAsymmErrors* rsyst = new TGraphAsymmErrors(hdata->GetNbinsX(),x,ry,exl,exh,reyl,reyh);
+  
+  TH1F* one = new TH1F("one","one",306,-5.5,300.5);
+  for(int b = 1 ; b <= one->GetNbinsX() ; ++b) one->SetBinContent(b,1.);
+  one->SetLineColor(kRed);
+  one->GetXaxis()->SetRangeUser(-0.5,max);
+  //one->GetYaxis()->SetRangeUser(0.4,1.4);
+  one->GetYaxis()->SetRangeUser(minr,maxr);
+  cout<<minr<<"  "<<maxr<<endl;
+  one->GetXaxis()->SetTitle("n");
+  one->GetYaxis()->SetTitle("\\sigma_{syst}");
+  one->Draw("hist");
+  
+  rsyst->SetFillColor(16);
+  rsyst->Draw("2 same");
+  
+  one->Draw("histsame");
+  
+  ostringstream txt("");
+  txt<<"CMS "<<energy<<" TeV";
+  TLatex* text = new TLatex(0.4,0.8,txt.str().c_str());
+  text->SetNDC(kTRUE);
+  text->SetTextSize(0.06);
+  text->DrawLatex(0.4,0.8,txt.str().c_str());
+  
+  gPad->WaitPrimitive();
+  
+  //writing the files in gif
+  ostringstream figname("");
+  figname << "../figs/" << energy << "Tev/" << "systematics/";
+  if (!gSystem->OpenDirectory(figname.str().c_str())) gSystem->mkdir(figname.str().c_str(),true);
+  TString filename = fsyst1->GetName();
+  TString histname = hsyst1->GetName();
+  filename.Remove(0,filename.Last('/')+1);
+  histname.Remove(0,histname.Last('/')+1);
+  
+  figname << "syst"<<SYST<<"_cut"<<cut<<"_"<<Estr;
+  if(logY) figname << "_logY";
+  figname << ".gif";
+  cout<<figname.str()<<endl;
+  gPad->SaveAs(figname.str().c_str(),"");
+  
+  figname.str("");
+  figname << "../figs/" << energy << "Tev/" << "systematics/";
+  figname << "syst"<<SYST<<"_cut"<<cut<<"_"<<Estr;
+  if(logY) figname << "_logY";
+  cout<<figname.str()<<endl;
+  gPad->SaveAs(TString(figname.str().c_str())+TString(".eps"),"");
+  gSystem->Exec(TString("convert ")+TString(figname.str().c_str())+TString(".eps ")+TString(figname.str().c_str())+TString(".pdf"));
+  
+  figname.str("");
+  figname << "../figs/" << energy << "Tev/" << "systematics/";
+  figname << "syst"<<SYST<<"_cut"<<cut<<"_"<<Estr;
+  if(logY) figname << "_logY";
+  figname << ".root";
+  cout<<figname.str()<<endl;
+  gPad->SaveAs(figname.str().c_str(),"");
+  
 }
 
 void finaleSystematic(double energy = 0.9, int cut = 5 , bool printFig = false){
@@ -237,6 +336,8 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , bool printFig = false){
   syst.push_back(200);
   //syst.push_back(411);
   //syst.push_back(1000);//always last !!
+  
+  gROOT->ProcessLine(".x cmsStyleRoot.C");
   
   if(energy==7.0) typeMC = 31;
   else            typeMC = 10;
@@ -364,6 +465,14 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , bool printFig = false){
   Double_t* exh = new Double_t[hdata->GetNbinsX()];
   Double_t* eyl = new Double_t[hdata->GetNbinsX()];
   Double_t* eyh = new Double_t[hdata->GetNbinsX()];
+  
+  Double_t* ry   = new Double_t[hdata->GetNbinsX()];
+  Double_t* reyl = new Double_t[hdata->GetNbinsX()];
+  Double_t* reyh = new Double_t[hdata->GetNbinsX()];
+  Double_t* seyl = new Double_t[hdata->GetNbinsX()];
+  Double_t* seyh = new Double_t[hdata->GetNbinsX()];
+  double maxr = 0. , minr = 0.;
+
   for(int i = 1 ; i <= hdata->GetNbinsX() ; ++i){
     x[i-1] = hdata->GetBinCenter(i);
     y[i-1] = hdata->GetBinContent(i);
@@ -427,6 +536,19 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , bool printFig = false){
     systm->SetBinContent(i,eyl[i-1]);
     systp->SetBinContent(i,eyh[i-1]);
     
+     //doing the ratio arrays
+    ry[i-1] = 0;
+    reyl[i-1] = reyh[i-1] = 0;
+    seyl[i-1] = seyh[i-1] = 0;
+    if(hdata->GetBinContent(i)!=0){
+      reyl[i-1] = eyl[i-1]/hdata->GetBinContent(i);
+      reyh[i-1] = eyh[i-1]/hdata->GetBinContent(i);
+      seyl[i-1] = hdata->GetBinError(i)/hdata->GetBinContent(i);
+      seyh[i-1] = hdata->GetBinError(i)/hdata->GetBinContent(i);
+      if(0.-reyl[i-1]<minr) minr = 0.-reyl[i-1];
+      if(0.+reyh[i-1]>maxr) maxr = reyh[i-1];
+    }
+    
     //cout<<"lllllllllllll   "<<eyl[i-1]<<"  "<<eyh[i-1]<<endl;
     //eyl[i-1] = sqrt(eyl[i-1]);
     //eyh[i-1] = sqrt(eyh[i-1]);   
@@ -436,16 +558,17 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , bool printFig = false){
   gsyst->SetName(TString("g")+hdata->GetName()+TString("_syst"));
   gsyst->SetTitle(TString("g")+hdata->GetTitle()+TString("_syst"));
   fdata->cd("unfolding/");
-  gsyst->Write(0,6);
+  cout<<"          "<<gDirectory->GetName()<<endl;
+  gsyst->Write(TString("g")+hdata->GetName()+TString("_syst"),TObject::kWriteDelete);
   
-  systm->Write(0,6);
-  systp->Write(0,6);
+  systm->Write(0,TObject::kWriteDelete);
+  systp->Write(0,TObject::kWriteDelete);
   
   double max = 0;
   for(;max<hdata->GetNbinsX();++max)
     if(y[int(max)]==0)
       max+=exh[int(max)]+1;
-  gsyst->GetXaxis()->SetRangeUser(hdata->GetXaxis()->GetXmin(),max);
+  /*gsyst->GetXaxis()->SetRangeUser(hdata->GetXaxis()->GetXmin(),max);
   gsyst->GetXaxis()->SetTitle("nch");//hdata->GetXaxis()->GetTitle());
   gsyst->GetYaxis()->SetTitle("P_{n}");//hdata->GetXaxis()->GetTitle());
   gsyst->SetFillColor(16);
@@ -459,7 +582,7 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , bool printFig = false){
   gPad->SetGrid(0,0);
   if(logY) gPad->SetLogy(true);
   gStyle->SetOptStat(0);
-  gStyle->SetOptTitle(kFALSE);
+  gStyle->SetOptTitle(kFALSE);*/
 
   
   /*syst1.at(0).SetLineColor(kBlue);
@@ -471,22 +594,66 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , bool printFig = false){
 
 
   //hdata->SetMarkerStyle(kOpenCircle);
-  hdata->SetMarkerStyle(kDot);
+  /*hdata->SetMarkerStyle(kDot);
   hdata->SetMarkerSize(0.1);
   hdata->SetLineColor(kRed);
   hdata->SetMarkerColor(kRed);
-  hdata->Draw("psame");
+  hdata->Draw("psame");*/
+   TCanvas* c_rsyst = new TCanvas("c_rsyst","c_rsyst",1000,500);
+  c_rsyst->cd();
+
+  TGraphAsymmErrors* rsyst = new TGraphAsymmErrors(hdata->GetNbinsX(),x,ry,exl,exh,reyl,reyh);
+  TGraphAsymmErrors* ssyst = new TGraphAsymmErrors(hdata->GetNbinsX(),x,ry,exl,exh,seyl,seyh);
+
+  TH1F* one = new TH1F("one","one",306,-5.5,300.5);
+  for(int b = 1 ; b <= one->GetNbinsX() ; ++b) one->SetBinContent(b,0.);
+  one->SetLineColor(kRed);
+  one->GetXaxis()->SetRangeUser(-0.5,max);
+  //one->GetYaxis()->SetRangeUser(0.4,1.4);
+  one->GetYaxis()->SetRangeUser(minr*1.05,maxr*1.05);
+  cout<<minr<<"  "<<maxr<<endl;
+  one->GetXaxis()->SetTitle("n");
+  one->GetYaxis()->SetTitle("\\sigma(P_{n}) / P_{n}");
+  one->Draw("hist");
+
+  rsyst->SetFillColor(16);
+  rsyst->Draw("2 same");
+
+  ssyst->SetFillColor(12);
+  ssyst->Draw("2 same");
   
+  TLegend* leg = new TLegend(0.5,0.7,0.7,0.90);
+  leg->AddEntry(ssyst,"Statistical","f");
+  leg->AddEntry(rsyst,"Systematic","f");
+  leg->SetFillColor(kWhite);
+  leg->Draw("same");
+  
+  one->Draw("histsame");
+
+  ostringstream txt("");
+  txt<<"CMS "<<energy<<" TeV";
+  TLatex* text = new TLatex(0.2,0.6,txt.str().c_str());
+  text->SetNDC(kTRUE);
+  text->SetTextSize(0.06);
+  text->DrawLatex(0.2,0.8,txt.str().c_str());
+
   gPad->WaitPrimitive();
   
   if(printFig){
+    
+    if(energy==0.9)  Estr = "a";
+    if(energy==2.36) Estr = "b";
+    if(energy==7.0)  Estr = "c";
+
     ostringstream figname("");
-    figname<<"finalesyst_cut"<<cut;
+    figname<<"../figs/finalesyst_cut"<<cut<<"_"<<Estr;
     gPad->SaveAs(TString(figname.str().c_str())+TString(".gif"),"");
     gPad->SaveAs(TString(figname.str().c_str())+TString(".root"),"");
+    gPad->SaveAs(TString(figname.str().c_str())+TString(".eps"),"");
+    gSystem->Exec(TString("convert ")+TString(figname.str().c_str())+TString(".eps ")+TString(figname.str().c_str())+TString(".pdf"));
   }
   
-  
+  if(plot.Contains("kno")) return; 
   
   //-------------------------------------------------------
   //--------- Making systematic of mean & moments ---------
@@ -503,6 +670,10 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , bool printFig = false){
     
     mdata->mean->_MeanSystM += pow(getMinSyst(mdata->mean->GetMean() , msyst1.at(isyst).mean->GetMean() , msyst2.at(isyst).mean->GetMean()) , 2);
     mdata->mean->_MeanSystP += pow(getMaxSyst(mdata->mean->GetMean() , msyst1.at(isyst).mean->GetMean() , msyst2.at(isyst).mean->GetMean()) , 2);
+    
+    //cout<<"syst "<<isyst<<endl;
+    //cout<<getMinSyst(mdata->mean->GetMean() , msyst1.at(isyst).mean->GetMean() , msyst2.at(isyst).mean->GetMean())<<endl;
+    //cout<<getMaxSyst(mdata->mean->GetMean() , msyst1.at(isyst).mean->GetMean() , msyst2.at(isyst).mean->GetMean())<<endl;
     
     mdata->mean->_RMSSystM += pow(getMinSyst(mdata->mean->GetRMS() , msyst1.at(isyst).mean->GetRMS() , msyst2.at(isyst).mean->GetRMS()) , 2);
     mdata->mean->_RMSSystP += pow(getMaxSyst(mdata->mean->GetRMS() , msyst1.at(isyst).mean->GetRMS() , msyst2.at(isyst).mean->GetRMS()) , 2);
@@ -571,8 +742,9 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , bool printFig = false){
   }
   
   fdata->cd("unfolding/moments");
-  mdata->Write("moments_syst",5);
+  mdata->Write("moments_syst",TObject::kWriteDelete);
   mdata->print();
+  //fdata->Close();
 }
 
 void mptSyst(double energy = 0.9 , bool printFig = false){
@@ -751,7 +923,7 @@ void mptSyst(double energy = 0.9 , bool printFig = false){
   gsyst->SetTitle(TString("g")+hdata->GetTitle()+TString("_syst"));
   
   fdata->cd();
-  gsyst->Write(0,6);
+  gsyst->Write(0,TObject::kWriteDelete);
 }
 
 
