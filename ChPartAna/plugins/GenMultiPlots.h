@@ -18,8 +18,8 @@ class GenMultiPlots : public TObject{
   GenMultiPlots(TString);
   ~GenMultiPlots();
   
-  void fill(MyGenKin& , MyPart& , double = 1.);
-  void nextEvent(MyGenKin& , bool = true , double = 1.);
+  void fill(MyGenKin& , MyPart& , double = 1. , TString = "pythia");
+  void nextEvent(MyGenKin& , TString = "pythia" , bool = true , double = 1.);
   void write(bool = true);
   
   MultiPlots* mp_INC;
@@ -31,8 +31,8 @@ class GenMultiPlots : public TObject{
   private:
   TString plotsname;
   void init();
-  bool isSD(MyGenKin&);
-  bool isDD(MyGenKin&);
+  bool isSD(MyGenKin& , TString = "pythia");
+  bool isDD(MyGenKin& , TString = "pythia");
   
   ClassDef(GenMultiPlots,1);
 
