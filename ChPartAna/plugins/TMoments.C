@@ -100,18 +100,18 @@ void TMoments::Add(Double_t value, Double_t weight){
 }
 
 
-/*void TMoments::Add(TH1F* h){
+void TMoments::Add(TH1F* h){
   for(int i = 1 ; i <= h->GetNbinsX() ; ++i)
     this->Add(h->GetBinCenter(i) , h->GetBinContent(i));
-}*/
+}
 
 
-void TMoments::Add(TH1F* h){
+/*void TMoments::Add(TH1F* h){
   for(int i = 1 ; i < h->GetXaxis()->GetXmax() ; ++i){
     int ibin = h->GetXaxis()->FindFixBin(i);
     this->Add(i , h->GetBinContent(ibin));
   }
-}
+}*/
 
 void TMoments::Add(TGraph* g){
   Double_t* x = g->GetX();
