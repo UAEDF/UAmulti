@@ -185,6 +185,8 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
   }
   
   tree->SetBranchAddress("pixel3Vertex",&vertexToCut);
+  /*if(iTracking==0) tree->SetBranchAddress("ferencVtxFerTrk",&vertexToCut);
+  else if(iTracking==1) vertexToCut = vertex;*/
   tree->SetBranchAddress("L1Trig",&L1Trig);
   tree->SetBranchAddress("MITEvtSel",&MITEvtSel);
   tree->SetBranchAddress("beamSpot",&bs);
@@ -204,7 +206,7 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
     
     tree->GetEntry(i);
     
-    //if(i==0) vertexToCut = pixel3Vertex;
+    if(i==0 && iTracking==1) vertexToCut = vertex;
     
     //Selection of good BX for data && MC
     if(!isMC && !goodBX(evtId->Run,evtId->Bunch)) continue;
