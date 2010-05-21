@@ -1,4 +1,7 @@
 #include "TMath.h"
+#include "TLatex.h"
+#include "TSystem.h"
+#include "TText.h"
 #include "TH1F.h"
 #include "TF1.h"
 #include "TH1D.h"
@@ -10,6 +13,7 @@
 #include "TPad.h"
 #include "TRandom.h"
 #include "TGraphAsymmErrors.h"
+#include "TGraphErrors.h"
 #include "TProfile.h"
 #include "TROOT.h"
 #include "TDirectory.h"
@@ -17,6 +21,7 @@
 #include "TFrame.h"
 
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <sstream>
 #include <vector>
@@ -24,9 +29,11 @@
 #include "../macro/fileManager.C"
 #include "../plugins/TMoments.C"
 
-void plotMoments(TString momtype = "C"){
+void plotMoments(int acc = 5 , TString momtype = "C"){
 
-  TString globaldir = ("../plots/");
+  gROOT->ProcessLine(".x cmsStyleRoot.C");
+  
+  TString globaldir = ("../plots/systv10_bis/");
   const int nenergy = 3;
   
   int colors[]  = {1,1,1,2,4,kMagenta};
@@ -34,17 +41,20 @@ void plotMoments(TString momtype = "C"){
   int markersopen[] = {1,1,kOpenCircle,kOpenStar,kOpenSquare,kOpenTriangleUp};
   
   int nbin = 1500;
-  double xmin = 100;
+  double xmin = 150;
   double xmax = 8500;
   
   double maxrange = 80;
   
   double hyp      = 1;
   double niter    = 0;
-  double acc      = 5;
+  //double acc      = 5;
   double typeData = 0;
   ostringstream outstr("");
   outstr << "hyp" << hyp << "_niter" << niter << "_cut" << acc << "_DataType" << typeData;
+  
+  ostringstream basefig("");
+  basefig<<"_cut"<<acc;
   
   vector<double> E(3,0);
   E.at(0) = 900.;
@@ -66,70 +76,74 @@ void plotMoments(TString momtype = "C"){
   }
   
   const int nmoments = 6;
-  vector<double> mean(nenergy,0);
-  vector<double> meanerr(nenergy,0);
-  vector< vector<double> > moments;
-  vector< vector<double> > errors;
-  TMoments* tmp;
-  for(int m = 0 ; m < nmoments ; ++m){
-    vector<double> moment(nenergy,0);
-    vector<double> error(nenergy,0);
-    for(int i = 0 ; i < nenergy ; ++i){
-      tmp = (TMoments*) files.at(i)->Get("unfolding/moments/moments");
-      if(tmp==0){
-        cout<<"Was not able to take moments from file @ "<<E.at(i)<<"GeV. Exiting now ..."<<endl;
-	return;
-      }
-      
-      if(momtype.Contains("C")){
-        moment.at(i)  = tmp->cmoments->at(m);
-        error.at(i)   = tmp->cerrors->at(m);
-      }
-      if(momtype.Contains("F")){
-        moment.at(i)  = tmp->fmoments->at(m);
-        error.at(i)   = tmp->ferrors->at(m);
-      }
-      if(momtype.Contains("K")){
-        moment.at(i)  = tmp->kmoments->at(m);
-        error.at(i)   = tmp->kerrors->at(m);
-      }
-      if(momtype.Contains("H")){
-        moment.at(i)  = tmp->hmoments->at(m);
-        error.at(i)   = tmp->herrors->at(m);
-      }
-      
-      mean.at(i)    = tmp->mean->GetMean();
-      meanerr.at(i) = tmp->mean->GetMeanError();
-      tmp->print();
-    }
-    moments.push_back(moment);
-    errors.push_back(error);  
-  }
   
-  
+  TH1F* mnch               = new TH1F("mnch","mnch",nbin,xmin,xmax);
+  TGraphAsymmErrors* gmnch = new TGraphAsymmErrors(nenergy);
   vector<TH1F*> hmoments(nmoments,new TH1F());
+  vector<TGraphAsymmErrors*> gmoments(nmoments,new TGraphAsymmErrors());
+  
+  //instantiating the histos
   for(int m = 0 ; m < nmoments ; ++m){
     ostringstream momname("");
     momname<<"cmoment_"<<m;
     hmoments.at(m) = new TH1F(momname.str().c_str(),momname.str().c_str(),nbin,xmin,xmax);
-    for(int i = 0 ; i < nenergy ; ++i){
-      int ibin = hmoments.at(m)->GetXaxis()->FindFixBin(E.at(i));
-      hmoments.at(m)->SetBinContent(ibin , moments.at(m).at(i));
-      hmoments.at(m)->SetBinError(ibin , errors.at(m).at(i));
-    }
-    hmoments.at(m)->SetFillColor(colors[m]);
-    hmoments.at(m)->SetLineColor(colors[m]);
-    hmoments.at(m)->SetLineWidth(2);
-    hmoments.at(m)->SetMarkerColor(colors[m]);
-    hmoments.at(m)->SetMarkerStyle(markers[m]);
+    gmoments.at(m) = new TGraphAsymmErrors(nenergy);
   }
   
-  
-  
+  //filling the histos/graphs
+  for(int i = 0 ; i < nenergy ; ++i){
+    TMoments* moments = (TMoments*) files.at(i)->Get("unfolding/moments/moments_syst");
+    int ibin = mnch->GetXaxis()->FindFixBin(E.at(i));
+    
+    mnch->SetBinContent(ibin , moments->mean->GetMean());
+    mnch->SetBinError(ibin , moments->mean->GetMeanError());
+    gmnch->SetPoint(i,E.at(i),moments->mean->GetMean());
+    gmnch->SetPointError(i,0,0,moments->mean->_MeanSystM,moments->mean->_MeanSystP);
+      
+    for(int m = 0 ; m < nmoments ; ++m){
+      if(momtype.Contains("C")){
+        hmoments.at(m)->SetBinContent(ibin , moments->cmoments->at(m));
+        hmoments.at(m)->SetBinError(ibin , moments->cstaterr->at(m));
+        gmoments.at(m)->SetPoint(i,E.at(i),moments->cmoments->at(m));
+        gmoments.at(m)->SetPointError(i,0,0,moments->csystmerr->at(m),moments->csystperr->at(m));
+	//cout<<m<<"  "<<i<<"  "<<E.at(i)<<"  "<<gmoments.at(m)->GetErrorYlow(i)<<"  "<<gmoments.at(m)->GetErrorYhigh(i)<<endl;
+	//cout<<m<<"  "<<i<<"  "<<E.at(i)<<"  "<<moments->csystmerr->at(m)<<"  "<<moments->csystperr->at(m)<<endl;
+      }
+      if(momtype.Contains("F")){
+        hmoments.at(m)->SetBinContent(ibin , moments->fmoments->at(m));
+        hmoments.at(m)->SetBinError(ibin , moments->fstaterr->at(m));
+        gmoments.at(m)->SetPoint(i,E.at(i),moments->fmoments->at(m));
+        gmoments.at(m)->SetPointError(i,0,0,moments->fsystmerr->at(m),moments->fsystperr->at(m));
+      }
+      if(momtype.Contains("K")){
+        hmoments.at(m)->SetBinContent(ibin , moments->kmoments->at(m));
+        hmoments.at(m)->SetBinError(ibin , moments->kstaterr->at(m));
+        gmoments.at(m)->SetPoint(i,E.at(i),moments->kmoments->at(m));
+        gmoments.at(m)->SetPointError(i,0,0,moments->ksystmerr->at(m),moments->ksystperr->at(m));
+      }
+      if(momtype.Contains("H")){
+        hmoments.at(m)->SetBinContent(ibin , moments->hmoments->at(m));
+        hmoments.at(m)->SetBinError(ibin , moments->hstaterr->at(m));
+        gmoments.at(m)->SetPoint(i,E.at(i),moments->hmoments->at(m));
+        gmoments.at(m)->SetPointError(i,0,0,moments->hsystmerr->at(m),moments->hsystperr->at(m));
+      }
+      hmoments.at(m)->SetFillColor(colors[m]);
+      hmoments.at(m)->SetLineColor(colors[m]);
+      hmoments.at(m)->SetLineWidth(2);
+      hmoments.at(m)->SetMarkerColor(colors[m]);
+      hmoments.at(m)->SetMarkerStyle(markers[m]);
+      
+      gmoments.at(m)->SetFillColor(colors[m]);
+      gmoments.at(m)->SetLineColor(colors[m]);
+      gmoments.at(m)->SetLineWidth(2);
+      gmoments.at(m)->SetMarkerColor(colors[m]);
+      gmoments.at(m)->SetMarkerStyle(markers[m]);
+    }
+  }
   
   hmoments[2]->GetYaxis()->SetRangeUser(0.,maxrange);
-  hmoments[2]->SetTitle(";#sqrt{S};moments");
-  hmoments[2]->Draw();
+  hmoments[2]->SetTitle(TString(";#sqrt{S};")+momtype+TString("-moments"));
+  hmoments[2]->Draw("E1");
   
   gPad->SetLogx();
   gPad->SetLeftMargin(0.17);
@@ -141,10 +155,18 @@ void plotMoments(TString momtype = "C"){
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(kFALSE);
 
-  hmoments[3]->Draw("same");
-  hmoments[4]->Draw("same");
-  hmoments[5]->Draw("same");
+  hmoments[3]->Draw("same E1");
+  hmoments[4]->Draw("same E1");
+  hmoments[5]->Draw("same E1");
   
+  for(int m = 2 ; m < nmoments ; ++m){
+    gmoments.at(m)->Draw("same z ");
+    hmoments.at(m)->Draw("same E1 ");
+  }
+  
+  /*hmoments[3]->Draw("same E1");
+  hmoments[4]->Draw("same E1");
+  hmoments[5]->Draw("same E1");*/
   
   //Writing UA5
   TH1F** ua5 = new TH1F*[4];
@@ -185,6 +207,28 @@ void plotMoments(TString momtype = "C"){
       ua5[3]->SetBinError(bin500,5);
       ua5[3]->SetBinContent(bin900,56);
       ua5[3]->SetBinError(bin900,9);
+    }
+    
+    if(momtype.Contains("F")){
+      ua5[0]->SetBinContent(bin200,1.47);
+      ua5[0]->SetBinError(bin200,0.02);
+      ua5[0]->SetBinContent(bin900,1.62);
+      ua5[0]->SetBinError(bin900,0.02);
+    
+      ua5[1]->SetBinContent(bin200,2.8);
+      ua5[1]->SetBinError(bin200,0.1);
+      ua5[1]->SetBinContent(bin900,3.7);
+      ua5[1]->SetBinError(bin900,0.1);
+    
+      ua5[2]->SetBinContent(bin200,6.1);
+      ua5[2]->SetBinError(bin200,0.5);
+      ua5[2]->SetBinContent(bin900,10.9);
+      ua5[2]->SetBinError(bin900,0.8);
+    
+      ua5[3]->SetBinContent(bin200,15);
+      ua5[3]->SetBinError(bin200,3);
+      ua5[3]->SetBinContent(bin900,40.5);
+      ua5[3]->SetBinError(bin900,5);
     }
   }
   else if(int(acc)%5==0){
@@ -248,26 +292,33 @@ void plotMoments(TString momtype = "C"){
   leg->SetFillColor(kWhite);
   leg->Draw("same");
   
+  gPad->Update();
+  
   gPad->WaitPrimitive();
-  gPad->SaveAs("Cmoments.gif","");
-  gPad->SaveAs("Cmoments.root","");
+  return;
+  gPad->SaveAs(momtype+TString("moments")+basefig.str()+TString(".gif"),"");
+  gPad->SaveAs(momtype+TString("moments")+basefig.str()+TString(".eps"),"");
+  gPad->SaveAs(momtype+TString("moments")+basefig.str()+TString(".root"),"");
+  gSystem->Exec(TString("convert ")+momtype+TString("moments")+basefig.str()+TString(".eps ")+momtype+TString("moments")+basefig.str()+TString(".pdf"));
+  
+  
+  
+  //---------------------------------------------------------------
+  //----------------------- <Nch> VS sqrt(S) ----------------------
+  //---------------------------------------------------------------
   
   
   TCanvas* c_mnch = new TCanvas("c_mnch","c_mnch",200,510,500,500);
   c_mnch->cd();
   
-  TH1F* mnch = new TH1F("mnch","mnch",nbin,xmin,xmax);
-  for(int i = 0 ; i < nenergy ; ++i){
-      int ibin = mnch->GetXaxis()->FindFixBin(E.at(i));
-      mnch->SetBinContent(ibin , mean.at(i));
-      mnch->SetBinError(ibin , meanerr.at(i));
-  }
+  
   
   mnch->SetLineColor(kRed-3);
   mnch->SetMarkerColor(kRed-3);
   mnch->SetMarkerStyle(8);
-  mnch->SetTitle(";#sqrt{S};<N_{ch}>");
-  mnch->Draw();
+  mnch->SetTitle(";#sqrt{S};<n>");
+  mnch->Draw("E1");
+  gmnch->Draw("same z");
   
   
   
@@ -281,59 +332,97 @@ void plotMoments(TString momtype = "C"){
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(kFALSE);
   
-  TH1F* UA5mean = new TH1F("UA5mean","UA5mean",nbin,xmin,xmax);
-  UA5mean->Reset();
+  TGraphErrors* UA5mean = new TGraphErrors();
   if(acc==0 || acc==5){
-    UA5mean->SetBinContent(bin200,13.2);
-    UA5mean->SetBinError(bin200,0.3);
-    UA5mean->SetBinContent(bin500,15.9);
-    UA5mean->SetBinError(bin500,0.1);
-    UA5mean->SetBinContent(bin900,18.8);
-    UA5mean->SetBinError(bin900,0.7);
+    UA5mean->SetPoint(1,200.,13.2);
+    UA5mean->SetPointError(1,0,0.3);
+    UA5mean->SetPoint(2,546,15.9);
+    UA5mean->SetPointError(2,0,0.1);
+    UA5mean->SetPoint(3,900,18.8);
+    UA5mean->SetPointError(3,0,0.7);
   }
-  if(acc==3 || acc==8){
-    UA5mean->SetBinContent(bin200,5.17);
-    UA5mean->SetBinError(bin200,0.13);
-    UA5mean->SetBinContent(bin500,6.17);
-    UA5mean->SetBinError(bin500,0.06);
-    UA5mean->SetBinContent(bin900,7.38);
-    UA5mean->SetBinError(bin900,0.28);
+  else if(acc==3 || acc==8){
+    UA5mean->SetPoint(1,200,5.17);
+    UA5mean->SetPointError(1,0,0.13);
+    UA5mean->SetPoint(2,546,6.17);
+    UA5mean->SetPointError(2,0,0.06);
+    UA5mean->SetPoint(3,900,7.38);
+    UA5mean->SetPointError(3,0,0.28);
+  }
+  if(acc==2 || acc==7){
+    UA5mean->SetPoint(1,24,4.49);
+    UA5mean->SetPointError(1,0,0.06);
+    UA5mean->SetPoint(2,31,5.00);
+    UA5mean->SetPointError(2,0,0.08);
+    UA5mean->SetPoint(3,45,5.49);
+    UA5mean->SetPointError(3,0,0.06);
+    UA5mean->SetPoint(4,53,5.775);
+    UA5mean->SetPointError(4,0,0.06);
+    UA5mean->SetPoint(5,63,6.16);
+    UA5mean->SetPointError(5,0,0.06);
+  
+    UA5mean->SetPoint(6,200,7.94);
+    UA5mean->SetPointError(6,0,0.23);
+    UA5mean->SetPoint(7,546,9.49);
+    UA5mean->SetPointError(7,0,0.08);
+    UA5mean->SetPoint(8,900,11.02);
+    UA5mean->SetPointError(8,0,0.32);
   }
   
   UA5mean->SetLineColor(kBlue);
   UA5mean->SetMarkerColor(kBlue);
-  UA5mean->SetMarkerStyle(kMultiply);
-  UA5mean->Draw("same err");
+  UA5mean->SetMarkerStyle(kOpenCross);
+  UA5mean->Draw("same p");
   
-  TH1F* nchmean_all = (TH1F*) UA5mean->Clone("nchmean_all");
-  for(int i = 0 ; i < nenergy ; ++i){
-    int ibin = mnch->GetXaxis()->FindFixBin(E.at(i));
-    nchmean_all->SetBinContent(ibin , mean.at(i));
-    nchmean_all->SetBinError(ibin , meanerr.at(i));
+  
+  TGraphAsymmErrors* nchmean_all = new TGraphAsymmErrors(UA5mean->GetN()+nenergy);
+  for(int i = 0 ; i < UA5mean->GetN() ; ++i){
+    double x = 0 , y = 0;
+    UA5mean->GetPoint(i,x,y);
+    nchmean_all->SetPoint(i,x,y);
+    nchmean_all->SetPointError(i,0,0,UA5mean->GetErrorYlow(i),UA5mean->GetErrorYhigh(i));
+  }
+  for(int i =  UA5mean->GetN() ; i <  nchmean_all->GetN() ; ++i){
+    double x = 0 , y = 0;
+    gmnch->GetPoint(i-UA5mean->GetN(),x,y);
+    nchmean_all->SetPoint(i,x,y);
+    nchmean_all->SetPointError(i,0,0,gmnch->GetErrorYlow(i-UA5mean->GetN()),gmnch->GetErrorYhigh(i-UA5mean->GetN()));
   }
   
   //TF1* fua5mnch = new TF1("fua5mnch","[0] + [1] * sqrt(x) + [2] * x",5,15000);
   //TF1* fua5mnch = new TF1("fua5mnch","[0] + [1] * x + [2] * x * x",5,15000);
-  TF1* fua5mnch = new TF1("fua5mnch","[0] + [1] * log(x) + [2] * log(x) * log(x)",5,15000);
+  TF1* fua5mnch = new TF1("fua5mnch","[0] + [1] * log(x*x) + [2] * log(x*x) * log(x*x)",5,15000);
   fua5mnch->SetLineWidth(1);
   fua5mnch->SetLineColor(kBlack);
   nchmean_all->Fit("fua5mnch");
   fua5mnch->Draw("same");
   
   leg = new TLegend(0.3,0.7,0.45,0.85);
-  leg->AddEntry(UA5mean,"UA5","p");
+  if(acc==7)leg->AddEntry(UA5mean,"ISR+UA5","p");
+  else      leg->AddEntry(UA5mean,"UA5","p");
   leg->AddEntry(mnch,"CMS","p");
   leg->SetFillColor(kWhite);
   
   leg->Draw("SAME");
   mnch->Draw("SAME");
-  UA5mean->Draw("same err");
+  UA5mean->Draw("same p");
   
+  ostringstream func("");
+  func<<fixed<<setprecision(3)<<fua5mnch->GetParameter(0)<<" + "<<
+        fua5mnch->GetParameter(1)<<" ln(s) + "<<
+	fua5mnch->GetParameter(2)<<" ln(s)^{2}";
+  cout<<func.str().c_str()<<endl;
+
+  TLatex* textnchmean = new TLatex(0.3,0.15,func.str().c_str());
+  textnchmean->SetNDC(kTRUE);
+  textnchmean->SetTextSize(0.03);
+  textnchmean->DrawLatex(0.45,0.15,func.str().c_str());
   
   gPad->WaitPrimitive();
-  gPad->SaveAs("nchmean.gif","");
-  gPad->SaveAs("nchmean.root","");
-  
+  gPad->SaveAs(TString("nchmean")+basefig.str()+TString(".gif"),"");
+  gPad->SaveAs(TString("nchmean")+basefig.str()+TString(".eps"),"");
+  gPad->SaveAs(TString("nchmean")+basefig.str()+TString(".root"),"");
+  gSystem->Exec(TString("convert ")+TString("nchmean")+basefig.str()+TString(".eps ")+TString("nchmean")+basefig.str()+TString(".pdf"));
   
   
   
