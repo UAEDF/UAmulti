@@ -1,6 +1,7 @@
 #include <TROOT.h>
 #include <TH1.h>
 #include <TH2.h>
+#include <TGraphAsymmErrors.h>
 #include <TProfile.h>
 #include <TStyle.h>
 #include <TCanvas.h>
@@ -60,7 +61,7 @@ void mptCorrection(int type = 10 , double E = 0.9 , int iTracking = 1 , int nevt
   //Taking mtx/histos from smallCode files
   
   ostringstream fname("");
-  fname<<"../plots/smallcodev2/smallCode_MCtype"<<mctype<<"_"<<E<<"TeV.root";
+  fname<<"../plots/smallcodev4/smallCode_MCtype"<<mctype<<"_"<<E<<"TeV.root";
   //fname<<"../macro/smallCode_MCtype"<<mctype<<"_"<<E<<"TeV.root";
   cout<<"smallCode file : "<<fname.str()<<endl;
   TFile* smallcode = TFile::Open(fname.str().c_str(),"READ");
@@ -73,7 +74,7 @@ void mptCorrection(int type = 10 , double E = 0.9 , int iTracking = 1 , int nevt
   TProfile* mptVSnchreco_reco = (TProfile*) smallcode->Get("mptVSnchreco_reco");
   TProfile* mptVSnchreco_gen  = (TProfile*) smallcode->Get("mptVSnchreco_gen");
   
-  
+  TH1F* pt_genMINUSreco = (TH1F*) smallcode->Get("pt_genMINUSreco");
   
   
   //**********************************************
@@ -170,6 +171,16 @@ void mptCorrection(int type = 10 , double E = 0.9 , int iTracking = 1 , int nevt
   TH1F* mptrecoVSgen_diff = new TH1F("mptrecoVSgen_diff","mptrecoVSgen_diff",200,-3,3);
   
   
+  TProfile* systp_trk =  new TProfile("systp_trk","systp_trk",nch_data_unfolded->GetNbinsX(),nch_data_unfolded->GetXaxis()->GetXbins()->GetArray());
+  TProfile* systm_trk =  new TProfile("systm_trk","systm_trk",nch_data_unfolded->GetNbinsX(),nch_data_unfolded->GetXaxis()->GetXbins()->GetArray());
+  
+  TProfile* systp_pterr =  new TProfile("systp_pterr","systp_pterr",nch_data_unfolded->GetNbinsX(),nch_data_unfolded->GetXaxis()->GetXbins()->GetArray());
+  TProfile* systm_pterr =  new TProfile("systm_pterr","systm_pterr",nch_data_unfolded->GetNbinsX(),nch_data_unfolded->GetXaxis()->GetXbins()->GetArray());
+  
+  
+  
+  
+  
   //TProfile* tmp = new TProfile("tmp","tmp",nch_data_unfolded->GetNbinsX(),nch_data_unfolded->GetXaxis()->GetXbins()->GetArray());
   
   //adding files to the tree chain
@@ -258,9 +269,18 @@ void mptCorrection(int type = 10 , double E = 0.9 , int iTracking = 1 , int nevt
     int n = trcoll.size();
     
     double mpt = 0;
-    for(vector<MyTracks>::iterator itr = trcoll.begin() ; itr != trcoll.end() ; ++itr)
+    double mpt_systp_err = 0 , mpt_systm_err = 0 ;
+    for(vector<MyTracks>::iterator itr = trcoll.begin() ; itr != trcoll.end() ; ++itr){
       mpt+=itr->Part.v.Pt();
-    if(n!=0) mpt/=n;
+      
+      mpt_systp_err+=itr->Part.v.Pt()+itr->ept;
+      mpt_systm_err+=itr->Part.v.Pt()-itr->ept;
+    }
+    if(n!=0){
+      mpt/=n;
+      mpt_systp_err/=n;
+      mpt_systm_err/=n;
+    }
     
     //tmp->Fill(n_gen,mpt_gen);
     
@@ -289,7 +309,11 @@ void mptCorrection(int type = 10 , double E = 0.9 , int iTracking = 1 , int nevt
       double eff = 1;
       if(eff_evtSel->GetBinContent(igen)!=0)
         eff = eff_evtSel->GetBinContent(igen);
+	
       mptVSnch->Fill(mptVSnch->GetBinCenter(igen) , mpt * ptcorr , 1. / eff * matrixhist->GetBinContent(igen , bin_reco)/norm);
+      systp_pterr->Fill(mptVSnch->GetBinCenter(igen) , mpt_systp_err * ptcorr , 1. / eff * matrixhist->GetBinContent(igen , bin_reco)/norm);
+      systm_pterr->Fill(mptVSnch->GetBinCenter(igen) , mpt_systm_err * ptcorr , 1. / eff * matrixhist->GetBinContent(igen , bin_reco)/norm);
+      
       mptVSnch_nomptCorr->Fill(mptVSnch->GetBinCenter(igen) , mpt , 1. / eff * matrixhist->GetBinContent(igen , bin_reco)/norm);
       mptVSnch_noeffCorr->Fill(mptVSnch->GetBinCenter(igen) , mpt * ptcorr , 1. * matrixhist->GetBinContent(igen , bin_reco)/norm);
       
@@ -328,6 +352,44 @@ void mptCorrection(int type = 10 , double E = 0.9 , int iTracking = 1 , int nevt
   //mptrecoVSgen->Draw("colz");
   mptrecoVSgen_diff->Draw();
   
+  
+  //Doing the trk systematics
+  double syst_trk_frac = 2.58;
+  double meanpt_losttrk = pt_genMINUSreco->GetMean();
+  for(int igen = 1 ; igen <= mptVSnch->GetNbinsX() ; ++igen){
+    if(mptVSnch->GetBinContent(igen)!=0){
+      systp_trk->Fill(mptVSnch->GetBinCenter(igen),mptVSnch->GetBinContent(igen)+syst_trk_frac/100.*meanpt_losttrk);
+      systm_trk->Fill(mptVSnch->GetBinCenter(igen),mptVSnch->GetBinContent(igen)-syst_trk_frac/100.*meanpt_losttrk);
+      cout<<mptVSnch->GetBinContent(igen)<<"  "<<mptVSnch->GetBinContent(igen)-syst_trk_frac/100.*meanpt_losttrk<<endl;
+    }
+  }
+  
+  //doign the global systematic
+  Double_t* x   = new Double_t[mptVSnch->GetNbinsX()];
+  Double_t* y   = new Double_t[mptVSnch->GetNbinsX()];
+  Double_t* exl = new Double_t[mptVSnch->GetNbinsX()];
+  Double_t* exh = new Double_t[mptVSnch->GetNbinsX()];
+  Double_t* eyl = new Double_t[mptVSnch->GetNbinsX()];
+  Double_t* eyh = new Double_t[mptVSnch->GetNbinsX()];
+  for(int i = 1 ; i <= mptVSnch->GetNbinsX() ; ++i){
+    x[i-1] = mptVSnch->GetBinCenter(i);
+    y[i-1] = mptVSnch->GetBinContent(i);
+    exl[i-1] = mptVSnch->GetBinCenter(i) - mptVSnch->GetXaxis()->GetBinLowEdge(i);
+    exh[i-1] = mptVSnch->GetXaxis()->GetBinUpEdge(i) - mptVSnch->GetBinCenter(i);
+  
+    eyl[i-1] = pow(systm_trk->GetBinContent(i)-mptVSnch->GetBinContent(i),2) + pow(systm_pterr->GetBinContent(i)-mptVSnch->GetBinContent(i),2) + pow(mptVSnch->GetBinError(i),2);
+    eyl[i-1] = sqrt(eyl[i-1]);
+  
+    eyh[i-1] = pow(systp_trk->GetBinContent(i)-mptVSnch->GetBinContent(i),2) + pow(systp_pterr->GetBinContent(i)-mptVSnch->GetBinContent(i),2) + pow(mptVSnch->GetBinError(i),2);
+    eyh[i-1] = sqrt(eyh[i-1]);
+  }
+  
+  TGraphAsymmErrors* gsyst = new TGraphAsymmErrors(mptVSnch->GetNbinsX(),x,y,exl,exh,eyl,eyh);
+  gsyst->SetName(TString("g")+mptVSnch->GetName()+TString("_syst"));
+  gsyst->SetTitle(TString("g")+mptVSnch->GetTitle()+TString("_syst"));
+  gsyst->GetXaxis()->SetTitle("n");
+  gsyst->GetYaxis()->SetTitle("<p_{t}>");
+  
   //output file
   ostringstream strout("");
   //strout<<"mptCorr_MCtype"<<type<<"_"<<E<<"TeV.root";
@@ -337,17 +399,32 @@ void mptCorrection(int type = 10 , double E = 0.9 , int iTracking = 1 , int nevt
   TFile* output = new TFile(outname,"RECREATE");
   output->cd();
     
+  mptVSnch->SetBinContent(1,0);mptVSnch->SetBinError(1,0);
   mptVSnch->Write();
+  
+  mptVSnch_noCorr->SetBinContent(1,0);mptVSnch_noCorr->SetBinError(1,0);
   mptVSnch_noCorr->Write();
+  
+  mptVSnch_nonchCorr->SetBinContent(1,0);mptVSnch_nonchCorr->SetBinError(1,0);
   mptVSnch_nonchCorr->Write();
+  
+  mptVSnch_nomptCorr->SetBinContent(1,0);mptVSnch_nomptCorr->SetBinError(1,0);
   mptVSnch_nomptCorr->Write();
+  
+  mptVSnch_noeffCorr->SetBinContent(1,0);mptVSnch_noeffCorr->SetBinError(1,0);
   mptVSnch_noeffCorr->Write();
   
+  mptVSnch_nchCorr->SetBinContent(1,0);mptVSnch_nchCorr->SetBinError(1,0);
   mptVSnch_nchCorr->Write();
+  
+  mptVSnch_nch_mptCorr->SetBinContent(1,0);mptVSnch_nch_mptCorr->SetBinError(1,0);
   mptVSnch_nch_mptCorr->Write();
   
   if(isMC){
+    mptVSnch_gen->SetBinContent(1,0);mptVSnch_gen->SetBinError(1,0);
     mptVSnch_gen->Write();
+    
+    mptrecoVSgen->SetBinContent(1,0);mptrecoVSgen->SetBinError(1,0);
     mptrecoVSgen->Write();
     
     mptVSnch_gen->Divide(mptVSnch);
@@ -357,8 +434,24 @@ void mptCorrection(int type = 10 , double E = 0.9 , int iTracking = 1 , int nevt
     
     mptVSnch_gen->Draw();*/
     
-  
   }
+  
+  systp_pterr->SetBinContent(1,0);systp_pterr->SetBinError(1,0);
+  systp_pterr->Write();
+  
+  systm_pterr->SetBinContent(1,0);systm_pterr->SetBinError(1,0);
+  systm_pterr->Write();
+  
+  systp_trk->SetBinContent(1,0);systp_trk->SetBinError(1,0);
+  systp_trk->Write();
+  
+  systm_trk->SetBinContent(1,0);systm_trk->SetBinError(1,0);
+  systm_trk->Write();
+  
+  gsyst->SetPoint(0,0,0);
+  gsyst->Write();
+  
+  
   output->Close();
 }
 
