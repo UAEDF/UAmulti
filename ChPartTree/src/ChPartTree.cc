@@ -148,7 +148,7 @@ ChPartTree::beginJob()
    tree->Branch("pixelVertex",&pixelVertex);
    tree->Branch("primaryVertex",&primaryVertex);  
    tree->Branch("pixel3Vertex",&pixel3Vertex);  
-   //tree->Branch("ferencVtxGenTrk",&ferencVtxGenTrk);
+   tree->Branch("ferencVtxGenTrk",&ferencVtxGenTrk);
    tree->Branch("ferencVtxFerTrk",&ferencVtxFerTrk);
 
    tree->Branch("generalTracks",&generalTracks);
