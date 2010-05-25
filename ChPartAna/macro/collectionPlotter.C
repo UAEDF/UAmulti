@@ -32,7 +32,7 @@ using namespace std;
 #include "../plugins/GenMultiPlots.h"
 #include "../plugins/MatrixPlots.h"
 
-bool debug = true;
+bool debug = false;
 
 TString filename = "MC_test_test_900GeV";
 bool isMC = true;
@@ -245,11 +245,16 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/
     
     tree->GetEntry(i);
     
-    
-    if(i==0) vertexToCut = pixel3Vertex;
-    //if(i==0) vertexToCut = ferencVtx;
-    
-    
+/*    
+    if(i==0) {
+      if ( E < 7.0 ) 
+        vertexToCut = pixel3Vertex;
+      else
+        vertexToCut = ferencVtx;
+    } 
+*/
+    vertexToCut = ferencVtx;  
+  
     //Selection of good BX for data && MC
     if(!isMC && !goodBX(evtId->Run,evtId->Bunch)) continue;
     
@@ -310,11 +315,19 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/
 	  }
 	}
       }
-      
+
+/*      
         if(laccept_noCut)     gmp_noCut_noSel->nextEvent(*genKin);
         if(laccept_ptCut)     gmp_ptCut_noSel->nextEvent(*genKin);
         if(laccept_etaCut)    gmp_etaCut_noSel->nextEvent(*genKin);
         if(laccept_pt_etaCut) gmp_pt_etaCut_noSel->nextEvent(*genKin);
+*/
+        gmp_noCut_noSel->nextEvent(*genKin);
+        gmp_ptCut_noSel->nextEvent(*genKin);
+        gmp_etaCut_noSel->nextEvent(*genKin);
+        gmp_pt_etaCut_noSel->nextEvent(*genKin);
+
+
     }
     if(nchgen!=0) nch_gen_noCut->Fill(nchgen);
     
