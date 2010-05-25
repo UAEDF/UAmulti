@@ -33,7 +33,7 @@ double  globalEnergy = 0.9;
 //makePlot Plots;
 
 #include "../macro/fileManager.C"
-#include "plotNew.C"
+#include "plot.C"
 //#include "plot.C"
 //#include "plot2D.C"
 //#include "plotMC.C"

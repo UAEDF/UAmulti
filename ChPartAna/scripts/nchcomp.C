@@ -26,7 +26,7 @@ double  globalEnergy = 0.9;
 //makePlot Plots;
   
 #include "../macro/fileManager.C"
-#include "plotNew.C" 
+#include "plot.C" 
 
 
 // iStab = 1 : + and -

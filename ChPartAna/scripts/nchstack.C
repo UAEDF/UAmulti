@@ -26,7 +26,7 @@ double  globalEnergy = 0.9;
 //makePlot Plots;
 
 #include "../macro/fileManager.C"
-#include "plotNew.C"
+#include "plot.C"
 
 void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1, float npx = 1000 , float npy = 600){
 
