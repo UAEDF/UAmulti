@@ -100,7 +100,7 @@ void getGoodBinning(TString filename){
 	  else
 	    binwidth=lastwidth;
 	    
-	  int nbin = int((180-i)/binwidth);
+	  int nbin = int((300-i)/binwidth);
 	  cout<<"    addBins("<<nbin+1<<","<<binwidth<<",tmp);"<<endl;
 	  break;
 	}
