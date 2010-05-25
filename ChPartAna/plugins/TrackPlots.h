@@ -51,6 +51,8 @@ class TrackPlots : public TObject {
     
     TH2F* dxyOsxyVSphi;
     TH2F* dzOszVSphi;
+
+    TH1F* dxyz;
     
     void init();
     void fill(vector<MyTracks>& , vector<MyVertex>& , int , MyBeamSpot*, double = 1.);
