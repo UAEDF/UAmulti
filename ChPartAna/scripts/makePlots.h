@@ -5,6 +5,10 @@
 using namespace std;
 #include <TString.h>
 
+ // TCanvas size 
+ float         globalCanvasSizeX = 500 ;
+ float         globalCanvasSizeY = 500 ;
+
  // File level
  int           globalFileType = 1; 
  TString       ptcutstr = "NONE" ;
@@ -13,7 +17,7 @@ using namespace std;
   
  // Energy + CMS Label
  TString       globalLabel   ("CMS");
- float         xGlobalLabel  = 0.60 ;
+ float         xGlobalLabel  = 0.45 ;
  float         yGlobalLabel  = 0.90 ;
 
  // hiso type
@@ -42,9 +46,9 @@ using namespace std;
  // TLegend position +  Title 
 
  TString  LegendTitle ("NONE"); 
- float    xLegendMin[] = { 0.57 , 0.35 , 0.20 , 0.70 , 0.70 , 0.75 };
+ float    xLegendMin[] = { 0.57 , 0.35 , 0.20 , 0.70 , 0.70 , 0.75 , 0.45 };
  float    xLegendWidth = 0.35;
- float    yLegendMax[] = { 0.80 , 0.40 , 0.40 , 0.80 , 0.90 , 1.00 };
+ float    yLegendMax[] = { 0.80 , 0.40 , 0.40 , 0.85 , 0.90 , 1.00 , 0.87 };
  float    yLegendWidth = 0.03;
  TString  ExtLegTitle ("NONE");
 
@@ -58,12 +62,18 @@ using namespace std;
  vector<int>     dataSetId     (1,0);
  vector<bool>    dataSetIsMc   (1,0);
  vector<int>     dataSetStyle  (1,20);
+ vector<int>     dataSetHType  (1,1);
  vector<int>     dataSetColor  (1,2);
  vector<float>   dataSetFactor (1,1);
  vector<TString> dataSetLegend (1,"Undef");
  vector<TString> dataSetFile   (1,"Undef"); 
  vector<TString> dataSetDir    (1,"Undef"); 
  vector<TString> dataSetHisto  (1,"Undef"); 
+
+ // text  
+ vector<float>   textXPos (1,0); 
+ vector<float>   textYPos (1,0); 
+ vector<TString> textText (1,"Undef"); 
 
 void plotReset()
 {
@@ -112,12 +122,20 @@ void plotReset()
   dataSetId.clear();     
   dataSetIsMc.clear();   
   dataSetStyle.clear();  
+  dataSetHType.clear();  
   dataSetColor.clear();  
   dataSetFactor.clear();  
   dataSetLegend.clear(); 
   dataSetFile.clear();
   dataSetDir.clear();    
   dataSetHisto.clear();    
+
+  // 
+
+ textXPos.clear();  
+ textYPos.clear(); 
+ textText.clear();
+
 
 }
 

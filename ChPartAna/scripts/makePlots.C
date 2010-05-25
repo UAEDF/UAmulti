@@ -33,7 +33,8 @@ double  globalEnergy = 0.9;
 //makePlot Plots;
 
 #include "../macro/fileManager.C"
-#include "plot.C"
+#include "plotNew.C"
+//#include "plot.C"
 //#include "plot2D.C"
 //#include "plotMC.C"
 //#include "plotMC2D.C"
@@ -101,8 +102,8 @@ void trackPlots()
   vqlplot = 0;
   vtxplot = 1;
   
-  globalWait    = 0;
-  globalSaveFig = 1;
+//  globalWait    = 0;
+//  globalSaveFig = 1;
 
 /*
   mltplot = 0;
@@ -128,36 +129,67 @@ void trackPlots()
   gROOT->ProcessLine("makePlots(2,2.36,0.2 )");
 */
 
-/*
+
+
 gROOT->ProcessLine("makePlots(2,0.9 ,0.  )");
 gROOT->ProcessLine("makePlots(2,2.36,0.  )");
 gROOT->ProcessLine("makePlots(2,7.0 ,0.  )");
 
+
   trkplot = 0;
-  vtxplot = 0;
+  vtxplot = 1;
   nvtplot = 1;
+
+return;
+
+/*
+gROOT->ProcessLine("makePlots(1,0.9 ,0.  )");
+gROOT->ProcessLine("makePlots(1,2.36,0.  )");
+gROOT->ProcessLine("makePlots(1,7.0 ,0.  )");
+
+gROOT->ProcessLine("makePlots(2,0.9 ,0.  )");
+gROOT->ProcessLine("makePlots(2,2.36,0.  )");
+gROOT->ProcessLine("makePlots(2,7.0 ,0.  )");
+
 
 gROOT->ProcessLine("makePlots(3,0.9 ,0.  )");
 gROOT->ProcessLine("makePlots(3,2.36,0.  )");
 gROOT->ProcessLine("makePlots(3,7.0 ,0.  )");
-
 */
+
+
+  trkplot = 0;
+  vtxplot = 0;
+  nvtplot = 0;
+  effplot = 1;
+  //mtxplot = 1;
+  //genplot = 1;
+
+/*
+gROOT->ProcessLine("makePlots(2,0.9 ,0.  )");
+gROOT->ProcessLine("makePlots(2,2.36,0.  )");
+*/
+gROOT->ProcessLine("makePlots(2,7.0 ,0.  )");
+
+
 
 /*
   trkplot = 0;
   vtxplot = 0;
   nvtplot = 0;
-  effplot = 1;
-  mtxplot = 1;
-  genplot = 1;
+  effplot = 0;
+  mtxplot = 0;
+  genplot = 0;
+  zbeffpl = 1;
 
 gROOT->ProcessLine("makePlots(2,0.9 ,0.  )");
-gROOT->ProcessLine("makePlots(2,2.36,0.  )");
-gROOT->ProcessLine("makePlots(2,7.0 ,0.  )");
+
 */
+
 
 // Unfolding
 
+/*
 gROOT->ProcessLine("makeUPlots(1,2,0.9,5,0,10,1,0)");
 gROOT->ProcessLine("makeUPlots(1,2,2.36,5,0,10,1,0)");
 gROOT->ProcessLine("makeUPlots(1,2,7.0,5,0,31,1,0)");
@@ -165,6 +197,14 @@ gROOT->ProcessLine("makeUPlots(1,2,7.0,5,0,31,1,0)");
 gROOT->ProcessLine("makeUPlots(1,2,0.9,5,10,10,1,0)");
 gROOT->ProcessLine("makeUPlots(1,2,2.36,5,10,10,1,0)");
 gROOT->ProcessLine("makeUPlots(1,2,7.0,5,31,31,1,0)");
+*/
+
+/*
+gROOT->ProcessLine("makeUPlots(8,2,0.9,5,0,10,1,20)");
+gROOT->ProcessLine("makeUPlots(8,2,2.36,5,0,10,1,20)");
+gROOT->ProcessLine("makeUPlots(8,2,7.0,5,0,31,1,20)");
+*/
+
 
 
 }
@@ -184,12 +224,14 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
   globalTraking = itracking -1; 
   globalEnergy  = energy;
 
-  if ( globalEnergy == 0.9 ) globalLabel =  "CMS 0.9 TeV";
-  if ( globalEnergy == 2.36) globalLabel =  "CMS 2.36 TeV";  
-  if ( globalEnergy == 7.00) globalLabel =  "CMS 7 TeV";  
+  if ( globalEnergy == 0.9 ) globalLabel =  "CMS Preliminary 0.9 TeV";
+  if ( globalEnergy == 2.36) globalLabel =  "CMS Preliminary 2.36 TeV";  
+  if ( globalEnergy == 7.00) globalLabel =  "CMS Preliminary 7 TeV";  
 
   //------ TRACK & VTX PLOTS CONFIG ---------
   if ( trkplot || vqlplot || vtxplot || nvtplot || tvtplot || mltplot ) { 
+
+    YaxisTitle = "# tracks";
 
     globalNorm = 1; 
   
@@ -201,9 +243,11 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
       PT << "_eta" << etacut; 
     }
     //PT << "_35X";
+    PT << "_FINAL_FVTX";
     ptcutstr = PT.str();
   
     // Legend Title
+/*
     std::stringstream LT("");
     if (itracking == 1 ) LT << "genTracks: " << endl;  
     if (itracking == 2 ) LT << "mbiasTracks: " << endl; 
@@ -211,7 +255,7 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
     LT << "  |#eta|<" << etacut  ;
     LT << "  p_{T}>"  << ptcut   ;
     LegendTitle = LT.str();
-  
+*/  
     // 
     if ( energy == 0.9 ) {
  
@@ -306,6 +350,7 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
       dataSetLegend.push_back("PYTHIA D6T (CMS)");
 */
 
+
       // PYTHIA - D6T
       dataSetId.push_back(30);
       dataSetIsMc.push_back(1);
@@ -323,7 +368,7 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
 
 
 
-     // PYTHIA - D6T
+     // PHOJET
       dataSetId.push_back(20);
       dataSetIsMc.push_back(1);
       dataSetStyle.push_back(1);
@@ -364,17 +409,27 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
     cout << dir << endl;
     cout << all << endl;
 
+      plot(dir,"dxyz_"+all,1);
 
+    YaxisTitle = "# events";
+    XaxisTitle = "n";
     plot(dir,"nch_"+all);
     plot(dir,"nch_"+all,1,2);
+
+    YaxisTitle = "# tracks";
+    XaxisTitle = "NONE";
     plot(dir,"chi2n_"+all);
     plot(dir,"chi2n_"+all,1);
+    XaxisTitle = "p_{t} [GeV/c]";
     plot(dir,"pt_"+all);
     plot(dir,"pt_"+all,1);
+    XaxisTitle = "NONE";
     plot(dir,"eta_"+all,0,1);
     plot(dir,"phi_"+all,0,1);
     plot(dir,"charge_"+all,0,1);
+    XaxisTitle = "# hits";
     plot(dir,"nhit_"+all);
+    XaxisTitle = "NONE";
     plot(dir,"quality_"+all,1,0);
     
     if ( itracking == 1 ) {
@@ -382,6 +437,8 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
       all = sel+"_"+tr;
       dir = "EvtSelPlots_"+tr   +   "/TrackPlots_"+sel+"_"+tr;
       cout<<dir<<endl;
+
+      plot(dir,"dxyz_"+all,1);
      
       plot(dir,"dzOedz_"+all);
       plot(dir,"dzOedz_"+all,1);
@@ -396,12 +453,21 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
       dir = "EvtSelPlots_"+tr   +   "/TrackPlots_"+sel+"_"+tr;
       cout<<dir<<endl;
 
+      XaxisTitle = "NONE";
+      plot(dir,"dxyz_"+all,1);
+
+      XaxisTitle = "d_{z}/#sigma_{z}";
       plot(dir,"dzOsz_"+all);
       plot(dir,"dzOsz_"+all,1);
+      XaxisTitle = "d_{xy}/#sigma_{xy}";
       plot(dir,"dxybsOsxy_"+all);
       plot(dir,"dxybsOsxy_"+all,1);
+      XaxisTitle = "#sigma(p_{t})/p_{t}";
       plot(dir,"eptOpt_"+all);
       plot(dir,"eptOpt_"+all,1);
+
+      XaxisTitle = "NONE";
+     
 
 
 //    gROOT->ProcessLine(".X plot.C(\""+dir+"\",\"sxy_"+all+"\",1");
@@ -597,11 +663,11 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
     //plot(dir,"z_wide_"+all,1);
 
     if ( itracking == 1 ) {    
-       tr  = "PV_gTr_oVtx";
+       tr  = "allTr_gTr_oVtx";
     } else if  ( itracking == 2 ) {
-       tr  = "PV_mbTr_fVtx";
+       tr  = "allTr_mbTr_fVtx";
     } else if  ( itracking == 3 ) {
-       tr  = "PV_mbTr_pVtx";
+       tr  = "allTr_mbTr_pVtx";
     } else {
        cout << "itraking = " << itracking << " :option not available !!! exit !!! " << endl;
        return;
@@ -639,7 +705,12 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
        cout << "itraking = " << itracking << " :option not available !!! exit !!! " << endl;
        return;
     }
-  
+ 
+    histoXMin = -0,5 ;
+    histoXMax =  6.5 ; 
+    XaxisTitle = "# vertices";
+    YaxisTitle = "# events"; 
+
     sel = "evtSel";
     all = sel+"_"+tr;
     dir = "EvtSelPlots_"+tr  ;
@@ -759,7 +830,7 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
     plotReset();
  
     globalDirPlot = "../plots/";
-    ptcutstr      = "ptcut0_GENMULT";
+    ptcutstr      = "ptcut0_FINAL";
     dir   = "GenMultiPlots_pt_etaCut_noSel" ;
 
     if (globalEnergy == 0.9 ) LegendTitle = "PYTHIA D6T";
@@ -770,11 +841,13 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
     globalNorm     = 0;
     globalFileType = 1;
 
+    YaxisTitle = "#frac{1}{#sigma_{INEL}} #frac{d#sigma}{d#eta}";
+
     dataSetId.push_back(iMC);
     dataSetIsMc.push_back(1);
     dataSetStyle.push_back(1);
     dataSetColor.push_back(kBlack);
-    dataSetLegend.push_back("INC");
+    dataSetLegend.push_back("INEL");
     dataSetHisto.push_back("MultiPlots_INC_pt_etaCut_noSel/eta_INC_pt_etaCut_noSel");
 
     dataSetId.push_back(iMC);
@@ -807,7 +880,7 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
     plotReset();
 
     globalDirPlot = "../plots/";
-    ptcutstr      = "ptcut0_GENMULT";
+    ptcutstr      = "ptcut0_FINAL";
     dir   = "GenMultiPlots_pt_etaCut_noSel" ;
 
     if (globalEnergy == 0.9 ) LegendTitle = "PYTHIA D6T";
@@ -817,11 +890,14 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
     globalNorm     = 0;
     globalFileType = 1;
 
+    XaxisTitle = "n";
+    YaxisTitle = "#frac{1}{#sigma_{INEL}} #frac{d#sigma}{dn}";
+
     dataSetId.push_back(iMC);
     dataSetIsMc.push_back(1);
     dataSetStyle.push_back(1);
     dataSetColor.push_back(kBlack);
-    dataSetLegend.push_back("INC");
+    dataSetLegend.push_back("INEL");
     dataSetHisto.push_back("MultiPlots_INC_pt_etaCut_noSel/nch_INC_pt_etaCut_noSel");
 
     dataSetId.push_back(iMC);
@@ -854,7 +930,7 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
   //-------- EFFICIENCIES --- ZEROBIAS -----
   if(zbeffpl){
 
-    globalLabel =  "Zero Bias Data";
+    globalLabel =  "CMS Preliminary";
     globalDirPlot = "../plots/";
     plotReset();
    
@@ -865,7 +941,7 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
     globalNorm     = 0;    
     globalFileType = 4;
 
-    XaxisTitle = "N_{ch}";
+    XaxisTitle = "n";
     YaxisTitle = "Efficiency";
     globalFigBaseName = "ZeroBias_L1HF_Eff"; 
 
@@ -873,7 +949,7 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
     dataSetIsMc.push_back(0);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(2);
-    dataSetLegend.push_back("Data");
+    dataSetLegend.push_back("Zero Bias Data");
     dataSetHisto.push_back("effL1HF"); 
 
     dataSetId.push_back(10);
@@ -909,7 +985,10 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
   if(effplot){
 
     globalDirPlot = "../plots/final2/";
-    globalDirPlot = "/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/plots/simpleanav8/";
+    globalDirPlot = "/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/plots/simpleanav9/";
+    if (globalEnergy == 7 )  globalDirPlot = "/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/plots/simpleanav10/";
+
+    if (globalEnergy == 7 )  globalDirPlot = "/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/plots/";
 
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
@@ -918,7 +997,7 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
 
     plotReset();
     //ptcutstr = "newbinning";
-    ptcutstr = "";   
+    ptcutstr = "lowstat";   
  
     // Plot settings
     globalNorm     = 0;
@@ -954,9 +1033,10 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
     dataSetLegend.push_back("All");
 
 
-    XaxisTitle = "n_{ch}";
+    XaxisTitle = "n";
     YaxisTitle = "Efficiency";
-    histoXMax  = 80.; 
+    histoXMax  = 80.5; 
+    if (globalEnergy == 0.9 )  histoXMax  = 70.5;
 
     // Plots
 
@@ -1053,7 +1133,7 @@ SetId.push_back(10);
   if(mtxplot){
 
     globalDirPlot = "../plots/systv2/";
-    globalDirPlot = "/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/plots/simpleanav8/";
+    globalDirPlot = "/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/plots/simpleanav9/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -1074,14 +1154,20 @@ SetId.push_back(10);
     if (globalEnergy == 2.36) iMC = 10 ;
     if (globalEnergy == 7.0 ) iMC = 31 ;
 
+    XaxisTitle = "n_{gen}";
+    YaxisTitle = "n_{reco}";
+
     dataSetId.push_back(iMC);
     dataSetIsMc.push_back(1);
     dataSetStyle.push_back(2);
     dataSetColor.push_back(2);
-    dataSetLegend.push_back("PYTHYA D6T");
+    if (globalEnergy == 0.9 ) dataSetLegend.push_back(" PYTHYA D6T ");
+    if (globalEnergy == 2.36) dataSetLegend.push_back(" PYTHYA D6T ");
+    if (globalEnergy == 7.0 ) dataSetLegend.push_back("PYTHYA ATLAS");
 
 
     // Legend Title
+/*
     {
       ExtLegTitle = "    genPart:  |#eta|<2.4  p_{T}>0"; 
       std::stringstream LT(""); 
@@ -1091,13 +1177,15 @@ SetId.push_back(10);
       LT << "  p_{T}>"  << "0.4" ;
       LegendTitle = LT.str();
     }
+*/
 
     dir   = "ptGen0_etaGen2.4_ptReco0.4_etaReco2.4/MatrixPlots_evtSel_cut0" ;
     all = "_cut0";
-    plot(dir,"nch_matrix_evtSel"+all);
+    plot(dir,"nch_matrix_evtSel"+all,0,6);
 
 
     // Legend Title
+/*
     {
       ExtLegTitle = "    genPart:  |#eta|<2.4  p_{T}>0"; 
       std::stringstream LT(""); 
@@ -1107,13 +1195,15 @@ SetId.push_back(10);
       LT << "  p_{T}>"  << "0.1" ;
       LegendTitle = LT.str();
     }
+*/
 
     dir   = "ptGen0_etaGen2.4_ptReco0.1_etaReco2.4/MatrixPlots_evtSel_cut5" ;
     all = "_cut5";
-    plot(dir,"nch_matrix_evtSel"+all);
+    plot(dir,"nch_matrix_evtSel"+all,0,6);
 
 
     // Legend Title
+/*
     {
       ExtLegTitle = "    genPart:  |#eta|<2.4  p_{T}>0.2"; 
       std::stringstream LT("");
@@ -1123,12 +1213,14 @@ SetId.push_back(10);
       LT << "  p_{T}>"  << "0.1"  ;
       LegendTitle = LT.str();
     }
+*/
 
     dir   = "ptGen0.1_etaGen2.4_ptReco0.1_etaReco2.4/MatrixPlots_evtSel_cut10" ;
     all = "_cut10";
-    plot(dir,"nch_matrix_evtSel"+all);
+    plot(dir,"nch_matrix_evtSel"+all,0,6);
 
     // Legend Title
+/*
     {
       ExtLegTitle = "    genPart:  |#eta|<2.4  p_{T}>0.5"; 
       std::stringstream LT("");
@@ -1138,12 +1230,14 @@ SetId.push_back(10);
       LT << "  p_{T}>"  << "0.5"  ;
       LegendTitle = LT.str();
     }
+*/
 
     dir   = "ptGen0.5_etaGen2.4_ptReco0.5_etaReco2.4/MatrixPlots_evtSel_cut15" ;
     all = "_cut15";
-    plot(dir,"nch_matrix_evtSel"+all);
+    plot(dir,"nch_matrix_evtSel"+all,0,6);
 
     // Legend Title
+/*
     {
       ExtLegTitle = "    genPart:  |#eta|<2.4  p_{T}>1.0"; 
       std::stringstream LT("");
@@ -1153,10 +1247,11 @@ SetId.push_back(10);
       LT << "  p_{T}>"  << "1.0"  ;
       LegendTitle = LT.str();
     }
+*/
 
     dir   = "ptGen1.0_etaGen2.4_ptReco1.0_etaReco2.4/MatrixPlots_evtSel_cut20" ;
     all = "_cut20";
-    plot(dir,"nch_matrix_evtSel"+all);
+    plot(dir,"nch_matrix_evtSel"+all,0,6);
 
   }
 
@@ -1455,9 +1550,9 @@ SetId.push_back(10);
   if( nchplot ){
 
     globalDirPlot = "../plots/systv2/";
-    globalDirPlot = "/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/plots/finalv8/";
+    globalDirPlot = "/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/plots/finalv9/";
     globalDirPlot = "/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/plots/";
-    globalDirPlot = "/user/xjanssen/Romain/";
+//    globalDirPlot = "/user/xjanssen/Romain/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -1489,6 +1584,7 @@ SetId.push_back(10);
     if ( iUfoldMCType == 11 )  ELT << "  Unf.=DW" ;
     if ( iUfoldMCType == 12 )  ELT << "  Unf.=P0" ;
     if ( iUfoldMCType == 13 )  ELT << "  Unf.=ProQ20" ;
+    if ( iUfoldMCType == 31 )  ELT << "  Unf.=ATLAS" ;
     ELT << "  Hyp.="      << iUfoldHyp; 
     ELT << "  Niter=" << iUfoldNIter;  
     
@@ -1496,14 +1592,14 @@ SetId.push_back(10);
     
     plotReset();
     ptcutstr = BIN.str();
-    LegendTitle = LT.str();
-    ExtLegTitle = ELT.str();
+    //LegendTitle = LT.str();
+    //ExtLegTitle = ELT.str();
     // Plot settings
     globalNorm     = 0;
     globalFileType = 3;
     globalHistoType= 1;
-    XaxisTitle = "n_{ch}";
-    YaxisTitle = "#frac{1}{N} #frac{dN}{dn_{ch}}";
+    XaxisTitle = "n";
+    YaxisTitle = "#frac{1}{#sigma} #frac{d#sigma}{dn}";
     setnchrangeX(iUfoldBin);
 
 
@@ -1514,7 +1610,7 @@ SetId.push_back(10);
     dataSetIsMc.push_back(0);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(2);
-    dataSetLegend.push_back("Data INC");
+    dataSetLegend.push_back("Data");
     dataSetHisto.push_back("nch_data_INC_beforeSDsub");
     
     dataSetId.push_back(-1);
@@ -1539,7 +1635,7 @@ SetId.push_back(10);
     dataSetIsMc.push_back(1);
     dataSetStyle.push_back(1);
     dataSetColor.push_back(2);
-    dataSetLegend.push_back("SD PYTHIA D6T");
+    dataSetLegend.push_back("PYTHIA SD");
     dataSetHisto.push_back("nch_MC_gen_SD");
 
 
@@ -1560,6 +1656,7 @@ SetId.push_back(10);
     }    
 
     plot(dir,"AUTO");
+    plot(dir,"AUTO",1);
     
     // mATRIX		
     plotReset();
@@ -2240,6 +2337,7 @@ SetId.push_back(10);
   if( nchchi2 ){
 
    globalDirPlot = "../plots/systv2/";
+    globalDirPlot = "/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/plots/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -3500,7 +3598,7 @@ SetId.push_back(10);
 
     // Define plot
     plotReset();
-    globalLabel = "CMS";
+    globalLabel = "CMS Preliminary";
 
     LegendTitle = LT.str();
     ExtLegTitle = ELT.str();
