@@ -61,10 +61,10 @@ if(syst==101){
 //--------------------------------------------
 //Using the Phojet @ 7TeV on the SD distri
 if(syst==102){
-  ostringstream addstr("");
-  addstr<<"binningE"<<E;
-  if(E==7.0) addstr.str("");
-  TString mcfiletmp = fileManager(2,20,7.0,iTr,0,0,addstr.str(),filedir);
+  ostringstream addstr1("");
+  if(addstr.Contains("binning1")==0) {addstr1.str("");addstr1<<"binningE"<<E;if(E==7.0) addstr1.str("");}
+  else addstr1.str("binning1");
+  TString mcfiletmp = fileManager(2,20,7.0,iTr,0,0,addstr1.str(),filedir);
   mctmp = TFile::Open(mcfiletmp,"READ");
   //TFile* mctmp = new TFile(mcfiletmp,"READ");
   if(mctmp==0){
