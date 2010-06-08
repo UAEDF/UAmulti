@@ -32,30 +32,51 @@ bool logY = true;
 TString plot = "unfolding/nch_data_corrected";
 int typeMC = 10;
 
-void plotSystematics(TString , TString , TString , TString , bool);
+//void plotSystematics(TString , TString , TString , TString , bool);
 double getMinSyst(double , double , double);
 double getMaxSyst(double , double , double);
 TH1F makeMirrorSyst(TH1F* , TH1F);
 
 
-void plotSystematics(int syst , double E = 0.9 , bool mirror = true){
+void plotSystematics(int syst , double E = 0.9 , int icut = 5 , int iMC = -1, int basesyst = 0, int iDataType = 0, int icutsyst = -1,
+                     TString systleg = "NONE" , bool mirror = true){
   
+  cut = icut;
   energy = E;
   SYST   = syst;
   if(E==0.9)  Estr = "a";
   if(E==2.36) Estr = "b";
   if(E==7.0)  Estr = "c";
   
-  if(energy==7.0) typeMC = 31;
-  else            typeMC = 10;
+  if(icutsyst<0) icutsyst = icut;
   
-  plotdir = "../plots/systv9_bis/";
+  typeMC = iMC;
+  if(energy==7.0 && iMC==-1) typeMC = 31;
+  else if(iMC==-1) typeMC = 10;
+  
+  plotdir = "../plots/";
   ostringstream outstr("");
-  outstr << "hyp" << 1 << "_niter" << 0 << "_cut" << cut << "_DataType" << 0;
-
-  TString tdata  = fileManager(3,typeMC,energy,1,0,0,outstr.str(),plotdir);
-  TString tsyst1 = fileManager(3,typeMC,energy,1,syst,1,outstr.str(),plotdir);
-  TString tsyst2 = fileManager(3,typeMC,energy,1,syst,-1,outstr.str(),plotdir);
+  outstr << "hyp" << 1 << "_niter" << 0 << "_cut" << cut << "_DataType" << iDataType;
+  
+  TString tdata = "";
+  if(basesyst==0)
+    tdata  = fileManager(3,typeMC,energy,1,0,0,outstr.str(),plotdir);
+  else
+    tdata  = fileManager(3,typeMC,energy,1,basesyst,-1,outstr.str(),plotdir);
+  
+  outstr.str("");
+  outstr << "hyp" << 1 << "_niter" << 0 << "_cut" << icutsyst << "_DataType" << iDataType;
+  TString tsyst1 = "";
+  TString tsyst2 = "";
+  if(syst!=0){
+    tsyst1 = fileManager(3,typeMC,energy,1,syst,1,outstr.str(),plotdir);
+    tsyst2 = fileManager(3,typeMC,energy,1,syst,-1,outstr.str(),plotdir);
+  }
+  else{
+    tsyst1 = fileManager(3,typeMC,energy,1,0,0,outstr.str(),plotdir);
+    tsyst2 = fileManager(3,typeMC,energy,1,0,0,outstr.str(),plotdir);
+  }
+  
   
   TString plot = "unfolding/nch_data_corrected";
   //TString plot = "unfolding/nch_data_INC_beforeSDsub";
@@ -64,16 +85,16 @@ void plotSystematics(int syst , double E = 0.9 , bool mirror = true){
   
   if(syst==1000){
     outstr.str("");
-    outstr << "hyp" << 0 << "_niter" << 0 << "_cut" << cut << "_DataType" << 0;
-    tsyst1 = fileManager(3,10,energy,1,0,0,outstr.str(),plotdir);
+    outstr << "hyp" << 0 << "_niter" << 15 << "_cut" << cut << "_DataType" << iDataType;
+    tsyst1 = fileManager(3,typeMC,energy,1,0,0,outstr.str(),plotdir);
   }
   
   
-  plotSystematics(tdata,tsyst1,tsyst2,plot,mirror);
+ /* plotSystematics(tdata,tsyst1,tsyst2,plot,mirror);
 }
 
 void plotSystematics(TString tdata, TString tsyst1, TString tsyst2, TString plot , bool mirror){
-
+*/
   gROOT->ProcessLine(".x cmsStyleRoot.C");
   
   cout<<"Trying to open files :"<<endl;
@@ -175,13 +196,13 @@ void plotSystematics(TString tdata, TString tsyst1, TString tsyst2, TString plot
     }
     
     //doing the ratio arrays
-    ry[i-1] = 1.;
+    ry[i-1] = 0.;
     reyl[i-1] = reyh[i-1] = 0;
     if(hdata->GetBinContent(i)!=0){
       reyl[i-1] = eyl[i-1]/hdata->GetBinContent(i);
       reyh[i-1] = eyh[i-1]/hdata->GetBinContent(i);
-      if(1-reyl[i-1]<minr) minr = 1-reyl[i-1];
-      if(1+reyh[i-1]>maxr) maxr = 1+reyh[i-1];
+      if(1-reyl[i-1]<minr) minr = 0.-reyl[i-1];
+      if(1+reyh[i-1]>maxr) maxr = 0.+reyh[i-1];
     }
     //cout<<eyh[i-1]<<"  "<<hdata->GetBinContent(i)<<"  "<<reyh[i-1]<<endl;
     
@@ -191,12 +212,16 @@ void plotSystematics(TString tdata, TString tsyst1, TString tsyst2, TString plot
   TGraphAsymmErrors* gsyst = new TGraphAsymmErrors(hdata->GetNbinsX(),x,y,exl,exh,eyl,eyh);
   
   double max = 0;
-  for(;max<hdata->GetNbinsX();++max)
-    if(y[int(max)]==0){
-      max+=exh[int(max)]+1;
-      //break;
-    }
-  /*gsyst->GetXaxis()->SetRangeUser(-0.5,max);
+  for(int i=1;i<hdata->GetNbinsX();++i){
+    max=x[i-1] + exh[i-1]+0.5;
+    if(y[i]==0)
+      break;
+  }
+  
+  TCanvas* c_nsyst = new TCanvas("c_nsyst","c_nsyst",1000,500);
+  c_nsyst->cd();
+  
+  gsyst->GetXaxis()->SetRangeUser(-0.5,max);
   gsyst->SetMinimum(5.);
   gsyst->GetXaxis()->SetTitle("n");//hdata->GetXaxis()->GetTitle());
   if(logY) gsyst->GetYaxis()->SetTitle("P_{n}");//hdata->GetXaxis()->GetTitle());
@@ -230,7 +255,61 @@ void plotSystematics(TString tdata, TString tsyst1, TString tsyst2, TString plot
   hdata->SetMarkerColor(kRed);
   hdata->Draw("psame");
   
-  gPad->WaitPrimitive();*/
+  #include "../macro/acceptanceMap.C"
+  ostringstream legheader("");
+  legheader<< "pt >= "<<accMap.at(cut).at(0)<<" GeV       |#eta| < "<<accMap.at(cut).at(1);
+  TLegend* leg = new TLegend(0.20,0.2,0.40,0.40);
+  leg->SetHeader(legheader.str().c_str());
+  
+  
+  TString leg1 = "";
+  TString leg2 = "";
+  
+  if(basesyst==0 && iDataType==0)  leg1 = "Data ";
+  if(basesyst==0 && iDataType!=0)  leg1 = "MC ";
+  if(basesyst==401)                leg1 += "unf=ATLAS@7 TeV";
+  if(basesyst==402)                leg1 += "unf=D6T@7 TeV";
+  if(basesyst==403)                leg1 += "unf=PHOJET@7 TeV";
+  
+  if(iDataType==11) leg1 += "DW";
+  if(iDataType==12) leg1 += "P0";
+  if(iDataType==13) leg1 += "ProQ20";
+  if(iMC==20) leg1 += "unf=PHOJET@7 TeV";
+  
+                               leg2 = "N.A.";
+  if((syst==0 || syst>=400) && iDataType==0)  leg2 = "Data ";
+  if((syst==0 || syst>=400) && iDataType!=0)  leg2 = "MC ";
+  
+  if(iDataType==11) leg2 += "DW ";
+  if(iDataType==12) leg2 += "P0 ";
+  if(iDataType==13) leg2 += "ProQ20 ";
+  
+  if(syst==4)     leg2 = "tracking syst";
+  if(syst==102)   leg2 = "SD sub syst";
+  if(syst==200)   leg2 = "evtSel syst";
+  
+  if(syst==401) leg2 += "unf=ATLAS@7 TeV";
+  if(syst==402) leg2 += "unf=D6T@7 TeV";
+  if(syst==403) leg2 += "unf=PHOJET@7 TeV";
+  if(syst==411) leg2 += "unf=DW";
+  if(syst==412) leg2 += "unf=P0";
+  if(syst==413) leg2 += "unf=ProQ20";
+  if(syst==420) leg2 += "unf=PHOJET@7 TeV";
+  if(syst==430) leg2 += "unf=D6T@7 TeV";
+  if(syst==431) leg2 += "unf=ATLAS@7 TeV";
+  
+  if(syst==1000) leg2 += "hyp=uniform";
+  
+  if(syst==0)   leg2 += systleg;
+   
+  leg->AddEntry(hdata,leg1,"l");
+  leg->AddEntry(gsyst,leg2,"f");
+  
+  
+  leg->SetFillColor(kWhite);
+  leg->Draw("same");
+  
+  gPad->WaitPrimitive();
   
   //writing the files in gif
   /*ostringstream figname("");
@@ -272,11 +351,12 @@ void plotSystematics(TString tdata, TString tsyst1, TString tsyst2, TString plot
   TGraphAsymmErrors* rsyst = new TGraphAsymmErrors(hdata->GetNbinsX(),x,ry,exl,exh,reyl,reyh);
   
   TH1F* one = new TH1F("one","one",306,-5.5,300.5);
-  for(int b = 1 ; b <= one->GetNbinsX() ; ++b) one->SetBinContent(b,1.);
+  for(int b = 1 ; b <= one->GetNbinsX() ; ++b) one->SetBinContent(b,0.);
   one->SetLineColor(kRed);
   one->GetXaxis()->SetRangeUser(-0.5,max);
   //one->GetYaxis()->SetRangeUser(0.4,1.4);
-  one->GetYaxis()->SetRangeUser(minr,maxr);
+  //one->GetYaxis()->SetRangeUser(minr*1.02,maxr*1.02);
+  one->GetYaxis()->SetRangeUser(-1,1);
   cout<<minr<<"  "<<maxr<<endl;
   one->GetXaxis()->SetTitle("n");
   one->GetYaxis()->SetTitle("\\sigma_{syst}");
@@ -294,42 +374,139 @@ void plotSystematics(TString tdata, TString tsyst1, TString tsyst2, TString plot
   text->SetTextSize(0.06);
   text->DrawLatex(0.4,0.8,txt.str().c_str());
   
+  
+  
+  leg = new TLegend(0.20,0.2,0.40,0.40);
+  leg->SetHeader(legheader.str().c_str());
+  
+  
+  leg1 = "";
+  leg2 = "";
+  
+  if(basesyst==0 && iDataType==0)  leg1 = "Data ";
+  if(basesyst==0 && iDataType!=0)  leg1 = "MC ";
+  if(basesyst==401)                leg1 += "unf=ATLAS@7 TeV";
+  if(basesyst==402)                leg1 += "unf=D6T@7 TeV";
+  if(basesyst==403)                leg1 += "unf=PHOJET@7 TeV";
+  
+  if(iDataType==11) leg1 += "DW";
+  if(iDataType==12) leg1 += "P0";
+  if(iDataType==13) leg1 += "ProQ20";
+  if(iMC==20) leg1 += "unf=PHOJET@7 TeV";
+  
+                               leg2 = "N.A.";
+  if((syst==0 || syst>=400) && iDataType==0)  leg2 = "Data ";
+  if((syst==0 || syst>=400) && iDataType!=0)  leg2 = "MC ";
+  
+  if(iDataType==11) leg2 += "DW ";
+  if(iDataType==12) leg2 += "P0 ";
+  if(iDataType==13) leg2 += "ProQ20 ";
+  
+  if(syst==4)     leg2 = "tracking syst";
+  if(syst==102)   leg2 = "SD sub syst";
+  if(syst==200)   leg2 = "evtSel syst";
+  
+  if(syst==401) leg2 += "unf=ATLAS@7 TeV";
+  if(syst==402) leg2 += "unf=D6T@7 TeV";
+  if(syst==403) leg2 += "unf=PHOJET@7 TeV";
+  if(syst==411) leg2 += "unf=DW";
+  if(syst==412) leg2 += "unf=P0";
+  if(syst==413) leg2 += "unf=ProQ20";
+  if(syst==420) leg2 += "unf=PHOJET@7 TeV";
+  if(syst==430) leg2 += "unf=D6T@7 TeV";
+  if(syst==431) leg2 += "unf=ATLAS@7 TeV";
+  
+  if(syst==1000) leg2 += "hyp=uniform";
+  
+  if(syst==0)   leg2 += systleg;
+  
+  leg->AddEntry(one,leg1,"l");
+  leg->AddEntry(rsyst,leg2,"f");
+  
+  
+  leg->SetFillColor(kWhite);
+
+  leg->Draw("same");
+  
+  
   gPad->WaitPrimitive();
   
   //writing the files in gif
+  logY=0;
   ostringstream figname("");
-  figname << "../figs/" << energy << "Tev/" << "systematics/";
+  figname << "../figs/systematics/";
   if (!gSystem->OpenDirectory(figname.str().c_str())) gSystem->mkdir(figname.str().c_str(),true);
   TString filename = fsyst1->GetName();
   TString histname = hsyst1->GetName();
   filename.Remove(0,filename.Last('/')+1);
   histname.Remove(0,histname.Last('/')+1);
   
+  if(basesyst!=0) figname<<"basesyst"<<basesyst<<"_";
+  if(iDataType!=0) figname<<"DataType"<<iDataType<<"_";
   figname << "syst"<<SYST<<"_cut"<<cut<<"_"<<Estr;
   if(logY) figname << "_logY";
   figname << ".gif";
   cout<<figname.str()<<endl;
-  gPad->SaveAs(figname.str().c_str(),"");
+  c_rsyst->SaveAs(figname.str().c_str(),"");
   
   figname.str("");
-  figname << "../figs/" << energy << "Tev/" << "systematics/";
+  figname << "../figs/systematics/";
+  if(basesyst!=0) figname<<"basesyst"<<basesyst<<"_";
+  if(iDataType!=0) figname<<"DataType"<<iDataType<<"_";
   figname << "syst"<<SYST<<"_cut"<<cut<<"_"<<Estr;
   if(logY) figname << "_logY";
   cout<<figname.str()<<endl;
-  gPad->SaveAs(TString(figname.str().c_str())+TString(".eps"),"");
+  c_rsyst->SaveAs(TString(figname.str().c_str())+TString(".eps"),"");
   gSystem->Exec(TString("convert ")+TString(figname.str().c_str())+TString(".eps ")+TString(figname.str().c_str())+TString(".pdf"));
   
   figname.str("");
-  figname << "../figs/" << energy << "Tev/" << "systematics/";
+  figname << "../figs/systematics/";
+  if(basesyst!=0) figname<<"basesyst"<<basesyst<<"_";
+  if(iDataType!=0) figname<<"DataType"<<iDataType<<"_";
   figname << "syst"<<SYST<<"_cut"<<cut<<"_"<<Estr;
   if(logY) figname << "_logY";
   figname << ".root";
   cout<<figname.str()<<endl;
-  gPad->SaveAs(figname.str().c_str(),"");
+  c_rsyst->SaveAs(figname.str().c_str(),"");
+  
+  
+  
+  //saving the other canvas
+  figname.str("");
+  figname << "../figs/systematics/";
+  if (!gSystem->OpenDirectory(figname.str().c_str())) gSystem->mkdir(figname.str().c_str(),true);
+  
+  if(basesyst!=0) figname<<"basesyst"<<basesyst<<"_";
+  if(iDataType!=0) figname<<"DataType"<<iDataType<<"_";
+  figname << "systcurves"<<SYST<<"_cut"<<cut<<"_"<<Estr;
+  if(logY) figname << "_logY";
+  figname << ".gif";
+  cout<<figname.str()<<endl;
+  c_nsyst->SaveAs(figname.str().c_str(),"");
+  
+  figname.str("");
+  figname << "../figs/systematics/";
+  if(basesyst!=0) figname<<"basesyst"<<basesyst<<"_";
+  if(iDataType!=0) figname<<"DataType"<<iDataType<<"_";
+  figname << "systcurves"<<SYST<<"_cut"<<cut<<"_"<<Estr;
+  if(logY) figname << "_logY";
+  cout<<figname.str()<<endl;
+  c_nsyst->SaveAs(TString(figname.str().c_str())+TString(".eps"),"");
+  gSystem->Exec(TString("convert ")+TString(figname.str().c_str())+TString(".eps ")+TString(figname.str().c_str())+TString(".pdf"));
+  
+  figname.str("");
+  figname << "../figs/systematics/";
+  if(basesyst!=0) figname<<"basesyst"<<basesyst<<"_";
+  if(iDataType!=0) figname<<"DataType"<<iDataType<<"_";
+  figname << "systcurves"<<SYST<<"_cut"<<cut<<"_"<<Estr;
+  if(logY) figname << "_logY";
+  figname << ".root";
+  cout<<figname.str()<<endl;
+  c_nsyst->SaveAs(figname.str().c_str(),"");
   
 }
 
-void finaleSystematic(double energy = 0.9, int cut = 5 , bool printFig = false){
+void finaleSystematic(double energy = 0.9, int cut = 5 , int typeErrStat = 0 , bool printFig = true){
   vector<int> syst;
   syst.push_back(4);
   syst.push_back(102);
@@ -371,6 +548,14 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , bool printFig = false){
   }
   
   TMoments* mdata = (TMoments*) fdata->Get("unfolding/moments/moments");
+  
+  //TH1F* hdata_poierr = (TH1F*) fdata->Get("unfolding/nch_resampled");
+  TH1F* hdata_mtxerr = NULL;
+  if(typeErrStat==0) hdata_mtxerr = (TH1F*) fdata->Get("unfolding/nch_histresampled;1");
+  //else               hdata_mtxerr = (TH1F*) fdata->Get("unfolding/nch_resampled;2");
+  else               hdata_mtxerr = (TH1F*) fdata->Get("unfolding/nch_mtxresampledPtr");
+  TH1F* eff_evtSel = (TH1F*) fdata->Get("unfolding/eff_evtSel");
+  hdata_mtxerr->Divide(eff_evtSel);
    
   TH1F* dummy = new TH1F("dummy","dummy",1,0,1);
   
@@ -386,7 +571,7 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , bool printFig = false){
     //hyp syst
     if(syst.at(i)==1000){
       outstr.str("");
-      outstr << "hyp" << 0 << "_niter" << 0 << "_cut" << cut << "_DataType" << 0;
+      outstr << "hyp" << 0 << "_niter" << 0 << "_cut" << cut << "_DataType" << 31;
       tsyst1 = fileManager(3,typeMC,energy,1,0,0,outstr.str(),plotdir);
       tsyst2 = fileManager(3,typeMC,energy,1,0,0,outstr.str(),plotdir);
     }
@@ -471,6 +656,8 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , bool printFig = false){
   Double_t* reyh = new Double_t[hdata->GetNbinsX()];
   Double_t* seyl = new Double_t[hdata->GetNbinsX()];
   Double_t* seyh = new Double_t[hdata->GetNbinsX()];
+  Double_t* mtxeyl = new Double_t[hdata->GetNbinsX()];
+  Double_t* mtxeyh = new Double_t[hdata->GetNbinsX()];
   double maxr = 0. , minr = 0.;
 
   for(int i = 1 ; i <= hdata->GetNbinsX() ; ++i){
@@ -540,13 +727,23 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , bool printFig = false){
     ry[i-1] = 0;
     reyl[i-1] = reyh[i-1] = 0;
     seyl[i-1] = seyh[i-1] = 0;
+    mtxeyl[i-1] = mtxeyh[i-1] = 0;
     if(hdata->GetBinContent(i)!=0){
       reyl[i-1] = eyl[i-1]/hdata->GetBinContent(i);
       reyh[i-1] = eyh[i-1]/hdata->GetBinContent(i);
       seyl[i-1] = hdata->GetBinError(i)/hdata->GetBinContent(i);
       seyh[i-1] = hdata->GetBinError(i)/hdata->GetBinContent(i);
+      mtxeyl[i-1] = hdata_mtxerr->GetBinError(i)/hdata->GetBinContent(i);
+      mtxeyh[i-1] = hdata_mtxerr->GetBinError(i)/hdata->GetBinContent(i);
+      cout<<i<<"  "<<hdata_mtxerr->GetBinError(i)<<endl;
       if(0.-reyl[i-1]<minr) minr = 0.-reyl[i-1];
       if(0.+reyh[i-1]>maxr) maxr = reyh[i-1];
+      /*cout<<i<<"  "<<hdata_mtxerr->GetBinError(i)
+          <<"  "<<hdata_poierr->GetBinError(i)<<endl;
+      cout<<"  "<<pow(hdata_mtxerr->GetBinError(i),2)
+          <<"  "<<pow(hdata_poierr->GetBinError(i),2)<<endl;
+      cout<<"  "<<sqrt(pow(hdata_mtxerr->GetBinError(i),2) + pow(hdata_poierr->GetBinError(i),2))
+          <<"  "<<hdata->GetBinError(i)<<endl;*/
     }
     
     //cout<<"lllllllllllll   "<<eyl[i-1]<<"  "<<eyh[i-1]<<endl;
@@ -565,9 +762,14 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , bool printFig = false){
   systp->Write(0,TObject::kWriteDelete);
   
   double max = 0;
-  for(;max<hdata->GetNbinsX();++max)
-    if(y[int(max)]==0)
-      max+=exh[int(max)]+1;
+  for(int i=3;i<hdata->GetNbinsX();++i){
+    max=x[i-1] + exh[i-1]+0.5;
+    if(y[i]==0)
+      break;
+  }
+  
+ // if(energy==7) max = 180.5;
+  
   /*gsyst->GetXaxis()->SetRangeUser(hdata->GetXaxis()->GetXmin(),max);
   gsyst->GetXaxis()->SetTitle("nch");//hdata->GetXaxis()->GetTitle());
   gsyst->GetYaxis()->SetTitle("P_{n}");//hdata->GetXaxis()->GetTitle());
@@ -604,13 +806,15 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , bool printFig = false){
 
   TGraphAsymmErrors* rsyst = new TGraphAsymmErrors(hdata->GetNbinsX(),x,ry,exl,exh,reyl,reyh);
   TGraphAsymmErrors* ssyst = new TGraphAsymmErrors(hdata->GetNbinsX(),x,ry,exl,exh,seyl,seyh);
+  TGraphAsymmErrors* msyst = new TGraphAsymmErrors(hdata->GetNbinsX(),x,ry,exl,exh,mtxeyl,mtxeyh);
 
   TH1F* one = new TH1F("one","one",306,-5.5,300.5);
   for(int b = 1 ; b <= one->GetNbinsX() ; ++b) one->SetBinContent(b,0.);
   one->SetLineColor(kRed);
   one->GetXaxis()->SetRangeUser(-0.5,max);
   //one->GetYaxis()->SetRangeUser(0.4,1.4);
-  one->GetYaxis()->SetRangeUser(minr*1.05,maxr*1.05);
+  one->GetYaxis()->SetRangeUser(-1,1);
+  //one->GetYaxis()->SetRangeUser(minr*1.05,maxr*1.05);
   cout<<minr<<"  "<<maxr<<endl;
   one->GetXaxis()->SetTitle("n");
   one->GetYaxis()->SetTitle("\\sigma(P_{n}) / P_{n}");
@@ -622,9 +826,22 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , bool printFig = false){
   ssyst->SetFillColor(12);
   ssyst->Draw("2 same");
   
-  TLegend* leg = new TLegend(0.5,0.7,0.7,0.90);
-  leg->AddEntry(ssyst,"Statistical","f");
-  leg->AddEntry(rsyst,"Systematic","f");
+  msyst->SetFillColor(kRed);
+  msyst->Draw("2 same");
+  
+  #include "../macro/acceptanceMap.C"
+  ostringstream legheader("");
+  legheader<< "pt >= "<<accMap.at(cut).at(0)<<" GeV       |#eta| < "<<accMap.at(cut).at(1);
+  
+  
+  TLegend* leg = new TLegend(0.4,0.7,0.6,0.90);
+  leg->SetHeader(legheader.str().c_str());
+  
+  if(typeErrStat==0) leg->AddEntry(msyst,"Evt resampling","f");
+  else               leg->AddEntry(msyst,"Mtx resampling","f");
+  if(typeErrStat==0) leg->AddEntry(ssyst,"+ Mtx resampling","f");
+  else               leg->AddEntry(ssyst,"+ Evt resampling","f");
+  leg->AddEntry(rsyst,"+ Systematics","f");
   leg->SetFillColor(kWhite);
   leg->Draw("same");
   
@@ -632,12 +849,14 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , bool printFig = false){
 
   ostringstream txt("");
   txt<<"CMS "<<energy<<" TeV";
-  TLatex* text = new TLatex(0.2,0.6,txt.str().c_str());
+  TLatex* text = new TLatex(0.16,0.85,txt.str().c_str());
   text->SetNDC(kTRUE);
   text->SetTextSize(0.06);
-  text->DrawLatex(0.2,0.8,txt.str().c_str());
+  text->DrawLatex(0.16,0.85,txt.str().c_str());
 
   gPad->WaitPrimitive();
+  
+  if(plot.Contains("kno")) return; 
   
   if(printFig){
     
@@ -653,8 +872,7 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , bool printFig = false){
     gSystem->Exec(TString("convert ")+TString(figname.str().c_str())+TString(".eps ")+TString(figname.str().c_str())+TString(".pdf"));
   }
   
-  if(plot.Contains("kno")) return; 
-  
+
   //-------------------------------------------------------
   //--------- Making systematic of mean & moments ---------
   //-------------------------------------------------------
