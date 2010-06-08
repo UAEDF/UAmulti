@@ -36,7 +36,7 @@ using namespace TMath;
 int debug_ = 0;
 
 
-const int matrixsize = 200;
+const int matrixsize = 320;
 bool useData = false;
 //TString name = "data_uniform_0.9_eta2.5_v004";
 TString name = "test";
@@ -52,8 +52,13 @@ void transform2Matrix(TH2F* matrixhist,double matrix[][matrixsize]);
 void makeEff(TH1F*,TH1F*,TH1F*);
 double getRMS(TH1F*);
 double* Divide( const TArrayD* , double );
+
 void divideByWidth(TH1F*);
 void divideByWidth(TH2F*);
+void multiplyByWidth(TH1F*);
+void multiplyByWidth(TH2F*);
+
+
 
 TGraphAsymmErrors h2g(TH1F*);
 
@@ -85,6 +90,7 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 10 , 
   #include "../macro/acceptanceMap.C"
   
   TString filedir("../plots/simpleanav10/");
+  //TString addstr("binning1");
   TString addstr("");
   
   if(syst==201)
@@ -404,7 +410,7 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 10 , 
   TH1F* hypothesis = (TH1F*) nch_trueGen->Clone("hypothesis");
   if   (hyp == 0){
     for (int i=1;i<=hypothesis->GetNbinsX();i++)
-      hypothesis->SetBinContent(i,1.);
+      hypothesis->SetBinContent(i,hypothesis->GetBinWidth(i));
   }
   else if (hyp == 1)
     hypothesis = nch_trueGen_afterUnfolding;
@@ -438,19 +444,38 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 10 , 
   
   nch_unfolded = (runalgo(matrix,nch_toUnfold,hypothesis,niter));
   TH1F* nch_unfoldedPtr = (TH1F*) nch_unfolded.Clone("nch_unfoldedPtr");
+
+  cout<< nch_unfoldedPtr->GetBinContent(31) << "  " << nch_unfoldedPtr->GetBinError(31) << endl;
+ 
+  //------------------------------------------------------------------------------
+  //---------------------------- ReScaling -------------------------------------
+  //------------------------------------------------------------------------------
+  
+  
+  /*nch_unfoldedPtr->Scale(1./double(mp_INC_evtSel_reco_data->nbEvts));
+  nch_INC->Scale(1./double(mp_INC_evtSel_reco_data->nbEvts));
+  if(nch_unfoldedPtr->Integral()<2)
+    MC_factor = 1. / double(mp_INC_evtSel_reco_MC->nbEvts) ;
+  else
+    MC_factor = double(mp_INC_evtSel_reco_data->nbEvts) / double(mp_INC_evtSel_reco_MC->nbEvts) ;
+  */  
+  
+  
   
   
   //------------------------------------------------------------------------------
-  //---------------------------- Resampling --------------------------------------
+  //---------------------------- Resampling & moments ----------------------------
   //------------------------------------------------------------------------------
   
   
-  cout<<" ++++ DOING RESAMPLING ++++" <<endl;
+  cout<<" ++++ DOING RESAMPLING & MOMENTS' STAT ERRORS ++++" <<endl;
+  
+  TMoments* moment = new TMoments();
   
   gDirectory->mkdir("hist_resampling");
   gDirectory->cd("hist_resampling");
 
-  TH1F nch_resampled = resample(matrix,nch_INC,nch_NSD,nch_unfoldedPtr,hypothesis,niter,0,nch_evtSel_SD,false);
+  TH1F nch_resampled = resample(matrix,nch_INC,nch_NSD,nch_unfoldedPtr,hypothesis,niter,0,nch_evtSel_SD,moment,eff_evtSel,false);
   TH1F* nch_resampledPtr = &nch_resampled;
   
   gDirectory->cd("../");
@@ -469,29 +494,21 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 10 , 
   gDirectory->cd("mtx_resampling");
 
     
-  TH1F nch_mtxresampled = resample(matrix,nch_toUnfold,hypothesis,niter);
+  TH1F nch_mtxresampled = mtxresample(matrix,nch_toUnfold,hypothesis,niter,moment,eff_evtSel);
   TH1F* nch_mtxresampledPtr = &nch_mtxresampled;
   
   gDirectory->cd("../");
   
   
   
-  for(int nbin = 1 ; nbin<=nch_unfoldedPtr->GetNbinsX() ; ++nbin)
+  for(int nbin = 1 ; nbin<=nch_unfoldedPtr->GetNbinsX() ; ++nbin){
     nch_unfoldedPtr->SetBinError(nbin , sqrt(pow(nch_resampledPtr->GetBinError(nbin),2)+pow(nch_mtxresampledPtr->GetBinError(nbin),2)));
+    /*cout<<nbin<<"  "<<nch_resampledPtr->GetBinError(nbin)<<"  "<<nch_mtxresampledPtr->GetBinError(nbin)<<endl;
+    cout<<"  "<<sqrt(pow(nch_resampledPtr->GetBinError(nbin),2)+pow(nch_mtxresampledPtr->GetBinError(nbin),2))
+        <<"  "<<nch_unfoldedPtr->GetBinError(nbin)<<endl;*/
+  }
   
-  //------------------------------------------------------------------------------
-  //---------------------------- ReScaling -------------------------------------
-  //------------------------------------------------------------------------------
   
-  
-  /*nch_unfoldedPtr->Scale(1./double(mp_INC_evtSel_reco_data->nbEvts));
-  nch_INC->Scale(1./double(mp_INC_evtSel_reco_data->nbEvts));
-  if(nch_unfoldedPtr->Integral()<2)
-    MC_factor = 1. / double(mp_INC_evtSel_reco_MC->nbEvts) ;
-  else
-    MC_factor = double(mp_INC_evtSel_reco_data->nbEvts) / double(mp_INC_evtSel_reco_MC->nbEvts) ;
-  */  
-    
   //------------------------------------------------------------------------------
   //---------------------------- EvtSel Correction -------------------------------
   //------------------------------------------------------------------------------
@@ -531,6 +548,7 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 10 , 
   }
   cout<<"Mean of multiplicity --------> "<<nch_corrected->GetMean()<<endl;
   cout<<"RMS of multiplicity  --------> "<<nch_corrected->GetRMS()<<endl;
+  
   
   //------------------------------------------------------------------------------
   //--------------------------------- Rescaling ----------------------------------
@@ -579,12 +597,13 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 10 , 
   }*/
   
     
-  TMoments* moment = new TMoments(nch_corrected);
+  //TMoments* moment = new TMoments(nch_corrected);
   //moment->print();
   
+  moment->Add(nch_corrected);
   moment->ComputeMoments();
   //moment->print();
-  moment->ComputeErrorsFromResampling(nch_corrected);
+  //moment->ComputeErrorsFromResampling(nch_corrected);
   moment->print();
   moment->Write("moments");
   
@@ -623,13 +642,25 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 10 , 
   
   cout<<" ++++ DOING KNO ++++" <<endl;
   
-  TH1F* kno = new TH1F("kno_corrected","kno_corrected;z = n_{ch} / < n_{ch} >;#psi(z)",nch_corrected->GetNbinsX(),Divide(nch_corrected->GetXaxis()->GetXbins(),moment->mean->GetMean()));
+  double knomean = nch_corrected->GetMean();
+  
+  TString tkno = out->GetName();
+  tkno.ReplaceAll("plots/","plots/systv10_binning1v2/");
+  cout<<"Opening for kno mean the file : "<<tkno<<endl;
+  TFile* fkno = TFile::Open(tkno,"READ");
+  if(fkno!=0){
+    TMoments* mom_kno = (TMoments*) fkno->Get("unfolding/moments/moments");
+    knomean = mom_kno->mean->GetMean();
+  }
+  
+  
+  TH1F* kno = new TH1F("kno_corrected","kno_corrected;z = n_{ch} / < n_{ch} >;#psi(z)",nch_corrected->GetNbinsX(),Divide(nch_corrected->GetXaxis()->GetXbins(),knomean));
   kno->Sumw2();
   /*for( int k = 60 ; k <= nch_corrected->GetNbinsX() ; ++k)
     nch_corrected->SetBinContent(k,0);*/
   for( int k = 1 ; k <= nch_corrected->GetNbinsX() ; ++k){
-    kno->SetBinContent(k , nch_corrected->GetMean() * nch_corrected->GetBinContent(k));
-    kno->SetBinError(k , nch_corrected->GetMean() * nch_corrected->GetBinError(k));
+    kno->SetBinContent(k , knomean * nch_corrected->GetBinContent(k) / nch_corrected->Integral());
+    kno->SetBinError(k , knomean * nch_corrected->GetBinError(k) / nch_corrected->Integral());
   }
   if(drawcanv){
     TCanvas* c_kno = new TCanvas("c_kno","c_kno",200,510,500,500);
@@ -640,12 +671,19 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 10 , 
   
   TMoments* moment_gen = new TMoments(nch_trueGen);
   moment_gen->ComputeMoments();
-  TH1F* kno_gen = new TH1F("kno_gen","kno_gen;z = n_{ch} / < n_{ch} >;#psi(z)",nch_trueGen->GetNbinsX(),Divide(nch_trueGen->GetXaxis()->GetXbins(),moment_gen->mean->GetMean()));
+  knomean = moment_gen->mean->GetMean();
+  if(fkno!=0){
+    TH1F* mom_kno_gen = (TH1F*) fkno->Get("unfolding/nch_MC_gen_afterEvtSelCorrection");
+    knomean = mom_kno_gen->GetMean();
+  }
+  TH1F* kno_gen = new TH1F("kno_gen","kno_gen;z = n_{ch} / < n_{ch} >;#psi(z)",nch_trueGen->GetNbinsX(),Divide(nch_trueGen->GetXaxis()->GetXbins(),knomean));
   kno_gen->Sumw2();
   for( int k = 1 ; k <= nch_trueGen->GetNbinsX() ; ++k){
-    kno_gen->SetBinContent(k , nch_trueGen->GetMean() * nch_trueGen->GetBinContent(k));
-    kno_gen->SetBinError(k , nch_trueGen->GetMean() * nch_trueGen->GetBinError(k));
+    kno_gen->SetBinContent(k , knomean * nch_trueGen->GetBinContent(k) / nch_trueGen->Integral());
+    kno_gen->SetBinError(k , knomean * nch_trueGen->GetBinError(k) / nch_trueGen->Integral());
   }
+  
+  out->cd("unfolding");
   kno_gen->Write();
   
   
@@ -754,11 +792,12 @@ if(drawcanv){
   nch_NSD->Write();
   nch_unfoldedPtr->Write();
   nch_corrected->Write();
-  nch_resampledPtr->Write();
-  nch_mtxresampledPtr->Write();
+  nch_resampledPtr->Write("nch_histresampled");
+  nch_mtxresampledPtr->Write("nch_mtxresampledPtr");
   eff_evtSel->Write();
   
   h2g(nch_corrected).Write();
+  //h2g(nch_mtxresampledPtr).Write();
   
   
 
@@ -886,6 +925,25 @@ void divideByWidth(TH2F* hist){
       width = hist->GetXaxis()->GetBinWidth(i) * hist->GetYaxis()->GetBinWidth(j);
       hist->SetBinContent(i,j,double(hist->GetBinContent(i,j))/width);
       hist->SetBinError(i,j,double(hist->GetBinError(i,j))/width);
+    }
+  }
+}
+
+void multiplyByWidth(TH1F* hist){
+  for(int i=1;i<=hist->GetNbinsX();++i){
+    hist->SetBinContent(i,double(hist->GetBinContent(i))*double(hist->GetBinWidth(i)));
+    hist->SetBinError(i,double(hist->GetBinError(i))*double(hist->GetBinWidth(i)));
+  }
+}
+
+
+void multiplyByWidth(TH2F* hist){
+  double width = 1;
+  for(int i=1;i<=hist->GetNbinsX();++i){
+    for(int j=1;j<=hist->GetNbinsX();++j){
+      width = hist->GetXaxis()->GetBinWidth(i) * hist->GetYaxis()->GetBinWidth(j);
+      hist->SetBinContent(i,j,double(hist->GetBinContent(i,j))*width);
+      hist->SetBinError(i,j,double(hist->GetBinError(i,j))*width);
     }
   }
 }
