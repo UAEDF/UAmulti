@@ -33,7 +33,7 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
 
   gROOT->ProcessLine(".x cmsStyleRoot.C");
   
-  TString globaldir = ("../plots/systv10_bis/");
+  TString globaldir = ("../plots/");
   const int nenergy = 3;
   
   int colors[]  = {1,1,1,2,4,kMagenta};
@@ -77,8 +77,6 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
   
   const int nmoments = 6;
   
-  TH1F* mnch               = new TH1F("mnch","mnch",nbin,xmin,xmax);
-  TGraphAsymmErrors* gmnch = new TGraphAsymmErrors(nenergy);
   vector<TH1F*> hmoments(nmoments,new TH1F());
   vector<TGraphAsymmErrors*> gmoments(nmoments,new TGraphAsymmErrors());
   
@@ -93,12 +91,7 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
   //filling the histos/graphs
   for(int i = 0 ; i < nenergy ; ++i){
     TMoments* moments = (TMoments*) files.at(i)->Get("unfolding/moments/moments_syst");
-    int ibin = mnch->GetXaxis()->FindFixBin(E.at(i));
-    
-    mnch->SetBinContent(ibin , moments->mean->GetMean());
-    mnch->SetBinError(ibin , moments->mean->GetMeanError());
-    gmnch->SetPoint(i,E.at(i),moments->mean->GetMean());
-    gmnch->SetPointError(i,0,0,moments->mean->_MeanSystM,moments->mean->_MeanSystP);
+    int ibin = hmoments.at(0)->GetXaxis()->FindFixBin(E.at(i));
       
     for(int m = 0 ; m < nmoments ; ++m){
       if(momtype.Contains("C")){
@@ -127,303 +120,313 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
         gmoments.at(m)->SetPoint(i,E.at(i),moments->hmoments->at(m));
         gmoments.at(m)->SetPointError(i,0,0,moments->hsystmerr->at(m),moments->hsystperr->at(m));
       }
-      hmoments.at(m)->SetFillColor(colors[m]);
-      hmoments.at(m)->SetLineColor(colors[m]);
+      hmoments.at(m)->SetFillColor(kRed-3);
+      hmoments.at(m)->SetLineColor(kRed-3);
       hmoments.at(m)->SetLineWidth(2);
-      hmoments.at(m)->SetMarkerColor(colors[m]);
-      hmoments.at(m)->SetMarkerStyle(markers[m]);
+      hmoments.at(m)->SetMarkerColor(kRed-3);
+      if(m%2==0) hmoments.at(m)->SetMarkerStyle(markers[2]);
+      else        hmoments.at(m)->SetMarkerStyle(markersopen[2]);
+      hmoments.at(m)->SetMarkerSize(2);
       
-      gmoments.at(m)->SetFillColor(colors[m]);
-      gmoments.at(m)->SetLineColor(colors[m]);
+      gmoments.at(m)->SetFillColor(kRed-3);
+      gmoments.at(m)->SetLineColor(kRed-3);
       gmoments.at(m)->SetLineWidth(2);
-      gmoments.at(m)->SetMarkerColor(colors[m]);
-      gmoments.at(m)->SetMarkerStyle(markers[m]);
+      gmoments.at(m)->SetMarkerColor(kRed-3);
+      if(m%2==0) gmoments.at(m)->SetMarkerStyle(markers[2]);
+      else        gmoments.at(m)->SetMarkerStyle(markersopen[2]);
+      gmoments.at(m)->SetMarkerSize(2);
     }
   }
   
-  hmoments[2]->GetYaxis()->SetRangeUser(0.,maxrange);
-  hmoments[2]->SetTitle(TString(";#sqrt{S};")+momtype+TString("-moments"));
-  hmoments[2]->Draw("E1");
   
-  gPad->SetLogx();
-  gPad->SetLeftMargin(0.17);
-  gPad->SetBottomMargin(0.10);
-  gPad->SetFillColor(0);
-  gPad->GetFrame()->SetFillColor(21);
-  gPad->GetFrame()->SetBorderSize(12);
-  gPad->SetGrid(0,1);
-  gStyle->SetOptStat(0);
-  gStyle->SetOptTitle(kFALSE);
-
-  hmoments[3]->Draw("same E1");
-  hmoments[4]->Draw("same E1");
-  hmoments[5]->Draw("same E1");
-  
-  for(int m = 2 ; m < nmoments ; ++m){
-    gmoments.at(m)->Draw("same z ");
-    hmoments.at(m)->Draw("same E1 ");
-  }
   
   /*hmoments[3]->Draw("same E1");
   hmoments[4]->Draw("same E1");
   hmoments[5]->Draw("same E1");*/
   
   //Writing UA5
-  TH1F** ua5 = new TH1F*[4];
-  ua5[0] = new TH1F("ua5_c2","ua5_c2",nbin,xmin,xmax);
-  ua5[1] = new TH1F("ua5_c3","ua5_c3",nbin,xmin,xmax);
-  ua5[2] = new TH1F("ua5_c4","ua5_c4",nbin,xmin,xmax);
-  ua5[3] = new TH1F("ua5_c5","ua5_c5",nbin,xmin,xmax);
-  int bin200 = ua5[0]->GetXaxis()->FindFixBin(200);
-  int bin500 = ua5[0]->GetXaxis()->FindFixBin(540);
-  int bin900 = ua5[0]->GetXaxis()->FindFixBin(900);
+  TGraphErrors** ua5 = new TGraphErrors*[4];
+  ua5[0] = new TGraphErrors();
+  ua5[1] = new TGraphErrors();
+  ua5[2] = new TGraphErrors();
+  ua5[3] = new TGraphErrors();
   
   if(int(acc)%5==3){
     if(momtype.Contains("C")){
-      ua5[0]->SetBinContent(bin200,1.67);
-      ua5[0]->SetBinError(bin200,0.03);
-      ua5[0]->SetBinContent(bin500,1.72);
-      ua5[0]->SetBinError(bin500,0.02);
-      ua5[0]->SetBinContent(bin900,1.75);
-      ua5[0]->SetBinError(bin900,0.04);
+      ua5[0]->SetPoint(1,200,1.67);
+      ua5[0]->SetPointError(1,0,0.03);
+      ua5[0]->SetPoint(2,540,1.72);
+      ua5[0]->SetPointError(2,0,0.02);
+      ua5[0]->SetPoint(3,900,1.75);
+      ua5[0]->SetPointError(3,0,0.04);
     
-      ua5[1]->SetBinContent(bin200,3.7);
-      ua5[1]->SetBinError(bin200,0.1);
-      ua5[1]->SetBinContent(bin500,4);
-      ua5[1]->SetBinError(bin500,0.1);
-      ua5[1]->SetBinContent(bin900,4.4);
-      ua5[1]->SetBinError(bin900,0.1);
+      ua5[1]->SetPoint(1,200,3.7);
+      ua5[1]->SetPointError(1,0,0.1);
+      ua5[1]->SetPoint(2,540,4);
+      ua5[1]->SetPointError(2,0,0.1);
+      ua5[1]->SetPoint(3,900,4.4);
+      ua5[1]->SetPointError(3,0,0.1);
     
-      ua5[2]->SetBinContent(bin200,9.7);
-      ua5[2]->SetBinError(bin200,1.1);
-      ua5[2]->SetBinContent(bin500,12.1);
-      ua5[2]->SetBinError(bin500,0.7);
-      ua5[2]->SetBinContent(bin900,14.1);
-      ua5[2]->SetBinError(bin900,1.5);
+      ua5[2]->SetPoint(1,200,9.7);
+      ua5[2]->SetPointError(1,0,1.1);
+      ua5[2]->SetPoint(2,540,12.1);
+      ua5[2]->SetPointError(2,0,0.7);
+      ua5[2]->SetPoint(3,900,14.1);
+      ua5[2]->SetPointError(3,0,1.5);
     
-      ua5[3]->SetBinContent(bin200,29);
-      ua5[3]->SetBinError(bin200,5);
-      ua5[3]->SetBinContent(bin500,44);
-      ua5[3]->SetBinError(bin500,5);
-      ua5[3]->SetBinContent(bin900,56);
-      ua5[3]->SetBinError(bin900,9);
+      ua5[3]->SetPoint(1,200,29);
+      ua5[3]->SetPointError(1,0,5);
+      ua5[3]->SetPoint(2,540,44);
+      ua5[3]->SetPointError(2,0,5);
+      ua5[3]->SetPoint(3,900,56);
+      ua5[3]->SetPointError(3,0,9);
     }
     
     if(momtype.Contains("F")){
-      ua5[0]->SetBinContent(bin200,1.47);
-      ua5[0]->SetBinError(bin200,0.02);
-      ua5[0]->SetBinContent(bin900,1.62);
-      ua5[0]->SetBinError(bin900,0.02);
+      ua5[0]->SetPoint(1,200,1.47);
+      ua5[0]->SetPointError(1,0,0.02);
+      ua5[0]->SetPoint(3,900,1.62);
+      ua5[0]->SetPointError(3,0,0.02);
     
-      ua5[1]->SetBinContent(bin200,2.8);
-      ua5[1]->SetBinError(bin200,0.1);
-      ua5[1]->SetBinContent(bin900,3.7);
-      ua5[1]->SetBinError(bin900,0.1);
+      ua5[1]->SetPoint(1,200,2.8);
+      ua5[1]->SetPointError(1,0,0.1);
+      ua5[1]->SetPoint(3,900,3.7);
+      ua5[1]->SetPointError(3,0,0.1);
     
-      ua5[2]->SetBinContent(bin200,6.1);
-      ua5[2]->SetBinError(bin200,0.5);
-      ua5[2]->SetBinContent(bin900,10.9);
-      ua5[2]->SetBinError(bin900,0.8);
+      ua5[2]->SetPoint(1,200,6.1);
+      ua5[2]->SetPointError(1,0,0.5);
+      ua5[2]->SetPoint(3,900,10.9);
+      ua5[2]->SetPointError(3,0,0.8);
     
-      ua5[3]->SetBinContent(bin200,15);
-      ua5[3]->SetBinError(bin200,3);
-      ua5[3]->SetBinContent(bin900,40.5);
-      ua5[3]->SetBinError(bin900,5);
+      ua5[3]->SetPoint(1,200,15);
+      ua5[3]->SetPointError(1,0,3);
+      ua5[3]->SetPoint(3,900,40.5);
+      ua5[3]->SetPointError(3,0,5);
     }
   }
   else if(int(acc)%5==0){
   
     if(momtype.Contains("C")){
-      ua5[0]->SetBinContent(bin200,1.44);
-      ua5[0]->SetBinError(bin200,0.03);
-      ua5[0]->SetBinContent(bin500,1.51);
-      ua5[0]->SetBinError(bin500,0.01);
-      ua5[0]->SetBinContent(bin900,1.53);
-      ua5[0]->SetBinError(bin900,0.04);
+      ua5[0]->SetPoint(1,200,1.44);
+      ua5[0]->SetPointError(1,0,0.03);
+      ua5[0]->SetPoint(2,540,1.51);
+      ua5[0]->SetPointError(2,0,0.01);
+      ua5[0]->SetPoint(3,900,1.53);
+      ua5[0]->SetPointError(3,0,0.04);
     
-      ua5[1]->SetBinContent(bin200,2.65);
-      ua5[1]->SetBinError(bin200,0.11);
-      ua5[1]->SetBinContent(bin500,3);
-      ua5[1]->SetBinError(bin500,0.06);
-      ua5[1]->SetBinContent(bin900,3.11);
-      ua5[1]->SetBinError(bin900,0.13);
+      ua5[1]->SetPoint(1,200,2.65);
+      ua5[1]->SetPointError(1,0,0.11);
+      ua5[1]->SetPoint(2,540,3);
+      ua5[1]->SetPointError(2,0,0.06);
+      ua5[1]->SetPoint(3,900,3.11);
+      ua5[1]->SetPointError(3,0,0.13);
     
-      ua5[2]->SetBinContent(bin200,5.8);
-      ua5[2]->SetBinError(bin200,0.5);
-      ua5[2]->SetBinContent(bin500,7.4);
-      ua5[2]->SetBinError(bin500,0.3);
-      ua5[2]->SetBinContent(bin900,7.7);
-      ua5[2]->SetBinError(bin900,0.6);
+      ua5[2]->SetPoint(1,200,5.8);
+      ua5[2]->SetPointError(1,0,0.5);
+      ua5[2]->SetPoint(2,540,7.4);
+      ua5[2]->SetPointError(2,0,0.3);
+      ua5[2]->SetPoint(3,900,7.7);
+      ua5[2]->SetPointError(3,0,0.6);
     
-      ua5[3]->SetBinContent(bin200,15);
-      ua5[3]->SetBinError(bin200,2.2);
-      ua5[3]->SetBinContent(bin500,21);
-      ua5[3]->SetBinError(bin500,1);
-      ua5[3]->SetBinContent(bin900,22);
-      ua5[3]->SetBinError(bin900,2);
+      ua5[3]->SetPoint(1,200,15);
+      ua5[3]->SetPointError(1,0,2.2);
+      ua5[3]->SetPoint(2,540,21);
+      ua5[3]->SetPointError(2,0,1);
+      ua5[3]->SetPoint(3,900,22);
+      ua5[3]->SetPointError(3,0,2);
+    }
+    if(momtype.Contains("F")){
+      ua5[0]->SetPoint(1,200,1.36);
+      ua5[0]->SetPointError(1,0,0.02);
+      ua5[0]->SetPoint(2,900,1.48);
+      ua5[0]->SetPointError(2,0,0.01);
+    
+      ua5[1]->SetPoint(1,200,2.33);
+      ua5[1]->SetPointError(1,0,0.09);
+      ua5[1]->SetPoint(2,900,2.88);
+      ua5[1]->SetPointError(2,0,0.09);
+    
+      ua5[2]->SetPoint(1,200,4.7);
+      ua5[2]->SetPointError(1,0,0.36);
+      ua5[2]->SetPoint(2,900,6.8);
+      ua5[2]->SetPointError(2,0,0.4);
+    
+      ua5[3]->SetPoint(1,200,11);
+      ua5[3]->SetPointError(1,0,1);
+      ua5[3]->SetPoint(2,900,18);
+      ua5[3]->SetPointError(2,0,2.23);
+    }
+    if(momtype.Contains("K")){
+      ua5[0]->SetPoint(1,200,0.36);
+      ua5[0]->SetPointError(1,0,0);
+      ua5[0]->SetPoint(2,900,0.48);
+      ua5[0]->SetPointError(2,0,0);
+    
+      ua5[1]->SetPoint(1,200,0.25);
+      ua5[1]->SetPointError(1,0,0);
+      ua5[1]->SetPoint(2,900,0.44);
+      ua5[1]->SetPointError(2,0,0);
+    
+      ua5[2]->SetPoint(1,200,0.151);
+      ua5[2]->SetPointError(1,0,0);
+      ua5[2]->SetPoint(2,900,0.469);
+      ua5[2]->SetPointError(2,0,0);
+    
+      ua5[3]->SetPoint(1,200,0.3);
+      ua5[3]->SetPointError(1,0,0);
+      ua5[3]->SetPoint(2,900,-0.112);
+      ua5[3]->SetPointError(2,0,0);
+    }
+    if(momtype.Contains("H")){
+      ua5[0]->SetPoint(1,200,0.265);
+      ua5[0]->SetPointError(1,0,0);
+      ua5[0]->SetPoint(2,900,0.324);
+      ua5[0]->SetPointError(2,0,0);
+    
+      ua5[1]->SetPoint(1,200,0.107);
+      ua5[1]->SetPointError(1,0,0);
+      ua5[1]->SetPoint(2,900,0.153);
+      ua5[1]->SetPointError(2,0,0);
+    
+      ua5[2]->SetPoint(1,200,0.032);
+      ua5[2]->SetPointError(1,0,0);
+      ua5[2]->SetPoint(2,900,0.069);
+      ua5[2]->SetPointError(2,0,0);
+    
+      ua5[3]->SetPoint(1,200,0.027);
+      ua5[3]->SetPointError(1,0,0);
+      ua5[3]->SetPoint(2,900,-0.006);
+      ua5[3]->SetPointError(2,0,0);
     }
   }
   
-  ua5[0]->SetMarkerStyle(markersopen[2]);
-  ua5[1]->SetMarkerStyle(markersopen[3]);
-  ua5[2]->SetMarkerStyle(markersopen[4]);
-  ua5[3]->SetMarkerStyle(markersopen[5]);
-  ua5[0]->SetMarkerColor(colors[2]);
-  ua5[1]->SetMarkerColor(colors[3]);
-  ua5[2]->SetMarkerColor(colors[4]);
-  ua5[3]->SetMarkerColor(colors[5]);
-  ua5[0]->SetLineColor(colors[2]);
-  ua5[1]->SetLineColor(colors[3]);
-  ua5[2]->SetLineColor(colors[4]);
-  ua5[3]->SetLineColor(colors[5]);
+  ua5[0]->SetMarkerStyle(markers[2]);
+  ua5[1]->SetMarkerStyle(markersopen[2]);
+  ua5[2]->SetMarkerStyle(markers[2]);
+  ua5[3]->SetMarkerStyle(markersopen[2]);
+  ua5[0]->SetMarkerSize(2);
+  ua5[1]->SetMarkerSize(2);
+  ua5[2]->SetMarkerSize(2);
+  ua5[3]->SetMarkerSize(2);
+  ua5[0]->SetMarkerColor(kBlue);
+  ua5[1]->SetMarkerColor(kBlue);
+  ua5[2]->SetMarkerColor(kBlue);
+  ua5[3]->SetMarkerColor(kBlue);
+  ua5[0]->SetLineColor(kBlue);
+  ua5[1]->SetLineColor(kBlue);
+  ua5[2]->SetLineColor(kBlue);
+  ua5[3]->SetLineColor(kBlue);
   
-  ua5[0]->Draw("same");
-  ua5[1]->Draw("same");
-  ua5[2]->Draw("same");
-  ua5[3]->Draw("same");
   
-  TLegend* leg = new TLegend(0.2,0.65,0.35,0.85);
-  leg->AddEntry(hmoments[2],momtype+TString("_{2}"),"l");
-  leg->AddEntry(hmoments[3],momtype+TString("_{3}"),"l");
-  leg->AddEntry(hmoments[4],momtype+TString("_{4}"),"l");
-  leg->AddEntry(hmoments[5],momtype+TString("_{5}"),"l");
-  leg->AddEntry(hmoments[2],"CMS","p");
-  leg->AddEntry(ua5[0],"UA5","p");
+  
+  TCanvas* c_mom = new TCanvas("c_mom","c_mom",700,900);
+  c_mom->Divide(1,2);
+  c_mom->cd(1);
+  
+  if(ua5[0]->GetN()==0) xmin = 800;
+  hmoments[2]->GetXaxis()->SetRangeUser(xmin,xmax);
+  hmoments[2]->GetYaxis()->SetRangeUser(0.,maxrange);
+  hmoments[2]->SetTitle(TString(";#sqrt{s};")+momtype+TString("_{q}"));
+  hmoments[2]->Draw("E1");
+  
+  gPad->SetLogx();
+  gPad->SetLeftMargin(0.17);
+  gPad->SetBottomMargin(0.01);
+  gPad->SetFillColor(0);
+  gPad->GetFrame()->SetFillColor(21);
+  gPad->GetFrame()->SetBorderSize(0);
+  gPad->SetGrid(0,0);
+  gStyle->SetOptStat(0);
+  gStyle->SetOptTitle(kFALSE);
+
+  hmoments[3]->Draw("same E1");
+  //hmoments[4]->Draw("same E1");
+  //hmoments[5]->Draw("same E1");
+  
+  if(ua5[0]->GetN()) ua5[0]->Draw("samep");
+  if(ua5[1]->GetN()) ua5[1]->Draw("samep");
+  //ua5[2]->Draw("same");
+  //ua5[3]->Draw("same");
+  
+  
+  for(int m = 2 ; m < 4 ; ++m){
+    gmoments.at(m)->Draw("same z ");
+    hmoments.at(m)->Draw("same E1 ");
+  }
+  
+  
+  #include "../macro/acceptanceMap.C"
+  ostringstream legheader("");
+  legheader<< "pt >= "<<accMap.at(acc).at(0)<<" GeV       |#eta| < "<<accMap.at(acc).at(1);
+
+  TLegend* leg = new TLegend(0.2,0.60,0.4,0.93);
+  leg->SetHeader(legheader.str().c_str());
+  leg->SetTextSize(0.05);
+  leg->AddEntry(hmoments[2],momtype+TString("_{2} CMS"),"p");
+  if(ua5[0]->GetN()) leg->AddEntry(ua5[0],momtype+TString("_{2} UA5"),"p");
+  leg->AddEntry(hmoments[3],momtype+TString("_{3} CMS"),"p");
+  if(ua5[1]->GetN()) leg->AddEntry(ua5[1],momtype+TString("_{3} UA5"),"p");
+  //leg->AddEntry(hmoments[4],momtype+TString("_{4}"),"l");
+  //leg->AddEntry(hmoments[5],momtype+TString("_{5}"),"l");
+  //leg->AddEntry(hmoments[2],"CMS","p");
+  //leg->AddEntry(ua5[0],"UA5","p");
   leg->SetFillColor(kWhite);
   leg->Draw("same");
   
-  gPad->Update();
   
-  gPad->WaitPrimitive();
-  return;
-  gPad->SaveAs(momtype+TString("moments")+basefig.str()+TString(".gif"),"");
-  gPad->SaveAs(momtype+TString("moments")+basefig.str()+TString(".eps"),"");
-  gPad->SaveAs(momtype+TString("moments")+basefig.str()+TString(".root"),"");
-  gSystem->Exec(TString("convert ")+momtype+TString("moments")+basefig.str()+TString(".eps ")+momtype+TString("moments")+basefig.str()+TString(".pdf"));
+  c_mom->cd(2);
   
+  hmoments[4]->GetXaxis()->SetRangeUser(xmin,xmax);
+  hmoments[4]->GetYaxis()->SetRangeUser(0.,maxrange);
+  hmoments[4]->SetTitle(TString(";#sqrt{s} [GeV];")+momtype+TString("_{q}  "));
   
-  
-  //---------------------------------------------------------------
-  //----------------------- <Nch> VS sqrt(S) ----------------------
-  //---------------------------------------------------------------
-  
-  
-  TCanvas* c_mnch = new TCanvas("c_mnch","c_mnch",200,510,500,500);
-  c_mnch->cd();
-  
-  
-  
-  mnch->SetLineColor(kRed-3);
-  mnch->SetMarkerColor(kRed-3);
-  mnch->SetMarkerStyle(8);
-  mnch->SetTitle(";#sqrt{S};<n>");
-  mnch->Draw("E1");
-  gmnch->Draw("same z");
-  
+  hmoments[4]->Draw("E1");
   
   
   gPad->SetLogx();
   gPad->SetLeftMargin(0.17);
-  gPad->SetBottomMargin(0.10);
+  gPad->SetTopMargin(0.00);
+  gPad->SetBottomMargin(0.15);
   gPad->SetFillColor(0);
   gPad->GetFrame()->SetFillColor(21);
-  gPad->GetFrame()->SetBorderSize(12);
-  gPad->SetGrid(0,1);
+  gPad->GetFrame()->SetBorderSize(0);
+  gPad->SetGrid(0,0);
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(kFALSE);
   
-  TGraphErrors* UA5mean = new TGraphErrors();
-  if(acc==0 || acc==5){
-    UA5mean->SetPoint(1,200.,13.2);
-    UA5mean->SetPointError(1,0,0.3);
-    UA5mean->SetPoint(2,546,15.9);
-    UA5mean->SetPointError(2,0,0.1);
-    UA5mean->SetPoint(3,900,18.8);
-    UA5mean->SetPointError(3,0,0.7);
-  }
-  else if(acc==3 || acc==8){
-    UA5mean->SetPoint(1,200,5.17);
-    UA5mean->SetPointError(1,0,0.13);
-    UA5mean->SetPoint(2,546,6.17);
-    UA5mean->SetPointError(2,0,0.06);
-    UA5mean->SetPoint(3,900,7.38);
-    UA5mean->SetPointError(3,0,0.28);
-  }
-  if(acc==2 || acc==7){
-    UA5mean->SetPoint(1,24,4.49);
-    UA5mean->SetPointError(1,0,0.06);
-    UA5mean->SetPoint(2,31,5.00);
-    UA5mean->SetPointError(2,0,0.08);
-    UA5mean->SetPoint(3,45,5.49);
-    UA5mean->SetPointError(3,0,0.06);
-    UA5mean->SetPoint(4,53,5.775);
-    UA5mean->SetPointError(4,0,0.06);
-    UA5mean->SetPoint(5,63,6.16);
-    UA5mean->SetPointError(5,0,0.06);
+  hmoments[5]->Draw("same E1");
+    
+  if(ua5[2]->GetN()) ua5[2]->Draw("samep");
+  if(ua5[3]->GetN()) ua5[3]->Draw("samep");
   
-    UA5mean->SetPoint(6,200,7.94);
-    UA5mean->SetPointError(6,0,0.23);
-    UA5mean->SetPoint(7,546,9.49);
-    UA5mean->SetPointError(7,0,0.08);
-    UA5mean->SetPoint(8,900,11.02);
-    UA5mean->SetPointError(8,0,0.32);
+  for(int m = 4 ; m < 6 ; ++m){
+    gmoments.at(m)->Draw("same z ");
+    hmoments.at(m)->Draw("same E1 ");
   }
   
-  UA5mean->SetLineColor(kBlue);
-  UA5mean->SetMarkerColor(kBlue);
-  UA5mean->SetMarkerStyle(kOpenCross);
-  UA5mean->Draw("same p");
-  
-  
-  TGraphAsymmErrors* nchmean_all = new TGraphAsymmErrors(UA5mean->GetN()+nenergy);
-  for(int i = 0 ; i < UA5mean->GetN() ; ++i){
-    double x = 0 , y = 0;
-    UA5mean->GetPoint(i,x,y);
-    nchmean_all->SetPoint(i,x,y);
-    nchmean_all->SetPointError(i,0,0,UA5mean->GetErrorYlow(i),UA5mean->GetErrorYhigh(i));
-  }
-  for(int i =  UA5mean->GetN() ; i <  nchmean_all->GetN() ; ++i){
-    double x = 0 , y = 0;
-    gmnch->GetPoint(i-UA5mean->GetN(),x,y);
-    nchmean_all->SetPoint(i,x,y);
-    nchmean_all->SetPointError(i,0,0,gmnch->GetErrorYlow(i-UA5mean->GetN()),gmnch->GetErrorYhigh(i-UA5mean->GetN()));
-  }
-  
-  //TF1* fua5mnch = new TF1("fua5mnch","[0] + [1] * sqrt(x) + [2] * x",5,15000);
-  //TF1* fua5mnch = new TF1("fua5mnch","[0] + [1] * x + [2] * x * x",5,15000);
-  TF1* fua5mnch = new TF1("fua5mnch","[0] + [1] * log(x*x) + [2] * log(x*x) * log(x*x)",5,15000);
-  fua5mnch->SetLineWidth(1);
-  fua5mnch->SetLineColor(kBlack);
-  nchmean_all->Fit("fua5mnch");
-  fua5mnch->Draw("same");
-  
-  leg = new TLegend(0.3,0.7,0.45,0.85);
-  if(acc==7)leg->AddEntry(UA5mean,"ISR+UA5","p");
-  else      leg->AddEntry(UA5mean,"UA5","p");
-  leg->AddEntry(mnch,"CMS","p");
+  leg = new TLegend(0.2,0.60,0.4,0.98);
+  leg->SetHeader(legheader.str().c_str());
+  leg->SetTextSize(0.05);
+  leg->AddEntry(hmoments[4],momtype+TString("_{4} CMS"),"p");
+  if(ua5[2]->GetN()) leg->AddEntry(ua5[2],momtype+TString("_{4} UA5"),"p");
+  leg->AddEntry(hmoments[5],momtype+TString("_{5} CMS"),"p");
+  if(ua5[3]->GetN()) leg->AddEntry(ua5[3],momtype+TString("_{5} UA5"),"p");
+  //leg->AddEntry(hmoments[4],momtype+TString("_{4}"),"l");
+  //leg->AddEntry(hmoments[5],momtype+TString("_{5}"),"l");
+  //leg->AddEntry(hmoments[2],"CMS","p");
+  //leg->AddEntry(ua5[0],"UA5","p");
   leg->SetFillColor(kWhite);
+  leg->Draw("same");
   
-  leg->Draw("SAME");
-  mnch->Draw("SAME");
-  UA5mean->Draw("same p");
   
-  ostringstream func("");
-  func<<fixed<<setprecision(3)<<fua5mnch->GetParameter(0)<<" + "<<
-        fua5mnch->GetParameter(1)<<" ln(s) + "<<
-	fua5mnch->GetParameter(2)<<" ln(s)^{2}";
-  cout<<func.str().c_str()<<endl;
-
-  TLatex* textnchmean = new TLatex(0.3,0.15,func.str().c_str());
-  textnchmean->SetNDC(kTRUE);
-  textnchmean->SetTextSize(0.03);
-  textnchmean->DrawLatex(0.45,0.15,func.str().c_str());
+  gPad->Update();
+  cout<<"Ready to print fig !"<<endl;
   
   gPad->WaitPrimitive();
-  gPad->SaveAs(TString("nchmean")+basefig.str()+TString(".gif"),"");
-  gPad->SaveAs(TString("nchmean")+basefig.str()+TString(".eps"),"");
-  gPad->SaveAs(TString("nchmean")+basefig.str()+TString(".root"),"");
-  gSystem->Exec(TString("convert ")+TString("nchmean")+basefig.str()+TString(".eps ")+TString("nchmean")+basefig.str()+TString(".pdf"));
-  
+  c_mom->SaveAs(momtype+TString("moments")+basefig.str()+TString(".gif"),"");
+  c_mom->SaveAs(momtype+TString("moments")+basefig.str()+TString(".eps"),"");
+  c_mom->SaveAs(momtype+TString("moments")+basefig.str()+TString(".root"),"");
+  gSystem->Exec(TString("convert ")+momtype+TString("moments")+basefig.str()+TString(".eps ")+momtype+TString("moments")+basefig.str()+TString(".pdf"));
   
   
   
