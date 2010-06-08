@@ -26,7 +26,7 @@ using namespace std;
 
 int iterStep=0;
 
-TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hypothesis, int niter = 5, int nsample = 0){
+TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hypothesis, int niter = 5, int nsample = 0, bool smooth = true){
   //cout<<"starting the unfolding ..."<<endl;
   
   //The hypothesis distribution
@@ -115,6 +115,18 @@ TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hypothesis, int 
         chi2VSniter->SetBinContent(it , getChi2(vhyp_reco->at(it) , toUnfold, 1));
       }
     }
+    
+    //smoothing the hypothesis
+    if(smooth && it!=niter-1){
+      vtoUnfold->at(it)->GetXaxis()->SetRangeUser(0.5,vtoUnfold->at(it)->GetXaxis()->GetXmax());
+      divideByWidth(vtoUnfold->at(it));
+      vtoUnfold->at(it)->Smooth(5,"R");
+      multiplyByWidth(vtoUnfold->at(it));
+      vtoUnfold->at(it)->GetXaxis()->SetRangeUser(-0.5,vtoUnfold->at(it)->GetXaxis()->GetXmax());
+      if(nsample==0)
+        vtoUnfold->at(it)->Write(vtoUnfold->at(it)->GetName()+TString("_smoothed"));
+    }
+    
   }
   
   if(nsample==0){
