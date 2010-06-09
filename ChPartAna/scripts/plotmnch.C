@@ -17,6 +17,8 @@
 #include "TProfile.h"
 #include "TROOT.h"
 #include "TDirectory.h"
+//#include "TFitResult.h"
+#include "TVirtualFitter.h"
 
 #include "TFrame.h"
 
@@ -35,7 +37,8 @@ void plotmnch(double acc = 5){
 
   gROOT->ProcessLine(".x cmsStyleRoot.C");
   
-  TString globaldir = ("../plots/systv10_bis/");
+  //TString globaldir = ("../plots/systv10_/");
+  TString globaldir = ("/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/plots/systv10_binning1v2/");
   const int nenergy = 3;
   
   int colors[]  = {1,1,1,2,4,kMagenta};
@@ -111,8 +114,10 @@ void plotmnch(double acc = 5){
   mnch->SetMarkerColor(kRed-3);
   mnch->SetMarkerStyle(kFullCircle);
   mnch->SetMarkerSize(2);
-  mnch->SetTitle(";#sqrt{S} [GeV];<n>");
+  mnch->SetTitle(";#sqrt{s} [GeV];<n>");
   
+  // Old experiments
+
   TGraphErrors* UA5mean = new TGraphErrors();
   TGraphErrors* ISR     = new TGraphErrors();
   TGraphErrors* H1    = new TGraphErrors();
@@ -120,7 +125,11 @@ void plotmnch(double acc = 5){
   TGraphErrors* NA22    = new TGraphErrors();
   TGraphErrors* CDF     = new TGraphErrors();
   TGraphErrors* ALICE   = new TGraphErrors();
-  
+ 
+  // Theory:
+  TGraphErrors* Likhoded = NULL;
+  TGraphErrors* Levin    = NULL;
+ 
   if(acc==0 || acc==5){
     ymin = 4.;
     legheader = "   |#eta| < 2.5";
@@ -252,7 +261,7 @@ void plotmnch(double acc = 5){
     nchmean_all->SetPointError(i,0,0,NA22->GetErrorYlow(i- np),NA22->GetErrorYhigh(i- np));
   }
   np+=NA22->GetN();
-  
+/*  
   for(int i = np ; i < H1->GetN() + np ; ++i){
     double x = 0 , y = 0;
     H1->GetPoint(i - np,x,y);
@@ -260,7 +269,8 @@ void plotmnch(double acc = 5){
     nchmean_all->SetPointError(i,0,0,H1->GetErrorYlow(i- np),H1->GetErrorYhigh(i- np));
   }
   np+=H1->GetN();
-  
+*/  
+
   for(int i = np ; i < UA1->GetN() + np ; ++i){
     double x = 0 , y = 0;
     UA1->GetPoint(i - np,x,y);
@@ -300,8 +310,35 @@ void plotmnch(double acc = 5){
     nchmean_all->SetPointError(i,0,0,gmnch->GetErrorYlow(i-np),gmnch->GetErrorYhigh(i-np));
   }
   
+  // Read ../theorydata/nchmean_sqrts_Likhoded 
+  int   n = 0;
+  const int  nmax = 400 ;
+  double s[nmax],s1[nmax],s2[nmax],s3[nmax],s4[nmax],s5[nmax],s6[nmax],s7[nmax],s8[nmax],s9[nmax],s10[nmax];
+  double zero[nmax];
+  ifstream mydata ;
+
+
+  mydata.open ("../theorydata/nchmean_sqrts_Likhoded");
+  while (mydata >>  s[n] >> s1[n] >> s2[n] >> s3[n] >> s4[n] >> s5[n] >> s6[n] >> s7[n] >> s8[n] >> s9[n] >> s10[n] ) { zero [n] = 0. ; n++; } 
+  mydata.close();
+
+  if ( acc == 5 ) Likhoded = new TGraphErrors(n,s,s5,zero,zero);   
+  if ( acc == 6 ) Likhoded = new TGraphErrors(n,s,s4,zero,zero);   
+  if ( acc == 7 ) Likhoded = new TGraphErrors(n,s,s3,zero,zero);   
+  if ( acc == 8 ) Likhoded = new TGraphErrors(n,s,s2,zero,zero);   
+  if ( acc == 9 ) Likhoded = new TGraphErrors(n,s,s1,zero,zero);   
+  ymin = 0.;
+
   
-  
+  if ( acc == 9 ) {
+    n = 0;
+    mydata.open ("../theorydata/nchmena_sqrts_levin_eta0.5");
+    while (mydata >>  s[n] >> s1[n] ) { zero [n] = 0. ; n++; } 
+    mydata.close();
+    Levin = new TGraphErrors(n,s,s1,zero,zero);
+  } 
+
+
   //mnch->GetXaxis()->SetRangeUser(xmin,xmax);
   mnch->GetYaxis()->SetRangeUser(ymin,gmnch->GetYaxis()->GetXmax()*1.02);
   //cout<<gmnch->GetYaxis()->GetXmin()<<"  "<<gmnch->GetYaxis()->GetXmax()*1.03<<endl;
@@ -323,17 +360,37 @@ void plotmnch(double acc = 5){
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(kFALSE);
   
+  // Theory 
+
+  Likhoded->SetLineColor(kRed);
+  Likhoded->SetLineWidth(2);
+  Likhoded->Draw("same l"); 
   
+
+  if ( acc == 9 ) {
+    Levin->SetLineColor(kMagenta);
+    Levin->SetLineWidth(2);
+    Levin->Draw("same l");
+  }  
+  // Fits 
   
   //TF1* fua5mnch = new TF1("fua5mnch","[0] + [1] * sqrt(x) + [2] * x",5,15000);
   //TF1* fua5mnch = new TF1("fua5mnch","[0] + [1] * x + [2] * x * x",5,15000);
   //TF1* f1 = new TF1("f1","[0] + [1] * log(x*x) + [2] * log(x*x) * log(x*x) + [3]*pow(log(x*x),3)",5,15000);
   //TF1* f1 = new TF1("f1","[0] + [1] * log(x*x)  + [2]*pow(log(x*x),3)",5,15000);
-  TF1* f1 = new TF1("f1","[0] + [1] * log(x*x) + [2] * log(x*x) * log(x*x) ",5,15000);
+  TF1* f1 = new TF1("f1","[0] + [1] * log(x*x) + [2] * log(x*x) * log(x*x) ",60,15000);
   f1->SetLineWidth(1);
   f1->SetLineColor(kBlack);
   f1->SetLineStyle(1);
-  nchmean_all->Fit("f1");
+  nchmean_all->Fit("f1","R");
+  cout << "Xavier :"<<endl;
+  TVirtualFitter::Fitter(nchmean_all)->PrintResults(10,0.);
+  for (int i=0 ; i<3 ; i++) {
+   for (int j=0 ; j<3 ; j++) {
+    cout << TVirtualFitter::Fitter(nchmean_all)->GetCovarianceMatrixElement(i,j) << "   " ;
+   }
+   cout << endl;
+  }
   f1->Draw("same");
   
   TF1* f2 = new TF1("f2","[0] + [1] * pow(x*x,[2])",5,15000);
@@ -342,7 +399,7 @@ void plotmnch(double acc = 5){
   f2->SetLineStyle(2);
   f2->SetLineColor(kRed);
   nchmean_all->Fit("f2");
-  f2->Draw("same");
+  //f2->Draw("same");
   
   TF1* f3 = new TF1("f3","[0] + [1] * exp([2]*sqrt(log(x*x)))",5,15000);
   f3->SetParameters(4,7.,0.5);
@@ -350,7 +407,7 @@ void plotmnch(double acc = 5){
   f3->SetLineColor(kBlue);
   f3->SetLineStyle(3);
   nchmean_all->Fit("f3");
-  f3->Draw("same");
+  //f3->Draw("same");
   
   TF1* f4 = new TF1("f4","[0]*pow(x*x,-1*[1]) + [2] * pow(x*x,[3])",5,15000);
   f4->SetParameters(1,2.5,1,0.17);
@@ -360,7 +417,10 @@ void plotmnch(double acc = 5){
   nchmean_all->Fit("f4");
   //f4->Draw("same");
   
-  
+  TF1* fdndeta = new TF1("dndeta","[0] + [1] * log(x*x) + [2] * log(x*x) * log(x*x) ",50,15000);
+  fdndeta->SetParameters(2.716,-0.307,0.0267);
+  //fdndeta->Draw("same");
+ 
   UA5mean->SetLineColor(kBlue);
   UA5mean->SetMarkerColor(kBlue);
   UA5mean->SetMarkerSize(2);
@@ -464,9 +524,9 @@ void plotmnch(double acc = 5){
   nchmean_all->Draw("ap");*/
   
   gPad->WaitPrimitive();
-  gPad->SaveAs(TString("nchmean")+basefig.str()+TString(".gif"),"");
+/*  gPad->SaveAs(TString("nchmean")+basefig.str()+TString(".gif"),"");
   gPad->SaveAs(TString("nchmean")+basefig.str()+TString(".eps"),"");
   gPad->SaveAs(TString("nchmean")+basefig.str()+TString(".root"),"");
   gSystem->Exec(TString("convert ")+TString("nchmean")+basefig.str()+TString(".eps ")+TString("nchmean")+basefig.str()+TString(".pdf"));
-  
+*/  
 }
