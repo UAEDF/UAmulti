@@ -50,9 +50,9 @@ using namespace std;
 
  int       globalLegendTextSize = 20;
  TString  LegendTitle ("NONE"); 
- float    xLegendMin[] = { 0.57 , 0.35 , 0.20 , 0.70 , 0.70 , 0.75 , 0.45 , 0.8 };
+ float    xLegendMin[] = { 0.57 , 0.35 , 0.20 , 0.70 , 0.70 , 0.75 , 0.45 , 0.80 , 0.20};
  float    xLegendWidth = 0.35;
- float    yLegendMax[] = { 0.80 , 0.40 , 0.40 , 0.85 , 0.90 , 1.00 , 0.87 , 0.87};
+ float    yLegendMax[] = { 0.80 , 0.40 , 0.40 , 0.85 , 0.90 , 1.00 , 0.87 , 0.87 , 0.90};
  float    yLegendWidth = 0.03;
  TString  ExtLegTitle ("NONE");
 
