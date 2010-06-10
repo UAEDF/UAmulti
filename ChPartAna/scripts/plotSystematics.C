@@ -257,7 +257,7 @@ void plotSystematics(TString tdata, TString tsyst1, TString tsyst2, TString plot
   
   #include "../macro/acceptanceMap.C"
   ostringstream legheader("");
-  legheader<< "pt >= "<<accMap.at(cut).at(0)<<" GeV       |#eta| < "<<accMap.at(cut).at(1);
+  legheader<< "pt > "<<accMap.at(cut).at(0)<<" GeV       |#eta| < "<<accMap.at(cut).at(1);
   TLegend* leg = new TLegend(0.20,0.2,0.40,0.40);
   leg->SetHeader(legheader.str().c_str());
   
@@ -309,7 +309,7 @@ void plotSystematics(TString tdata, TString tsyst1, TString tsyst2, TString plot
   leg->SetFillColor(kWhite);
   leg->Draw("same");
   
-  gPad->WaitPrimitive();
+  //gPad->WaitPrimitive();
   
   //writing the files in gif
   /*ostringstream figname("");
@@ -430,7 +430,7 @@ void plotSystematics(TString tdata, TString tsyst1, TString tsyst2, TString plot
   
   
   gPad->WaitPrimitive();
-  
+  return;
   //writing the files in gif
   logY=0;
   ostringstream figname("");
@@ -506,11 +506,15 @@ void plotSystematics(TString tdata, TString tsyst1, TString tsyst2, TString plot
   
 }
 
-void finaleSystematic(double energy = 0.9, int cut = 5 , int typeErrStat = 0 , bool printFig = true){
+void finaleSystematic(double energy = 0.9, int cut = 5 , int typePlotting = 0 , bool plotPoissErr = false , bool printFig = true){
   vector<int> syst;
   syst.push_back(4);
   syst.push_back(102);
   syst.push_back(200);
+  if(energy==0.9 || energy==2.36){
+    syst.push_back(500);
+    syst.push_back(510);
+  }
   //syst.push_back(411);
   //syst.push_back(1000);//always last !!
   
@@ -551,11 +555,12 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , int typeErrStat = 0 , b
   
   //TH1F* hdata_poierr = (TH1F*) fdata->Get("unfolding/nch_resampled");
   TH1F* hdata_mtxerr = NULL;
-  if(typeErrStat==0) hdata_mtxerr = (TH1F*) fdata->Get("unfolding/nch_histresampled;1");
+  if(typePlotting==0) hdata_mtxerr = (TH1F*) fdata->Get("unfolding/nch_histresampled;1");
   //else               hdata_mtxerr = (TH1F*) fdata->Get("unfolding/nch_resampled;2");
   else               hdata_mtxerr = (TH1F*) fdata->Get("unfolding/nch_mtxresampledPtr");
   TH1F* eff_evtSel = (TH1F*) fdata->Get("unfolding/eff_evtSel");
   hdata_mtxerr->Divide(eff_evtSel);
+  //hdata_mtxerr->Scale(1./hdata_mtxerr->Integral());
    
   TH1F* dummy = new TH1F("dummy","dummy",1,0,1);
   
@@ -656,6 +661,8 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , int typeErrStat = 0 , b
   Double_t* reyh = new Double_t[hdata->GetNbinsX()];
   Double_t* seyl = new Double_t[hdata->GetNbinsX()];
   Double_t* seyh = new Double_t[hdata->GetNbinsX()];
+  Double_t* poisseyl = new Double_t[hdata->GetNbinsX()];
+  Double_t* poisseyh = new Double_t[hdata->GetNbinsX()];
   Double_t* mtxeyl = new Double_t[hdata->GetNbinsX()];
   Double_t* mtxeyh = new Double_t[hdata->GetNbinsX()];
   double maxr = 0. , minr = 0.;
@@ -727,12 +734,16 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , int typeErrStat = 0 , b
     ry[i-1] = 0;
     reyl[i-1] = reyh[i-1] = 0;
     seyl[i-1] = seyh[i-1] = 0;
+    poisseyl[i-1] = poisseyh[i-1] = 0;
     mtxeyl[i-1] = mtxeyh[i-1] = 0;
     if(hdata->GetBinContent(i)!=0){
       reyl[i-1] = eyl[i-1]/hdata->GetBinContent(i);
       reyh[i-1] = eyh[i-1]/hdata->GetBinContent(i);
       seyl[i-1] = hdata->GetBinError(i)/hdata->GetBinContent(i);
       seyh[i-1] = hdata->GetBinError(i)/hdata->GetBinContent(i);
+      
+      poisseyl[i-1] = sqrt(hdata->GetBinContent(i))/hdata->GetBinContent(i);
+      poisseyh[i-1] = sqrt(hdata->GetBinContent(i))/hdata->GetBinContent(i);
       mtxeyl[i-1] = hdata_mtxerr->GetBinError(i)/hdata->GetBinContent(i);
       mtxeyh[i-1] = hdata_mtxerr->GetBinError(i)/hdata->GetBinContent(i);
       cout<<i<<"  "<<hdata_mtxerr->GetBinError(i)<<endl;
@@ -806,6 +817,7 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , int typeErrStat = 0 , b
 
   TGraphAsymmErrors* rsyst = new TGraphAsymmErrors(hdata->GetNbinsX(),x,ry,exl,exh,reyl,reyh);
   TGraphAsymmErrors* ssyst = new TGraphAsymmErrors(hdata->GetNbinsX(),x,ry,exl,exh,seyl,seyh);
+  TGraphAsymmErrors* psyst = new TGraphAsymmErrors(hdata->GetNbinsX(),x,ry,ry,ry,poisseyl,poisseyh);
   TGraphAsymmErrors* msyst = new TGraphAsymmErrors(hdata->GetNbinsX(),x,ry,exl,exh,mtxeyl,mtxeyh);
 
   TH1F* one = new TH1F("one","one",306,-5.5,300.5);
@@ -827,20 +839,26 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , int typeErrStat = 0 , b
   ssyst->Draw("2 same");
   
   msyst->SetFillColor(kRed);
-  msyst->Draw("2 same");
+  if(typePlotting>0)
+    msyst->Draw("2 same");
+  
+  if(plotPoissErr)
+    psyst->Draw("[] same");
   
   #include "../macro/acceptanceMap.C"
   ostringstream legheader("");
-  legheader<< "pt >= "<<accMap.at(cut).at(0)<<" GeV       |#eta| < "<<accMap.at(cut).at(1);
+  legheader<< "pt > "<<accMap.at(cut).at(0)<<" GeV       |#eta| < "<<accMap.at(cut).at(1);
   
   
   TLegend* leg = new TLegend(0.4,0.7,0.6,0.90);
   leg->SetHeader(legheader.str().c_str());
   
-  if(typeErrStat==0) leg->AddEntry(msyst,"Evt resampling","f");
-  else               leg->AddEntry(msyst,"Mtx resampling","f");
-  if(typeErrStat==0) leg->AddEntry(ssyst,"+ Mtx resampling","f");
-  else               leg->AddEntry(ssyst,"+ Evt resampling","f");
+  if(typePlotting==0)  leg->AddEntry(ssyst,"Statistical errors","f");
+  if(typePlotting==1)  leg->AddEntry(msyst,"Evt resampling","f");
+  if(typePlotting==2)  leg->AddEntry(msyst,"Mtx resampling","f");
+  if(typePlotting==1)  leg->AddEntry(ssyst,"+ Mtx resampling","f");
+  if(typePlotting==2)  leg->AddEntry(ssyst,"+ Evt resampling","f");
+  if(plotPoissErr==1)  leg->AddEntry(psyst,"Poissonian Errors","l");
   leg->AddEntry(rsyst,"+ Systematics","f");
   leg->SetFillColor(kWhite);
   leg->Draw("same");
