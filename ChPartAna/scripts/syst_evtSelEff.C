@@ -25,6 +25,7 @@ if(syst==250 || syst==251 ){
 if(syst==200){
 
   double maxerr = 0.04;
+  if(syst_sign<0) maxerr = 0.06;
   double minerr = 0.01;
 
   int firstbin = 1;
@@ -34,6 +35,7 @@ if(syst==200){
       break;
     }
   }
+  lastbin+=5;
   
   for(int ibin = 1 ; ibin <= eff_evtSel->GetNbinsX() ; ++ibin){
     double val = eff_evtSel->GetBinContent(ibin) + syst_sign * ( maxerr - (double(ibin)-double(firstbin))/(double(lastbin)-double(firstbin)) * maxerr + minerr);
