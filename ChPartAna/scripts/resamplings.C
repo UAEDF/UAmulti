@@ -105,6 +105,7 @@ TH1F resample(double matrix[][matrixsize], TH1F* nch_INC , TH1F* toUnfold , TH1F
   
     sample[i].Divide(&(sample[i]),eff_evtSel,1,1);
     divideByWidth(&(sample[i]));
+    //sample[i].Scale(1./sample[i].Integral());
     moment->AddDataForResampling(&(sample[i]));
   
   }//end of loop over samples
@@ -338,6 +339,7 @@ TH1F mtxresample(double matrix[][matrixsize] , TH1F* toUnfold , TH1F* hyp, int n
       
     sample[i].Divide(&(sample[i]),eff_evtSel,1,1);
     divideByWidth(&(sample[i]));
+    //sample[i].Scale(1./sample[i].Integral());
     moment->AddDataForResampling(&(sample[i]));
   
   }//end of loop over samples
