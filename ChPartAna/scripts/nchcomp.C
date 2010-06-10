@@ -65,8 +65,8 @@ void nchcomp(int iBin = 0 , double energy = 0.9, int iSaveFig = 0, float npx = 1
   globalFigBaseName = "test";
 
   globalNorm = 2;
-  histoYMin  = 0.000001 ;
-  histoYMax  = 1;
+  histoYMin  = 0.0000000001 ;
+  histoYMax  = 0.1;
   histoXMin  = -0.5 ;
 
   if ( globalEnergy == 0.9 ) histoXMax  = 100.5;
@@ -99,7 +99,7 @@ void nchcomp(int iBin = 0 , double energy = 0.9, int iSaveFig = 0, float npx = 1
 
      if ( globalEnergy == 0.9 ) histoXMax  = 80.5;
      if ( globalEnergy == 2.36) histoXMax  =120.5;
-     if ( globalEnergy == 7.0 ) histoXMax  =180.5;
+     if ( globalEnergy == 7.0 ) histoXMax  =270.5;
 
 /*
      if ( globalEnergy == 0.9 ) plotdir = "../plots/finalv9/";
@@ -116,7 +116,7 @@ void nchcomp(int iBin = 0 , double energy = 0.9, int iSaveFig = 0, float npx = 1
   // define plots 
 
   plotdir = "../plots/finalv9/";
-  if ( globalEnergy == 7.0 ) plotdir = "../plots/systv10/";
+  if ( globalEnergy == 7.0 ) plotdir = "../plots/";
 
 
 /*
@@ -139,14 +139,14 @@ void nchcomp(int iBin = 0 , double energy = 0.9, int iSaveFig = 0, float npx = 1
   dataSetLegend.push_back(legend1.str());
   dataSetHisto.push_back("unfolding/gnch_data_corrected");
 
-  dataSetId.push_back(-1);
+  /*dataSetId.push_back(-1);
   dataSetFile.push_back(fileManager(3,iMc1,globalEnergy,1,iSyst1,iSign1,outstr1.str(),plotdir));
   dataSetIsMc.push_back(0);
   dataSetHType.push_back(105);
   dataSetStyle.push_back(kOpenCircle);
   dataSetColor.push_back(kBlue);
   dataSetLegend.push_back("NONE");
-  dataSetHisto.push_back("unfolding/gnch_data_corrected_syst");
+  dataSetHisto.push_back("unfolding/gnch_data_corrected_syst");*/
 
 
   plotdir = "../plots/systv10/"; 
@@ -161,14 +161,14 @@ void nchcomp(int iBin = 0 , double energy = 0.9, int iSaveFig = 0, float npx = 1
   dataSetLegend.push_back(legend2.str());
   dataSetHisto.push_back("unfolding/gnch_data_corrected");
 
-  dataSetId.push_back(-1);
+  /*dataSetId.push_back(-1);
   dataSetFile.push_back(fileManager(3,iMc2,globalEnergy,1,iSyst2,iSign2,outstr2.str(),plotdir));
   dataSetIsMc.push_back(0);
   dataSetHType.push_back(105);
   dataSetStyle.push_back(kOpenCircle);
   dataSetColor.push_back(kRed);
   dataSetLegend.push_back("NONE");
-  dataSetHisto.push_back("unfolding/gnch_data_corrected_syst");
+  dataSetHisto.push_back("unfolding/gnch_data_corrected_syst");*/
 
 
   // Plot 
