@@ -33,6 +33,9 @@ using namespace std;
  // 2: to Integral of each histo
  int           globalNorm    = 0 ;
 
+ // Plot Ratio 
+ int           globalHistoRatio = -1;
+
  // histo limit 
  float           histoXMin = -99999.;   
  float           histoXMax = -99999.;   
@@ -45,10 +48,11 @@ using namespace std;
 
  // TLegend position +  Title 
 
+ int       globalLegendTextSize = 20;
  TString  LegendTitle ("NONE"); 
- float    xLegendMin[] = { 0.57 , 0.35 , 0.20 , 0.70 , 0.70 , 0.75 , 0.45 };
+ float    xLegendMin[] = { 0.57 , 0.35 , 0.20 , 0.70 , 0.70 , 0.75 , 0.45 , 0.8 };
  float    xLegendWidth = 0.35;
- float    yLegendMax[] = { 0.80 , 0.40 , 0.40 , 0.85 , 0.90 , 1.00 , 0.87 };
+ float    yLegendMax[] = { 0.80 , 0.40 , 0.40 , 0.85 , 0.90 , 1.00 , 0.87 , 0.87};
  float    yLegendWidth = 0.03;
  TString  ExtLegTitle ("NONE");
 
@@ -71,6 +75,8 @@ using namespace std;
  vector<TString> dataSetHisto  (1,"Undef"); 
 
  // text  
+
+ float globalTextSize = 0.02;
  vector<float>   textXPos (1,0); 
  vector<float>   textYPos (1,0); 
  vector<TString> textText (1,"Undef"); 
@@ -98,6 +104,9 @@ void plotReset()
  // 1: to #events in first histo
  // 2: to Integral of each histo
   globalNorm    = 0 ;
+
+ // Ratio 
+// globalHistoRatio = -1;
 
  // TLegend position +  Title 
  
@@ -132,6 +141,7 @@ void plotReset()
 
   // 
 
+ globalTextSize = 0.02;
  textXPos.clear();  
  textYPos.clear(); 
  textText.clear();

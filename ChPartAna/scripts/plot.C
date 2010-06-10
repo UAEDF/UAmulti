@@ -96,6 +96,10 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
 //  vector<TGraph*>         gData ( dataSetId.size() , NULL );
   vector<TGraphAsymmErrors*> gData ( dataSetId.size() , NULL );
 
+  // Dividor histogram or TGraph
+  TH1* hDividor = NULL;
+  TGraphAsymmErrors* gDividor = NULL;
+
   for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) { 
     // Get histo Type
     if ( (signed) dataSetHType.size() > iData ) tData.at(iData) = dataSetHType.at(iData);
@@ -254,12 +258,7 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
           if (tData.at(iData) == 5) TGAsymScale(gData.at(iData),dataSetFactor.at(iData));
         } 
       }
-      // hMax
-      if ( ! ( tData.at(iData) == 4 || tData.at(iData) == 5 ) ) {
-        if ( hData.at(iData)->GetMaximum() > hMax ) hMax = hData.at(iData)->GetMaximum() ;
-      } else {
-        if ( gData.at(iData)->GetHistogram()->GetMaximum() > hMax ) hMax = gData.at(iData)->GetHistogram()->GetMaximum() ;
-      }
+
 
     // Data from external text file 
     } else {
@@ -377,6 +376,92 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
 
     }
   }
+
+  // Divide if requested and find hMax
+
+  if ( globalHistoRatio != -1 ) {
+    if ( tData.at(globalHistoRatio) == 1 ) hDividor = (TH1F*) hData.at(globalHistoRatio)->Clone("hDividor");
+    if ( tData.at(globalHistoRatio) == 4 || tData.at(globalHistoRatio) == 5 )
+                              gDividor = (TGraphAsymmErrors*) gData.at(globalHistoRatio)->Clone("gDividor");  
+  } 
+
+  for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) {
+    if ( rData.at(iData) ) 
+    {
+
+      // Divide by 1 of the histogram
+      if ( globalHistoRatio != -1 ) {
+        // TH1F and TGraph only FIXME: same binning !!!
+        if ( (tData.at(iData) == 1 || tData.at(iData) == 4 || tData.at(iData) == 5 ) ) {
+          if ( tData.at(globalHistoRatio) == 1 ) {
+            if ( tData.at(iData) == 1 ) {
+               for ( int ibin =1 ; ibin <= hDividor->GetNbinsX() ; ++ibin ) {
+                 Double_t dividor = hDividor->GetBinContent(ibin);
+                 if ( dividor != 0. ) {
+                   hData.at(iData)->SetBinContent(ibin, hData.at(iData)->GetBinContent(ibin) / dividor );
+                 } else {
+                   hData.at(iData)->SetBinContent(ibin,0.);  
+                   hData.at(iData)->SetBinError(ibin,0.);
+                 }
+               }
+            } else {
+               for ( int ibin =1 ; ibin <= hDividor->GetNbinsX() ; ++ibin ) {
+                 Double_t dividor = hDividor->GetBinContent(ibin);
+                 if ( dividor != 0. ) {
+                   Double_t x,y;
+                   gData.at(iData)->GetPoint(ibin,x,y);
+                   gData.at(iData)->SetPoint(ibin,x,y / dividor);
+                 } else {
+                   gData.at(iData)->SetPoint(ibin,0,0);
+                   gData.at(iData)->SetPointEYhigh(ibin,0);
+                   gData.at(iData)->SetPointEYlow(ibin,0);
+                 }
+               }    
+            }
+          } else {
+            if ( tData.at(iData) == 1 ) {
+               for ( int ibin =1 ; ibin <= gDividor->GetN() ; ++ibin ) {
+                 Double_t xx,dividor;
+                 gDividor->GetPoint(ibin,xx,dividor);
+                 if ( dividor != 0. ) {
+                   hData.at(iData)->SetBinContent(ibin, hData.at(iData)->GetBinContent(ibin) / dividor );
+                 } else {
+                   hData.at(iData)->SetBinContent(ibin,0.);
+                   hData.at(iData)->SetBinError(ibin,0.);
+                 }
+               }
+            } else { 
+               for ( int ibin =1 ; ibin <= gDividor->GetN() ; ++ibin ) {
+                 Double_t xx,dividor;
+                 gDividor->GetPoint(ibin,xx,dividor);
+                 if ( dividor != 0. ) {
+                   Double_t x,y;
+                   gData.at(iData)->GetPoint(ibin,x,y);
+                   gData.at(iData)->SetPoint(ibin,x,y / dividor);
+                 } else {
+                   gData.at(iData)->SetPoint(ibin,0,0);
+                   gData.at(iData)->SetPointEYhigh(ibin,0);
+                   gData.at(iData)->SetPointEYlow(ibin,0);
+                 }
+               }
+            } 
+          }
+        } else {
+           cout << "[plot] ERROR: Divide possible only for TH1F and TGraph" << endl;
+           return; 
+        }  
+
+      }
+
+      // hMax
+      if ( ! ( tData.at(iData) == 4 || tData.at(iData) == 5 ) ) {
+        if ( hData.at(iData)->GetMaximum() > hMax ) hMax = hData.at(iData)->GetMaximum() ;
+      } else {
+        if ( gData.at(iData)->GetHistogram()->GetMaximum() > hMax ) hMax = gData.at(iData)->GetHistogram()->GetMaximum() ;
+      }
+    
+    }
+  } 
 
   // Global Style (histo)
   // FIXME 
@@ -497,6 +582,7 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
   }
   leg->SetBorderSize(0);
   leg->SetFillColor(0);
+  leg->SetTextSizePixels(globalLegendTextSize); 
   leg->Draw();
 
   TLatex* ExtLT = new TLatex( xLegendMin[iLegendPos] , yLegendMax[iLegendPos] + yLegendWidth , ExtLegTitle  );
@@ -512,7 +598,7 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
 
     Text.at(iText) = new TLatex( textXPos.at(iText) , textYPos.at(iText) ,textText.at(iText) );
     Text.at(iText)->SetNDC(kTRUE);
-    Text.at(iText)->SetTextSize(0.02);
+    Text.at(iText)->SetTextSize(globalTextSize);
     Text.at(iText)->Draw();  
 
   }

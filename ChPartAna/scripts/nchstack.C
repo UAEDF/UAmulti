@@ -61,20 +61,24 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1, float npx 
   globalNorm = 2;
 
   if (iBin == 5 ) {
-    histoYMin  = 0.0000001 ;
-    histoYMax  = 10000.;
+    if ( globalEnergy == 0.9 ) histoYMin  = 0.00001 ;
+    if ( globalEnergy == 2.36) histoYMin  = 0.00001 ;
+    if ( globalEnergy == 7.0 ) histoYMin  = 0.0000001 ;
+    histoYMax  = 1000.;
     histoXMin  = -0.5 ;
     if ( globalEnergy == 0.9 ) histoXMax  = 90.5;
     if ( globalEnergy == 2.36) histoXMax  = 110.5;
     if ( globalEnergy == 7.0 ) histoXMax  = 180.5;
   }
   if (iBin == 15 ) {
-    histoYMin  = 0.00000001 ;
-    histoYMax  = 10000.;
+    if ( globalEnergy == 0.9 ) histoYMin  = 0.00001 ;
+    if ( globalEnergy == 2.36) histoYMin  = 0.00001 ;
+    if ( globalEnergy == 7.0 ) histoYMin  = 0.00000006;
+    histoYMax  = 3000.;
     histoXMin  = -0.5 ;
     if ( globalEnergy == 0.9 ) histoXMax  = 50.5;
-    if ( globalEnergy == 2.36) histoXMax  = 80.5;
-    if ( globalEnergy == 7.0 ) histoXMax  = 120.5;
+    if ( globalEnergy == 2.36) histoXMax  = 70.5;
+    if ( globalEnergy == 7.0 ) histoXMax  = 110.5;
   }
 
   int iMc;
@@ -83,9 +87,13 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1, float npx 
   if ( globalEnergy == 7.0 ) iMc = 31 ;
 
   TString plotdir("");
-  if ( globalEnergy == 0.9 ) plotdir = "../plots/finalv9/";
-  if ( globalEnergy == 2.36) plotdir = "../plots/finalv9/";
-  if ( globalEnergy == 7.0 ) plotdir = "../plots/systv10/";
+//  if ( globalEnergy == 0.9 ) plotdir = "../plots/finalv9/";
+//  if ( globalEnergy == 2.36) plotdir = "../plots/finalv9/";
+//  if ( globalEnergy == 7.0 ) plotdir = "../plots/systv10/";
+
+  if ( globalEnergy == 0.9 ) plotdir = "../plots/systv10_undecies2/";
+  if ( globalEnergy == 2.36) plotdir = "../plots/systv10_undecies2/";
+  if ( globalEnergy == 7.0 ) plotdir = "../plots/systv10_undecies2/";
 
   ostringstream outstr0("");
   ostringstream outstr1("");
@@ -123,7 +131,9 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1, float npx 
   dataSetHType.push_back(1);
   dataSetStyle.push_back(kCMSPoint);
   dataSetColor.push_back(kCMSColor);
-  dataSetLegend.push_back("CMS");
+//  if (globalEnergy != 7.  ||  ! ( globalEnergy>2. && iBin == 15  ) ) 
+                           dataSetLegend.push_back("CMS");
+//  else                     dataSetLegend.push_back("NONE"); 
   dataSetHisto.push_back("unfolding/nch_data_corrected");
   dataSetFactor.push_back(10000);
 
@@ -402,31 +412,31 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1, float npx 
 
   if ( iBin == 5 ) {
     if ( Energy == 0.9 ) {
-     xt1 = .50; yt1 = .80;
-     xt2 = .40; yt2 = .75;
-     xt3 = .33; yt3 = .68;
-     xt4 = .27; yt4 = .62;
-     xt5 = .22; yt5 = .55;
+     xt1 = .58; yt1 = .80;
+     xt2 = .53; yt2 = .68;
+     xt3 = .50; yt3 = .57;
+     xt4 = .38; yt4 = .49;
+     xt5 = .27; yt5 = .41;
     }
 
     if ( Energy == 2.36 ) {
-     xt1 = .50; yt1 = .80;
-     xt2 = .40; yt2 = .75;
-     xt3 = .33; yt3 = .68;
-     xt4 = .27; yt4 = .62;
-     xt5 = .22; yt5 = .55;
+     xt1 = .58; yt1 = .82;
+     xt2 = .53; yt2 = .70;
+     xt3 = .50; yt3 = .57;
+     xt4 = .38; yt4 = .49;
+     xt5 = .27; yt5 = .41;
     }
 
     if ( Energy == 7.0 ) {
-     xt1 = .50; yt1 = .78;
-     xt2 = .40; yt2 = .72;
-     xt3 = .33; yt3 = .66;
-     xt4 = .27; yt4 = .59;
-     xt5 = .22; yt5 = .52;
-
+     xt1 = .58; yt1 = .81;
+     xt2 = .53; yt2 = .72;
+     xt3 = .50; yt3 = .62;
+     xt4 = .38; yt4 = .55;
+     xt5 = .27; yt5 = .47;
     }
 
   } else {
+/*
     if ( Energy == 0.9 ) {
      xt1 = .48; yt1 = .82;
      xt2 = .43; yt2 = .75;
@@ -450,7 +460,40 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1, float npx 
      xt4 = .32; yt4 = .57;
      xt5 = .25; yt5 = .50;
     }
+*/
+    if ( Energy == 0.9 ) {
+     xt1 = .58; yt1 = .75;
+     xt2 = .53; yt2 = .63;
+     xt3 = .50; yt3 = .51;
+     xt4 = .38; yt4 = .45;
+     xt5 = .27; yt5 = .41;
+    }
+
+    if ( Energy == 2.36 ) {
+     xt1 = .58; yt1 = .75;
+     xt2 = .53; yt2 = .63;
+     xt3 = .51; yt3 = .51;
+     xt4 = .38; yt4 = .45;
+     xt5 = .25; yt5 = .41;
+
+
+    }
+
+    if ( Energy == 7.0 ) {
+
+     xt1 = .58; yt1 = .75;
+     xt2 = .53; yt2 = .66;
+     xt3 = .50; yt3 = .56;
+     xt4 = .38; yt4 = .51;
+     xt5 = .27; yt5 = .46;
+
+    }
+
+
+
   }
+
+  globalTextSize = 0.03;
 
   textXPos.push_back(xt1)  ; textYPos.push_back(yt1) ;
   textXPos.push_back(xt2)  ; textYPos.push_back(yt2) ;
@@ -464,16 +507,25 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1, float npx 
   textText.push_back("|#eta| < 1.0 (x10)");
   textText.push_back("|#eta| < 0.5 (x1)");
 
+   
+
 
   // Point Legend
 
-  if ( iBin == 15 ) LegendTitle = "p_{t} > 0.5 GeV/c";
+  if ( iBin == 15 ) {
+    textXPos.push_back(0.16) ; textYPos.push_back(.2) ;
+    textText.push_back("p_{T} > 0.5 GeV/c");
+  }
+
+  // if ( iBin == 15 ) LegendTitle = "p_{t} > 0.5 GeV/c";
+
+   yLegendWidth = 0.04;
   xLegendWidth = .1 ;
 
 
   // PLOT NOW
 
-  plot("none","AUTO",1,3);
+  plot("none","AUTO",1,7);
 
 
 }
