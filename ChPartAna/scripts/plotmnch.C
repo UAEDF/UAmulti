@@ -37,8 +37,8 @@ void plotmnch(double acc = 5){
 
   gROOT->ProcessLine(".x cmsStyleRoot.C");
   
-  //TString globaldir = ("../plots/systv10_/");
   TString globaldir = ("/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/plots/systv10_binning1v2/");
+
   const int nenergy = 3;
   
   int colors[]  = {1,1,1,2,4,kMagenta};
@@ -120,15 +120,15 @@ void plotmnch(double acc = 5){
 
   TGraphErrors* UA5mean = new TGraphErrors();
   TGraphErrors* ISR     = new TGraphErrors();
-  TGraphErrors* H1    = new TGraphErrors();
+  TGraphErrors* H1      = new TGraphErrors();
   TGraphErrors* UA1     = new TGraphErrors();
   TGraphErrors* NA22    = new TGraphErrors();
   TGraphErrors* CDF     = new TGraphErrors();
   TGraphErrors* ALICE   = new TGraphErrors();
  
   // Theory:
-  TGraphErrors* Likhoded = NULL;
-  TGraphErrors* Levin    = NULL;
+  TGraphErrors* Likhoded = new TGraphErrors();
+  TGraphErrors* Levin    = new TGraphErrors();
  
   if(acc==0 || acc==5){
     ymin = 4.;
