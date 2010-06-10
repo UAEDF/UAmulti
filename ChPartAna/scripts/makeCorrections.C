@@ -570,7 +570,7 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 10 , 
   divideByWidth(hypothesis);
   
   
-  
+  //nch_corrected->Scale(1./nch_corrected->Integral());
   
   //------------------------------------------------------------------------------
   //--------------------------------- Moments ------------------------------------
@@ -645,12 +645,15 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 10 , 
   double knomean = nch_corrected->GetMean();
   
   TString tkno = out->GetName();
-  tkno.ReplaceAll("plots/","plots/systv10_binning1v2/");
+  tkno.ReplaceAll("plots/","plots/systv10_binning1v3_2/");
   cout<<"Opening for kno mean the file : "<<tkno<<endl;
   TFile* fkno = TFile::Open(tkno,"READ");
   if(fkno!=0){
     TMoments* mom_kno = (TMoments*) fkno->Get("unfolding/moments/moments");
     knomean = mom_kno->mean->GetMean();
+  }
+  else{
+    cout<<"WARNING !! The file does not exist, taking the mean of the hist instead"<<endl;
   }
   
   
