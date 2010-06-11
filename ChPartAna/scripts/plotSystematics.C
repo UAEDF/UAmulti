@@ -36,6 +36,8 @@ int typeMC = 10;
 double getMinSyst(double , double , double);
 double getMaxSyst(double , double , double);
 TH1F makeMirrorSyst(TH1F* , TH1F);
+void Divide(double*, int , double);
+void Multiply(double*, int , double);
 
 
 void plotSystematics(int syst , double E = 0.9 , int icut = 5 , int iMC = -1, int basesyst = 0, int iDataType = 0, int icutsyst = -1,
@@ -665,6 +667,8 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , int typePlotting = 0 , 
   Double_t* poisseyh = new Double_t[hdata->GetNbinsX()];
   Double_t* mtxeyl = new Double_t[hdata->GetNbinsX()];
   Double_t* mtxeyh = new Double_t[hdata->GetNbinsX()];
+  
+  
   double maxr = 0. , minr = 0.;
 
   for(int i = 1 ; i <= hdata->GetNbinsX() ; ++i){
@@ -812,7 +816,7 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , int typePlotting = 0 , 
   hdata->SetLineColor(kRed);
   hdata->SetMarkerColor(kRed);
   hdata->Draw("psame");*/
-   TCanvas* c_rsyst = new TCanvas("c_rsyst","c_rsyst",1000,500);
+  TCanvas* c_rsyst = new TCanvas("c_rsyst","c_rsyst",1000,500);
   c_rsyst->cd();
 
   TGraphAsymmErrors* rsyst = new TGraphAsymmErrors(hdata->GetNbinsX(),x,ry,exl,exh,reyl,reyh);
@@ -847,7 +851,7 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , int typePlotting = 0 , 
   
   #include "../macro/acceptanceMap.C"
   ostringstream legheader("");
-  legheader<< "pt > "<<accMap.at(cut).at(0)<<" GeV       |#eta| < "<<accMap.at(cut).at(1);
+  legheader<< "p_{T} > "<<accMap.at(cut).at(0)<<" GeV       |#eta| < "<<accMap.at(cut).at(1);
   
   
   TLegend* leg = new TLegend(0.4,0.7,0.6,0.90);
@@ -890,10 +894,48 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , int typePlotting = 0 , 
     gSystem->Exec(TString("convert ")+TString(figname.str().c_str())+TString(".eps ")+TString(figname.str().c_str())+TString(".pdf"));
   }
   
+  
+  //----------------------------------------------------------------------------------------------
+  //----------------------------       Making systematic of kno      -----------------------------
+  //----------------------------------------------------------------------------------------------
+  
+  double knomean = hdata->GetMean();
 
-  //-------------------------------------------------------
-  //--------- Making systematic of mean & moments ---------
-  //-------------------------------------------------------
+  TString tkno = fdata->GetName();
+  tkno.ReplaceAll("plots/","plots/systv10_binning1v3_2/");
+  cout<<"Opening for kno mean the file : "<<tkno<<endl;
+  TFile* fkno = TFile::Open(tkno,"READ");
+  if(fkno!=0){
+    TMoments* mom_kno = (TMoments*) fkno->Get("unfolding/moments/moments");
+    knomean = mom_kno->mean->GetMean();
+  }
+  else{
+    cout<<"WARNING !! The file does not exist, taking the mean of the hist instead"<<endl;
+  }
+
+  cout << knomean << "  " << hdata->Integral() << "  " << y[5] << "  " << eyl[5];
+
+  Divide(x,hdata->GetNbinsX(),knomean);
+  Divide(exl,hdata->GetNbinsX(),knomean);
+  Divide(exh,hdata->GetNbinsX(),knomean);
+  
+  Multiply(y,hdata->GetNbinsX(),knomean/hdata->Integral());
+  Multiply(eyl,hdata->GetNbinsX(),knomean/hdata->Integral());
+  Multiply(eyh,hdata->GetNbinsX(),knomean/hdata->Integral());
+  
+  TGraphAsymmErrors* knosyst = new TGraphAsymmErrors(hdata->GetNbinsX(),x,y,exl,exh,eyl,eyh);
+  
+  knosyst->SetName("gkno_corrected_syst");
+  knosyst->SetTitle("gkno_corrected_syst");
+  fdata->cd("unfolding/");
+  knosyst->Write("gkno_corrected_syst",TObject::kWriteDelete);
+  
+  cout << eyl[5] << endl; 
+  
+
+  //----------------------------------------------------------------------------------------------
+  //---------------------------- Making systematic of mean & moments -----------------------------
+  //----------------------------------------------------------------------------------------------
   
   for(int isyst = 0 ; isyst < syst1.size() ; ++isyst){
     if(TString(syst2.at(isyst).GetName()).Contains("dummy")){
@@ -1166,7 +1208,15 @@ void mptSyst(double energy = 0.9 , bool printFig = false){
 
 
 
+void Divide(double* array , int n , double val){
+  for(int i = 0 ; i < n ; i++)
+    array[i] = array[i] / val;
+}
 
+void Multiply(double* array , int n , double val){
+  for(int i = 0 ; i < n ; i++)
+    array[i] = array[i] * val;
+}
 
 
 
