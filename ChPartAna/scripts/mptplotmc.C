@@ -39,7 +39,12 @@ void mptplotmc(double energy = 0.9, int iSaveFig = 1, float npx = 1000 , float n
   globalCanvasSizeY = npy;
 
   XaxisTitle = "n";
-  YaxisTitle = "<P_{T}>";
+  YaxisTitle = "<p_{T}>";
+
+  #include "../macro/acceptanceMap.C"
+  ostringstream legheader("");
+  legheader<< "  |#eta| < "<<accMap.at(5).at(1);
+  LegendTitle = legheader.str();
 
   xGlobalLabel = 0.6 ; 
   if ( globalEnergy == 0.9 ) globalLabel =  "CMS Preliminary 0.9 TeV";
@@ -81,7 +86,7 @@ void mptplotmc(double energy = 0.9, int iSaveFig = 1, float npx = 1000 , float n
     dataSetHType.push_back(1);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(kRed);
-    dataSetLegend.push_back("pythia D6T");
+    dataSetLegend.push_back("Pythia D6T");
     dataSetHisto.push_back("mptVSnchgen_gen_cut5");
   
     // Data Syst
@@ -117,7 +122,7 @@ void mptplotmc(double energy = 0.9, int iSaveFig = 1, float npx = 1000 , float n
     dataSetHType.push_back(1);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(kRed);
-    dataSetLegend.push_back("pythia D6T");
+    dataSetLegend.push_back("Pythia D6T");
     dataSetHisto.push_back("mptVSnchgen_gen_cut5");
 
     // Data Syst
@@ -154,7 +159,7 @@ void mptplotmc(double energy = 0.9, int iSaveFig = 1, float npx = 1000 , float n
     dataSetHType.push_back(1);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(kBlue);
-    dataSetLegend.push_back("pythia atlas");
+    dataSetLegend.push_back("Pythia atlas");
     dataSetHisto.push_back("mptVSnchgen_gen_cut5");
   
     // data Syst  
