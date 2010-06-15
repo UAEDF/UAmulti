@@ -27,7 +27,11 @@ class TMoments : public TObject{
   void ComputeMoments();
   void ComputeErrorsFromResampling(TH1F*);
   
+  void AddDataForResampling(TH1F*);
+  void FinishCurrentResampling();
+  
   void print();
+  bool isFilled(){return kisFilled;};
   
   Int_t nmoments;
   TMean* mean;
@@ -44,7 +48,7 @@ class TMoments : public TObject{
   vector<Double_t>* fstaterr;
   vector<Double_t>* kstaterr;
   vector<Double_t>* hstaterr;
-  
+    
   vector<Double_t>* csystmerr;
   vector<Double_t>* fsystmerr;
   vector<Double_t>* ksystmerr;
@@ -54,8 +58,17 @@ class TMoments : public TObject{
   vector<Double_t>* fsystperr;
   vector<Double_t>* ksystperr;
   vector<Double_t>* hsystperr;
+  
+  TMean* mean_pull;
+  TMean* RMS_pull;
+  vector<TMean>* cstaterr_pull;
+  vector<TMean>* fstaterr_pull;
+  vector<TMean>* kstaterr_pull;
+  vector<TMean>* hstaterr_pull;
     
   private:
+  
+  bool kisFilled;
 
   ClassDef(TMoments,1);
 };

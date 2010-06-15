@@ -21,6 +21,8 @@ TMoments::TMoments(TH1F* h){
 
 void TMoments::Init(){
   
+  kisFilled = false;
+  
   mean = new TMean();
   
   cmoments_tmp = new vector<TMean>(nmoments,TMean());
@@ -30,7 +32,7 @@ void TMoments::Init(){
   fmoments = new vector<Double_t>(nmoments,0);
   kmoments = new vector<Double_t>(nmoments,0);
   hmoments = new vector<Double_t>(nmoments,0);
-    
+  
   cstaterr = new vector<Double_t>(nmoments,0);
   fstaterr = new vector<Double_t>(nmoments,0);
   kstaterr = new vector<Double_t>(nmoments,0);
@@ -46,9 +48,18 @@ void TMoments::Init(){
   ksystperr = new vector<Double_t>(nmoments,0);
   hsystperr = new vector<Double_t>(nmoments,0);
     
+  mean_pull = new TMean();
+  RMS_pull  = new TMean();
+  cstaterr_pull = new vector<TMean>(nmoments,TMean());
+  fstaterr_pull = new vector<TMean>(nmoments,TMean());
+  kstaterr_pull = new vector<TMean>(nmoments,TMean());
+  hstaterr_pull = new vector<TMean>(nmoments,TMean());
+    
 }
 
 void TMoments::clear(){
+
+  kisFilled = false;
 
   delete mean;
 
@@ -75,6 +86,14 @@ void TMoments::clear(){
   delete ksystperr;
   delete hsystperr;
   
+  
+  delete mean_pull;
+  delete RMS_pull;
+  delete cstaterr_pull;
+  delete fstaterr_pull;
+  delete kstaterr_pull;
+  delete hstaterr_pull;
+    
   this->Init();
 
 }
@@ -101,12 +120,14 @@ void TMoments::Add(Double_t value, Double_t weight){
 
 
 void TMoments::Add(TH1F* h){
+  kisFilled = true;
   for(int i = 1 ; i <= h->GetNbinsX() ; ++i)
     this->Add(h->GetBinCenter(i) , h->GetBinContent(i));
 }
 
 
 /*void TMoments::Add(TH1F* h){
+  kisFilled = true;
   for(int i = 1 ; i < h->GetXaxis()->GetXmax() ; ++i){
     int ibin = h->GetXaxis()->FindFixBin(i);
     this->Add(i , h->GetBinContent(ibin));
@@ -114,6 +135,7 @@ void TMoments::Add(TH1F* h){
 }*/
 
 void TMoments::Add(TGraph* g){
+  kisFilled = true;
   Double_t* x = g->GetX();
   Double_t* y = g->GetY();
   for(int i = 1 ; i <= g->GetN() ; ++i)
@@ -164,47 +186,56 @@ void TMoments::print(){
 }
 
 void TMoments::ComputeErrorsFromResampling(TH1F* h){
-  TMoments* mom_sampled = new TMoments(h);
+  //TMoments* mom_sampled = new TMoments(h);
   //mom_sampled->print();
   TH1F* sample = (TH1F*) h->Clone("resampled");
-  
-  TMean* mean_pull = new TMean();
-  TMean* RMS_pull  = new TMean();
-  vector<TMean> cerrors_pull = vector<TMean>(nmoments , TMean());
-  vector<TMean> ferrors_pull = vector<TMean>(nmoments , TMean());
-  vector<TMean> kerrors_pull = vector<TMean>(nmoments , TMean());
-  vector<TMean> herrors_pull = vector<TMean>(nmoments , TMean());
-  
-  int nsample = 5;
+    
+  int nsample = 1000;
   
   for(int i = 0 ; i < nsample ; ++i){
     sample->Reset();
     for(int ibin = 1 ; ibin <= h->GetNbinsX() ; ++ibin)
       sample->SetBinContent(ibin , gRandom->Gaus(h->GetBinContent(ibin) , h->GetBinError(ibin)));
     
-    mom_sampled->clear();
-    mom_sampled->Add(sample);
-    mom_sampled->ComputeMoments();
-    //mom_sampled->print();
-        
-    mean_pull->Add(mom_sampled->mean->GetMean());
-    RMS_pull->Add(mom_sampled->mean->GetRMS());
-    for(int m = 0 ; m < nmoments ; ++m){
-      cerrors_pull.at(m).Add(mom_sampled->cmoments->at(m));
-      ferrors_pull.at(m).Add(mom_sampled->fmoments->at(m));
-      kerrors_pull.at(m).Add(mom_sampled->kmoments->at(m));
-      herrors_pull.at(m).Add(mom_sampled->hmoments->at(m));
-      //cout<<i<<"  "<<m<<"  "<<cerrors_pull.at(m).GetMean()<<"  "<<cerrors_pull.at(m).GetRMS()<<endl;
-    }
+     this->AddDataForResampling(sample);
   }
   
-  mean->SetMeanError(mean_pull->GetRMS());
-  mean->SetRMSError(RMS_pull->GetRMS());
+  this->FinishCurrentResampling();
+}
+
+void TMoments::AddDataForResampling(TH1F* h){
+  TMoments* mom_sampled = new TMoments(h);
+  mom_sampled->ComputeMoments();
+  
+  mean_pull->Add(mom_sampled->mean->GetMean());
+  RMS_pull->Add(mom_sampled->mean->GetRMS());
   for(int m = 0 ; m < nmoments ; ++m){
-    cstaterr->at(m) = cerrors_pull.at(m).GetRMS();
-    fstaterr->at(m) = ferrors_pull.at(m).GetRMS();
-    kstaterr->at(m) = kerrors_pull.at(m).GetRMS();
-    hstaterr->at(m) = herrors_pull.at(m).GetRMS();
+    cstaterr_pull->at(m).Add(mom_sampled->cmoments->at(m));
+    fstaterr_pull->at(m).Add(mom_sampled->fmoments->at(m));
+    kstaterr_pull->at(m).Add(mom_sampled->kmoments->at(m));
+    hstaterr_pull->at(m).Add(mom_sampled->hmoments->at(m));
   }
 }
+
+void TMoments::FinishCurrentResampling(){
+  mean->SetMeanError(sqrt( pow(mean_pull->GetRMS(),2) + pow(mean->GetMeanError(),2) ));
+  mean->SetRMSError( sqrt( pow(RMS_pull->GetRMS(),2)  + pow(mean->GetRMSError(),2)  ));
+  for(int m = 0 ; m < nmoments ; ++m){
+    cstaterr->at(m) = sqrt( pow(cstaterr_pull->at(m).GetRMS(),2) + pow(cstaterr->at(m),2) );
+    fstaterr->at(m) = sqrt( pow(fstaterr_pull->at(m).GetRMS(),2) + pow(fstaterr->at(m),2) );
+    kstaterr->at(m) = sqrt( pow(kstaterr_pull->at(m).GetRMS(),2) + pow(kstaterr->at(m),2) );
+    hstaterr->at(m) = sqrt( pow(hstaterr_pull->at(m).GetRMS(),2) + pow(hstaterr->at(m),2) );
+  }
+  
+  mean_pull->Reset();
+  RMS_pull->Reset();
+  for(int m = 0 ; m < nmoments ; ++m){
+    cstaterr_pull->at(m).Reset();
+    fstaterr_pull->at(m).Reset();
+    kstaterr_pull->at(m).Reset();
+    hstaterr_pull->at(m).Reset();
+  }
+}
+
+
 
