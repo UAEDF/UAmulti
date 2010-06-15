@@ -47,6 +47,8 @@ void TrackPlots::init(){
   
   dxyOsxyVSphi = new TH2F("dxyOsxyVSphi_"+trackcoll,"dxyOsxyVSphi_"+trackcoll+";#dxy / sigma_xy;#phi;# events",100,0,10.,30,-TMath::Pi(),TMath::Pi());
   dzOszVSphi = new TH2F("dzOszVSphi_"+trackcoll,"dzOszVSphi_"+trackcoll+";#dz / sigma_z;#phi;# events",100,0,10.,30,-TMath::Pi(),TMath::Pi());
+  
+  etaVSnhit = new TH2F("etaVSnhit"+trackcoll,"etaVSnhit"+trackcoll+";#eta;nhit;# events",20,-3.,3.,51,-0.5,50.5);
 
   nch->Sumw2();
   pt->Sumw2();
@@ -70,6 +72,7 @@ void TrackPlots::init(){
   dxyOsxyVSphi->Sumw2();
   dzOszVSphi->Sumw2();
   dxyz->Sumw2();
+  etaVSnhit->Sumw2();
 }
 
 void TrackPlots::fill(vector<MyTracks>& trcoll, vector<MyVertex>& vtxcoll, int vtxId, MyBeamSpot* bs, double weight){
@@ -120,6 +123,8 @@ void TrackPlots::fill(vector<MyTracks>& trcoll, vector<MyVertex>& vtxcoll, int v
     if(vtxId!=-1)dzOszVSphi->Fill( fabs(tr->vz - goodVtx->z) / sqrt( pow(tr->edz,2) + pow(cosh(tr->Part.v.Eta()),2) * bs->BeamWidthX * bs->BeamWidthY ), tr->Part.v.Phi(),weight);
     
     eptOpt->Fill( tr->ept/ tr->Part.v.Pt() ,weight);
+    
+    etaVSnhit->Fill(tr->Part.v.Eta() , tr->nhit , weight);
   }
   
   //nch->Fill(trcoll.size());
@@ -164,6 +169,8 @@ void TrackPlots::write(){
   dzOszVSphi->Write();
  
   dxyz->Write();
+
+  etaVSnhit->Write();
  
   gDirectory->cd("../");
 }
