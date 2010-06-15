@@ -68,7 +68,7 @@ void collectionPlotter(int type , double E , double ptcut , TString filename , i
   TH1F* beamwidthX = new TH1F("beamwidthX","beamwidthX",400,-4.,4.);
   TH1F* beamwidthY = new TH1F("beamwidthY","beamwidthY",400,-4.,4.);
 
-
+  TH2F* nchVSnvtx = new TH2F("nchVSnvtx","nchVSnvtx",(int)nbinmulti+1,-0.5,nbinmulti+0.5,6,-0.5,5.5);
 
   //pt    = new TH1F("pt_"+trackcoll,"pt_"+trackcoll+";pt [GeV];# events",100,0.,3.);
   //eta   = new TH1F("eta_"+trackcoll,"eta_"+trackcoll+";#eta;# events",60,-3.,3.);
@@ -99,8 +99,23 @@ void collectionPlotter(int type , double E , double ptcut , TString filename , i
   int nevt_ntr0_gTr_novtx_notr = 0 , nevt_ntr0_gTr_novtx_withtr = 0, nevt_ntr0_gTr_withvtx_notr = 0 ;
   int nevt_ntr0_mbTr = 0 , nevt_ntr0_mbTr_novtx = 0 , nevt_ntr0_mbTr_notr = 0 , nevt_ntr0_mbTr_novtxatall = 0;
   int nevt_ntr0_mbTr_novtx_notr = 0 , nevt_ntr0_mbTr_novtx_withtr = 0, nevt_ntr0_mbTr_withvtx_notr = 0 ;
-
-
+  
+  
+  //-------------------------------------------------------
+  //events with 2 vtx
+  VertexPlots* vtxp_2vtx_vtx1 = new VertexPlots("2vtx_vtx1");
+  VertexPlots* vtxp_2vtx_vtx2 = new VertexPlots("2vtx_vtx2");
+  TH1F* nch_2vtx_vtx1         = new TH1F("nch_2vtx_vtx1","nch_2vtx_vtx1",(int)nbinmulti+1,-0.5,nbinmulti+0.5);
+  TH1F* nch_2vtx_vtx2         = new TH1F("nch_2vtx_vtx2","nch_2vtx_vtx2",(int)nbinmulti+1,-0.5,nbinmulti+0.5);
+  TH1F* zdiff_2vtx            = new TH1F("zdiff_2vtx","zdiff_2vtx",50,-10.,10.);
+  TH1F* ratio_vtx1Ogen        = new TH1F("ratio_vtx1Ogen","ratio_vtx1Ogen;n_{rec}^{vtx1} / n_{gen};# events",40,0.,2.);
+  TH1F* ratio_vtx2Ogen        = new TH1F("ratio_vtx2Ogen","ratio_vtx2Ogen;n_{rec}^{vtx2} / n_{gen};# events",40,0.,2.);
+  TH2F* nch_vtx1VSgen         = new TH2F("nch_vtx1VSgen","nch_vtx1VSgen;n_{gen};n_{rec}^{vtx2}",(int)nbinmulti+1,-0.5,nbinmulti+0.5,(int)nbinmulti+1,-0.5,nbinmulti+0.5);
+  TH2F* nch_vtx2VSgen         = new TH2F("nch_vtx2VSgen","nch_vtx2VSgen;n_{gen};n_{rec}^{vtx2}",(int)nbinmulti+1,-0.5,nbinmulti+0.5,(int)nbinmulti+1,-0.5,nbinmulti+0.5);
+  
+  
+  
+  
   /*
   //------------- VERTEX COLLECTIONS -------------
   //offlinePV
@@ -146,6 +161,9 @@ void collectionPlotter(int type , double E , double ptcut , TString filename , i
   GenMultiPlots* gmp_ptCut_noSel = new GenMultiPlots("ptCut_noSel");
   GenMultiPlots* gmp_etaCut_noSel = new GenMultiPlots("etaCut_noSel");
   GenMultiPlots* gmp_pt_etaCut_noSel = new GenMultiPlots("pt_etaCut_noSel");
+  
+  GenMultiPlots* gmp_2vtx     = new GenMultiPlots("2vtx");
+
   
   
    cout<<"tttttttttttt"<<endl;
@@ -507,6 +525,8 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/
       mp_PV_mbTr_fVtx->nextEvent();
       mtxp_etaGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->nextEvent(laccept_reco_etaCut , laccept_etaCut_NSD);
       mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_mbTr_fVtx->nextEvent(laccept_reco_etaCut , laccept_pt_etaCut_NSD);
+      nchVSnvtx->Fill(trcoll.size() , ferencVtx->size());
+      
       
       trcoll = getPrimaryTracks(*generalTracks,offlinePV);
       for(vector<MyTracks>::iterator it_tr = trcoll.begin() ; it_tr != trcoll.end() ; ++it_tr){
@@ -517,7 +537,56 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/
       mp_PV_gTr_oVtx->nextEvent();
       mtxp_etaGenCut_L1_hf_VtxSel_PV_gTr_oVtx->nextEvent(true , laccept_etaCut_NSD);
       mtxp_eta_ptGenCut_L1_hf_VtxSel_PV_gTr_oVtx->nextEvent(laccept_reco_etaCut , laccept_pt_etaCut_NSD);
+     
+     
+      //Checking evts with 2 vtx
+      ferencVtx->pop_back();
+      if(ferencVtx->size()==2){
+        
+	int vtxId_otherVtx = 0;
+        for(vector<MyVertex>::iterator it_vtx = ferencVtx->begin();it_vtx != ferencVtx->end();++it_vtx){
+          if(vtxId_ferencVtx==it_vtx->id)
+            vtxp_2vtx_vtx1->fill(*it_vtx);
+	  if(vtxId_ferencVtx!=it_vtx->id){
+            vtxId_otherVtx = it_vtx->id;
+	    vtxp_2vtx_vtx2->fill(*it_vtx);
+	  }
+	}
+	
+	int nch_vtx1  = 0 , nch_vtx2 = 0;
+	for(vector<MyTracks>::iterator it_tr = minbiasTracks->begin() ; it_tr != minbiasTracks->end() ; ++it_tr){
+          if( isTrackPrimary(*it_tr , *ferencVtx ,vtxId_ferencVtx , bs) && isInAcceptance(it_tr->Part,pt_cut,eta_cut,0) )
+            ++nch_vtx1;
+          if( isTrackPrimary(*it_tr , *ferencVtx ,vtxId_otherVtx  , bs) && isInAcceptance(it_tr->Part,pt_cut,eta_cut,0) )
+            ++nch_vtx2;
       
+        }
+	nch_2vtx_vtx1->Fill(nch_vtx1);
+	nch_2vtx_vtx2->Fill(nch_vtx2);
+	
+        zdiff_2vtx->Fill(ferencVtx->at(0).z - ferencVtx->at(1).z);
+	if(isMC){
+	  int nch_gen_2vtx = 0;
+          for(vector<MyGenPart>::iterator p=genPart->begin() ; p!=genPart->end() ; p++ ){
+            if ( isGenPartGood(*p) ){
+	      if( fabs(p->Part.v.Eta()) < eta_cut && p->Part.v.Pt()> pt_cut ){
+	        gmp_2vtx->fill(*genKin,p->Part);
+		++nch_gen_2vtx;
+              }
+	    }
+	  }
+          gmp_2vtx->nextEvent(*genKin);
+	  
+	  
+	  if(nch_gen_2vtx!=0){
+	    ratio_vtx1Ogen->Fill(double(nch_vtx1) / double(nch_gen_2vtx));
+	    ratio_vtx2Ogen->Fill(double(nch_vtx2) / double(nch_gen_2vtx));
+	  }
+	  nch_vtx1VSgen->Fill(nch_gen_2vtx , nch_vtx1 );
+	  nch_vtx2VSgen->Fill(nch_gen_2vtx , nch_vtx2 );
+	}
+	
+      }
     }
   
   
@@ -532,7 +601,9 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/
   ostringstream PT("");
   PT << "ptcut" << pt_cut;
   if(filename!="NONE") PT <<"_"<< filename;
-  TFile* file2=new TFile(fileManager(1,type,E,0,0,0,PT.str()),"RECREATE");
+  TString outputfilename = fileManager(1,type,E,0,0,0,PT.str());
+  cout << "Output file : " << outputfilename << endl;
+  TFile* file2=new TFile(outputfilename,"RECREATE");
   file2->cd();
   
   if(isMC){
@@ -541,6 +612,21 @@ if(isMC)tree->Add("/user/xjanssen/data/CMSSW_3_3_6_patch3/ChPartTree_v004_mc236/
     eta_gen_noCut->Write();
   }
   
+  
+  vtxp_2vtx_vtx1->write();
+  vtxp_2vtx_vtx2->write();
+  nch_2vtx_vtx1->Write();
+  nch_2vtx_vtx2->Write();
+  zdiff_2vtx->Write();
+  if(isMC){
+    gmp_2vtx->write();
+    ratio_vtx1Ogen->Write();
+    ratio_vtx2Ogen->Write();
+    nch_vtx1VSgen->Write();
+    nch_vtx2VSgen->Write();
+  }
+  
+  nchVSnvtx->Write();
   //trp_allTr_gTr_oVtx->write();
   //trp_PV_gTr_oVtx->write();
   //trp_allTr_gTr_fVtx->write();
