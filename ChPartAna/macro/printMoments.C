@@ -22,7 +22,7 @@ using namespace std;
 
 
 void printMoments(int cut = 5){
-  TString plotdir = "../plots/systv10_bis/";
+  TString plotdir = "../plots/systv10_binning1v3_2/";
   
   
   ostringstream outstr("");
@@ -103,7 +103,11 @@ void printMoments(int cut = 5){
   cout<<"\\end{tabular}"<<endl;
   cout<<"\\end{center}"<<endl;
   cout<<"\\end{table}"<<endl;
-
+  
+  
+  cout<<mom0->mean->GetMean()<<"  "<<sqrt(pow(mom0->mean->GetMeanError(),2)+pow((mom0->mean->_MeanSystP+mom0->mean->_MeanSystM)/2,2))<<endl;
+  cout	<<mom1->mean->GetMean()<<"  "<<sqrt(pow(mom1->mean->GetMeanError(),2)+pow((mom1->mean->_MeanSystP+mom1->mean->_MeanSystM)/2,2))<<endl;
+  cout	<<mom2->mean->GetMean()<<"  "<<sqrt(pow(mom2->mean->GetMeanError(),2)+pow((mom2->mean->_MeanSystP+mom2->mean->_MeanSystM)/2,2))<<endl;
 /*
 \begin{table}[htbH]
 \begin{center}
