@@ -77,7 +77,7 @@ void mptCorrection(int type = 10 , double E = 0.9 , int iTracking = 1 , int nevt
   
   ostringstream fname("");
   //fname<<"../plots/smallcodev4/smallCode_MCtype"<<mctype<<"_"<<E<<"TeV.root";
-  fname<<"../plots/smallCode_MCtype"<<mctype<<"_"<<E<<"TeV.root";
+  fname<<"../plots/smallcodev6/smallCode_MCtype"<<mctype<<"_"<<E<<"TeV.root";
   //fname<<"../macro/smallCode_MCtype"<<mctype<<"_"<<E<<"TeV.root";
   cout<<"smallCode file : "<<fname.str()<<endl;
   TFile* smallcode = TFile::Open(fname.str().c_str(),"READ");
@@ -89,21 +89,30 @@ void mptCorrection(int type = 10 , double E = 0.9 , int iTracking = 1 , int nevt
 
   vector<TProfile*> mptVSnchreco_reco(accMap.size(),0);
   vector<TProfile*> mptVSnchreco_gen(accMap.size(),0);
+  vector<TProfile*> mptVSnchgen_reco(accMap.size(),0);
+  vector<TProfile*> mptVSnchgen_gen(accMap.size(),0);
   vector< TH1F* >   pt_genMINUSreco(accMap.size(),0);
 
   vector<TProfile*> mpt2VSnchreco_reco(accMap.size(),0);
   vector<TProfile*> mpt2VSnchreco_gen(accMap.size(),0);
+  vector<TProfile*> mpt2VSnchgen_reco(accMap.size(),0);
+  vector<TProfile*> mpt2VSnchgen_gen(accMap.size(),0);
   vector< TH1F* >   pt2_genMINUSreco(accMap.size(),0);
 
   for(int acc = 0 ; acc < (signed) accMap.size() ; ++acc){   
-   if (accNoSkip(acc)){  
-    mptVSnchreco_reco.at(acc) = (TProfile*) smallcode->Get(st("mptVSnchreco_reco",acc));
-    mptVSnchreco_gen.at(acc)  = (TProfile*) smallcode->Get(st("mptVSnchreco_gen",acc));
-    pt_genMINUSreco.at(acc)   = (TH1F*)     smallcode->Get(st("pt_genMINUSreco",acc));
-    mpt2VSnchreco_reco.at(acc) = (TProfile*) smallcode->Get(st("mpt2VSnchreco_reco",acc));
-    mpt2VSnchreco_gen.at(acc)  = (TProfile*) smallcode->Get(st("mpt2VSnchreco_gen",acc));
-    pt2_genMINUSreco.at(acc)   = (TH1F*)     smallcode->Get(st("pt2_genMINUSreco",acc));
-   }
+    if (accNoSkip(acc)){   
+      mptVSnchreco_reco.at(acc)  = (TProfile*) smallcode->Get(st("mptVSnchreco_reco",acc));
+      mptVSnchreco_gen.at(acc)   = (TProfile*) smallcode->Get(st("mptVSnchreco_gen",acc));
+      mptVSnchgen_reco.at(acc)   = (TProfile*) smallcode->Get(st("mptVSnchgen_reco",acc));
+      mptVSnchgen_gen.at(acc)    = (TProfile*) smallcode->Get(st("mptVSnchgen_gen",acc));
+      pt_genMINUSreco.at(acc)    = (TH1F*)     smallcode->Get(st("pt_genMINUSreco",acc));
+      
+      mpt2VSnchreco_reco.at(acc) = (TProfile*) smallcode->Get(st("mpt2VSnchreco_reco",acc));
+      mpt2VSnchreco_gen.at(acc)  = (TProfile*) smallcode->Get(st("mpt2VSnchreco_gen",acc));
+      mpt2VSnchgen_reco.at(acc) = (TProfile*) smallcode->Get(st("mpt2VSnchgen_reco",acc));
+      mpt2VSnchgen_gen.at(acc)  = (TProfile*) smallcode->Get(st("mpt2VSnchgen_gen",acc));
+      pt2_genMINUSreco.at(acc)   = (TH1F*)     smallcode->Get(st("pt2_genMINUSreco",acc));
+    }
   }
   
   //**********************************************
@@ -418,14 +427,20 @@ void mptCorrection(int type = 10 , double E = 0.9 , int iTracking = 1 , int nevt
       if(norm==0) norm = 1;
     
       double ptcorr = 1;
-      if(mptVSnchreco_reco.at(acc)->GetBinContent(bin_reco)!=0)
+      /*if(mptVSnchreco_reco.at(acc)->GetBinContent(bin_reco)!=0)
         ptcorr =   mptVSnchreco_gen.at(acc)->GetBinContent(bin_reco) 
-                 / mptVSnchreco_reco.at(acc)->GetBinContent(bin_reco);
+                 / mptVSnchreco_reco.at(acc)->GetBinContent(bin_reco);*/
+      if(mptVSnchgen_reco.at(acc)->GetBinContent(bin_reco)!=0)
+        ptcorr =   mptVSnchgen_gen.at(acc)->GetBinContent(bin_reco) 
+                 / mptVSnchgen_reco.at(acc)->GetBinContent(bin_reco);
 
       double pt2corr = 1;
-      if(mpt2VSnchreco_reco.at(acc)->GetBinContent(bin_reco)!=0)
+      /*if(mpt2VSnchreco_reco.at(acc)->GetBinContent(bin_reco)!=0)
         pt2corr =   mpt2VSnchreco_gen.at(acc)->GetBinContent(bin_reco) 
-                  / mpt2VSnchreco_reco.at(acc)->GetBinContent(bin_reco);
+                  / mpt2VSnchreco_reco.at(acc)->GetBinContent(bin_reco);*/
+      if(mpt2VSnchgen_reco.at(acc)->GetBinContent(bin_reco)!=0)
+        pt2corr =   mpt2VSnchgen_gen.at(acc)->GetBinContent(bin_reco) 
+                  / mpt2VSnchgen_reco.at(acc)->GetBinContent(bin_reco);
 	
       double eff = 1;
       if(eff_evtSel.at(acc)->GetBinContent(bin_reco)!=0)
@@ -441,10 +456,14 @@ void mptCorrection(int type = 10 , double E = 0.9 , int iTracking = 1 , int nevt
       for(int igen = 1 ; igen <= mptVSnch.at(acc)->GetNbinsX() ; ++igen){
         double ptcorr = 1;
         double pt2corr = 1;
-        if(mptVSnchreco_reco.at(acc)->GetBinContent(igen)!=0)
+        /*if(mptVSnchreco_reco.at(acc)->GetBinContent(igen)!=0)
           ptcorr = mptVSnchreco_gen.at(acc)->GetBinContent(igen) / mptVSnchreco_reco.at(acc)->GetBinContent(igen);
 	if(mpt2VSnchreco_reco.at(acc)->GetBinContent(igen)!=0)
-          pt2corr = mpt2VSnchreco_gen.at(acc)->GetBinContent(igen) / mpt2VSnchreco_reco.at(acc)->GetBinContent(igen);
+          pt2corr = mpt2VSnchreco_gen.at(acc)->GetBinContent(igen) / mpt2VSnchreco_reco.at(acc)->GetBinContent(igen);*/
+        if(mptVSnchgen_reco.at(acc)->GetBinContent(igen)!=0)
+          ptcorr = mptVSnchgen_gen.at(acc)->GetBinContent(igen) / mptVSnchgen_reco.at(acc)->GetBinContent(igen);
+	if(mpt2VSnchgen_reco.at(acc)->GetBinContent(igen)!=0)
+          pt2corr = mpt2VSnchgen_gen.at(acc)->GetBinContent(igen) / mpt2VSnchgen_reco.at(acc)->GetBinContent(igen);
 	
 
 
