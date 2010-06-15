@@ -284,8 +284,8 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
       ua5[3]->SetPoint(2,880,18);
       ua5[3]->SetPointError(2,0,2.23);
       
-      ymin1 = 0; ymax1 = 5;
-      ymin2 = 3; ymax2 = 50;
+      ymin1 = 1; ymax1 = 5;
+      ymin2 = 2; ymax2 = 50;
     }
     if(momtype.Contains("K")){
       ua5[0]->SetPoint(1,200,0.36);
@@ -373,6 +373,8 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
   if(NA22->GetN()!=0)   xmin = 15.;
   TH1F* dummy1 = new TH1F("dummy","dummy",100,xmin,xmax);
   dummy1->GetYaxis()->SetRangeUser(ymin1 , ymax1);
+  dummy1->GetXaxis()->SetTitleOffset(1.2);
+  dummy1->GetYaxis()->SetTitleOffset(0.95);
   dummy1->SetTitle(TString(";#sqrt{s};")+momtype+TString("_{q}"));
   dummy1->Draw();
   //hmoments[2]->GetXaxis()->SetRangeUser(10.,xmax);
@@ -382,8 +384,8 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
 
 
   gPad->SetLogx();
-  gPad->SetLeftMargin(0.17);
-  gPad->SetTopMargin(0.00);
+  gPad->SetLeftMargin(0.12);
+  gPad->SetTopMargin(0.02);
   gPad->SetBottomMargin(0.15);
   gPad->SetFillColor(0);
   gPad->GetFrame()->SetFillColor(21);
@@ -413,7 +415,7 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
   ostringstream legheader("");
   legheader<< "   |#eta| < "<<accMap.at(acc).at(1);
 
-  TLegend* leg = new TLegend(0.2,0.60,0.4,0.98);;
+  TLegend* leg = new TLegend(0.15,0.6,0.35,0.93);;
   leg->SetHeader(legheader.str().c_str());
   leg->SetTextSize(0.05);
                      leg->AddEntry(hmoments[2],momtype+TString("_{2} CMS"),"p");
@@ -442,7 +444,10 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
   //xmin = 150;
   TH1F* dummy2 = new TH1F("dummy2","dummy2",100,xmin,xmax);
   dummy2->GetYaxis()->SetRangeUser(ymin2 , ymax2);
-  dummy2->SetTitle(TString(";#sqrt{s};")+momtype+TString("_{q}"));
+  dummy2->GetXaxis()->SetLabelOffset(2);
+  dummy2->GetYaxis()->SetTitleOffset(0.95);
+  dummy2->SetTitle(TString(";;")+momtype+TString("_{q}"));
+  //dummy2->SetTitle("");
   dummy2->Draw();
   //hmoments[4]->GetXaxis()->SetRangeUser(10.,xmax);
   //hmoments[4]->GetYaxis()->SetRangeUser(ymin2 , ymax2);
@@ -451,7 +456,7 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
   hmoments[4]->Draw("samep");
   
   gPad->SetLogx();
-  gPad->SetLeftMargin(0.17);
+  gPad->SetLeftMargin(0.12);
   gPad->SetBottomMargin(0.01);
   gPad->SetFillColor(0);
   gPad->GetFrame()->SetFillColor(21);
@@ -470,7 +475,7 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
     hmoments.at(m)->Draw("same p");
   }
   
-  leg = new TLegend(0.2,0.60,0.4,0.93);
+  leg = new TLegend(0.15,0.60,0.35,0.93);
   leg->SetHeader(legheader.str().c_str());
   leg->SetTextSize(0.05);
   leg->AddEntry(hmoments[4],momtype+TString("_{4} CMS"),"p");
@@ -486,6 +491,8 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
   
   text->DrawLatex(0.45,0.85,"CMS Preliminary");
   
+  gPad->Update();
+  c_mom->cd(2);
   gPad->Update();
   cout<<"Ready to print fig !"<<endl;
   
