@@ -83,9 +83,9 @@ void nchplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
   if ( globalEnergy == 7.0 ) iMc = 31 ;
 
   TString plotdir("");
-  if ( globalEnergy == 0.9 ) plotdir = "../plots/systv10_undecies2/";
-  if ( globalEnergy == 2.36) plotdir = "../plots/systv10_undecies2/";
-  if ( globalEnergy == 7.0 ) plotdir = "../plots/systv10_undecies2/";
+  if ( globalEnergy == 0.9 ) plotdir = "../plots/systv10_niter100_2/";
+  if ( globalEnergy == 2.36) plotdir = "../plots/systv10_niter100_2/";
+  if ( globalEnergy == 7.0 ) plotdir = "../plots/systv10_niter100_2/";
 
   ostringstream outstr("");
   outstr << "hyp" << 1 << "_niter" << 0 << "_cut" << iBin << "_DataType" << 0;  
@@ -125,7 +125,7 @@ void nchplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetHType.push_back(1);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(kRed);
-    dataSetLegend.push_back("pythia D6T");
+    dataSetLegend.push_back("Pythia D6T");
     dataSetHisto.push_back(mchisto.str()); 
     
     dataSetId.push_back(-1);
@@ -134,7 +134,7 @@ void nchplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetHType.push_back(1);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(kBlue);
-    dataSetLegend.push_back("pythia DW");
+    dataSetLegend.push_back("Pythia DW");
     dataSetHisto.push_back(mchisto.str()); 
     
     dataSetId.push_back(-1);
@@ -143,7 +143,7 @@ void nchplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetHType.push_back(1);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(kOrange);
-    dataSetLegend.push_back("pythia ProQ20");
+    dataSetLegend.push_back("Pythia ProQ20");
     dataSetHisto.push_back(mchisto.str()); 
   
     dataSetId.push_back(-1);
@@ -152,7 +152,7 @@ void nchplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetHType.push_back(1);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(kMagenta);
-    dataSetLegend.push_back("phojet");
+    dataSetLegend.push_back("Phojet");
     dataSetHisto.push_back(mchisto.str());
   
     // And data syst again
@@ -202,7 +202,7 @@ void nchplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetStyle.push_back(20);
     dataSetHType.push_back(1);
     dataSetColor.push_back(kBlue);
-    dataSetLegend.push_back("phojet");
+    dataSetLegend.push_back("Phojet");
     dataSetHisto.push_back(mchisto.str()); 
 
     dataSetId.push_back(-1);
@@ -211,7 +211,7 @@ void nchplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetHType.push_back(1);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(kRed);
-    dataSetLegend.push_back("pythia D6T");
+    dataSetLegend.push_back("Pythia D6T");
     dataSetHisto.push_back(mchisto.str());
 
     // Data systematics
@@ -262,7 +262,7 @@ void nchplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetHType.push_back(1);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(kRed);
-    dataSetLegend.push_back("pythia D6T");
+    dataSetLegend.push_back("Pythia D6T");
     dataSetHisto.push_back(mchisto.str());
 
 /*
@@ -272,7 +272,7 @@ void nchplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetHType.push_back(1);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(kBlue);
-    dataSetLegend.push_back("pythia atlas");
+    dataSetLegend.push_back("Pythia atlas");
     dataSetHisto.push_back(mchisto.str());
 */
   
@@ -282,7 +282,7 @@ void nchplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetHType.push_back(1);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(kMagenta);
-    dataSetLegend.push_back("phojet");
+    dataSetLegend.push_back("Phojet");
     dataSetHisto.push_back(mchisto.str());
  
 /*
@@ -292,7 +292,7 @@ void nchplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetHType.push_back(1);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(kOrange);
-    dataSetLegend.push_back("pythia X1");
+    dataSetLegend.push_back("Pythia X1");
     dataSetHisto.push_back(mchisto.str());
   
     dataSetId.push_back(-1);
@@ -301,7 +301,7 @@ void nchplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetHType.push_back(1);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(kGreen);
-    dataSetLegend.push_back("pythia X2");
+    dataSetLegend.push_back("Pythia X2");
     dataSetHisto.push_back(mchisto.str());
 */  
     // Data systematics
