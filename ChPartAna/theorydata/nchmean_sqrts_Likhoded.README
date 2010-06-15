@@ -1,0 +1,41 @@
+riginal Message --------
+Subject: 	Re: [Fwd: Fwd: paper submitted to PRL and arXiv]
+Date: 	Wed, 09 Jun 2010 11:12:51 +0400
+From: 	Anatolii Likhoded <Anatolii.Likhoded@ihep.ru>
+To: 	Eddi De Wolf <eddi.dewolf@ua.ac.be>
+References: 	<4BF3BA1E.5080008@ua.ac.be> <web-7262555@ihep.ru> 
+<4C08D4B0.20606@ua.ac.be> <web-7353869@ihep.ru>
+<4C0E0567.8070803@ua.ac.be>
+
+
+
+Dear Eddie,
+
+Symbol "F" in table stands for Pomeron singularity with 
+Delta_F = 0.1669. Intercepts for other reggeons used in 
+our paper are Delta_R=-0.5, Delta_P=0.06
+
+The numbers are in the attached text file DeWolf.dat. 
+Every line in this file is
+   sqrt{s}   s1   s2   s3   s4   s5   s6   s7   s8   s9 
+  s10
+where s is measured in Gev2 and s1..s10 are integrated 
+cross sections (in millibarns):
+   s1:  -0.5 < eta < 0.5
+   s2:   -1  < eta < 1
+   s3:  -1.5 < eta < 1.5
+   s4:   -2  < eta < 2
+   s5:  -2.4 < eta < 2.4
+   s6:     0 < eta < 0.5
+   s7:   0.5 < eta < 1
+   s8:    1  < eta < 1.5
+   s9:  1.5  < eta < 2
+  s10:    2  < eta < 2.4
+
+In figures.zip file there are corresponding corresponding 
+figures.
+
+Hope these results will be usefull.
+
+Best regards,
+Anatoly
