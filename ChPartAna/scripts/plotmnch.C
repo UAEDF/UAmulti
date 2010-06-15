@@ -37,6 +37,7 @@ void plotmnch(double acc = 5){
 
   gROOT->ProcessLine(".x cmsStyleRoot.C");
   
+  //TString globaldir = ("../plots/systv10_/");
   TString globaldir = ("/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/plots/systv10_binning1v2/");
 
   const int nenergy = 3;
@@ -228,14 +229,34 @@ void plotmnch(double acc = 5){
   
     //UA1->SetPoint(1,540,3.3);
     //UA1->SetPointError(1,0,0.2);
-    
+/*    
     UA5mean->SetPoint(1,200,2.5);
     UA5mean->SetPointError(1,0,0.09);
     UA5mean->SetPoint(2,546,3.01);
     UA5mean->SetPointError(2,0,0.03);
     UA5mean->SetPoint(3,900,3.61);
     UA5mean->SetPointError(3,0,0.13);
-    
+*/
+
+    // Same as dN/deta paper
+    UA5mean->SetPoint(1,53, 1.93 );
+    UA5mean->SetPointError(2,0,0.10);
+    UA5mean->SetPoint(2,200,2.5);
+    UA5mean->SetPointError(2,0,0.09);
+    UA5mean->SetPoint(3,546,3.01);
+    UA5mean->SetPointError(3,0,0.03);
+    UA5mean->SetPoint(4,900,3.61);
+    UA5mean->SetPointError(4,0,0.13);
+
+
+/*
+    UA5mean->SetPoint(2,200,2.48);
+    UA5mean->SetPointError(2,0,0.08);
+    UA5mean->SetPoint(3,546,3.05);
+    UA5mean->SetPointError(3,0,0.09);
+    UA5mean->SetPoint(4,900,3.48);
+    UA5mean->SetPointError(4,0,0.12);
+*/    
     
     ALICE->SetPoint(1,900,3.60);
     ALICE->SetPointError(1,0,0.11);
@@ -370,6 +391,7 @@ void plotmnch(double acc = 5){
   if ( acc == 9 ) {
     Levin->SetLineColor(kMagenta);
     Levin->SetLineWidth(2);
+    Levin->SetLineStyle(2);
     Levin->Draw("same l");
   }  
   // Fits 
@@ -378,10 +400,11 @@ void plotmnch(double acc = 5){
   //TF1* fua5mnch = new TF1("fua5mnch","[0] + [1] * x + [2] * x * x",5,15000);
   //TF1* f1 = new TF1("f1","[0] + [1] * log(x*x) + [2] * log(x*x) * log(x*x) + [3]*pow(log(x*x),3)",5,15000);
   //TF1* f1 = new TF1("f1","[0] + [1] * log(x*x)  + [2]*pow(log(x*x),3)",5,15000);
-  TF1* f1 = new TF1("f1","[0] + [1] * log(x*x) + [2] * log(x*x) * log(x*x) ",60,15000);
+  TF1* f1 = new TF1("f1","[0] + [1] * log(x*x) + [2] * log(x*x) * log(x*x) ",5,15000);
   f1->SetLineWidth(1);
   f1->SetLineColor(kBlack);
-  f1->SetLineStyle(1);
+  f1->SetLineStyle(3);
+  f1->SetParameters(2.5,-.5,0.05);
   nchmean_all->Fit("f1","R");
   cout << "Xavier :"<<endl;
   TVirtualFitter::Fitter(nchmean_all)->PrintResults(10,0.);
@@ -391,6 +414,7 @@ void plotmnch(double acc = 5){
    }
    cout << endl;
   }
+  f1->SetLineWidth(2);
   f1->Draw("same");
   
   TF1* f2 = new TF1("f2","[0] + [1] * pow(x*x,[2])",5,15000);
@@ -483,7 +507,11 @@ void plotmnch(double acc = 5){
   //if(UA5mean->GetN()) UA5mean->Draw("same p");
   
   TLegend* legfunc = new TLegend(0.35,0.20,0.90,0.30);
-  
+ 
+  legfunc->AddEntry(Likhoded,"Likhoded et al.","l");
+  if ( acc == 9 ) 
+    legfunc->AddEntry(Levin,"Levin et al.","l");
+ 
   ostringstream func("");
   func<<fixed<<setprecision(3)<<f1->GetParameter(0)<<" + "<<
         f1->GetParameter(1)<<" ln(s) + "<<
@@ -498,7 +526,7 @@ void plotmnch(double acc = 5){
 	f2->GetParameter(2)<<"}";
   cout<<func.str().c_str()<<endl;
   
-  legfunc->AddEntry(f2,func.str().c_str(),"l");
+//  legfunc->AddEntry(f2,func.str().c_str(),"l");
   
   
   func.str("");
@@ -507,7 +535,7 @@ void plotmnch(double acc = 5){
 	f3->GetParameter(2)<<" #sqrt{ln(s)}}";
   cout<<func.str().c_str()<<endl;
   
-  legfunc->AddEntry(f3,func.str().c_str(),"l");
+//  legfunc->AddEntry(f3,func.str().c_str(),"l");
   
   
   legfunc->SetFillColor(kWhite);
@@ -524,9 +552,9 @@ void plotmnch(double acc = 5){
   nchmean_all->Draw("ap");*/
   
   gPad->WaitPrimitive();
-/*  gPad->SaveAs(TString("nchmean")+basefig.str()+TString(".gif"),"");
+  gPad->SaveAs(TString("nchmean")+basefig.str()+TString(".gif"),"");
   gPad->SaveAs(TString("nchmean")+basefig.str()+TString(".eps"),"");
   gPad->SaveAs(TString("nchmean")+basefig.str()+TString(".root"),"");
   gSystem->Exec(TString("convert ")+TString("nchmean")+basefig.str()+TString(".eps ")+TString("nchmean")+basefig.str()+TString(".pdf"));
-*/  
+  
 }

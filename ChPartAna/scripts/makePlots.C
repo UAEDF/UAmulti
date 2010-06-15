@@ -102,8 +102,8 @@ void trackPlots()
   vqlplot = 0;
   vtxplot = 1;
   
-//  globalWait    = 0;
-//  globalSaveFig = 1;
+  globalWait    = 0;
+  globalSaveFig = 1;
 
 /*
   mltplot = 0;
@@ -142,6 +142,7 @@ gROOT->ProcessLine("makePlots(2,7.0 ,0.  )");
 
 return;
 
+
 /*
 gROOT->ProcessLine("makePlots(1,0.9 ,0.  )");
 gROOT->ProcessLine("makePlots(1,2.36,0.  )");
@@ -168,8 +169,8 @@ gROOT->ProcessLine("makePlots(3,7.0 ,0.  )");
 /*
 gROOT->ProcessLine("makePlots(2,0.9 ,0.  )");
 gROOT->ProcessLine("makePlots(2,2.36,0.  )");
-*/
 gROOT->ProcessLine("makePlots(2,7.0 ,0.  )");
+*/
 
 
 
@@ -288,14 +289,14 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
       dataSetColor.push_back(2);
       dataSetLegend.push_back("PYTHIA DW");
   
-/*
+
       // PYTHIA - P0
       dataSetId.push_back(12);
       dataSetIsMc.push_back(1);
       dataSetStyle.push_back(2);
       dataSetColor.push_back(3);
       dataSetLegend.push_back("PYTHIA P0");
-*/
+
   
       // PYTHIA - P0
       dataSetId.push_back(13);
@@ -352,19 +353,19 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
 
 
       // PYTHIA - D6T
-      dataSetId.push_back(30);
+      dataSetId.push_back(31);
       dataSetIsMc.push_back(1);
       dataSetStyle.push_back(1);
       dataSetColor.push_back(kBlack);
-      dataSetLegend.push_back("PYTHIA D6T");
+      dataSetLegend.push_back("PYTHIA ATLAS");
 
 
       // PYTHIA - ATLAS
-      dataSetId.push_back(31);
+      dataSetId.push_back(30);
       dataSetIsMc.push_back(1);
       dataSetStyle.push_back(2);
       dataSetColor.push_back(kBlack);
-      dataSetLegend.push_back("PYTHIA ATLAS");
+      dataSetLegend.push_back("PYTHIA D6T");
 
 
 
@@ -890,6 +891,9 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
     globalNorm     = 0;
     globalFileType = 1;
 
+    histoXMin = -0.5 ;
+    histoXMax = 90. ;
+
     XaxisTitle = "n";
     YaxisTitle = "#frac{1}{#sigma_{INEL}} #frac{d#sigma}{dn}";
 
@@ -936,7 +940,9 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
    
     LegendTitle  =  "L1 bit[34] + HF ";
 
- 
+    int iMC = 10;
+    if ( globalEnergy == 7 ) iMC = 31; 
+
     // Plot settings
     globalNorm     = 0;    
     globalFileType = 4;
@@ -951,33 +957,49 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
     dataSetColor.push_back(2);
     dataSetLegend.push_back("Zero Bias Data");
     dataSetHisto.push_back("effL1HF"); 
+    dataSetFactor.push_back(1);
 
-    dataSetId.push_back(10);
+    dataSetId.push_back(iMC);
     dataSetIsMc.push_back(1);
     dataSetStyle.push_back(0);
     dataSetColor.push_back(kBlack);
     dataSetLegend.push_back("MC");
     dataSetHisto.push_back("effL1HF"); 
+    dataSetFactor.push_back(1);
 
-    dataSetId.push_back(10);
+    dataSetId.push_back(iMC);
     dataSetIsMc.push_back(1);
     dataSetStyle.push_back(0);
     dataSetColor.push_back(kGreen);
     dataSetLegend.push_back("MC Up");
     dataSetHisto.push_back("effL1HFup"); 
+    dataSetFactor.push_back(1);
 
-    dataSetId.push_back(10);
+    dataSetId.push_back(iMC);
     dataSetIsMc.push_back(1);
     dataSetStyle.push_back(0);
     dataSetColor.push_back(kBlue);
     dataSetLegend.push_back("MC Down");
     dataSetHisto.push_back("effL1HFdo"); 
+    dataSetFactor.push_back(1.0);
 
 
 
     dir   = "zbeff" ;  
 
+     globalHistoRatio=-1;
+
     plot(dir,"AUTO",0,1);
+
+    globalFigBaseName = "ZeroBias_L1HF_Eff_ratio";
+    YaxisTitle = "Data Eff. / MC Eff.";
+    globalHistoRatio=1;
+    histoYMax = 1.5;
+    histoYMin = 0.5;
+    plot(dir,"AUTO",0,0);
+
+    
+     globalHistoRatio=-1;
 
   }
 
@@ -1549,9 +1571,9 @@ SetId.push_back(10);
   //-------- Mch Unfold --------
   if( nchplot ){
 
-    globalDirPlot = "../plots/systv2/";
-    globalDirPlot = "/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/plots/finalv9/";
-    globalDirPlot = "/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/plots/";
+    globalDirPlot = "../plots/systv10/";
+    //globalDirPlot = "/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/plots/finalv9/";
+    //globalDirPlot = "/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/plots/";
 //    globalDirPlot = "/user/xjanssen/Romain/";
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "globalDirPlot= " << globalDirPlot << endl;

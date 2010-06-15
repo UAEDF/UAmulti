@@ -34,7 +34,14 @@ using namespace std;
  int           globalNorm    = 0 ;
 
  // Plot Ratio 
- int           globalHistoRatio = -1;
+ int           globalRatioType =  0;
+ int           globalRatioBase = -1;
+ int           globalRatioSyst = -1;
+
+ // Bin Killer
+
+ vector<int>   BinKillStat (1,-1);
+ vector<int>   BinKillSyst (1,-1);
 
  // histo limit 
  float           histoXMin = -99999.;   
@@ -106,7 +113,10 @@ void plotReset()
   globalNorm    = 0 ;
 
  // Ratio 
-// globalHistoRatio = -1;
+// globalRatioBase = -1;
+
+ BinKillStat.clear() ;
+ BinKillSyst.clear() ;
 
  // TLegend position +  Title 
  
