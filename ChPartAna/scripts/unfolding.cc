@@ -26,7 +26,7 @@ using namespace std;
 
 int iterStep=0;
 
-TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hypothesis, int niter = 5, int nsample = 0, bool smooth = true){
+TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hypothesis, int niter = 5, int nsample = 0, bool smooth = true , bool smoothInputDistr = false){
   //cout<<"starting the unfolding ..."<<endl;
   
   //The hypothesis distribution
@@ -37,7 +37,16 @@ TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hypothesis, int 
   //Definition of the matrices
   matrix4dObj matrix_normalized;
   checkMatrix(matrix,matrix_normalized);
-
+  
+  if(smoothInputDistr){
+    //toUnfold->Smooth(2);
+    toUnfold->GetXaxis()->SetRangeUser(0.5,toUnfold->GetXaxis()->GetXmax());
+    divideByWidth(toUnfold);
+    toUnfold->Smooth(5,"R");
+    multiplyByWidth(toUnfold);
+    toUnfold->GetXaxis()->SetRangeUser(-0.5,toUnfold->GetXaxis()->GetXmax());
+  }
+  
   //Load the correct hypothesis in hypothesis
   // ---> check the type !! for now, only "uniform" 
   //if(hyp==0)specifyHypothesis("gauss",hypothesis);
