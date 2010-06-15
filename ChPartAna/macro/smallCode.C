@@ -91,10 +91,12 @@ void smallCode(int type = 10 , double E = 0.9 , int iTracking = 1 , int nevt_max
 
   vector<TProfile*>   mptVSnchreco_reco(accMap.size(),0);
   vector<TProfile*>   mptVSnchreco_gen(accMap.size(),0);
+  vector<TProfile*>   mptVSnchgen_reco(accMap.size(),0);
   vector<TProfile*>   mptVSnchgen_gen(accMap.size(),0);
 
   vector<TProfile*>   mpt2VSnchreco_reco(accMap.size(),0);
   vector<TProfile*>   mpt2VSnchreco_gen(accMap.size(),0);
+  vector<TProfile*>   mpt2VSnchgen_reco(accMap.size(),0);
   vector<TProfile*>   mpt2VSnchgen_gen(accMap.size(),0);
 
   vector<TH1F*>       pt_gen(accMap.size(),0);
@@ -111,10 +113,12 @@ void smallCode(int type = 10 , double E = 0.9 , int iTracking = 1 , int nevt_max
 
     mptVSnchreco_reco.at(acc)  = new TProfile( st("mptVSnchreco_reco",acc) , st("mptVSnchreco_reco",acc) , binning.at(0).size()-1,&(binning.at(0).at(0)));
     mptVSnchreco_gen.at(acc)   = new TProfile( st("mptVSnchreco_gen",acc)  , st("mptVSnchreco_gen",acc)  , binning.at(0).size()-1,&(binning.at(0).at(0)));
+    mptVSnchgen_reco.at(acc)   = new TProfile( st("mptVSnchgen_reco",acc)  , st("mptVSnchgen_reco",acc)  , binning.at(0).size()-1,&(binning.at(0).at(0)));
     mptVSnchgen_gen.at(acc)    = new TProfile( st("mptVSnchgen_gen",acc)   , st("mptVSnchgen_gen",acc)   , binning.at(0).size()-1,&(binning.at(0).at(0)));
 
     mpt2VSnchreco_reco.at(acc)  = new TProfile( st("mpt2VSnchreco_reco",acc), st("mpt2VSnchreco_reco",acc) , binning.at(0).size()-1,&(binning.at(0).at(0)));
     mpt2VSnchreco_gen.at(acc)   = new TProfile( st("mpt2VSnchreco_gen",acc) , st("mpt2VSnchreco_gen",acc)  , binning.at(0).size()-1,&(binning.at(0).at(0)));
+    mpt2VSnchgen_reco.at(acc)    = new TProfile( st("mpt2VSnchgen_reco",acc)  , st("mpt2VSnchgen_reco",acc)   , binning.at(0).size()-1,&(binning.at(0).at(0)));
     mpt2VSnchgen_gen.at(acc)    = new TProfile( st("mpt2VSnchgen_gen",acc)  , st("mpt2VSnchgen_gen",acc)   , binning.at(0).size()-1,&(binning.at(0).at(0)));
 
     pt_gen.at(acc)             = new TH1F(     st("pt_gen",acc)            , st("pt_gen",acc)            , 200,0,4); 
@@ -257,6 +261,8 @@ void smallCode(int type = 10 , double E = 0.9 , int iTracking = 1 , int nevt_max
       mptVSnchreco_gen.at(acc)->Fill(n,mpt_gen);
       mpt2VSnchreco_gen.at(acc)->Fill(n,mpt2_gen);
 
+      mptVSnchgen_reco.at(acc)->Fill(n_gen,mpt_reco);
+      mpt2VSnchgen_reco.at(acc)->Fill(n_gen,mpt2_reco);
     } 
       
     //mptrecoVSgen->Fill(mpt_gen,mpt_reco);
@@ -281,17 +287,25 @@ void smallCode(int type = 10 , double E = 0.9 , int iTracking = 1 , int nevt_max
     
     mptVSnchreco_reco.at(acc)->Write();
     mptVSnchreco_gen.at(acc)->Write();
+    mptVSnchgen_reco.at(acc)->Write();
     mptVSnchgen_gen.at(acc)->Write();
 
     mpt2VSnchreco_reco.at(acc)->Write();
     mpt2VSnchreco_gen.at(acc)->Write();
+    mpt2VSnchgen_reco.at(acc)->Write();
     mpt2VSnchgen_gen.at(acc)->Write();
     
     mptVSnchreco_gen.at(acc)->Divide(mptVSnchreco_gen.at(acc),mptVSnchreco_reco.at(acc),1.,1.,"B");
-    mptVSnchreco_gen.at(acc)->Write(st("eff_mtp_genOreco",acc));
+    mptVSnchreco_gen.at(acc)->Write(st("eff_mtpVSnchreco_genOreco",acc));
 
+    mptVSnchgen_gen.at(acc)->Divide(mptVSnchgen_gen.at(acc),mptVSnchgen_reco.at(acc),1.,1.,"B");
+    mptVSnchgen_gen.at(acc)->Write(st("eff_mtpVSnchgen_genOreco",acc));
+    
     mpt2VSnchreco_gen.at(acc)->Divide(mpt2VSnchreco_gen.at(acc),mpt2VSnchreco_reco.at(acc),1.,1.,"B");
-    mpt2VSnchreco_gen.at(acc)->Write(st("eff_mtp2_genOreco",acc));
+    mpt2VSnchreco_gen.at(acc)->Write(st("eff_mtp2VSnchreco_genOreco",acc));
+    
+    mpt2VSnchgen_gen.at(acc)->Divide(mpt2VSnchgen_gen.at(acc),mpt2VSnchgen_reco.at(acc),1.,1.,"B");
+    mpt2VSnchgen_gen.at(acc)->Write(st("eff_mtp2VSnchgen_genOreco",acc));
 
     pt_gen.at(acc)->Write();
     pt_reco.at(acc)->Write();
