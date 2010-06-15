@@ -44,7 +44,8 @@ TH1F resample(double matrix[][matrixsize], TH1F* nch_INC , TH1F* toUnfold , TH1F
   
   vector<TMean> pull_INC_bU(nch_INC->GetNbinsX(),TMean());
   vector<TMean> pull_NSD_bU(nch_INC->GetNbinsX(),TMean());
-  vector<TMean> pull_aU(nch_INC->GetNbinsX(),TMean());  
+  vector<TMean> pull_aU(nch_INC->GetNbinsX(),TMean()); 
+  vector< vector<TMean> > mtxpull_aU(nch_INC->GetNbinsX(),vector<TMean>(nch_INC->GetNbinsX(),TMean()));
   
   TH1F* out = (TH1F*) nch_INC->Clone("nch_resampled");
   TH1F* nch_beforeUnfolding_resampled = (TH1F*) nch_INC->Clone("nch_beforeUnfolding_resampled");
@@ -96,6 +97,10 @@ TH1F resample(double matrix[][matrixsize], TH1F* nch_INC , TH1F* toUnfold , TH1F
       nch_resampled_profile->Fill(nch_resampled_profile->GetBinCenter(k) , sample[i].GetBinContent(k));
       pull_aU.at(k-1).Add(sample[i].GetBinContent(k));
       
+      for(int l=1;l<=toUnfold->GetNbinsX();++l){
+        mtxpull_aU.at(k-1).at(l-1).Add(sample[i].GetBinContent(k) * sample[i].GetBinContent(l) );
+      }
+      
       //bins[k-1].SetLineColor(kBlue);
       //bins[k-1].Draw("same");
     }  
@@ -117,39 +122,39 @@ TH1F resample(double matrix[][matrixsize], TH1F* nch_INC , TH1F* toUnfold , TH1F
 
   //TCanvas* c_kno = new TCanvas("c_kno","c_kno",200,510,500,500);
   TH1F* allpull = new TH1F("allpull","allpull",50,-5,5);
+  
+  TH2F* hmtxpull_aU = new TH2F("hmtxpull_aU","hmtxpull_aU;n_{i};n_{j};<P_{i}P_{j}>",toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray(),toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray());
+  TH2F* covmtx      = new TH2F("covmtx"     ,"covmtx;n_{i};n_{j};#sigma^{2}"       ,toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray(),toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray());
+  TH2F* cormtx      = new TH2F("cormtx"     ,"cormtx;n_{i};n_{j};#rho"             ,toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray(),toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray());
+  
   for(int k=1;k<=toUnfold->GetNbinsX();++k){
     
-    double mean = 0 , rms = 0;
+    double mean_aU = 0 , rms_aU = 0;
+    double mean_bU = 0 , rms_bU = 0;
     
     if(doFit){
       bins[k-1].Fit("Gauss","Q");
-      mean = Gauss->GetParameter(1);
-      rms  = Gauss->GetParameter(2);
-      out->SetBinContent(k,mean);
-      out->SetBinError(k,rms);
+      mean_aU = Gauss->GetParameter(1);
+      rms_aU  = Gauss->GetParameter(2);
       
       bins_beforeU[k-1].Fit("Gauss","Q");
-      nch_beforeUnfolding_resampled->SetBinContent(k,Gauss->GetParameter(1));
-      nch_beforeUnfolding_resampled->SetBinError(k,Gauss->GetParameter(2));
+      mean_bU = Gauss->GetParameter(1);
+      rms_bU  = Gauss->GetParameter(2);
     }
     else {
-      //mean = bins[k-1].GetMean();
-      //rms  = bins[k-1].GetRMS();
-      mean = pull_aU[k-1].GetMean();
-      rms  = pull_aU[k-1].GetRMS();
+      //mean_aU = bins[k-1].GetMean();
+      //rms_aU  = bins[k-1].GetRMS();
+      mean_aU = pull_aU[k-1].GetMean();
+      rms_aU  = pull_aU[k-1].GetRMS();
       
-      out->SetBinContent(k,mean);
-      out->SetBinError(k,rms);
-      
-      nch_beforeUnfolding_resampled->SetBinContent(k,bins_beforeU[k-1].GetMean());
-      /*if(k<10)
-        nch_beforeUnfolding_resampled->SetBinError(k,sqrt(bins_beforeU[k-1].GetMean()));
-      else*/
-        //nch_beforeUnfolding_resampled->SetBinError(k,bins_beforeU[k-1].GetRMS());
-        nch_beforeUnfolding_resampled->SetBinError(k,getRMS(&bins_beforeU[k-1]));
-	
-       //cout<<k<<"  "<<getRMS(&bins[k-1])<<"  "<<bins[k-1].GetRMS()<<endl;       
+      mean_bU = pull_INC_bU[k-1].GetMean();
+      rms_bU  = pull_INC_bU[k-1].GetRMS(); 
     }
+    
+    out->SetBinContent(k,mean_aU);
+    out->SetBinError(k,rms_aU);
+    nch_beforeUnfolding_resampled->SetBinContent(k,mean_bU);
+    nch_beforeUnfolding_resampled->SetBinError(k,rms_bU);
     
     //making the pull distri
     //ostringstream pullname("");
@@ -168,6 +173,29 @@ TH1F resample(double matrix[][matrixsize], TH1F* nch_INC , TH1F* toUnfold , TH1F
       gPad->Update();
       gPad->WaitPrimitive();   
     }*/
+    
+    
+    //--------------------------------------------------------------------------------------------------
+    //----------------------------------   making the covariance mtx   ---------------------------------
+    //--------------------------------------------------------------------------------------------------
+    
+    for(int l=1;l<=toUnfold->GetNbinsX();++l){
+      hmtxpull_aU->SetBinContent(k , l , mtxpull_aU.at(k-1).at(l-1).GetMean() );
+      hmtxpull_aU->SetBinError(k , l , mtxpull_aU.at(k-1).at(l-1).GetRMS() );
+      
+      covmtx->SetBinContent(k , l , (mtxpull_aU.at(k-1).at(l-1).GetMean() - pull_aU[k-1].GetMean() * pull_aU[l-1].GetMean() ) );
+      covmtx->SetBinError  (k , l ,  0 );
+      
+      if( pull_aU[k-1].GetRMS() * pull_aU[l-1].GetRMS() != 0 )
+        cormtx->SetBinContent(k , l , (mtxpull_aU.at(k-1).at(l-1).GetMean() - pull_aU[k-1].GetMean() * pull_aU[l-1].GetMean()) / (pull_aU[k-1].GetRMS() * pull_aU[l-1].GetRMS()) );
+      cormtx->SetBinError  (k , l ,  0 );
+    
+    }
+    
+    
+    
+    
+    
   }
   
   //allpull->Fit("Gauss","Q");
@@ -264,6 +292,10 @@ TH1F resample(double matrix[][matrixsize], TH1F* nch_INC , TH1F* toUnfold , TH1F
   nch_beforeUnfolding_resampled->Write();
   nch_resampled_profile->Write();
   error_diff_data_aU_rms_poiss->Write();
+  hmtxpull_aU->Write();
+  covmtx->Write();
+  out->Write();
+  cormtx->Write();
   //out->Draw();
   //gPad->WaitPrimitive();
   cout<<"hist "<< out->GetBinError(31) << endl;
@@ -308,6 +340,9 @@ TH1F mtxresample(double matrix[][matrixsize] , TH1F* toUnfold , TH1F* hyp, int n
   nch_resampled_profile->SetErrorOption("s");
   //nch_resampled_profile->Sumw2();
   
+  vector<TMean> pull_aU(toUnfold->GetNbinsX(),TMean()); 
+  vector< vector<TMean> > mtxpull_aU(toUnfold->GetNbinsX(),vector<TMean>(toUnfold->GetNbinsX(),TMean()));
+  
   TF1*Gauss = new TF1("Gauss","gaus");
 
   //TCanvas* c_kno = new TCanvas("c_kno2","c_kno2",200,510,500,500);
@@ -335,6 +370,13 @@ TH1F mtxresample(double matrix[][matrixsize] , TH1F* toUnfold , TH1F* hyp, int n
       nch_resampled_profile->Fill(double(k)-1.,sample[i].GetBinContent(k));
       //bins[k-1].SetLineColor(kBlue);
       //bins[k-1].Draw("same");
+      
+      pull_aU.at(k-1).Add(sample[i].GetBinContent(k));
+      
+      for(int l=1;l<=toUnfold->GetNbinsX();++l){
+        mtxpull_aU.at(k-1).at(l-1).Add(sample[i].GetBinContent(k) * sample[i].GetBinContent(l) );
+      }
+      
     }  
       
     sample[i].Divide(&(sample[i]),eff_evtSel,1,1);
@@ -346,16 +388,46 @@ TH1F mtxresample(double matrix[][matrixsize] , TH1F* toUnfold , TH1F* hyp, int n
   
   moment->FinishCurrentResampling();
 
+  
+  TH2F* hmtxpull_aU = new TH2F("hmtxpull_aU","hmtxpull_aU;n_{i};n_{j};<P_{i}P_{j}>",toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray(),toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray());
+  TH2F* covmtx      = new TH2F("covmtx"     ,"covmtx;n_{i};n_{j};#sigma^{2}"       ,toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray(),toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray());
+  TH2F* cormtx      = new TH2F("cormtx"     ,"cormtx;n_{i};n_{j};#rho"             ,toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray(),toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray());
+  
   //TCanvas* c_kno = new TCanvas("c_kno","c_kno",200,510,500,500);
   for(int k=1;k<=toUnfold->GetNbinsX();++k){
+    
+    double mean_aU = 0 , rms_aU = 0;
+    
     if(doFit){
       bins[k-1].Fit("Gauss","Q");
-      out->SetBinContent(k,Gauss->GetParameter(1));
-      out->SetBinError(k,Gauss->GetParameter(2));
+      mean_aU = Gauss->GetParameter(1);
+      rms_aU  = Gauss->GetParameter(2);
     }
     else {
-      out->SetBinContent(k,bins[k-1].GetMean());
-      out->SetBinError(k,bins[k-1].GetRMS());
+      //mean_aU = bins[k-1].GetMean();
+      //rms_aU  = bins[k-1].GetRMS();
+      mean_aU = pull_aU[k-1].GetMean();
+      rms_aU  = pull_aU[k-1].GetRMS();
+    }
+    
+    out->SetBinContent(k,mean_aU);
+    out->SetBinError(k,rms_aU);
+    
+    //--------------------------------------------------------------------------------------------------
+    //----------------------------------   making the covariance mtx   ---------------------------------
+    //--------------------------------------------------------------------------------------------------
+    
+    for(int l=1;l<=toUnfold->GetNbinsX();++l){
+      hmtxpull_aU->SetBinContent(k , l , mtxpull_aU.at(k-1).at(l-1).GetMean() );
+      hmtxpull_aU->SetBinError(k , l , mtxpull_aU.at(k-1).at(l-1).GetRMS() );
+      
+      covmtx->SetBinContent(k , l , mtxpull_aU.at(k-1).at(l-1).GetMean() - pull_aU[k-1].GetMean() * pull_aU[l-1].GetMean() );
+      covmtx->SetBinError  (k , l ,  0 );
+      if(pull_aU[k-1].GetRMS() * pull_aU[l-1].GetRMS() != 0)
+        cormtx->SetBinContent(k , l , (mtxpull_aU.at(k-1).at(l-1).GetMean() - pull_aU[k-1].GetMean() * pull_aU[l-1].GetMean()) / (pull_aU[k-1].GetRMS() * pull_aU[l-1].GetRMS()) );
+      cormtx->SetBinError  (k , l ,  0 );
+      //covmtx->SetBinError  (k , l ,  mtxpull_aU.at(k-1).at(l-1).GetRMS()  - pull_aU[k-1].GetRMS()  * pull_aU[l-1].GetRMS() );
+    
     }
   }
   
@@ -378,6 +450,10 @@ TH1F mtxresample(double matrix[][matrixsize] , TH1F* toUnfold , TH1F* hyp, int n
   
   error_diff_data_bU_aU->Write();
   nch_resampled_profile->Write();
+  hmtxpull_aU->Write();
+  covmtx->Write();
+  out->Write();
+  cormtx->Write();
   //out->Draw();
   //gPad->WaitPrimitive();
   
