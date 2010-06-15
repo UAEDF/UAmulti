@@ -56,7 +56,7 @@ void plotSystematics(int syst , double E = 0.9 , int icut = 5 , int iMC = -1, in
   if(energy==7.0 && iMC==-1) typeMC = 31;
   else if(iMC==-1) typeMC = 10;
   
-  plotdir = "../plots/";
+  plotdir = "../plots/systv10_undecies3/";
   ostringstream outstr("");
   outstr << "hyp" << 1 << "_niter" << 0 << "_cut" << cut << "_DataType" << iDataType;
   
@@ -432,7 +432,7 @@ void plotSystematics(TString tdata, TString tsyst1, TString tsyst2, TString plot
   
   
   gPad->WaitPrimitive();
-  return;
+  //return;
   //writing the files in gif
   logY=0;
   ostringstream figname("");
@@ -557,9 +557,9 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , int typePlotting = 0 , 
   
   //TH1F* hdata_poierr = (TH1F*) fdata->Get("unfolding/nch_resampled");
   TH1F* hdata_mtxerr = NULL;
-  if(typePlotting==0) hdata_mtxerr = (TH1F*) fdata->Get("unfolding/nch_histresampled;1");
+  if(typePlotting==1)  hdata_mtxerr = (TH1F*) fdata->Get("unfolding/nch_histresampled;1");
   //else               hdata_mtxerr = (TH1F*) fdata->Get("unfolding/nch_resampled;2");
-  else               hdata_mtxerr = (TH1F*) fdata->Get("unfolding/nch_mtxresampledPtr");
+  if(typePlotting==2)  hdata_mtxerr = (TH1F*) fdata->Get("unfolding/nch_mtxresampledPtr");
   TH1F* eff_evtSel = (TH1F*) fdata->Get("unfolding/eff_evtSel");
   hdata_mtxerr->Divide(eff_evtSel);
   //hdata_mtxerr->Scale(1./hdata_mtxerr->Integral());
@@ -659,6 +659,7 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , int typePlotting = 0 , 
   Double_t* eyh = new Double_t[hdata->GetNbinsX()];
   
   Double_t* ry   = new Double_t[hdata->GetNbinsX()];
+  Double_t* ry2  = new Double_t[hdata->GetNbinsX()];
   Double_t* reyl = new Double_t[hdata->GetNbinsX()];
   Double_t* reyh = new Double_t[hdata->GetNbinsX()];
   Double_t* seyl = new Double_t[hdata->GetNbinsX()];
@@ -668,6 +669,8 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , int typePlotting = 0 , 
   Double_t* mtxeyl = new Double_t[hdata->GetNbinsX()];
   Double_t* mtxeyh = new Double_t[hdata->GetNbinsX()];
   
+  Double_t* exhOpoiss = new Double_t[hdata->GetNbinsX()];
+  Double_t* exlOpoiss = new Double_t[hdata->GetNbinsX()];
   
   double maxr = 0. , minr = 0.;
 
@@ -736,6 +739,7 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , int typePlotting = 0 , 
     
      //doing the ratio arrays
     ry[i-1] = 0;
+    ry2[i-1] = 1;
     reyl[i-1] = reyh[i-1] = 0;
     seyl[i-1] = seyh[i-1] = 0;
     poisseyl[i-1] = poisseyh[i-1] = 0;
@@ -746,10 +750,14 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , int typePlotting = 0 , 
       seyl[i-1] = hdata->GetBinError(i)/hdata->GetBinContent(i);
       seyh[i-1] = hdata->GetBinError(i)/hdata->GetBinContent(i);
       
-      poisseyl[i-1] = sqrt(hdata->GetBinContent(i))/hdata->GetBinContent(i);
-      poisseyh[i-1] = sqrt(hdata->GetBinContent(i))/hdata->GetBinContent(i);
+      poisseyl[i-1] = sqrt(hdata->GetBinContent(i))/(hdata->GetBinContent(i)*sqrt(hdata->GetBinWidth(i)));//same as *binwidth for sqrt(N) then re-/ by binwidth
+      poisseyh[i-1] = sqrt(hdata->GetBinContent(i))/(hdata->GetBinContent(i)*sqrt(hdata->GetBinWidth(i)));
       mtxeyl[i-1] = hdata_mtxerr->GetBinError(i)/hdata->GetBinContent(i);
       mtxeyh[i-1] = hdata_mtxerr->GetBinError(i)/hdata->GetBinContent(i);
+      
+      exlOpoiss[i-1] = hdata_mtxerr->GetBinError(i) * sqrt(hdata->GetBinWidth(i)) / sqrt(hdata->GetBinContent(i));
+      exhOpoiss[i-1] = hdata_mtxerr->GetBinError(i) * sqrt(hdata->GetBinWidth(i)) / sqrt(hdata->GetBinContent(i));
+      
       cout<<i<<"  "<<hdata_mtxerr->GetBinError(i)<<endl;
       if(0.-reyl[i-1]<minr) minr = 0.-reyl[i-1];
       if(0.+reyh[i-1]>maxr) maxr = reyh[i-1];
@@ -816,6 +824,12 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , int typePlotting = 0 , 
   hdata->SetLineColor(kRed);
   hdata->SetMarkerColor(kRed);
   hdata->Draw("psame");*/
+  TCanvas* c_systOpoiss = new TCanvas("c_systOpoiss","c_systOpoiss",1000,500);
+  c_systOpoiss->cd();
+  
+  TGraphAsymmErrors* systOpoiss = new TGraphAsymmErrors(hdata->GetNbinsX(),x,ry,exl,exh,exlOpoiss,exhOpoiss);
+  systOpoiss->Draw("a2");
+  
   TCanvas* c_rsyst = new TCanvas("c_rsyst","c_rsyst",1000,500);
   c_rsyst->cd();
 
@@ -823,7 +837,7 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , int typePlotting = 0 , 
   TGraphAsymmErrors* ssyst = new TGraphAsymmErrors(hdata->GetNbinsX(),x,ry,exl,exh,seyl,seyh);
   TGraphAsymmErrors* psyst = new TGraphAsymmErrors(hdata->GetNbinsX(),x,ry,ry,ry,poisseyl,poisseyh);
   TGraphAsymmErrors* msyst = new TGraphAsymmErrors(hdata->GetNbinsX(),x,ry,exl,exh,mtxeyl,mtxeyh);
-
+  
   TH1F* one = new TH1F("one","one",306,-5.5,300.5);
   for(int b = 1 ; b <= one->GetNbinsX() ; ++b) one->SetBinContent(b,0.);
   one->SetLineColor(kRed);
