@@ -40,7 +40,9 @@ void plotcorrectionsteps(double E = 0.9 , int cut = 5 , int typeCorr = 2 , int i
   globalCanvasSizeX = npx; 
   globalCanvasSizeY = npy;
   
-  globalLegendTextSize = 16;
+  globalLegendTextSize = 20;
+  yLegendWidth = 0.05;
+  xLegendWidth = .1 ;
  
   xGlobalLabel = 0.45 ;
   if(E==0.9)  globalLabel =  "CMS Preliminary 0.9 TeV";
@@ -90,7 +92,7 @@ void plotcorrectionsteps(double E = 0.9 , int cut = 5 , int typeCorr = 2 , int i
   if(typeCorr==1){
     
     
-    globalLegendTextSize = 13;
+//    globalLegendTextSize = 13;
   
     XaxisTitle = "n";
     YaxisTitle = "p_{T}";
@@ -126,7 +128,7 @@ void plotcorrectionsteps(double E = 0.9 , int cut = 5 , int typeCorr = 2 , int i
     dataSetFile.push_back(fileManager(5,iMC,E,1,0,0,strout.str(),plotdir));
     dataSetIsMc.push_back(1);
     dataSetHType.push_back(1);
-    dataSetStyle.push_back(2);
+    dataSetStyle.push_back(1);
     dataSetColor.push_back(kBlue);
     dataSetLegend.push_back("MC Raw");
     dataSetHisto.push_back(TString("mptVSnch_noCorr")+tcut);
@@ -136,7 +138,7 @@ void plotcorrectionsteps(double E = 0.9 , int cut = 5 , int typeCorr = 2 , int i
     dataSetFile.push_back(fileManager(5,iMC,E,1,0,0,strout.str(),plotdir));
     dataSetIsMc.push_back(1);
     dataSetHType.push_back(1);
-    dataSetStyle.push_back(4);
+    dataSetStyle.push_back(1);
     dataSetColor.push_back(kRed);
     dataSetLegend.push_back("+ nch Corr");
     dataSetHisto.push_back(TString("mptVSnch_nchCorr")+tcut);
@@ -147,8 +149,8 @@ void plotcorrectionsteps(double E = 0.9 , int cut = 5 , int typeCorr = 2 , int i
     dataSetFile.push_back(fileManager(5,iMC,E,1,0,0,strout.str(),plotdir));
     dataSetIsMc.push_back(1);
     dataSetHType.push_back(1);
-    dataSetStyle.push_back(3);
-    dataSetColor.push_back(kGreen);
+    dataSetStyle.push_back(2);
+    dataSetColor.push_back(kMagenta);
     dataSetLegend.push_back("+ <p_{T}>^{gen} / <p_{T}>^{reco} Corr");
     dataSetHisto.push_back(TString("mptVSnch_nch_mptCorr")+tcut);
     
@@ -209,7 +211,7 @@ void plotcorrectionsteps(double E = 0.9 , int cut = 5 , int typeCorr = 2 , int i
     dataSetFile.push_back(fileManager(3,iMC,E,1,0,0,outstr.str(),plotdir));
     dataSetIsMc.push_back(1);
     dataSetHType.push_back(1);
-    dataSetStyle.push_back(2);
+    dataSetStyle.push_back(1);
     dataSetColor.push_back(kBlue);
     dataSetLegend.push_back("Data Raw");
     dataSetHisto.push_back("unfolding/nch_data_INC_beforeSDsub");
@@ -219,7 +221,7 @@ void plotcorrectionsteps(double E = 0.9 , int cut = 5 , int typeCorr = 2 , int i
     dataSetFile.push_back(fileManager(3,iMC,E,1,0,0,outstr.str(),plotdir));
     dataSetIsMc.push_back(1);
     dataSetHType.push_back(1);
-    dataSetStyle.push_back(2);
+    dataSetStyle.push_back(1);
     dataSetColor.push_back(kRed);
     dataSetLegend.push_back("Data - MC SD");
     dataSetHisto.push_back("unfolding/nch_data_NSD_afterSDsub");
@@ -230,8 +232,8 @@ void plotcorrectionsteps(double E = 0.9 , int cut = 5 , int typeCorr = 2 , int i
     dataSetFile.push_back(fileManager(3,iMC,E,1,0,0,outstr.str(),plotdir));
     dataSetIsMc.push_back(1);
     dataSetHType.push_back(1);
-    dataSetStyle.push_back(3);
-    dataSetColor.push_back(kGreen);
+    dataSetStyle.push_back(1);
+    dataSetColor.push_back(kMagenta);
     dataSetLegend.push_back("Data Unfolded");
     dataSetHisto.push_back("unfolding/nch_unfoldedPtr");
     
@@ -247,8 +249,8 @@ void plotcorrectionsteps(double E = 0.9 , int cut = 5 , int typeCorr = 2 , int i
     dataSetHisto.push_back("unfolding/nch_data_corrected");
     
     
-    plot("none","AUTO",1,2);
-    //plot("none","AUTO",0,6);
+   // plot("none","AUTO",1,2);
+    plot("none","AUTO",0,6);
     
     
   }
