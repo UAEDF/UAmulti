@@ -56,7 +56,7 @@ void plotSystematics(int syst , double E = 0.9 , int icut = 5 , int iMC = -1, in
   if(energy==7.0 && iMC==-1) typeMC = 31;
   else if(iMC==-1) typeMC = 10;
   
-  plotdir = "../plots/systv10_undecies3/";
+  plotdir = "../plots/systv10_niter100_2/";
   ostringstream outstr("");
   outstr << "hyp" << 1 << "_niter" << 0 << "_cut" << cut << "_DataType" << iDataType;
   
@@ -361,7 +361,9 @@ void plotSystematics(TString tdata, TString tsyst1, TString tsyst2, TString plot
   one->GetYaxis()->SetRangeUser(-1,1);
   cout<<minr<<"  "<<maxr<<endl;
   one->GetXaxis()->SetTitle("n");
-  one->GetYaxis()->SetTitle("\\sigma_{syst}");
+  one->GetYaxis()->SetTitle("#sigma(P_{n}) / P_{n}");
+  one->GetXaxis()->SetTitleSize(0.06);
+  one->GetYaxis()->SetTitleSize(0.06);
   one->Draw("hist");
   
   rsyst->SetFillColor(16);
@@ -378,9 +380,9 @@ void plotSystematics(TString tdata, TString tsyst1, TString tsyst2, TString plot
   
   
   
-  leg = new TLegend(0.20,0.2,0.40,0.40);
+  leg = new TLegend(0.20,0.15,0.40,0.45);
   leg->SetHeader(legheader.str().c_str());
-  
+  leg->SetTextSize(0.05);
   
   leg1 = "";
   leg2 = "";
@@ -557,7 +559,7 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , int typePlotting = 0 , 
   
   //TH1F* hdata_poierr = (TH1F*) fdata->Get("unfolding/nch_resampled");
   TH1F* hdata_mtxerr = NULL;
-  if(typePlotting==1)  hdata_mtxerr = (TH1F*) fdata->Get("unfolding/nch_histresampled;1");
+  if(typePlotting<2)  hdata_mtxerr = (TH1F*) fdata->Get("unfolding/nch_histresampled;1");
   //else               hdata_mtxerr = (TH1F*) fdata->Get("unfolding/nch_resampled;2");
   if(typePlotting==2)  hdata_mtxerr = (TH1F*) fdata->Get("unfolding/nch_mtxresampledPtr");
   TH1F* eff_evtSel = (TH1F*) fdata->Get("unfolding/eff_evtSel");
@@ -848,6 +850,8 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , int typePlotting = 0 , 
   cout<<minr<<"  "<<maxr<<endl;
   one->GetXaxis()->SetTitle("n");
   one->GetYaxis()->SetTitle("\\sigma(P_{n}) / P_{n}");
+  one->GetXaxis()->SetTitleSize(0.06);
+  one->GetYaxis()->SetTitleSize(0.06);
   one->Draw("hist");
 
   rsyst->SetFillColor(16);
@@ -868,8 +872,9 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , int typePlotting = 0 , 
   legheader<< "p_{T} > "<<accMap.at(cut).at(0)<<" GeV       |#eta| < "<<accMap.at(cut).at(1);
   
   
-  TLegend* leg = new TLegend(0.4,0.7,0.6,0.90);
+  TLegend* leg = new TLegend(0.4,0.65,0.6,0.92);
   leg->SetHeader(legheader.str().c_str());
+  leg->SetTextSize(0.05);
   
   if(typePlotting==0)  leg->AddEntry(ssyst,"Statistical errors","f");
   if(typePlotting==1)  leg->AddEntry(msyst,"Evt resampling","f");
