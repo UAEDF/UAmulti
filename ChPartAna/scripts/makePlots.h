@@ -53,13 +53,15 @@ using namespace std;
  TString         XaxisTitle = "NONE";
  TString         YaxisTitle = "NONE";
 
+ double          globalAxisTitleSize = 0.06;
+
  // TLegend position +  Title 
 
  int       globalLegendTextSize = 20;
  TString  LegendTitle ("NONE"); 
- float    xLegendMin[] = { 0.57 , 0.35 , 0.20 , 0.70 , 0.70 , 0.75 , 0.45 , 0.80 , 0.20};
+ float    xLegendMin[] = { 0.57 , 0.35 , 0.20 , 0.70 , 0.70 , 0.75 , 0.45 , 0.80 , 0.20 , 0.55};
  float    xLegendWidth = 0.35;
- float    yLegendMax[] = { 0.80 , 0.40 , 0.40 , 0.85 , 0.90 , 1.00 , 0.87 , 0.87 , 0.90};
+ float    yLegendMax[] = { 0.80 , 0.40 , 0.40 , 0.85 , 0.90 , 1.00 , 0.87 , 0.87 , 0.90 , 0.40};
  float    yLegendWidth = 0.03;
  TString  ExtLegTitle ("NONE");
 
