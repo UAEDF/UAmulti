@@ -41,6 +41,11 @@ void mptplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
   XaxisTitle = "n";
   YaxisTitle = "<p_{T}>";
   
+  globalLegendTextSize = 20;
+  yLegendWidth = 0.04;
+  xLegendWidth = .1 ;
+
+ 
   #include "../macro/acceptanceMap.C"
   ostringstream legheader("");
   legheader<< "  |#eta| < "<<accMap.at(iBin).at(1);
@@ -102,7 +107,7 @@ void mptplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetHType.push_back(1);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(kRed);
-    dataSetLegend.push_back("Pythia D6T");
+    dataSetLegend.push_back("PYTHIA D6T");
     dataSetHisto.push_back(mchisto.str());
   
     dataSetId.push_back(-1);
@@ -111,7 +116,7 @@ void mptplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetHType.push_back(1);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(kBlue);
-    dataSetLegend.push_back("Pythia DW");
+    dataSetLegend.push_back("PYTHIA DW");
     dataSetHisto.push_back(mchisto.str());
   
     dataSetId.push_back(-1);
@@ -120,7 +125,7 @@ void mptplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetHType.push_back(1);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(kOrange);
-    dataSetLegend.push_back("Pythia ProQ20");
+    dataSetLegend.push_back("PYTHIA ProQ20");
     dataSetHisto.push_back(mchisto.str());
   
     dataSetId.push_back(-1);
@@ -129,7 +134,7 @@ void mptplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetHType.push_back(1);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(kMagenta);
-    dataSetLegend.push_back("Phojet");
+    dataSetLegend.push_back("PHOJET");
     dataSetHisto.push_back(mchisto.str());
   
   
@@ -166,7 +171,7 @@ void mptplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetHType.push_back(1);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(kRed);
-    dataSetLegend.push_back("Pythia D6T");
+    dataSetLegend.push_back("PYTHIA D6T");
     dataSetHisto.push_back(mchisto.str());
   
     dataSetId.push_back(-1);
@@ -174,8 +179,8 @@ void mptplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetIsMc.push_back(1);
     dataSetHType.push_back(1);
     dataSetStyle.push_back(20);
-    dataSetColor.push_back(kBlue);
-    dataSetLegend.push_back("Pythia phojet");
+    dataSetColor.push_back(kMagenta);
+    dataSetLegend.push_back("PHOJET");
     dataSetHisto.push_back(mchisto.str());
 
     // Data Syst
@@ -212,7 +217,7 @@ void mptplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetHType.push_back(1);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(kRed);
-    dataSetLegend.push_back("Pythia D6T");
+    dataSetLegend.push_back("PYTHIA D6T");
     dataSetHisto.push_back(mchisto.str());
  /* 
     dataSetId.push_back(-1);
@@ -221,7 +226,7 @@ void mptplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetHType.push_back(1);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(kBlue);
-    dataSetLegend.push_back("Pythia atlas");
+    dataSetLegend.push_back("PYTHIA atlas");
     dataSetHisto.push_back(mchisto.str());
 */  
     dataSetId.push_back(-1);
@@ -230,7 +235,7 @@ void mptplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetHType.push_back(1);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(kMagenta);
-    dataSetLegend.push_back("Phojet");
+    dataSetLegend.push_back("PHOJET");
     dataSetHisto.push_back(mchisto.str());
   /*
     dataSetId.push_back(-1);
@@ -239,7 +244,7 @@ void mptplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetHType.push_back(1);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(kOrange);
-    dataSetLegend.push_back("Pythia X1");
+    dataSetLegend.push_back("PYTHIA X1");
     dataSetHisto.push_back(mchisto.str());
   
     dataSetId.push_back(-1);
@@ -248,7 +253,7 @@ void mptplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetHType.push_back(1);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(kGreen);
-    dataSetLegend.push_back("Pythia X2");
+    dataSetLegend.push_back("PYTHIA X2");
     dataSetHisto.push_back(mchisto.str());
  */
 
