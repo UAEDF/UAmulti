@@ -73,12 +73,16 @@ TGraphAsymmErrors h2g(TH1F*);
 
 //#include "makeFakeMatrix.C"
 
-void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 10 , double E = 0.9 ,
-                     int typeMC = 10 , int iTr = 1 , int syst = 0 , int syst_sign = 0 , double Emc = 0 ,
+void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 5 , double E = 0.9 ,
+                     int typeMC = 0 , int iTr = 1 , int syst = 0 , int syst_sign = 0 , double Emc = 0 ,
 		     TString filename = "" , int scaleWbin0 = true , bool drawcanv = true ,
 		     float mu = 14 , float sigma = 15 ){
 
-   
+  if(typeMC==0){
+    typeMC = 10;
+    if(E == 7.0)
+      typeMC = 31;
+  } 
    
   //gROOT->ProcessLine(".x ../macro/BuildLibDico.C+");
    
@@ -475,7 +479,7 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 10 , 
   gDirectory->mkdir("hist_resampling");
   gDirectory->cd("hist_resampling");
 
-  TH1F nch_resampled = resample(matrix,nch_INC,nch_NSD,nch_unfoldedPtr,hypothesis,niter,0,nch_evtSel_SD,moment,eff_evtSel,false);
+  TH1F nch_resampled = resample(matrix,nch_INC,nch_NSD,nch_unfoldedPtr,hypothesis,100,0,nch_evtSel_SD,moment,eff_evtSel,false);
   TH1F* nch_resampledPtr = &nch_resampled;
   
   gDirectory->cd("../");
@@ -494,7 +498,7 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 10 , 
   gDirectory->cd("mtx_resampling");
 
     
-  TH1F nch_mtxresampled = mtxresample(matrix,nch_toUnfold,hypothesis,niter,moment,eff_evtSel);
+  TH1F nch_mtxresampled = mtxresample(matrix,nch_toUnfold,hypothesis,100,moment,eff_evtSel);
   TH1F* nch_mtxresampledPtr = &nch_mtxresampled;
   
   gDirectory->cd("../");
