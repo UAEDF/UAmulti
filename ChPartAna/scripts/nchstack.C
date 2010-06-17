@@ -658,8 +658,9 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
 
   // if ( iBin == 15 ) LegendTitle = "p_{t} > 0.5 GeV/c";
 
-   yLegendWidth = 0.04;
+  yLegendWidth = 0.04;
   xLegendWidth = .1 ;
+  globalLegendTextSize = 30;
 
 
   // PLOT NOW
