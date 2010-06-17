@@ -253,11 +253,11 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
 
       } else {
         if ( ! ( tData.at(iData) == 4 || tData.at(iData) == 5 ) ) {
-          hData.at(iData)->SetLineWidth(2);
+          hData.at(iData)->SetLineWidth(3);
           hData.at(iData)->SetLineColor(dataSetColor.at(iData));
           hData.at(iData)->SetLineStyle(dataSetStyle.at(iData));
         } else {
-          gData.at(iData)->SetLineWidth(2);
+          gData.at(iData)->SetLineWidth(3);
           gData.at(iData)->SetLineColor(dataSetColor.at(iData));
           gData.at(iData)->SetLineStyle(dataSetStyle.at(iData));
         }
@@ -590,7 +590,9 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
   if ( ! ( tData.at(0) == 4 || tData.at(0) == 5 ) ) {
   //if ( rData.at(0) ) {
 
-    hData.at(0)->GetYaxis()->SetTitleOffset(1.5);
+    hData.at(0)->GetYaxis()->SetTitleOffset(1.1);
+    hData.at(0)->GetXaxis()->SetTitleSize(globalAxisTitleSize);
+    hData.at(0)->GetYaxis()->SetTitleSize(globalAxisTitleSize);
     if (globalRatioType>0) {
       if (XaxisTitle != "NONE" ) hDivData.at(0)->GetXaxis()->SetTitle(XaxisTitle);
       hData.at(0)->GetXaxis()->SetTitle("");
@@ -615,7 +617,9 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
   // Global Style (TGraph) 
   } else {
 
-    gData.at(0)->GetYaxis()->SetTitleOffset(1.5);
+    gData.at(0)->GetYaxis()->SetTitleOffset(1.1);
+    gData.at(0)->GetXaxis()->SetTitleSize(globalAxisTitleSize);
+    gData.at(0)->GetYaxis()->SetTitleSize(globalAxisTitleSize);
     if (globalRatioType>0) {
       if (XaxisTitle != "NONE" ) gDivData.at(0)->GetXaxis()->SetTitle(XaxisTitle);
       gData.at(0)->GetXaxis()->SetTitle("");
