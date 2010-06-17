@@ -28,7 +28,7 @@ double  globalEnergy = 0.9;
 #include "../macro/fileManager.C"
 #include "plot.C"
 
-void knoplot(int iBin = 5 , int iSaveFig = 0, float npx = 1000 , float npy = 1328){
+void knoplot(int iBin = 5 , int iSaveFig = 1, bool plot2360 = true , float npx = 700 , float npy = 500){
 
   gROOT->ProcessLine(".x cmsStyleRoot.C");
 
@@ -37,10 +37,13 @@ void knoplot(int iBin = 5 , int iSaveFig = 0, float npx = 1000 , float npy = 132
   globalCanvasSizeX = npx; 
   globalCanvasSizeY = npy;
   
-  globalLegendTextSize = 40;
+  globalLegendTextSize = 25;
  
   XaxisTitle = "z=n/<n>";
   YaxisTitle = "#Psi(z)";
+  
+  yLegendWidth = 0.06;
+  xLegendWidth = .1 ;
 
   xGlobalLabel = 0.6 ;
   globalLabel =  "CMS Preliminary";
@@ -53,6 +56,8 @@ void knoplot(int iBin = 5 , int iSaveFig = 0, float npx = 1000 , float npy = 132
   if ( iBin == 17 ) globalFigBaseName = "kno_eta15_pt500";
   if ( iBin == 19 ) globalFigBaseName = "kno_eta05_pt500";
 
+  if(!plot2360)
+    globalFigBaseName+="_no2360";
 
   globalNorm = 0; 
   if ( iBin ==  5 )  histoYMin  = 0.0003 ;
@@ -63,6 +68,7 @@ void knoplot(int iBin = 5 , int iSaveFig = 0, float npx = 1000 , float npy = 132
   if ( iBin == 19 )  histoYMin  = 0.00001 ;
 
   histoYMax  = 1.3 ;
+  if ( iBin ==  5 )  histoYMax  = 3 ;
   histoXMin  = -0.5 ;
 
   if (iBin ==  5 ) histoXMax  = 6 ;
@@ -88,7 +94,7 @@ void knoplot(int iBin = 5 , int iSaveFig = 0, float npx = 1000 , float npy = 132
 //  if ( globalEnergy == 7.0 ) iMc = 31 ;
 
     TString plotdir("");
-    plotdir = "../plots/systv10_undecies2/";
+    plotdir = "../plots/systv10_niter100_2/";
     //plotdir = "../plots/systv10_ter2/";
     //plotdir = "../plots/systv10_binning1v2/";
 
@@ -111,7 +117,6 @@ void knoplot(int iBin = 5 , int iSaveFig = 0, float npx = 1000 , float npy = 132
     //dataSetHisto.push_back("unfolding/nch_data_corrected");  
     dataSetHisto.push_back("unfolding/kno_corrected");  
 
-
     dataSetId.push_back(-1);
     dataSetFile.push_back(fileManager(3,10,0.9,1,0,0,outstr.str(),plotdir));
     dataSetIsMc.push_back(0);
@@ -121,26 +126,35 @@ void knoplot(int iBin = 5 , int iSaveFig = 0, float npx = 1000 , float npy = 132
     dataSetLegend.push_back("NONE");
     //dataSetHisto.push_back("unfolding/gnch_data_corrected_syst");
     dataSetHisto.push_back("unfolding/gkno_corrected_syst");
+    
+    BinKillStat.push_back( 0 );
+    BinKillSyst.push_back( 1 );
 
 
-    dataSetId.push_back(-1);
-    dataSetFile.push_back(fileManager(3,10,2.36,1,0,0,outstr.str(),plotdir));
-    dataSetIsMc.push_back(0);
-    dataSetHType.push_back(1);
-    dataSetStyle.push_back(kOpenSquare);
-    dataSetColor.push_back(kBlue);
-    dataSetLegend.push_back("CMS 2.36 TeV");
-    dataSetHisto.push_back("unfolding/kno_corrected");
+    if(plot2360==1){
+
+      dataSetId.push_back(-1);
+      dataSetFile.push_back(fileManager(3,10,2.36,1,0,0,outstr.str(),plotdir));
+      dataSetIsMc.push_back(0);
+      dataSetHType.push_back(1);
+      dataSetStyle.push_back(kOpenSquare);
+      dataSetColor.push_back(kBlue);
+      dataSetLegend.push_back("CMS 2.36 TeV");
+      dataSetHisto.push_back("unfolding/kno_corrected");
+
+      dataSetId.push_back(-1);
+      dataSetFile.push_back(fileManager(3,10,2.36,1,0,0,outstr.str(),plotdir));
+      dataSetIsMc.push_back(0);
+      dataSetHType.push_back(205);
+      dataSetStyle.push_back(kOpenSquare);
+      dataSetColor.push_back(kBlue);
+      dataSetLegend.push_back("NONE");
+      dataSetHisto.push_back("unfolding/gkno_corrected_syst");
+    }    
+    
+    
 
 
-    dataSetId.push_back(-1);
-    dataSetFile.push_back(fileManager(3,10,2.36,1,0,0,outstr.str(),plotdir));
-    dataSetIsMc.push_back(0);
-    dataSetHType.push_back(205);
-    dataSetStyle.push_back(kOpenSquare);
-    dataSetColor.push_back(kBlue);
-    dataSetLegend.push_back("NONE");
-    dataSetHisto.push_back("unfolding/gkno_corrected_syst");
 
     dataSetId.push_back(-1);
     dataSetFile.push_back(fileManager(3,31,7.0,1,0,0,outstr.str(),plotdir));
@@ -160,7 +174,14 @@ void knoplot(int iBin = 5 , int iSaveFig = 0, float npx = 1000 , float npy = 132
     dataSetColor.push_back(kRed);
     dataSetLegend.push_back("NONE");
     dataSetHisto.push_back("unfolding/gkno_corrected_syst");
-
+    
+    BinKillStat.push_back( 2 );
+    BinKillSyst.push_back( 3 );
+    
+    if(plot2360){
+      BinKillStat.push_back( 4 );
+      BinKillSyst.push_back( 5 );
+    }
    
   // ----- PLOT ----
 
