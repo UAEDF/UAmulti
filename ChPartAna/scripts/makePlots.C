@@ -82,6 +82,9 @@ bool nch2ene = 0;
 bool kno2ene = 0;
 bool momplot = 0;
 
+bool evtselsyst = 0;
+
+
 TString hMoment;
 
 // Unfolding options
@@ -987,19 +990,19 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
 
     dir   = "zbeff" ;  
 
-     globalHistoRatio=-1;
+     //globalHistoRatio=-1;
 
     plot(dir,"AUTO",0,1);
 
     globalFigBaseName = "ZeroBias_L1HF_Eff_ratio";
     YaxisTitle = "Data Eff. / MC Eff.";
-    globalHistoRatio=1;
+    //globalHistoRatio=1;
     histoYMax = 1.5;
     histoYMin = 0.5;
     plot(dir,"AUTO",0,0);
 
     
-     globalHistoRatio=-1;
+     //globalHistoRatio=-1;
 
   }
 
@@ -4060,6 +4063,81 @@ SetId.push_back(10);
 
   }
 
+//----------------------------------------- Evt Sel Syst --------------------------------------------
+
+  if ( evtselsyst) {   
+
+    plotReset();
+
+    TString plotdir = "../plots/";
+    
+    globalCanvasSizeX = 700;
+    globalCanvasSizeY = 500;
+
+    globalLegendTextSize = 25;
+    yLegendWidth = 0.06;
+    xLegendWidth = .1 ;
+
+    XaxisTitle = "n";
+    YaxisTitle = "P_{n}";
+    
+    histoXMin = -0.5;
+    histoXMax = 70.5;
+    histoYMin = 0.;
+    histoYMax = 11000;
+    
+    globalFigBaseName = "evtSelSyst_minnusHF_plusb40";
+  
+    xGlobalLabel = 0.6 ;
+    globalLabel =  "CMS 0.9 TeV";
+    globalSaveFig = 1;
+    
+    LegendTitle = "p_{T} > 0     | #eta | < 2.4";
+    
+    ostringstream outstr("");
+    outstr << "hyp" << 1 << "_niter" << 0 << "_cut" << 5 << "_DataType" << 0;
+    
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(3,10,0.9,1,0,0,outstr.str(),plotdir));
+    dataSetIsMc.push_back(0);
+    dataSetHType.push_back(1);
+    dataSetStyle.push_back(kOpenCircle);
+    dataSetColor.push_back(kBlack);
+    dataSetLegend.push_back("Data");
+    dataSetHisto.push_back("unfolding/nch_data_corrected");
+
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(3,10,0.9,1,200,-1,outstr.str(),plotdir));
+    dataSetIsMc.push_back(1);
+    dataSetHType.push_back(1);
+    dataSetStyle.push_back(kOpenCircle);
+    dataSetColor.push_back(kBlue);
+    dataSetLegend.push_back("Data syst -");
+    dataSetHisto.push_back("unfolding/nch_data_corrected");
+    
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(3,10,0.9,1,200,1,outstr.str(),plotdir));
+    dataSetIsMc.push_back(1);
+    dataSetHType.push_back(1);
+    dataSetStyle.push_back(kOpenCircle);
+    dataSetColor.push_back(kRed);
+    dataSetLegend.push_back("Data syst +");
+    dataSetHisto.push_back("unfolding/nch_data_corrected");
+    
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(3,10,0.9,1,201,-1,outstr.str(),plotdir));
+    dataSetIsMc.push_back(0);
+    dataSetHType.push_back(1);
+    dataSetStyle.push_back(kOpenCircle);
+    dataSetColor.push_back(kRed);
+    dataSetLegend.push_back("Data -HF + b40");
+    dataSetHisto.push_back("unfolding/nch_data_corrected");
+    
+    
+    plot(dir,"AUTO",0,3);
+
+
+  }
 
 }
 
