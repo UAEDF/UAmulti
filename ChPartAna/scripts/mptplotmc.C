@@ -86,7 +86,7 @@ void mptplotmc(double energy = 0.9, int iSaveFig = 1, float npx = 1000 , float n
     dataSetHType.push_back(1);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(kRed);
-    dataSetLegend.push_back("Pythia D6T");
+    dataSetLegend.push_back("PYTHIA D6T");
     dataSetHisto.push_back("mptVSnchgen_gen_cut5");
   
     // Data Syst
@@ -122,7 +122,7 @@ void mptplotmc(double energy = 0.9, int iSaveFig = 1, float npx = 1000 , float n
     dataSetHType.push_back(1);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(kRed);
-    dataSetLegend.push_back("Pythia D6T");
+    dataSetLegend.push_back("PYTHIA D6T");
     dataSetHisto.push_back("mptVSnchgen_gen_cut5");
 
     // Data Syst
@@ -159,7 +159,7 @@ void mptplotmc(double energy = 0.9, int iSaveFig = 1, float npx = 1000 , float n
     dataSetHType.push_back(1);
     dataSetStyle.push_back(20);
     dataSetColor.push_back(kBlue);
-    dataSetLegend.push_back("Pythia atlas");
+    dataSetLegend.push_back("PYTHIA atlas");
     dataSetHisto.push_back("mptVSnchgen_gen_cut5");
   
     // data Syst  
