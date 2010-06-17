@@ -38,7 +38,7 @@ void plotmnch(double acc = 5){
   gROOT->ProcessLine(".x cmsStyleRoot.C");
   
   //TString globaldir = ("../plots/systv10_/");
-  TString globaldir = ("/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/plots/systv10_binning1v2/");
+  TString globaldir = ("/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/plots/systv10_binning1v4_2/");
 
   const int nenergy = 3;
   
@@ -105,7 +105,8 @@ void plotmnch(double acc = 5){
   //---------------------------------------------------------------
   
   TString legheader = "";
-  
+  double minleg = 0.6; 
+ 
   TCanvas* c_mnch = new TCanvas("c_mnch","c_mnch",600,600);
   c_mnch->cd();
   
@@ -116,6 +117,7 @@ void plotmnch(double acc = 5){
   mnch->SetMarkerStyle(kFullCircle);
   mnch->SetMarkerSize(2);
   mnch->SetTitle(";#sqrt{s} [GeV];<n>");
+  mnch->GetXaxis()->SetTitleSize(0.07);
   
   // Old experiments
 
@@ -133,99 +135,101 @@ void plotmnch(double acc = 5){
  
   if(acc==0 || acc==5){
     ymin = 4.;
-    legheader = "   |#eta| < 2.5";
+    legheader = "   |#eta| < 2.4";
   
-    NA22->SetPoint(1,22.,7.2);
-    NA22->SetPointError(1,0,0.1);
+    NA22->SetPoint(0,22.,7.2);
+    NA22->SetPointError(0,0,0.1);
   
-    UA1->SetPoint(1,200,14.4);
-    UA1->SetPointError(1,0,0.4);
-    UA1->SetPoint(2,260,15.4);
-    UA1->SetPointError(2,0,0.5);
-    UA1->SetPoint(3,380,16.4);
+    UA1->SetPoint(0,200,14.4);
+    UA1->SetPointError(0,0,0.4);
+    UA1->SetPoint(1,260,15.4);
+    UA1->SetPointError(1,0,0.5);
+    UA1->SetPoint(2,380,16.4);
+    UA1->SetPointError(2,0,0.6);
+    UA1->SetPoint(3,500,17.);
     UA1->SetPointError(3,0,0.6);
-    UA1->SetPoint(4,500,17.);
+    UA1->SetPoint(4,620,17.7);
     UA1->SetPointError(4,0,0.6);
-    UA1->SetPoint(5,620,17.7);
-    UA1->SetPointError(5,0,0.6);
-    UA1->SetPoint(6,790,18.8);
-    UA1->SetPointError(6,0,0.8);
-    UA1->SetPoint(7,900,19.1);
-    UA1->SetPointError(7,0,0.6);
+    UA1->SetPoint(5,790,18.8);
+    UA1->SetPointError(5,0,0.8);
+    UA1->SetPoint(6,900,19.1);
+    UA1->SetPointError(6,0,0.6);
     
-    UA5mean->SetPoint(1,200.,13.2);
-    UA5mean->SetPointError(1,0,0.3);
-    UA5mean->SetPoint(2,546,15.9);
-    UA5mean->SetPointError(2,0,0.1);
-    UA5mean->SetPoint(3,900,18.8);
-    UA5mean->SetPointError(3,0,0.7);
+    UA5mean->SetPoint(0,200.,13.2);
+    UA5mean->SetPointError(0,0,0.3);
+    UA5mean->SetPoint(1,546,15.9);
+    UA5mean->SetPointError(1,0,0.1);
+    UA5mean->SetPoint(2,900,18.8);
+    UA5mean->SetPointError(2,0,0.7);
   }
   if(acc==2 || acc==7){
     ymin = 2.;
     legheader = "   |#eta| < 1.5";
-  
-    NA22->SetPoint(1,22.,4.61);
-    NA22->SetPointError(1,0,0.08);
+    minleg = 0.5; 
+ 
+    NA22->SetPoint(0,22.,4.61);
+    NA22->SetPointError(0,0,0.08);
     
     
-    ISR->SetPoint(1,24,4.49);
-    ISR->SetPointError(1,0,0.06);
-    ISR->SetPoint(2,31,5.00);
-    ISR->SetPointError(2,0,0.08);
-    ISR->SetPoint(3,45,5.49);
+    ISR->SetPoint(0,24,4.49);
+    ISR->SetPointError(0,0,0.06);
+    ISR->SetPoint(1,31,5.00);
+    ISR->SetPointError(1,0,0.08);
+    ISR->SetPoint(2,45,5.49);
+    ISR->SetPointError(2,0,0.06);
+    ISR->SetPoint(3,53,5.775);
     ISR->SetPointError(3,0,0.06);
-    ISR->SetPoint(4,53,5.775);
+    ISR->SetPoint(4,63,6.16);
     ISR->SetPointError(4,0,0.06);
-    ISR->SetPoint(5,63,6.16);
-    ISR->SetPointError(5,0,0.06);
     
     
-    UA1->SetPoint(1,540,9.8);
-    UA1->SetPointError(1,0,0.7);
+    UA1->SetPoint(0,540,9.8);
+    UA1->SetPointError(0,0,0.7);
   
-    UA5mean->SetPoint(1,200,7.94);
-    UA5mean->SetPointError(1,0,0.23);
-    UA5mean->SetPoint(2,546,9.49);
-    UA5mean->SetPointError(2,0,0.08);
-    UA5mean->SetPoint(3,900,11.02);
-    UA5mean->SetPointError(3,0,0.32);
+    UA5mean->SetPoint(0,200,7.94);
+    UA5mean->SetPointError(0,0,0.23);
+    UA5mean->SetPoint(1,546,9.49);
+    UA5mean->SetPointError(1,0,0.08);
+    UA5mean->SetPoint(2,900,11.02);
+    UA5mean->SetPointError(2,0,0.32);
     
-    CDF->SetPoint(1,630.,10.3);
-    CDF->SetPointError(1,0,1.2);
-    CDF->SetPoint(2,1800.,13.1);
-    CDF->SetPointError(2,0,1.7);
+    CDF->SetPoint(0,630.,10.3);
+    CDF->SetPointError(0,0,1.2);
+    CDF->SetPoint(1,1800.,13.1);
+    CDF->SetPointError(1,0,1.7);
   }
   else if(acc==9){
     legheader = "   |#eta| < 0.5";
     ymin = 0.75;
-  
-    NA22->SetPoint(1,22.,1.52);
-    NA22->SetPointError(1,0,0.05);
+    minleg = 0.5; 
+
+    NA22->SetPoint(0,22.,1.52);
+    NA22->SetPointError(0,0,0.05);
     
-    H1->SetPoint(2,96.9,2.46);
-    H1->SetPointError(2,0,0.1);
-    H1->SetPoint(3,132.,2.5);
-    H1->SetPointError(3,0,0.12);
-    H1->SetPoint(4,166.8,2.63);
-    H1->SetPointError(4,0,0.18);
-    H1->SetPoint(5,201.9,2.66);
-    H1->SetPointError(5,0,0.18);
+    H1->SetPoint(0,96.9,2.46);
+    H1->SetPointError(0,0,0.1);
+    H1->SetPoint(1,132.,2.5);
+    H1->SetPointError(1,0,0.12);
+    H1->SetPoint(2,166.8,2.63);
+    H1->SetPointError(2,0,0.18);
+    H1->SetPoint(3,201.9,2.66);
+    H1->SetPointError(3,0,0.18);
     
     
-    UA1->SetPoint(1,200,2.65);
+    UA1->SetPoint(0,200,2.65);
+    UA1->SetPointError(0,0,0.08);
+    UA1->SetPoint(1,260,2.71);
     UA1->SetPointError(1,0,0.08);
-    UA1->SetPoint(2,260,2.71);
-    UA1->SetPointError(2,0,0.08);
-    UA1->SetPoint(3,380,2.94);
+    UA1->SetPoint(2,380,2.94);
+    UA1->SetPointError(2,0,0.09);
+    UA1->SetPoint(3,500,3.05);
     UA1->SetPointError(3,0,0.09);
-    UA1->SetPoint(4,500,3.05);
+    UA1->SetPoint(4,620,3.15);
     UA1->SetPointError(4,0,0.09);
-    UA1->SetPoint(5,620,3.15);
-    UA1->SetPointError(5,0,0.09);
-    UA1->SetPoint(6,790,3.41);
+    UA1->SetPoint(5,790,3.41);
+    UA1->SetPointError(5,0,0.1);
+    UA1->SetPoint(6,900,3.48);
     UA1->SetPointError(6,0,0.1);
-    UA1->SetPoint(7,900,3.48);
-    UA1->SetPointError(7,0,0.1);
   
     //UA1->SetPoint(1,540,3.3);
     //UA1->SetPointError(1,0,0.2);
@@ -239,14 +243,14 @@ void plotmnch(double acc = 5){
 */
 
     // Same as dN/deta paper
-    UA5mean->SetPoint(1,53, 1.93 );
-    UA5mean->SetPointError(2,0,0.10);
-    UA5mean->SetPoint(2,200,2.5);
-    UA5mean->SetPointError(2,0,0.09);
-    UA5mean->SetPoint(3,546,3.01);
-    UA5mean->SetPointError(3,0,0.03);
-    UA5mean->SetPoint(4,900,3.61);
-    UA5mean->SetPointError(4,0,0.13);
+    UA5mean->SetPoint(0,53, 1.93 );
+    UA5mean->SetPointError(0,0,0.10);
+    UA5mean->SetPoint(1,200,2.5);
+    UA5mean->SetPointError(1,0,0.09);
+    UA5mean->SetPoint(2,546,3.01);
+    UA5mean->SetPointError(2,0,0.03);
+    UA5mean->SetPoint(3,900,3.61);
+    UA5mean->SetPointError(3,0,0.13);
 
 
 /*
@@ -258,15 +262,21 @@ void plotmnch(double acc = 5){
     UA5mean->SetPointError(4,0,0.12);
 */    
     
-    ALICE->SetPoint(1,900,3.60);
-    ALICE->SetPointError(1,0,0.11);
+    ALICE->SetPoint(0,900,3.60);
+    ALICE->SetPointError(0,0,0.11);
     ALICE->SetPoint(1,2360,4.47);
     ALICE->SetPointError(1,0,0.1);
   }
   
   
-  TGraphAsymmErrors* nchmean_all = new TGraphAsymmErrors(UA5mean->GetN()+NA22->GetN()+CDF->GetN()+UA1->GetN()+ISR->GetN()+nenergy);
+  TGraphAsymmErrors* nchmean_all = new TGraphAsymmErrors(UA5mean->GetN()+NA22->GetN()+CDF->GetN()+UA1->GetN()+ISR->GetN()+nenergy+1);
   int np = 0;
+  
+  //Setting point 0,0
+  nchmean_all->SetPoint(0,0,0);
+  nchmean_all->SetPointError(0,0,0,0,0);
+  ++np;  
+  
   for(int i = 0 ; i < ISR->GetN() ; ++i){
     double x = 0 , y = 0;
     ISR->GetPoint(i,x,y);
@@ -389,9 +399,9 @@ void plotmnch(double acc = 5){
   
 
   if ( acc == 9 ) {
-    Levin->SetLineColor(kMagenta);
+    Levin->SetLineColor(kBlue);
     Levin->SetLineWidth(2);
-    Levin->SetLineStyle(2);
+    Levin->SetLineStyle(1);
     Levin->Draw("same l");
   }  
   // Fits 
@@ -489,7 +499,7 @@ void plotmnch(double acc = 5){
   if(ALICE->GetN()!=0) ALICE->Draw("same p");
     
   
-  TLegend* leg = new TLegend(0.25,0.7,0.45,0.90);
+  TLegend* leg = new TLegend(0.25,minleg,0.45,0.90);
   leg->SetHeader(legheader);
   if(NA22->GetN()!=0)    leg->AddEntry(NA22,"NA22","p");
   if(ISR->GetN()!=0)     leg->AddEntry(ISR,"ISR","p");
@@ -552,9 +562,9 @@ void plotmnch(double acc = 5){
   nchmean_all->Draw("ap");*/
   
   gPad->WaitPrimitive();
-  gPad->SaveAs(TString("nchmean")+basefig.str()+TString(".gif"),"");
-  gPad->SaveAs(TString("nchmean")+basefig.str()+TString(".eps"),"");
-  gPad->SaveAs(TString("nchmean")+basefig.str()+TString(".root"),"");
-  gSystem->Exec(TString("convert ")+TString("nchmean")+basefig.str()+TString(".eps ")+TString("nchmean")+basefig.str()+TString(".pdf"));
+  gPad->SaveAs(TString("../figs/nchmean")+basefig.str()+TString(".gif"),"");
+  gPad->SaveAs(TString("../figs/nchmean")+basefig.str()+TString(".eps"),"");
+  gPad->SaveAs(TString("../figs/nchmean")+basefig.str()+TString(".root"),"");
+  gSystem->Exec(TString("convert ")+TString("../figs/nchmean")+basefig.str()+TString(".eps ")+TString("../figs/nchmean")+basefig.str()+TString(".pdf"));
   
 }
