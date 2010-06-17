@@ -32,7 +32,7 @@ void checkErrors(double E = 0.9 , int acc = 5 , int typeData = 0 , TString addfi
 
   gROOT->ProcessLine(".x cmsStyleRoot.C");
   
-  TString globaldir = "../plots/systv10_niter/";
+  TString globaldir = "../plots/systv10_niterv2/";
   //TString globaldir = "../plots/systv10_niter_InSmoothed/";
   
   //TString plot = "unfolding/nch_data_corrected";
@@ -175,7 +175,7 @@ void checkErrors(double E = 0.9 , int acc = 5 , int typeData = 0 , TString addfi
   g1000->SetFillColor(kBlack);
   gsyst->SetFillColor(16);
   
-  gsyst->GetYaxis()->SetRangeUser(-0.3,0.3);
+  gsyst->GetYaxis()->SetRangeUser(-0.2,0.35);
   gsyst->GetXaxis()->SetRangeUser(-0.5,max);
   gsyst->SetTitle(";n;#sigma(P_{n}) / P_{n}");
   
@@ -193,9 +193,10 @@ void checkErrors(double E = 0.9 , int acc = 5 , int typeData = 0 , TString addfi
   
   #include "../macro/acceptanceMap.C"
 
-  TLegend* leg = new TLegend(0.20,0.75,0.50,0.99);
+  TLegend* leg = new TLegend(0.20,0.65,0.50,0.99);
+  leg->SetTextSize(0.05);
   ostringstream legheader("");
-  legheader<< "pt > "<<accMap.at(acc).at(0)<<" GeV       |#eta| < "<<accMap.at(acc).at(1);
+  legheader<< "pt > "<<accMap.at(acc).at(0)<<" GeV   |#eta| < "<<accMap.at(acc).at(1);
   leg->SetHeader(legheader.str().c_str());
   leg->AddEntry(gn,"err=#sqrt{N}","l");
   if(h3!=0)  leg->AddEntry(g3,baseLeg+TString("standard iter"),"f");
@@ -216,7 +217,7 @@ void checkErrors(double E = 0.9 , int acc = 5 , int typeData = 0 , TString addfi
   TLatex* text = new TLatex(0.2,0.4,txt.str().c_str());
   text->SetNDC(kTRUE);
   text->SetTextSize(0.06);
-  text->DrawLatex(0.5,0.95,txt.str().c_str());
+  text->DrawLatex(0.7,0.95,txt.str().c_str());
   
 
   gPad->WaitPrimitive();
