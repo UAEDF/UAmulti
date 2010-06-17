@@ -33,7 +33,7 @@ void plotMomentsVSq(int acc = 5 , TString momtype = "C"){
 
   gROOT->ProcessLine(".x cmsStyleRoot.C");
   
-  TString globaldir = ("../plots/systv10_binning1v3_2/");
+  TString globaldir = ("../plots/systv10_binning1v4_2/");
   const int nenergy = 3;
   
   int colors[]  = {1,1,1,2,4,kMagenta};
@@ -382,7 +382,9 @@ void plotMomentsVSq(int acc = 5 , TString momtype = "C"){
   TH1F* dummy1 = new TH1F("dummy","dummy",4,xmin,xmax);
   dummy1->GetYaxis()->SetRangeUser(ymin1 , ymax1);
   //dummy1->GetXaxis()->SetTitleOffset(1.2);
-  dummy1->GetYaxis()->SetTitleOffset(0.95);
+  dummy1->GetYaxis()->SetTitleOffset(1.05);
+  dummy1->GetXaxis()->SetTitleSize(0.07);
+  dummy1->GetYaxis()->SetTitleSize(0.07);
   dummy1->GetXaxis()->SetNdivisions(4);
   dummy1->SetTitle(TString(";q;")+momtype+TString("_{q}   "));
   dummy1->Draw();
@@ -393,7 +395,7 @@ void plotMomentsVSq(int acc = 5 , TString momtype = "C"){
 
 
   //gPad->SetLogx();
-  gPad->SetLeftMargin(0.15);
+  gPad->SetLeftMargin(0.17);
   gPad->SetTopMargin(0.02);
   gPad->SetBottomMargin(0.15);
   gPad->SetFillColor(0);
