@@ -33,7 +33,7 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
 
   gROOT->ProcessLine(".x cmsStyleRoot.C");
   
-  TString globaldir = ("../plots/systv10_binning1v3_2/");
+  TString globaldir = ("../plots/systv10_binning1v4_2/");
   const int nenergy = 3;
   
   int colors[]  = {1,1,1,2,4,kMagenta};
@@ -129,7 +129,7 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
       hmoments.at(m)->SetMarkerColor(kRed-3);
       if(m%2==0) hmoments.at(m)->SetMarkerStyle(markers[2]);
       else        hmoments.at(m)->SetMarkerStyle(markersopen[2]);
-      hmoments.at(m)->SetMarkerSize(2);
+      hmoments.at(m)->SetMarkerSize(1);
       
       gmoments.at(m)->SetFillColor(kRed-3);
       gmoments.at(m)->SetLineColor(kRed-3);
@@ -137,7 +137,7 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
       gmoments.at(m)->SetMarkerColor(kRed-3);
       if(m%2==0) gmoments.at(m)->SetMarkerStyle(markers[2]);
       else        gmoments.at(m)->SetMarkerStyle(markersopen[2]);
-      gmoments.at(m)->SetMarkerSize(2);
+      gmoments.at(m)->SetMarkerSize(1);
     }
   }
   
@@ -341,10 +341,10 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
   ua5[1]->SetMarkerStyle(markersopen[2]);
   ua5[2]->SetMarkerStyle(markers[2]);
   ua5[3]->SetMarkerStyle(markersopen[2]);
-  ua5[0]->SetMarkerSize(2);
-  ua5[1]->SetMarkerSize(2);
-  ua5[2]->SetMarkerSize(2);
-  ua5[3]->SetMarkerSize(2);
+  ua5[0]->SetMarkerSize(1);
+  ua5[1]->SetMarkerSize(1);
+  ua5[2]->SetMarkerSize(1);
+  ua5[3]->SetMarkerSize(1);
   ua5[0]->SetMarkerColor(kBlue);
   ua5[1]->SetMarkerColor(kBlue);
   ua5[2]->SetMarkerColor(kBlue);
@@ -356,16 +356,16 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
   
   NA22->SetLineColor(kBlue);
   NA22->SetMarkerColor(kBlue);
-  NA22->SetMarkerSize(2);
+  NA22->SetMarkerSize(1);
   NA22->SetMarkerStyle(markers[3]);
   
   
   UA1->SetLineColor(kBlue);
   UA1->SetMarkerColor(kBlue);
-  UA1->SetMarkerSize(2);
+  UA1->SetMarkerSize(1);
   UA1->SetMarkerStyle(markers[4]);
   
-  TCanvas* c_mom = new TCanvas("c_mom","c_mom",1000,1328);
+  TCanvas* c_mom = new TCanvas("c_mom","c_mom",450,600);
   c_mom->Divide(1,2);
   c_mom->cd(2);
   
@@ -375,7 +375,9 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
   dummy1->GetYaxis()->SetRangeUser(ymin1 , ymax1);
   dummy1->GetXaxis()->SetTitleOffset(1.2);
   dummy1->GetYaxis()->SetTitleOffset(0.95);
-  dummy1->SetTitle(TString(";#sqrt{s};")+momtype+TString("_{q}"));
+  dummy1->GetXaxis()->SetTitleSize(0.06);
+  dummy1->GetYaxis()->SetTitleSize(0.06);
+  dummy1->SetTitle(TString(";#sqrt{s}   [GeV];")+momtype+TString("_{q}"));
   dummy1->Draw();
   //hmoments[2]->GetXaxis()->SetRangeUser(10.,xmax);
   //hmoments[2]->GetYaxis()->SetRangeUser(ymin1 , ymax1);
@@ -446,6 +448,7 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
   dummy2->GetYaxis()->SetRangeUser(ymin2 , ymax2);
   dummy2->GetXaxis()->SetLabelOffset(2);
   dummy2->GetYaxis()->SetTitleOffset(0.95);
+  dummy2->GetYaxis()->SetTitleSize(0.06);
   dummy2->SetTitle(TString(";;")+momtype+TString("_{q}"));
   //dummy2->SetTitle("");
   dummy2->Draw();
