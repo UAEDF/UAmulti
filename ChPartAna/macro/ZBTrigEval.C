@@ -60,6 +60,9 @@ void ZBTrigEval(int type , double E , TString filename , int nevt_max , int iTra
 
   TChain* tree = new TChain("evt","");
   tree->Add(fileManager(0,type,E));
+  cout <<  fileManager(0,type,E) << endl;
+  if ( type == 5 ) tree->Add(fileManager(0,type,2.36));
+  if ( type == 5 ) tree->Add(fileManager(0,type,7.0));
 
   MyEvtId* evtId      = NULL ;
   tree->SetBranchAddress("EvtId",&evtId);
@@ -126,10 +129,11 @@ void ZBTrigEval(int type , double E , TString filename , int nevt_max , int iTra
     if( !isMC && !goodBX(evtId->Run,evtId->Bunch)) continue;
     ++nev_passBX;
 
-    if( ! passVtxQual(*MITEvtSel) ) continue;
+    if( ! passVtxQual(*MITEvtSel , E) ) continue;
     ++nev_passvQ;
 
-    if( ! passVtx(vertexToCut) ) continue;
+    //if( ! passVtx(vertexToCut) ) continue;
+    if( ! passVtx(vertex) ) continue;
     ++nev_passVZ;
 
     if( ! (L1Trig->TechTrigWord[0] || isMC) ) continue; 
@@ -146,11 +150,25 @@ void ZBTrigEval(int type , double E , TString filename , int nevt_max , int iTra
          && !L1Trig->TechTrigWord[37]
          && !L1Trig->TechTrigWord[38]
          && !L1Trig->TechTrigWord[39] ) nchL1VT->Fill(nch);
-    if ( L1Trig->TechTrigWord[34] ) nchL134->Fill(nch);
+    if ( E < 7. ) {
+      if ( L1Trig->TechTrigWord[34] ) nchL134->Fill(nch);
+    } else {
+      if (  isMC && L1Trig->TechTrigWord[34] ) nchL134->Fill(nch);
+      if ( !isMC && L1Trig->PhysTrigWord[124]) nchL134->Fill(nch); 
+    }
     if ( L1Trig->TechTrigWord[40] ) nchL140->Fill(nch);
     if ( passHF(*MITEvtSel)       ) nchHF->Fill(nch);
 
-    if (     L1Trig->TechTrigWord[34] 
+
+    bool b34 = false;
+    if ( E < 7. ) {
+         b34 = L1Trig->TechTrigWord[34] ;
+     } else {
+        if (  isMC ) b34 = L1Trig->TechTrigWord[34] ;
+        if ( !isMC ) b34 = L1Trig->PhysTrigWord[124];  
+     }
+
+    if (    b34 
          && !L1Trig->TechTrigWord[36]
          && !L1Trig->TechTrigWord[37]
          && !L1Trig->TechTrigWord[38]
@@ -217,11 +235,12 @@ void ZBTrigEval(int type , double E , TString filename , int nevt_max , int iTra
     TH1F* effL1HFup = (TH1F*) effL1HF->Clone("effL1HFup");
     TH1F* effL1HFdo = (TH1F*) effL1HF->Clone("effL1HFdo");
 
-    double maxerr = 0.04 ;
+    double maxerrup = 0.04 ;
+    double maxerrdo = 0.06 ;
     double minerr = 0.01 ;
 
     int firstbin = 1;
-    int lastbin  = 20;
+    int lastbin  = 25;
 /*
     for(; lastbin <= effL1HF->GetNbinsX() - 1  ; ++lastbin){
       if(effL1HF->GetBinContent(lastbin)==1 && (effL1HF->GetBinContent(lastbin+1)==1 || effL1HF->GetBinContent(lastbin+1)==0 )){
@@ -232,7 +251,7 @@ void ZBTrigEval(int type , double E , TString filename , int nevt_max , int iTra
 
     int syst_sign = 1;
     for(int ibin = 1 ; ibin <= effL1HF->GetNbinsX() ; ++ibin){
-      double val = effL1HF->GetBinContent(ibin) + syst_sign * ( maxerr - (double(ibin)-double(firstbin))/(double(lastbin)-double(firstbin)) * maxerr + minerr);
+      double val = effL1HF->GetBinContent(ibin) + syst_sign * ( maxerrup - (double(ibin)-double(firstbin))/(double(lastbin)-double(firstbin)) * maxerrup + minerr);
       if(ibin>=lastbin && syst_sign == -1) val = effL1HF->GetBinContent(ibin)  -minerr;
       if(ibin>=lastbin && syst_sign ==  1) val = effL1HF->GetBinContent(ibin)  +minerr;
       if(val>1) val = 1.;
@@ -242,7 +261,7 @@ void ZBTrigEval(int type , double E , TString filename , int nevt_max , int iTra
 
     syst_sign = -1;
     for(int ibin = 1 ; ibin <= effL1HF->GetNbinsX() ; ++ibin){
-      double val = effL1HF->GetBinContent(ibin) + syst_sign * ( maxerr - (double(ibin)-double(firstbin))/(double(lastbin)-double(firstbin)) * maxerr + minerr);
+      double val = effL1HF->GetBinContent(ibin) + syst_sign * ( maxerrdo - (double(ibin)-double(firstbin))/(double(lastbin)-double(firstbin)) * maxerrdo + minerr);
       if(ibin>=lastbin && syst_sign == -1) val = effL1HF->GetBinContent(ibin) - minerr;
       if(ibin>=lastbin && syst_sign ==  1) val = effL1HF->GetBinContent(ibin) + minerr;
       if(val>1) val = 1.;

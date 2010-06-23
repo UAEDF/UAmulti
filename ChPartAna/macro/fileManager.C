@@ -159,6 +159,10 @@ TString fileManager ( int     iFileType  = 0
         TreeBase = "ChPartTree_v005_d7000";
         DataSet  = "__MinimumBias__Commissioning10-Apr1ReReco-v2__RECO";
       }
+      else if ( iDataType == 5  ) {
+        TreeBase = "ChPartTree_v005b_d7000";
+        DataSet  = "__ZeroBias__Commissioning10-Apr1ReReco-v2__RECO";
+      }
       else if ( iDataType == 10 ) {
         TreeBase = "ChPartTree_v005_mc7000";
         DataSet  = "__MinBias__Spring10-START3X_V26A_356ReReco-v1__GEN-SIM-RECO";
