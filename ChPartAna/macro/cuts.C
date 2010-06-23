@@ -1,6 +1,7 @@
-double pt_cut = 0.2;
-double eta_cut = 2.5;
+double pt_cut   = 0.2;
+double eta_cut  = 2.5;
 double vtxz_cut = 15.;
+double nsigma   = 4.;
 
 //----------------- GET THE BEST VERTEX ------------------
 int getBestVertex(vector<MyVertex>* vtxcoll){
@@ -96,7 +97,7 @@ bool isTrackPrimary(MyTracks& tr, vector<MyVertex>& vtxcoll, int goodvtxId, MyBe
   double sigma_t = sqrt( pow(tr.ed0,2) +
                    bs->BeamWidthX *
                    bs->BeamWidthY );
-  if( fabs(tr.vtxdxy.at(0)) > min(0.2 , 4 * sigma_t) ) return false;
+  if( fabs(tr.vtxdxy.at(0)) > min(0.2 , nsigma * sigma_t) ) return false;
   
   
   // Longitudinal impact parameter (4*sigma)
@@ -105,7 +106,7 @@ bool isTrackPrimary(MyTracks& tr, vector<MyVertex>& vtxcoll, int goodvtxId, MyBe
                     bs->BeamWidthX *
                     bs->BeamWidthY);
   //if( fabs(tr.vtxdz.at(vtxnum)) > 4 * sigma_z ) return false; // FIXME
-  if( fabs(tr.vz - goodVtx->z) > 4 * sigma_z ) return false; // FIXME
+  if( fabs(tr.vz - goodVtx->z) > nsigma * sigma_z ) return false; // FIXME
 
   
   //To use only with generalTracks, otherwise it's filled to 0 by default
