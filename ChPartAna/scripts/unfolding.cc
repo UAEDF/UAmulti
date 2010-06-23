@@ -26,7 +26,8 @@ using namespace std;
 
 int iterStep=0;
 
-TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hypothesis, int niter = 5, int nsample = 0, bool smooth = true , bool smoothInputDistr = false){
+TH1F runalgo(TH2F* matrixhist, TH1F* toUnfold, TH1F* hypothesis, int niter = 5, int nsample = 0, bool smooth = true , bool smoothInputDistr = false/* , bool reweightmtx = true*/){
+//TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hypothesis, int niter = 5, int nsample = 0, bool smooth = true , bool smoothInputDistr = false){
   //cout<<"starting the unfolding ..."<<endl;
   
   //The hypothesis distribution
@@ -34,8 +35,30 @@ TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hypothesis, int 
   sprintf(hypchar,hypchar,nsample);
   TH1F* hypothesis= new TH1F(hypchar,hypchar,Ngen1,-0.5,double(Ngen1)-0.5);
   */
+  
+  
+ /* if(reweightmtx){
+  
+    TH1D* projY = (TH1D*) (matrixhist->ProjectionY());
+    //reweighting the reco side
+    for(int ireco = 1 ; ireco <= matrixhist->GetNbinsY() ; ++ireco){
+      double factor = 0;
+      if(projY->GetBinContent(ireco)!=0)
+        factor =  toUnfold->GetBinContent(ireco)  / projY->GetBinContent(ireco);
+      for(int igen = 1 ; igen <= matrixhist->GetNbinsX() ; ++igen){
+        matrixhist->SetBinContent(igen , ireco ,  matrixhist->GetBinContent(igen , ireco) * factor );
+      }
+    }
+    
+    
+  
+  }*/
+  
+  
   //Definition of the matrices
+  matrix4dObj matrix;
   matrix4dObj matrix_normalized;
+  transform2Matrix(matrixhist,matrix);
   checkMatrix(matrix,matrix_normalized);
   
   if(smoothInputDistr){
@@ -79,7 +102,7 @@ TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hypothesis, int 
   vector<TH1F*>* vhyp_reco        = new vector<TH1F*>(niter,new TH1F());
   
   for(int it = 0 ; it < niter ; ++it){
-    char* tmp = "toUnfold_step%d";
+    char* tmp = (char*) "toUnfold_step%d";
     char name[160] = "";
     sprintf(name,tmp,it);
     strcat(name,"_nsample%d");
@@ -88,7 +111,7 @@ TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hypothesis, int 
     vtoUnfold->at(it)->SetBins(toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray());
     //vtoUnfold->at(it)->Sumw2();
     
-    tmp = "toUnfold_scaled_step%d";
+    tmp = (char*) "toUnfold_scaled_step%d";
     sprintf(name,tmp,it);
     strcat(name,"_nsample%d");
     sprintf(name,name,nsample);
@@ -96,14 +119,14 @@ TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hypothesis, int 
     vtoUnfold_scaled->at(it)->SetBins(toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray());
     //vtoUnfold_scaled->at(it)->Sumw2();
     
-    tmp = "err_obs_step%d";
+    tmp = (char*) "err_obs_step%d";
     sprintf(name,tmp,it);
     strcat(name,"_nsample%d");
     sprintf(name,name,nsample);
     verr_obs->at(it)->SetNameTitle(name,name);
     verr_obs->at(it)->SetBins(toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray());
     
-    tmp = "recoHypothesis_step%d";
+    tmp = (char*) "recoHypothesis_step%d";
     sprintf(name,tmp,it);
     strcat(name,"_nsample%d");
     sprintf(name,name,nsample);
@@ -135,6 +158,10 @@ TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hypothesis, int 
       if(nsample==0)
         vtoUnfold->at(it)->Write(vtoUnfold->at(it)->GetName()+TString("_smoothed"));
     }
+    
+    
+    
+    
     
   }
   
