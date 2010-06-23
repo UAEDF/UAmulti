@@ -366,4 +366,12 @@ tmp.at(4) = 0;
 accMap.push_back(tmp);
 
 
+//------- binwidth = 3 all along ---------
 
+//***** 43 *****
+tmp.at(0) = 0.;
+tmp.at(1) = 2.;
+tmp.at(2) = 0.1;
+tmp.at(3) = 2.;
+tmp.at(4) = 0;
+accMap.push_back(tmp);
