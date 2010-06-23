@@ -106,7 +106,7 @@ if(Ebinning==0.9)
     addBins(1,2,tmp);
     addBins(33,5,tmp);
   }
-  if(icut==5 || icut==35){
+  if(icut==5 || icut==35 || icut==40){
     tmp = makeBins(62,-0.5,61.5);
     addBins(1,2,tmp);
     addBins(1,2,tmp);
@@ -114,7 +114,7 @@ if(Ebinning==0.9)
     addBins(1,10,tmp);
     addBins(10,10,tmp);
   }
-  if(icut==6 || icut==36 || icut==41||icut==42){
+  if(icut==6 || icut==30 || icut==31 || icut==32 || icut==33 || icut==34 || icut==36 || icut==41 ||icut==42){
     tmp = makeBins(57,-0.5,56.5);
     addBins(1,2,tmp);
     addBins(1,3,tmp);
@@ -238,6 +238,9 @@ if(Ebinning==0.9)
     addBins(1,3,tmp);
     addBins(32,5,tmp);
   }
+  if(icut==43){
+    tmp = makeBins(57,-0.5,170.5);
+  }
 }
   
   
@@ -280,7 +283,7 @@ if(Ebinning==2.36){
     addBins(1,3,tmp);
     addBins(33,5,tmp);
   }
-  if(icut==5 || icut==35){
+  if(icut==5 || icut==35 || icut==40){
     tmp = makeBins(54,-0.5,53.5);
     addBins(1,2,tmp);
     addBins(1,2,tmp);
@@ -292,7 +295,7 @@ if(Ebinning==2.36){
     addBins(1,5,tmp);
     addBins(21,5,tmp);
   }
-  if(icut==6  || icut==36 || icut==41 ||icut==42){
+  if(icut==6 || icut==30 || icut==31 || icut==32 || icut==33 || icut==34 || icut==36 || icut==41 ||icut==42){
     tmp = makeBins(49,-0.5,48.5);
     addBins(1,2,tmp);
     addBins(1,2,tmp);
@@ -458,6 +461,9 @@ if(Ebinning==2.36){
     addBins(1,3,tmp);
     addBins(32,5,tmp);
   }
+  if(icut==43){
+    tmp = makeBins(57,-0.5,170.5);
+  }
 }
   
   
@@ -504,7 +510,7 @@ if(Ebinning==7.0 ){
     addBins(1,3,tmp);
     addBins(30,5,tmp);
   }
-  if(icut==5){
+  if(icut==5 || icut==35 || icut==40){
     tmp = makeBins(114,-0.5,113.5);
     addBins(1,2,tmp);
     addBins(1,1,tmp);
@@ -517,7 +523,7 @@ if(Ebinning==7.0 ){
     addBins(1,10,tmp);
     addBins(4,10,tmp);
   }
-  if(icut==6 || icut==41 ||icut==42){
+  if(icut==6 || icut==30 || icut==31 || icut==32 || icut==33 || icut==34 || icut==36 || icut==41 ||icut==42){
     tmp = makeBins(101,-0.5,100.5);
     addBins(1,2,tmp);
     addBins(1,2,tmp);
@@ -529,7 +535,7 @@ if(Ebinning==7.0 ){
     addBins(1,10,tmp);
     addBins(6,10,tmp);
   }
-  if(icut==7){
+  if(icut==7 || icut==37){
     tmp = makeBins(79,-0.5,78.5);
     addBins(1,2,tmp);
     addBins(1,2,tmp);
@@ -540,7 +546,7 @@ if(Ebinning==7.0 ){
     addBins(1,6,tmp);
     addBins(14,6,tmp);
   }
-  if(icut==8){
+  if(icut==8 || icut==38){
     tmp = makeBins(59,-0.5,58.5);
     addBins(1,2,tmp);
     addBins(1,2,tmp);
@@ -548,7 +554,7 @@ if(Ebinning==7.0 ){
     addBins(1,5,tmp);
     addBins(22,5,tmp);
   }
-  if(icut==9){
+  if(icut==9 || icut==39){
     tmp = makeBins(36,-0.5,35.5);
     addBins(1,2,tmp);
     addBins(1,5,tmp);
@@ -699,118 +705,8 @@ if(Ebinning==7.0 ){
     addBins(1,3,tmp);
     addBins(27,5,tmp);
   }
-  if(icut==30){
-    tmp = makeBins(114,-0.5,113.5);
-    addBins(1,2,tmp);
-    addBins(1,1,tmp);
-    addBins(1,2,tmp);
-    addBins(1,2,tmp);
-    addBins(1,2,tmp);
-    addBins(1,2,tmp);
-    addBins(1,4,tmp);
-    addBins(1,5,tmp);
-    addBins(1,10,tmp);
-    addBins(4,10,tmp);
-  }
-  if(icut==31){
-    tmp = makeBins(101,-0.5,100.5);
-    addBins(1,2,tmp);
-    addBins(1,2,tmp);
-    addBins(1,1,tmp);
-    addBins(1,2,tmp);
-    addBins(1,2,tmp);
-    addBins(1,2,tmp);
-    addBins(1,6,tmp);
-    addBins(1,10,tmp);
-    addBins(6,10,tmp);
-  }
-  if(icut==32){
-    tmp = makeBins(79,-0.5,78.5);
-    addBins(1,2,tmp);
-    addBins(1,2,tmp);
-    addBins(1,2,tmp);
-    addBins(1,2,tmp);
-    addBins(1,3,tmp);
-    addBins(1,4,tmp);
-    addBins(1,6,tmp);
-    addBins(14,6,tmp);
-  }
-  if(icut==33){
-    tmp = makeBins(59,-0.5,58.5);
-    addBins(1,2,tmp);
-    addBins(1,2,tmp);
-    addBins(1,4,tmp);
-    addBins(1,5,tmp);
-    addBins(22,5,tmp);
-  }
-  if(icut==34){
-    tmp = makeBins(36,-0.5,35.5);
-    addBins(1,2,tmp);
-    addBins(1,5,tmp);
-    addBins(28,5,tmp);
-  }
-  if(icut==35){
-    tmp = makeBins(114,-0.5,113.5);
-    addBins(1,2,tmp);
-    addBins(1,1,tmp);
-    addBins(1,2,tmp);
-    addBins(1,2,tmp);
-    addBins(1,2,tmp);
-    addBins(1,2,tmp);
-    addBins(1,4,tmp);
-    addBins(1,5,tmp);
-    addBins(1,10,tmp);
-    addBins(4,10,tmp);
-  }
-  if(icut==36){
-    tmp = makeBins(101,-0.5,100.5);
-    addBins(1,2,tmp);
-    addBins(1,2,tmp);
-    addBins(1,1,tmp);
-    addBins(1,2,tmp);
-    addBins(1,2,tmp);
-    addBins(1,2,tmp);
-    addBins(1,6,tmp);
-    addBins(1,10,tmp);
-    addBins(6,10,tmp);
-  }
-  if(icut==37){
-    tmp = makeBins(79,-0.5,78.5);
-    addBins(1,2,tmp);
-    addBins(1,2,tmp);
-    addBins(1,2,tmp);
-    addBins(1,2,tmp);
-    addBins(1,3,tmp);
-    addBins(1,4,tmp);
-    addBins(1,6,tmp);
-    addBins(14,6,tmp);
-  }
-  if(icut==38){
-    tmp = makeBins(59,-0.5,58.5);
-    addBins(1,2,tmp);
-    addBins(1,2,tmp);
-    addBins(1,4,tmp);
-    addBins(1,5,tmp);
-    addBins(22,5,tmp);
-  }
-  if(icut==39){
-    tmp = makeBins(36,-0.5,35.5);
-    addBins(1,2,tmp);
-    addBins(1,5,tmp);
-    addBins(28,5,tmp);
-  }
-  if(icut==40){
-    tmp = makeBins(114,-0.5,113.5);
-    addBins(1,2,tmp);
-    addBins(1,1,tmp);
-    addBins(1,2,tmp);
-    addBins(1,2,tmp);
-    addBins(1,2,tmp);
-    addBins(1,2,tmp);
-    addBins(1,4,tmp);
-    addBins(1,5,tmp);
-    addBins(1,10,tmp);
-    addBins(4,10,tmp);
+  if(icut==43){
+    tmp = makeBins(57,-0.5,170.5);
   }
 } 
     
