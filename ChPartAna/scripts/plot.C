@@ -11,12 +11,15 @@
 #include <TFile.h>
 #include <TDirectory.h>
 #include <TLegend.h>
+#include <TF1.h>
 //#include <TText.h>
 #include <TLatex.h>
 #include <iostream>
 #include <fstream>
 using namespace std;
 
+#include "TMath.h"
+using namespace TMath;
 
 // This give the integral of a TGraph assuming x error bar as bin width
 // Integral done between iBinMin and iBinMax
@@ -35,6 +38,41 @@ Double_t TGIntegral ( TGraphAsymmErrors *&graph , int iBinMin , int iBinMax )
    }
    return Integral;
 }
+
+
+//NBD: From websight
+Double_t NBD(Double_t x, Double_t nmean, Double_t k){
+  Double_t p = 1. / ( (nmean / k) + 1. );
+
+/*  
+  cout << "p: " << p << endl;
+  cout << "1: " << Gamma(x+k) << endl;
+  cout << "2: " << ( Gamma(x+1) * Gamma(k) ) << endl;
+  cout << "3: " << pow(p,k) << endl;
+  cout << "4: " << pow ( 1 - p , x) << endl;
+*/
+
+  //Double_t val = Gamma(x+k)/( Gamma(x+1) * Gamma(k) ) * pow(p,k) * pow ( 1 - p , x);
+  Double_t val = Exp ( LnGamma(x+k) - LnGamma(x+1) - LnGamma(k) ) * pow(p,k) * pow ( 1 - p , x);
+  if ( isnan(val) || isinf(val) ) val=0. ;
+  return val;
+}
+
+Double_t funcSingleNBD(Double_t *x, Double_t *par)
+{
+   Float_t xx =x[0];
+   Double_t f = par[0] * NBD( xx , par[1] , par[2] ) ;
+   return f;
+}
+
+Double_t funcDoubleNBD(Double_t *x, Double_t *par)
+{
+   Float_t xx =x[0];
+   Double_t f = par[0] * (   (1.-par[1]) * NBD( xx , par[2] , par[3] )
+                           +   par[1]    * NBD( xx , par[4] , par[5] ) )  ;
+   return f;
+}
+
 
 // Scale a TGraphAsymErrors
 void TGAsymScale ( TGraphAsymmErrors *&graph , Float_t Scale )
@@ -142,8 +180,8 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
   if (globalRatioType>0) { 
     //c1->Divide(1,2);
     //c1->cd(1);
-    p1=new TPad("p2","p2",0,0.2, 1,1);
-    p2=new TPad("p1","p1",0,0, 1,0.2);
+    p1=new TPad("p1","p1",0,0.5, 1,1);
+    p2=new TPad("p2","p2",0,0, 1,0.5);
     p1->Draw();
     p2->Draw();
     p1->cd();   
@@ -172,6 +210,8 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
 
   vector<TH1*>                hDivData ( dataSetId.size() , NULL );
   vector<TGraphAsymmErrors*>  gDivData ( dataSetId.size() , NULL ); 
+
+  TF1* f1 = NULL;
 
   // Dividor histogram or TGraph
   TH1* hDividor = NULL;
@@ -492,10 +532,10 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
   } 
 
   for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) {
-    if ( rData.at(iData) ) 
+//    if ( rData.at(iData) ) 
     {
 
-      // Divide by 1 of the histogram
+      // Divide by 1 of the histogram (same binning !)
       if ( globalRatioType > 0 ) {
         cout << "  Divide by 1 of the histogram " << endl;
 
@@ -572,6 +612,74 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
 
       }
 
+      // Divide by fit to 1 of the histogram (allow different binning !)
+      if ( globalRatioType == 2  ) {
+        cout << "  Divide by 1 of the histogram " << endl;
+        //f1 = new TF1("f1","[0] + [1] * x + [2] * x*x + [3] * x*x*x + [4] * x*x*x*x + [5] * pow(x,5) + [6] * pow(x,6) + [7] * pow(x,7) + [8] * pow(x,8) + [9] * pow(x,9) ",1.,180.);
+        //f1 = new TF1("f1","[0] + [1] * x + [2] * x*x + [3] * x*x*x  ",.5,150.);
+        f1 = new TF1("f1",funcDoubleNBD , 2.5 , 180.5 , 6 );
+        f1->SetParameters(1,.5,12.,3.,30.,7.);
+
+         
+        if ( tData.at(globalRatioBase) == 1 ) {
+          hDividor->Fit("f1","R");
+        } else {
+          gDividor->Fit("f1","R");
+        }   
+ 
+        if ( tData.at(iData) == 1 ) {
+          hDivData.at(iData) = (TH1F*) hData.at(iData)->Clone();
+          for ( int ibin =1 ; ibin <= hDividor->GetNbinsX() ; ++ibin ) { 
+            Double_t dividor = 1.;
+            if (ibin < 20 ) {
+              if ( tData.at(globalRatioBase) == 1 ) {
+                dividor = hDividor->GetBinContent(ibin);
+              } else {
+                Double_t xx;
+                gDividor->GetPoint(ibin-1,xx,dividor);
+              }
+            } else { 
+              dividor = f1->Eval(hData.at(iData)->GetBinCenter(ibin));
+            }
+            if ( dividor != 0. ) {
+              hDivData.at(iData)->SetBinContent(ibin, hData.at(iData)->GetBinContent(ibin) / dividor );
+              hDivData.at(iData)->SetBinError  (ibin, hData.at(iData)->GetBinError(ibin)   / dividor );
+            } else {
+              hDivData.at(iData)->SetBinContent(ibin,0.);
+              hDivData.at(iData)->SetBinError(ibin,0.);
+            }
+          }
+        } else {  
+               gDivData.at(iData) = (TGraphAsymmErrors*) gData.at(iData)->Clone();
+               for ( int ibin =1 ; ibin <= hDividor->GetNbinsX() ; ++ibin ) {
+                 Double_t xx,yy,dividor;
+                 if (ibin < 20 ) {
+                   if ( tData.at(globalRatioBase) == 1 ) {
+                     dividor = hDividor->GetBinContent(ibin);
+                   } else {
+                     gDividor->GetPoint(ibin-1,xx,dividor);
+                   }
+                 } else { 
+                   gDivData.at(iData)->GetPoint(ibin-1,xx,yy); 
+                   dividor = f1->Eval(xx);
+                 }
+                 if ( dividor != 0. ) {
+                   Double_t x,y;
+                   gDivData.at(iData)->GetPoint(ibin-1,x,y);
+                   gDivData.at(iData)->SetPoint(ibin-1,x,y / dividor);
+                   gDivData.at(iData)->SetPointEYhigh(ibin-1, gDivData.at(iData)->GetErrorYhigh(ibin-1) / dividor );
+                   gDivData.at(iData)->SetPointEYlow (ibin-1, gDivData.at(iData)->GetErrorYlow(ibin-1)  / dividor );
+                 } else {
+                   gDivData.at(iData)->SetPoint(ibin-1,0,0);
+                   gDivData.at(iData)->SetPointEYhigh(ibin-1,0);
+                   gDivData.at(iData)->SetPointEYlow(ibin-1,0);
+                 }
+               }
+        }
+
+
+      }
+
       // hMax
       if ( ! ( tData.at(iData) == 4 || tData.at(iData) == 5 ) ) {
         if ( hData.at(iData)->GetMaximum() > hMax ) hMax = hData.at(iData)->GetMaximum() ;
@@ -610,7 +718,7 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
 
     if (globalRatioType>0) {
       if (histoXMin != histoXMax) hDivData.at(0)->GetXaxis()->SetRangeUser(histoXMin,histoXMax);
-      hDivData.at(0)->GetYaxis()->SetRangeUser(0,2);
+      hDivData.at(0)->GetYaxis()->SetRangeUser(0,4);
       hDivData.at(0)->GetYaxis()->SetTitle("Ratio");
     }
 
@@ -673,6 +781,8 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
       gData.at(iData)->Draw(opt);
     }
   } 
+
+   if ( globalRatioType == 2  ) f1->Draw("same"); 
 
   // Bottom: Divided panel
   if (globalRatioType>0) { 
