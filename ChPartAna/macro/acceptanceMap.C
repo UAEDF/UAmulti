@@ -223,7 +223,7 @@ tmp.at(0) = 0.5;
 tmp.at(1) = 2.4;
 tmp.at(2) = 0.5;
 tmp.at(3) = 2.4;
-tmp.at(4) = 1;
+tmp.at(4) = 0;
 accMap.push_back(tmp);
 
 //-------PT GEN = 0. --------- negative charge
@@ -242,6 +242,128 @@ tmp.at(0) = 0.;
 tmp.at(1) = 2.4;
 tmp.at(2) = 0.1;
 tmp.at(3) = 2.4;
-tmp.at(4) = 1;
+tmp.at(4) = 0;
 accMap.push_back(tmp);
+
+
+//***** 30 *****
+tmp.at(0) = 0.1;
+tmp.at(1) = 2.4;
+tmp.at(2) = 0.1;
+tmp.at(3) = 2.4;
+tmp.at(4) = 0;
+accMap.push_back(tmp);
+
+
+//***** 31 *****
+tmp.at(0) = 0.1;
+tmp.at(1) = 2.4;
+tmp.at(2) = 0.15;
+tmp.at(3) = 2.4;
+tmp.at(4) = 0;
+accMap.push_back(tmp);
+
+
+//***** 32 *****
+tmp.at(0) = 0.1;
+tmp.at(1) = 2.4;
+tmp.at(2) = 0.2;
+tmp.at(3) = 2.4;
+tmp.at(4) = 0;
+accMap.push_back(tmp);
+
+
+//***** 33 *****
+tmp.at(0) = 0.1;
+tmp.at(1) = 2.4;
+tmp.at(2) = 0.25;
+tmp.at(3) = 2.4;
+tmp.at(4) = 0;
+accMap.push_back(tmp);
+
+
+//***** 34 *****
+tmp.at(0) = 0.1;
+tmp.at(1) = 2.4;
+tmp.at(2) = 0.3;
+tmp.at(3) = 2.4;
+tmp.at(4) = 0;
+accMap.push_back(tmp);
+
+
+
+//------- NO PT CUT AT ALL ---------
+
+//***** 35 *****
+tmp.at(0) = 0.;
+tmp.at(1) = 2.4;
+tmp.at(2) = 0.;
+tmp.at(3) = 2.4;
+tmp.at(4) = 0;
+accMap.push_back(tmp);
+
+//***** 36 *****
+tmp.at(0) = 0.;
+tmp.at(1) = 2.;
+tmp.at(2) = 0.;
+tmp.at(3) = 2.;
+tmp.at(4) = 0;
+accMap.push_back(tmp);
+
+//***** 37 *****
+tmp.at(0) = 0.;
+tmp.at(1) = 1.5;
+tmp.at(2) = 0.;
+tmp.at(3) = 1.5;
+tmp.at(4) = 0;
+accMap.push_back(tmp);
+
+//***** 38 *****
+tmp.at(0) = 0.;
+tmp.at(1) = 1.;
+tmp.at(2) = 0.;
+tmp.at(3) = 1.;
+tmp.at(4) = 0;
+accMap.push_back(tmp);
+
+//***** 39 *****
+tmp.at(0) = 0.;
+tmp.at(1) = 0.5;
+tmp.at(2) = 0.;
+tmp.at(3) = 0.5;
+tmp.at(4) = 0;
+accMap.push_back(tmp);
+
+//------- PT CUT = 0.03GEV ---------
+
+//***** 40 *****
+tmp.at(0) = 0.;
+tmp.at(1) = 2.4;
+tmp.at(2) = 0.03;
+tmp.at(3) = 2.4;
+tmp.at(4) = 0;
+accMap.push_back(tmp);
+
+//------- NHITS >= 5 ---------
+
+//***** 41 *****
+tmp.at(0) = 0.;
+tmp.at(1) = 2.;
+tmp.at(2) = 0.1;
+tmp.at(3) = 2.;
+tmp.at(4) = 0;
+accMap.push_back(tmp);
+
+
+//------- NVTX = 1 ---------
+
+//***** 42 *****
+tmp.at(0) = 0.;
+tmp.at(1) = 2.;
+tmp.at(2) = 0.1;
+tmp.at(3) = 2.;
+tmp.at(4) = 0;
+accMap.push_back(tmp);
+
+
 
