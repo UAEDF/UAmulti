@@ -821,9 +821,28 @@ if(Ebinning==7.0 ){
 
   bins.push_back(tmp);
   
-  //adding default pt and eta bins 
-  bins.push_back(makeBins(30,0.,3.));
+  //adding default pt 
+  // bins.push_back(makeBins(30,0.,3.));
+  tmp.clear();
+  tmp = makeBins(200,0.,2.);
+  addBins(80,.1,tmp);
+  bins.push_back(tmp);
+
+  // eta bins
   bins.push_back(makeBins(20,-2.4,2.4));
+
+  // pt
+  tmp.clear();
+  tmp = makeBins(200,0.,2.);
+  addBins(80,.1,tmp);
+  bins.push_back(tmp);
+
+  // mt
+  tmp.clear();
+  tmp = makeBins(200,0.,2.);
+  addBins(80,.1,tmp);
+  bins.push_back(tmp);
+
   return bins;
 }
 
