@@ -3,7 +3,7 @@
 //---------------------------------------------------------------------------------------------
 
 
-TH1F resample(double matrix[][matrixsize], TH1F* nch_INC , TH1F* toUnfold , TH1F* nch_unfoldedPtr, TH1F* hyp, int niter = 5,
+TH1F resample(TH2F* matrixhist, TH1F* nch_INC , TH1F* toUnfold , TH1F* nch_unfoldedPtr, TH1F* hyp, int niter = 5,
               bool doFit = false, TH1F* nch_mc_SD = NULL, TMoments* moment = NULL, TH1F* eff_evtSel = NULL, bool printErrors = false){
 
   const int nresampling = 1000;
@@ -14,8 +14,8 @@ TH1F resample(double matrix[][matrixsize], TH1F* nch_INC , TH1F* toUnfold , TH1F
   vector<TH1F> bins_beforeU(nch_INC->GetNbinsX(),TH1F());
   //TH1F bins[matrixsize];
   vector<TH1F> bins(nch_INC->GetNbinsX(),TH1F());// = new vector<TH1F>;
-  char* name = "bin_%d";
-  char* name_beforeU = "bin_beforeU_%d";
+  char* name = (char*) "bin_%d";
+  char* name_beforeU = (char*) "bin_beforeU_%d";
   char name2[60];
   for(int k=1;k<=nch_INC->GetNbinsX();++k){
     sprintf(name2,name,k);
@@ -85,7 +85,7 @@ TH1F resample(double matrix[][matrixsize], TH1F* nch_INC , TH1F* toUnfold , TH1F
     //nch_temp->Draw();
 
     if(hyp==0) cout<<"PROBLEM -----> the hypothesis is void !!"<<endl;
-    sample[i] = (runalgo(matrix,nch_temp,hyp,niter,i+1));
+    sample[i] = (runalgo(matrixhist,nch_temp,hyp,niter,i+1));
     //sample[i].SetLineColor(kRed);
     /*if(i==0)
       sample[i].Draw();
@@ -121,7 +121,7 @@ TH1F resample(double matrix[][matrixsize], TH1F* nch_INC , TH1F* toUnfold , TH1F
   //gPad->Write();
 
   //TCanvas* c_kno = new TCanvas("c_kno","c_kno",200,510,500,500);
-  TH1F* allpull = new TH1F("allpull","allpull",50,-5,5);
+  //TH1F* allpull = new TH1F("allpull","allpull",50,-5,5);
   
   TH2F* hmtxpull_aU = new TH2F("hmtxpull_aU","hmtxpull_aU;n_{i};n_{j};<P_{i}P_{j}>",toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray(),toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray());
   TH2F* covmtx      = new TH2F("covmtx"     ,"covmtx;n_{i};n_{j};#sigma^{2}"       ,toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray(),toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray());
@@ -314,7 +314,7 @@ TH1F resample(double matrix[][matrixsize], TH1F* nch_INC , TH1F* toUnfold , TH1F
 //---------------------------------------------------------------------------------------------
 
 
-TH1F mtxresample(double matrix[][matrixsize] , TH1F* toUnfold , TH1F* hyp, int niter = 5,
+TH1F mtxresample(TH2F* matrixhist , TH1F* toUnfold , TH1F* hyp, int niter = 5,
               TMoments* moment = NULL, TH1F* eff_evtSel = NULL, bool doFit = false,bool printErrors = false){
 
   const int nresampling = 1000;
@@ -323,7 +323,7 @@ TH1F mtxresample(double matrix[][matrixsize] , TH1F* toUnfold , TH1F* hyp, int n
 
   //TH1F bins[matrixsize];
   vector<TH1F> bins(toUnfold->GetNbinsX(),TH1F());// = new vector<TH1F>;
-  char* name = "bin_%d";
+  char* name = (char*) "bin_%d";
   char name2[60];
   for(int k=1;k<=toUnfold->GetNbinsX();++k){
     sprintf(name2,name,k);
@@ -350,10 +350,11 @@ TH1F mtxresample(double matrix[][matrixsize] , TH1F* toUnfold , TH1F* hyp, int n
   for(int i=0;i<nresampling;++i){
     
     //creating the matrix
-    matrix4dObj mtx_tmp;
+    TH2F* mtx_tmp = (TH2F*) matrixhist->Clone("mtx_tmp");
     for(int n=0;n<matrixsize;++n){
       for(int m=0;m<matrixsize;++m)
-        mtx_tmp[n][m] = gRandom->Poisson(matrix[n][m]);
+        //mtx_tmp[n][m] = gRandom->Poisson(matrix[n][m]);
+        mtx_tmp->SetBinContent(n,m, gRandom->Poisson(matrixhist->GetBinContent(n,m)));
       //nch_temp->SetBinContent(n,gRandom->Gaus(nch_INC->GetBinContent(n),nch_INC->GetBinError(n)));
     }
     
