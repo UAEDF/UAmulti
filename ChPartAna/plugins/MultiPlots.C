@@ -13,6 +13,7 @@ MultiPlots::~MultiPlots(){
   delete eta;
   delete pt;
   delete pt2;
+  delete mt;
   delete ptmVSnch;
   delete ptmVSnch_2D;
 }
@@ -28,7 +29,9 @@ void MultiPlots::init(){
   rapidity = new TH1F("rapidity_"+plotsname,"rapidity_"+plotsname+";y;#frac{1}{N} #frac{d#sigma_{ch}}{dy}",eta_nbin,eta_array);
   eta      = new TH1F("eta_"+plotsname,"eta_"+plotsname+";#eta;#frac{1}{N} #frac{d#sigma_{ch}}{d#eta}",eta_nbin,eta_array);
   pt       = new TH1F("pt_"+plotsname,"pt_"+plotsname+";p_{T} [GeV];#frac{1}{N} #frac{d#sigma_{ch}}{dp_{T}}",pt_nbin,pt_array);
-  pt2      = new TH1F("pt2_"+plotsname,"pt2_"+plotsname+";p_{T}^{2} [GeV^{2}];#frac{1}{N} #frac{d#sigma_{ch}}{dp_{T}^{2}}",100,0.,9.);
+  //pt2      = new TH1F("pt2_"+plotsname,"pt2_"+plotsname+";p_{T}^{2} [GeV^{2}];#frac{1}{N} #frac{d#sigma_{ch}}{dp_{T}^{2}}",100,0.,9.);
+  pt2      = new TH1F("pt2_"+plotsname,"pt2_"+plotsname+";p_{T}^{2} [GeV^{2}];#frac{1}{N} #frac{d#sigma_{ch}}{dp_{T}^{2}}",pt2_nbin,pt2_array);
+  mt       = new TH1F("mt_"+plotsname,"mt_"+plotsname+";p_{T}^{2} [GeV^{2}];#frac{1}{N} #frac{d#sigma_{ch}}{dp_{T}^{2}}",mt_nbin,mt_array);
   ptmVSnch = new TProfile("ptmVSnch_"+plotsname,"ptmVSnch_"+plotsname+";N_{ch};< <p_{t}>^{evt} >",nch_nbin,nch_array);
   ptVSnch  = new TProfile("ptVSnch_"+plotsname,"ptVSnch_"+plotsname+";N_{ch};<p_{t}>",nch_nbin,nch_array);
   
@@ -40,6 +43,7 @@ void MultiPlots::init(){
   eta->Sumw2();
   pt->Sumw2();
   pt2->Sumw2();
+  mt->Sumw2();
   //ptmVSnch->Sumw2();
   //ptVSnch->Sumw2();
   ptmVSnch_2D->Sumw2();
@@ -61,7 +65,8 @@ void MultiPlots::fill(MyPart& p , double weight){
   eta->Fill( p.v.Eta() , weight );
   pt->Fill( p.v.Pt() , weight );
   pt2->Fill( pow(p.v.Pt(),2) , weight );
-  
+  mt->Fill( sqrt(pow(p.v.Pt(),2)+pow(0.1396,2))-0.1396 ); 
+ 
   ptm_inEvt->Add( p.v.Pt() , weight );
   vpt_inEvt.push_back( p.v.Pt() * weight );
 }
@@ -119,6 +124,9 @@ void MultiPlots::write(bool scale){
   if(scale) pt2->Scale(1./nbEvts , "width");
   pt2->Write();
 
+  if(scale) mt->Scale(1./nbEvts , "width");
+  mt->Write();
+
   if(scale) ptmVSnch->Scale(1./nbEvts , "width");
   ptmVSnch->Write();
   
@@ -145,6 +153,7 @@ TH1* MultiPlots::get(TString plot){
   else if(plot.Contains("eta"))         return eta;
   else if(plot.Contains("pt"))          return pt;
   else if(plot.Contains("pt2"))         return pt2;
+  else if(plot.Contains("mt"))          return mt;
   else if(plot.Contains("ptmVSnch"))    return ptmVSnch;
   else if(plot.Contains("ptVSnch"))     return ptVSnch;
   else if(plot.Contains("ptmVSnch_2D")) return ptmVSnch_2D;

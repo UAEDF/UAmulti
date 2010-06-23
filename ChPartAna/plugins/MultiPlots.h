@@ -43,6 +43,7 @@ class MultiPlots : public BasePlots {
   TH1F*  eta;
   TH1F*  pt;
   TH1F*  pt2;
+  TH1F*  mt;
   TProfile* ptmVSnch;
   TProfile* ptVSnch;
   
