@@ -150,6 +150,24 @@ void SerialBinKiller ( TGraphAsymmErrors *&gstat  , TGraphAsymmErrors *&gsyst ,
     }
 }
 
+Double_t getLastFilledBin(TH1* h){
+  int ibin = 2;
+  for(;ibin <= h->GetNbinsX() ; ++ibin){
+    if(h->GetBinContent(ibin) == 0.) break;
+  }
+  return h->GetBinCenter(ibin-1) + h->GetBinWidth(ibin-1)/2.;
+}
+
+Double_t getLastFilledBin(TGraphAsymmErrors* g){
+  int ibin = 1;
+  Double_t x , y;
+  for(;ibin < g->GetN() ; ++ibin){
+    g->GetPoint(ibin , x , y);
+    if(y == 0.) break;
+  }
+  g->GetPoint(ibin-1 , x , y);
+  return x + g->GetErrorXhigh(ibin-1);
+}
 
 void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
 {
@@ -715,9 +733,12 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
     }
     if (histoYMin != histoYMax) hData.at(0)->GetYaxis()->SetRangeUser(histoYMin,histoYMax);
     if (histoXMin != histoXMax) hData.at(0)->GetXaxis()->SetRangeUser(histoXMin,histoXMax);
+    if(histoXMax==999.)         hData.at(0)->GetXaxis()->SetRangeUser(histoXMin,getLastFilledBin(hData.at(0)));
 
     if (globalRatioType>0) {
       if (histoXMin != histoXMax) hDivData.at(0)->GetXaxis()->SetRangeUser(histoXMin,histoXMax);
+      if(histoXMax==999.)         hDivData.at(0)->GetXaxis()->SetRangeUser(histoXMin,getLastFilledBin(hData.at(0)));
+      
       hDivData.at(0)->GetYaxis()->SetRangeUser(0,4);
       hDivData.at(0)->GetYaxis()->SetTitle("Ratio");
     }
@@ -743,8 +764,10 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
     }
     if (histoYMin != histoYMax) gData.at(0)->GetYaxis()->SetRangeUser(histoYMin,histoYMax);
     if (histoXMin != histoXMax) gData.at(0)->GetXaxis()->SetRangeUser(histoXMin,histoXMax);
+    if(histoXMax==999.)         gData.at(0)->GetXaxis()->SetRangeUser(histoXMin,getLastFilledBin(gData.at(0)));
     if (globalRatioType>0) {
       if (histoXMin != histoXMax) gDivData.at(0)->GetXaxis()->SetRangeUser(histoXMin,histoXMax);
+      if(histoXMax==999.)         gDivData.at(0)->GetXaxis()->SetRangeUser(histoXMin,getLastFilledBin(gData.at(0)));
       gDivData.at(0)->GetYaxis()->SetRangeUser(0,2);
       gDivData.at(0)->GetYaxis()->SetTitle("Ratio");
     }
