@@ -206,7 +206,7 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
     
     tree->GetEntry(i);
     
-    if(i==0 && iTracking==1) vertexToCut = vertex;
+    if(i==0) vertexToCut = vertex;
     
     //Selection of good BX for data && MC
     if(!isMC && !goodBX(evtId->Run,evtId->Bunch)) continue;
@@ -251,6 +251,20 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
       for(int acc = 0 ; acc < (signed)accMap.size() ; ++acc){
         //if(! nPTr_inacc.at(acc)) continue;
 	
+	if(acc==42 && vertex->size()!=1) continue;
+	
+        //Making a GenMulti for RECO
+        vector<MyTracks> trcoll;
+	if(iTracking==0) trcoll = getPrimaryTracks(*tracks,vertex,accMap[acc].at(2),accMap[acc].at(3),accMap[acc].at(4));
+	if(iTracking==1) trcoll = getPrimaryTracks(*tracks,vertex,bs,accMap[acc].at(2),accMap[acc].at(3),accMap[acc].at(4));
+        for(vector<MyTracks>::iterator it_tr = trcoll.begin() ; it_tr != trcoll.end() ; ++it_tr){
+	  if(acc==41 && it_tr->nhit<5) continue;
+          if(isMC) gmp_evtSel_reco.at(acc)->fill(*genKin , it_tr->Part , 1. , MCtype);
+	  mp_evtSel_INC_reco.at(acc)->fill(it_tr->Part);
+        }
+        if(isMC) gmp_evtSel_reco.at(acc)->nextEvent(*genKin , MCtype);
+        mp_evtSel_INC_reco.at(acc)->nextEvent();
+	
 	if(isMC){
           for(vector<MyGenPart>::iterator p=genPart->begin() ; p!=genPart->end() ; p++ )
             if ( isGenPartGood(*p) && isInAcceptance(p->Part,accMap[acc].at(2),accMap[acc].at(3),accMap[acc].at(4)) )//--->RECO acc cuts !!
@@ -258,16 +272,6 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
           gmp_evtSel.at(acc)->nextEvent(*genKin , MCtype);
         }
       
-        //Making a GenMulti for RECO
-        vector<MyTracks> trcoll;
-	if(iTracking==0) trcoll = getPrimaryTracks(*tracks,vertex,accMap[acc].at(2),accMap[acc].at(3),accMap[acc].at(4));
-	if(iTracking==1) trcoll = getPrimaryTracks(*tracks,vertex,bs,accMap[acc].at(2),accMap[acc].at(3),accMap[acc].at(4));
-        for(vector<MyTracks>::iterator it_tr = trcoll.begin() ; it_tr != trcoll.end() ; ++it_tr){
-          if(isMC) gmp_evtSel_reco.at(acc)->fill(*genKin , it_tr->Part , 1. , MCtype);
-	  mp_evtSel_INC_reco.at(acc)->fill(it_tr->Part);
-        }
-        if(isMC) gmp_evtSel_reco.at(acc)->nextEvent(*genKin , MCtype);
-        mp_evtSel_INC_reco.at(acc)->nextEvent();
       }
     }
     
@@ -313,9 +317,14 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
         if(isMC) vtx_after.at(acc)->Fill(getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4)));
     
       //if(!isEvtGood(E,*L1Trig , *MITEvtSel) || getBestVertex(vertexToCut)==-1) continue;
-      if(isEvtGood(E,*L1Trig , *MITEvtSel , vertexToCut))
-        if(isMC) evtSel_after.at(acc)->Fill(getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4)));
-    
+      if(acc==42){
+        if(isEvtGood(E,*L1Trig , *MITEvtSel , vertexToCut) && (vertex->size()==1))
+          if(isMC) evtSel_after.at(acc)->Fill(getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4)));
+      }
+      else{
+        if(isEvtGood(E,*L1Trig , *MITEvtSel , vertexToCut))
+          if(isMC) evtSel_after.at(acc)->Fill(getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4)));
+      }
     }
     
     if(!isEvtGood(E,*L1Trig , *MITEvtSel , vertexToCut)) continue;
@@ -327,6 +336,7 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
     
     if(isMC){
       for(int acc = 0 ; acc < (signed)accMap.size() ; ++acc){
+        if(acc==42 && vertex->size()!=1) continue;
         //if(! nPTr_inacc.at(acc)) continue;
 	
         for(vector<MyGenPart>::iterator p=genPart->begin() ; p!=genPart->end() ; p++ ){
@@ -358,12 +368,14 @@ void SimpleAna(int type , double E , TString filename , int nevt_max , int iTrac
     //FILLING THE MATRIX && MULTI
     
     for(int acc = 0 ; acc < (signed)accMap.size() ; ++acc){
+      if(acc==42 && vertex->size()!=1) continue;
       //if(! nPTr_inacc.at(acc)) continue;
       
       vector<MyTracks> trcoll;
       if(iTracking==0) trcoll = getPrimaryTracks(*tracks,vertex,accMap[acc].at(2),accMap[acc].at(3),accMap[acc].at(4));
       if(iTracking==1) trcoll = getPrimaryTracks(*tracks,vertex,bs,accMap[acc].at(2),accMap[acc].at(3),accMap[acc].at(4));
       for(vector<MyTracks>::iterator it_tr = trcoll.begin() ; it_tr != trcoll.end() ; ++it_tr){
+	if(acc==41 && it_tr->nhit<5) continue;
 	if(isMC)
 	  mtxp_evtSel.at(acc)->fillReco(it_tr->Part);
 	mp_evtSel_PV.at(acc)->fill(it_tr->Part);
