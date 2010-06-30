@@ -497,11 +497,11 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
   text->DrawLatex(0.45,0.85,"CMS Preliminary");
   
   
-  bool doFits = true;
+  bool doFits = false;
   if(doFits){
     TF1* f1 = new TF1("f1","[0] + [1] * log(x)" , 800 ,8000);
     for(int nmom = 0 ; nmom <= nmoments - 2 ; ++nmom){
-      gmoments.at(nmom)->Fit("f1","R");
+      hmoments.at(nmom)->Fit("f1","R");
       cout << "Fit of "<< momtype << nmom + 2 << " : slope " << f1->GetParameter(1) << " +- " << f1->GetParError(1) << endl;
     }  
   }
