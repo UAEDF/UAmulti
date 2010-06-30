@@ -33,12 +33,12 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
 
   gROOT->ProcessLine(".x cmsStyleRoot.C");
   
-  TString globaldir = ("../plots/systv10_binning1v4_2/");
+  TString globaldir = ("../plots/systv10_binning1v6_2/");
   const int nenergy = 3;
   
   int colors[]  = {1,1,1,2,4,kMagenta};
-  int markers[] = {1,1,kFullCircle,kFullSquare,kFullTriangleUp};
-  int markersopen[] = {1,1,kOpenCircle,kOpenSquare,kOpenTriangleUp};
+  int markers[] = {1,1,kFullCircle,kFullSquare,kFullStar,kFullTriangleUp};
+  int markersopen[] = {1,1,kOpenCircle,kOpenSquare,kOpenStar,kOpenTriangleUp};
   
   int nbin = 1500;
   double xmin = 99;
@@ -46,6 +46,7 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
   
   double ymin1 = 0.  , ymin2 = 0.;
   double ymax1 = 80. , ymax2 = 80;
+  double legmin = 0.6;
   
   double maxrange = 80;
   
@@ -129,7 +130,7 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
       hmoments.at(m)->SetMarkerColor(kRed-3);
       if(m%2==0) hmoments.at(m)->SetMarkerStyle(markers[2]);
       else        hmoments.at(m)->SetMarkerStyle(markersopen[2]);
-      hmoments.at(m)->SetMarkerSize(1);
+      hmoments.at(m)->SetMarkerSize(2);
       
       gmoments.at(m)->SetFillColor(kRed-3);
       gmoments.at(m)->SetLineColor(kRed-3);
@@ -137,7 +138,7 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
       gmoments.at(m)->SetMarkerColor(kRed-3);
       if(m%2==0) gmoments.at(m)->SetMarkerStyle(markers[2]);
       else        gmoments.at(m)->SetMarkerStyle(markersopen[2]);
-      gmoments.at(m)->SetMarkerSize(1);
+      gmoments.at(m)->SetMarkerSize(2);
     }
   }
   
@@ -261,6 +262,7 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
       
       ymin1 = 1; ymax1 = 5;
       ymin2 = 3; ymax2 = 52;
+      legmin = 0.47;
       
     }
     if(momtype.Contains("F")){
@@ -337,14 +339,14 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
     }
   }
   
-  ua5[0]->SetMarkerStyle(markers[2]);
-  ua5[1]->SetMarkerStyle(markersopen[2]);
-  ua5[2]->SetMarkerStyle(markers[2]);
-  ua5[3]->SetMarkerStyle(markersopen[2]);
-  ua5[0]->SetMarkerSize(1);
-  ua5[1]->SetMarkerSize(1);
-  ua5[2]->SetMarkerSize(1);
-  ua5[3]->SetMarkerSize(1);
+  ua5[0]->SetMarkerStyle(markers[5]);
+  ua5[1]->SetMarkerStyle(markersopen[5]);
+  ua5[2]->SetMarkerStyle(markers[5]);
+  ua5[3]->SetMarkerStyle(markersopen[5]);
+  ua5[0]->SetMarkerSize(2);
+  ua5[1]->SetMarkerSize(2);
+  ua5[2]->SetMarkerSize(2);
+  ua5[3]->SetMarkerSize(2);
   ua5[0]->SetMarkerColor(kBlue);
   ua5[1]->SetMarkerColor(kBlue);
   ua5[2]->SetMarkerColor(kBlue);
@@ -356,13 +358,13 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
   
   NA22->SetLineColor(kBlue);
   NA22->SetMarkerColor(kBlue);
-  NA22->SetMarkerSize(1);
+  NA22->SetMarkerSize(2);
   NA22->SetMarkerStyle(markers[3]);
   
   
   UA1->SetLineColor(kBlue);
   UA1->SetMarkerColor(kBlue);
-  UA1->SetMarkerSize(1);
+  UA1->SetMarkerSize(2);
   UA1->SetMarkerStyle(markers[4]);
   
   TCanvas* c_mom = new TCanvas("c_mom","c_mom",450,600);
@@ -417,7 +419,7 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
   ostringstream legheader("");
   legheader<< "   |#eta| < "<<accMap.at(acc).at(1);
 
-  TLegend* leg = new TLegend(0.15,0.6,0.35,0.93);;
+  TLegend* leg = new TLegend(0.15,legmin,0.35,0.93);;
   leg->SetHeader(legheader.str().c_str());
   leg->SetTextSize(0.05);
                      leg->AddEntry(hmoments[2],momtype+TString("_{2} CMS"),"p");
