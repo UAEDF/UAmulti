@@ -130,7 +130,7 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
       hmoments.at(m)->SetMarkerColor(kRed-3);
       if(m%2==0) hmoments.at(m)->SetMarkerStyle(markers[2]);
       else        hmoments.at(m)->SetMarkerStyle(markersopen[2]);
-      hmoments.at(m)->SetMarkerSize(2);
+      hmoments.at(m)->SetMarkerSize(1.5);
       
       gmoments.at(m)->SetFillColor(kRed-3);
       gmoments.at(m)->SetLineColor(kRed-3);
@@ -138,7 +138,7 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
       gmoments.at(m)->SetMarkerColor(kRed-3);
       if(m%2==0) gmoments.at(m)->SetMarkerStyle(markers[2]);
       else        gmoments.at(m)->SetMarkerStyle(markersopen[2]);
-      gmoments.at(m)->SetMarkerSize(2);
+      gmoments.at(m)->SetMarkerSize(1.5);
     }
   }
   
@@ -343,10 +343,10 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
   ua5[1]->SetMarkerStyle(markersopen[5]);
   ua5[2]->SetMarkerStyle(markers[5]);
   ua5[3]->SetMarkerStyle(markersopen[5]);
-  ua5[0]->SetMarkerSize(2);
-  ua5[1]->SetMarkerSize(2);
-  ua5[2]->SetMarkerSize(2);
-  ua5[3]->SetMarkerSize(2);
+  ua5[0]->SetMarkerSize(1.5);
+  ua5[1]->SetMarkerSize(1.5);
+  ua5[2]->SetMarkerSize(1.5);
+  ua5[3]->SetMarkerSize(1.5);
   ua5[0]->SetMarkerColor(kBlue);
   ua5[1]->SetMarkerColor(kBlue);
   ua5[2]->SetMarkerColor(kBlue);
@@ -358,13 +358,13 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
   
   NA22->SetLineColor(kBlue);
   NA22->SetMarkerColor(kBlue);
-  NA22->SetMarkerSize(2);
+  NA22->SetMarkerSize(1.5);
   NA22->SetMarkerStyle(markers[3]);
   
   
   UA1->SetLineColor(kBlue);
   UA1->SetMarkerColor(kBlue);
-  UA1->SetMarkerSize(2);
+  UA1->SetMarkerSize(1.5);
   UA1->SetMarkerStyle(markers[4]);
   
   TCanvas* c_mom = new TCanvas("c_mom","c_mom",450,600);
@@ -495,6 +495,16 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
   leg->Draw("same");
   
   text->DrawLatex(0.45,0.85,"CMS Preliminary");
+  
+  
+  bool doFits = true;
+  if(doFits){
+    TF1* f1 = new TF1("f1","[0] + [1] * log(x)" , 800 ,8000);
+    for(int nmom = 0 ; nmom <= nmoments - 2 ; ++nmom){
+      gmoments.at(nmom)->Fit("f1","R");
+      cout << "Fit of "<< momtype << nmom + 2 << " : slope " << f1->GetParameter(1) << " +- " << f1->GetParError(1) << endl;
+    }  
+  }
   
   gPad->Update();
   c_mom->cd(2);
