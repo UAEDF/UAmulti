@@ -135,7 +135,7 @@ void plotmnch(double acc = 5){
  
   if(acc==0 || acc==5){
     ymin = 4.;
-    legheader = "   |#eta| < 2.4";
+    legheader = " |#eta| < 2.4";
   
     NA22->SetPoint(0,22.,7.2);
     NA22->SetPointError(0,0,0.1);
@@ -164,7 +164,7 @@ void plotmnch(double acc = 5){
   }
   if(acc==2 || acc==7){
     ymin = 2.;
-    legheader = "   |#eta| < 1.5";
+    legheader = " |#eta| < 1.5";
     minleg = 0.5; 
  
     NA22->SetPoint(0,22.,4.61);
@@ -199,7 +199,7 @@ void plotmnch(double acc = 5){
     CDF->SetPointError(1,0,1.7);
   }
   else if(acc==9){
-    legheader = "   |#eta| < 0.5";
+    legheader = " |#eta| < 0.5";
     ymin = 0.75;
     minleg = 0.5; 
 
@@ -515,6 +515,13 @@ void plotmnch(double acc = 5){
   
   mnch->Draw("SAME");
   //if(UA5mean->GetN()) UA5mean->Draw("same p");
+
+  TLatex* text = new TLatex(0.45,0.90,"CMS Preliminary");
+  text->SetNDC(kTRUE);
+  text->SetTextSize(0.05);
+  text->DrawLatex(0.47,0.88,"CMS Preliminary");
+
+
   
   TLegend* legfunc = new TLegend(0.35,0.20,0.90,0.30);
  
@@ -523,9 +530,10 @@ void plotmnch(double acc = 5){
     legfunc->AddEntry(Levin,"Levin et al.","l");
  
   ostringstream func("");
-  func<<fixed<<setprecision(3)<<f1->GetParameter(0)<<" + "<<
-        f1->GetParameter(1)<<" ln(s) + "<<
-	f1->GetParameter(2)<<" ln^{2}(s)";
+  func<<fixed<<setprecision(3)<<f1->GetParameter(0);
+  if ( f1->GetParameter(1) >= 0 ) func <<" + " << f1->GetParameter(1) ;
+  else                            func <<" - " << -1*(f1->GetParameter(1));  
+  func <<" ln(s) + "<<f1->GetParameter(2)<<" ln^{2}(s)";
   cout<<func.str().c_str()<<endl;
   
   legfunc->AddEntry(f1,func.str().c_str(),"l");

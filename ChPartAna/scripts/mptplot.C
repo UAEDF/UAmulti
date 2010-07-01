@@ -86,18 +86,26 @@ void mptplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
   ostringstream systhisto("");
   systhisto << "gmptVSnch_cut" << iBin << "_syst"; 
 
+  double mptcor900 = 0.9365/0.9596 ; 
+  double mptcor236 = 0.9365/0.9609 ; 
+  double mptcor7   = 0.9376/0.9560 ; 
+
+  cout << "mptcor900 = " << mptcor900 << endl;
+  cout << "mptcor236 = " << mptcor236 << endl;
+  cout << "mptcor7   = " << mptcor7   << endl;
 
   // ------ 900 GeV --------------------------------------------
   if ( globalEnergy == 0.9 ) {
 
     dataSetId.push_back(-1);
-    dataSetFile.push_back("../plots/mptcorrv7_bis/mptCorr_MC_D6T_0.9TeV_mbTr__dataType0.root");
+    dataSetFile.push_back("../plots/mptcorrv8/mptCorr_MC_D6T_0.9TeV_mbTr__dataType0.root");
     dataSetIsMc.push_back(0);
     dataSetHType.push_back(1);
     dataSetStyle.push_back(kOpenCircle);
     dataSetColor.push_back(kBlack);
-    dataSetLegend.push_back("Data");
+    dataSetLegend.push_back("CMS");
     dataSetHisto.push_back(datahisto.str());
+    dataSetFactor.push_back(mptcor900);
 
     // MC
   
@@ -109,6 +117,7 @@ void mptplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetColor.push_back(kRed);
     dataSetLegend.push_back("PYTHIA D6T");
     dataSetHisto.push_back(mchisto.str());
+    dataSetFactor.push_back(1);
   
     dataSetId.push_back(-1);
     dataSetFile.push_back("../plots/smallcodev6/smallCode_MCtype11_0.9TeV.root");
@@ -118,6 +127,7 @@ void mptplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetColor.push_back(kBlue);
     dataSetLegend.push_back("PYTHIA DW");
     dataSetHisto.push_back(mchisto.str());
+    dataSetFactor.push_back(1);
   
     dataSetId.push_back(-1);
     dataSetFile.push_back("../plots/smallcodev6/smallCode_MCtype13_0.9TeV.root");
@@ -127,6 +137,7 @@ void mptplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetColor.push_back(kOrange);
     dataSetLegend.push_back("PYTHIA ProQ20");
     dataSetHisto.push_back(mchisto.str());
+    dataSetFactor.push_back(1);
   
     dataSetId.push_back(-1);
     dataSetFile.push_back("../plots/smallcodev6/smallCode_MCtype20_0.9TeV.root");
@@ -136,18 +147,20 @@ void mptplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetColor.push_back(kMagenta);
     dataSetLegend.push_back("PHOJET");
     dataSetHisto.push_back(mchisto.str());
+    dataSetFactor.push_back(1);
   
   
     // Data Syst
 
     dataSetId.push_back(-1);
-    dataSetFile.push_back("../plots/mptcorrv7_bis/mptCorr_MC_D6T_0.9TeV_mbTr__dataType0.root");
+    dataSetFile.push_back("../plots/mptcorrv8/mptCorr_MC_D6T_0.9TeV_mbTr__dataType0.root");
     dataSetIsMc.push_back(0);
     dataSetHType.push_back(105);
     dataSetStyle.push_back(kOpenCircle);
     dataSetColor.push_back(kBlack);
     dataSetLegend.push_back("NONE");
     dataSetHisto.push_back(systhisto.str());
+    dataSetFactor.push_back(mptcor900);
 
   }
 
@@ -155,13 +168,14 @@ void mptplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
   if ( globalEnergy == 2.36) {
 
     dataSetId.push_back(-1);
-    dataSetFile.push_back("../plots/mptcorrv7_bis/mptCorr_MC_D6T_2.36TeV_mbTr__dataType0.root");
+    dataSetFile.push_back("../plots/mptcorrv8/mptCorr_MC_D6T_2.36TeV_mbTr__dataType0.root");
     dataSetIsMc.push_back(0);
     dataSetHType.push_back(1);
     dataSetStyle.push_back(kOpenCircle);
     dataSetColor.push_back(kBlack);
-    dataSetLegend.push_back("Data");
+    dataSetLegend.push_back("CMS");
     dataSetHisto.push_back(datahisto.str());
+    dataSetFactor.push_back(mptcor236);
 
     // MC
  
@@ -173,26 +187,34 @@ void mptplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetColor.push_back(kRed);
     dataSetLegend.push_back("PYTHIA D6T");
     dataSetHisto.push_back(mchisto.str());
+    dataSetFactor.push_back(1);
   
     dataSetId.push_back(-1);
     dataSetFile.push_back("../plots/smallcodev6/smallCode_MCtype20_2.36TeV.root");
     dataSetIsMc.push_back(1);
     dataSetHType.push_back(1);
     dataSetStyle.push_back(20);
+<<<<<<< mptplot.C
+    dataSetColor.push_back(kBlue);
+    dataSetLegend.push_back("PYTHIA phojet");
+=======
     dataSetColor.push_back(kMagenta);
     dataSetLegend.push_back("PHOJET");
+>>>>>>> 1.4
     dataSetHisto.push_back(mchisto.str());
+    dataSetFactor.push_back(1);
 
     // Data Syst
  
     dataSetId.push_back(-1);
-    dataSetFile.push_back("../plots/mptcorrv7_bis/mptCorr_MC_D6T_2.36TeV_mbTr__dataType0.root");
+    dataSetFile.push_back("../plots/mptcorrv8/mptCorr_MC_D6T_2.36TeV_mbTr__dataType0.root");
     dataSetIsMc.push_back(0);
     dataSetHType.push_back(105);
     dataSetStyle.push_back(kOpenCircle);
     dataSetColor.push_back(kBlack);
     dataSetLegend.push_back("NONE");
     dataSetHisto.push_back(systhisto.str());
+    dataSetFactor.push_back(mptcor236);
 
   }
 
@@ -201,13 +223,14 @@ void mptplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
   if ( globalEnergy == 7.0) {
 
     dataSetId.push_back(-1);
-    dataSetFile.push_back("../plots/mptcorrv7_bis/mptCorr_MC_ATLAS_7.0TeV_mbTr__dataType0.root");
+    dataSetFile.push_back("../plots/mptcorrv8/mptCorr_MC_ATLAS_7.0TeV_mbTr__dataType0.root");
     dataSetIsMc.push_back(0);
     dataSetHType.push_back(1);
     dataSetStyle.push_back(kOpenCircle);
     dataSetColor.push_back(kBlack);
-    dataSetLegend.push_back("Data");
+    dataSetLegend.push_back("CMS");
     dataSetHisto.push_back(datahisto.str());
+    dataSetFactor.push_back(mptcor7);
 
     // MC
 
@@ -219,6 +242,7 @@ void mptplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetColor.push_back(kRed);
     dataSetLegend.push_back("PYTHIA D6T");
     dataSetHisto.push_back(mchisto.str());
+    dataSetFactor.push_back(1);
  /* 
     dataSetId.push_back(-1);
     dataSetFile.push_back("../plots/smallcodev6/smallCode_MCtype31_7TeV.root");
@@ -228,6 +252,7 @@ void mptplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetColor.push_back(kBlue);
     dataSetLegend.push_back("PYTHIA atlas");
     dataSetHisto.push_back(mchisto.str());
+    dataSetFactor.push_back(1);
 */  
     dataSetId.push_back(-1);
     dataSetFile.push_back("../plots/smallcodev6/smallCode_MCtype20_7TeV.root");
@@ -237,6 +262,7 @@ void mptplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetColor.push_back(kMagenta);
     dataSetLegend.push_back("PHOJET");
     dataSetHisto.push_back(mchisto.str());
+    dataSetFactor.push_back(1);
   /*
     dataSetId.push_back(-1);
     dataSetFile.push_back("../plots/smallcodev6/smallCode_MCtype51_7TeV.root");
@@ -246,6 +272,7 @@ void mptplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetColor.push_back(kOrange);
     dataSetLegend.push_back("PYTHIA X1");
     dataSetHisto.push_back(mchisto.str());
+    dataSetFactor.push_back(1);
   
     dataSetId.push_back(-1);
     dataSetFile.push_back("../plots/smallcodev6/smallCode_MCtype52_7TeV.root");
@@ -255,19 +282,26 @@ void mptplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetColor.push_back(kGreen);
     dataSetLegend.push_back("PYTHIA X2");
     dataSetHisto.push_back(mchisto.str());
+    dataSetFactor.push_back(1);
  */
 
     // data Syst  
     dataSetId.push_back(-1);
-    dataSetFile.push_back("../plots/mptcorrv7_bis/mptCorr_MC_ATLAS_7.0TeV_mbTr__dataType0.root");
+    dataSetFile.push_back("../plots/mptcorrv8/mptCorr_MC_ATLAS_7.0TeV_mbTr__dataType0.root");
     dataSetIsMc.push_back(0);
     dataSetHType.push_back(105);
     dataSetStyle.push_back(kOpenCircle);
     dataSetColor.push_back(kBlack);
     dataSetLegend.push_back("NONE");
     dataSetHisto.push_back(systhisto.str());
+    dataSetFactor.push_back(mptcor7);
 
   }
+
+  yLegendWidth = 0.040;
+  xLegendWidth = .13 ;
+  globalLegendTextSize = 22;
+
 
   plot("none","AUTO",0,8);
 

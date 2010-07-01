@@ -28,7 +28,7 @@ double  globalEnergy = 0.9;
 #include "../macro/fileManager.C"
 #include "plot.C"
 
-void knoplot(int iBin = 5 , int iSaveFig = 1, bool plot2360 = true , float npx = 700 , float npy = 500){
+void knoplot(int iBin = 5 , int iSaveFig = 1, bool plot2360 = false , float npx = 700 , float npy = 500){
 
   gROOT->ProcessLine(".x cmsStyleRoot.C");
 
@@ -102,6 +102,10 @@ void knoplot(int iBin = 5 , int iSaveFig = 1, bool plot2360 = true , float npx =
 //  if ( globalEnergy == 2.36) plotdir = "../plots/finalv9/";
 //  if ( globalEnergy == 7.0 ) plotdir = "../plots/systv10/";
 
+  plotdir = "/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/plots/systv10_17_3/";
+
+
+
   ostringstream outstr("");
   outstr << "hyp" << 1 << "_niter" << 0 << "_cut" << iBin << "_DataType" << 0;  
 
@@ -151,9 +155,6 @@ void knoplot(int iBin = 5 , int iSaveFig = 1, bool plot2360 = true , float npx =
       dataSetLegend.push_back("NONE");
       dataSetHisto.push_back("unfolding/gkno_corrected_syst");
     }    
-    
-    
-
 
 
     dataSetId.push_back(-1);

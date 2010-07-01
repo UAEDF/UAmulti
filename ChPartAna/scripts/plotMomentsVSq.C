@@ -33,7 +33,8 @@ void plotMomentsVSq(int acc = 5 , TString momtype = "C"){
 
   gROOT->ProcessLine(".x cmsStyleRoot.C");
   
-  TString globaldir = ("../plots/systv10_binning1v4_2/");
+ TString globaldir = ("/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/plots/systv10_binning1v6_2/");
+
   const int nenergy = 3;
   
   int colors[]  = {1,1,1,2,4,kMagenta};

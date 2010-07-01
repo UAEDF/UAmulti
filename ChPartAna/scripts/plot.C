@@ -1,6 +1,6 @@
 #include <TROOT.h>
-#include <TH1F.h>
-#include <TH2F.h>
+#include <TH1D.h>
+#include <TH2D.h>
 #include <TGraphErrors.h>
 #include <TGraphAsymmErrors.h>
 #include <TString.h>
@@ -91,6 +91,32 @@ void TGAsymScale ( TGraphAsymmErrors *&graph , Float_t Scale )
    }   
 }
 
+void XMaxBinKiller ( TH1 *&hstat  , double XMax ) {
+
+//    for(int i = 1 ; i <=  hstat->GetNbinsX() ; ++i ) {
+    for(int i = (hstat->GetNbinsX()) ; i>0 ; --i) {  
+      if ( hstat->GetBinCenter(i) > XMax ) {
+         cout << "Killing bin: "  << i << " " << hstat->GetBinCenter(i) << endl;
+         hstat->SetBinContent(i,0.);
+         hstat->SetBinError(i,0.);
+      }
+    } 
+}
+
+void YMinBinKiller ( TH1 *&hstat  , double XMin ) {
+
+    //for(int i = 1 ; i <=  hstat->GetNbinsX() ; ++i ) {
+    for(int i = (hstat->GetNbinsX()) ; i>0 ; --i) {  
+      if ( hstat->GetBinContent(i) <= XMin ) {
+         cout << "Killing bin: "  << i << " " << hstat->GetBinCenter(i) << endl;
+         hstat->SetBinContent(i,0.);
+         hstat->SetBinError(i,0.);
+      }
+    } 
+}
+
+
+
 // Remove Points with RelError > 100 % 
 void SerialBinKiller ( TH1 *&hstat  , TGraphAsymmErrors *&gsyst , 
                        Float_t downLimit     = -9999. , Float_t upLimit     = 9999. , 
@@ -113,7 +139,7 @@ void SerialBinKiller ( TH1 *&hstat  , TGraphAsymmErrors *&gsyst ,
         if ( fabs(eyup/y)   >= upTolerance   ) iSLargeError = true ;
      } 
      if (iSLargeError) {
-         cout << "Killing : " << x << " " << y << " " << eydown/y << endl; 
+         cout << "Killing : " << x << " " << y << " " << endl; 
          hstat->SetBinContent(i+1,0.);
          hstat->SetBinError(i+1,0.);
          gsyst->RemovePoint(i);
@@ -121,6 +147,31 @@ void SerialBinKiller ( TH1 *&hstat  , TGraphAsymmErrors *&gsyst ,
 
    }   
 }
+
+void XMaxBinKiller ( TGraphAsymmErrors *&gstat  , double XMax ) {
+    //for(int i = 0 ; i < gstat->GetN() ; ++i ) {
+    for(int i = (gstat->GetN()-1) ; i>-1 ; --i) {
+      Double_t x,y ;  
+      gstat->GetPoint(i,x,y);
+      if ( x > XMax ) { 
+        gstat->RemovePoint(i); 
+        cout << "Killing bin: "  << i << " " << x << endl;
+      }  
+    }
+}
+
+void YMinBinKiller ( TGraphAsymmErrors *&gstat  , double YMin ) {
+    //for(int i = 0 ; i < gstat->GetN() ; ++i ) {
+    for(int i = (gstat->GetN()-1) ; i>-1 ; --i) {
+      Double_t x,y ;  
+      gstat->GetPoint(i,x,y);
+      if ( y <= YMin ) { 
+        gstat->RemovePoint(i); 
+        cout << "Killing bin: "  << i << " " << x << endl;
+      }  
+    }
+}
+
 
 // Remove Points with RelError > 100 % 
 void SerialBinKiller ( TGraphAsymmErrors *&gstat  , TGraphAsymmErrors *&gsyst , 
@@ -143,7 +194,7 @@ void SerialBinKiller ( TGraphAsymmErrors *&gstat  , TGraphAsymmErrors *&gsyst ,
        } else iSLargeError = true ;
 
        if (iSLargeError) {
-         cout << "Killing : " << x << " " << y << " " << eydown/y << endl;
+         cout << "Killing : " << x << " " << y << " " << endl;
          gstat->RemovePoint(i);        
          gsyst->RemovePoint(i);
        }
@@ -276,12 +327,36 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
     
       cout << "Histo: " << histoName << endl;
   
-      if ( tData.at(iData) == 1 ) hData.at(iData) = (TH1F*) fData.at(iData)->Get(histoName);
-      if ( tData.at(iData) == 2 ) hData.at(iData) = (TH2F*) fData.at(iData)->Get(histoName);
-      if ( tData.at(iData) == 3 ) hData.at(iData) = (TProfile*) fData.at(iData)->Get(histoName);
+      if ( tData.at(iData) == 1 ) {
+         hData.at(iData) = (TH1D*) fData.at(iData)->Get(histoName);
+      }
+      if ( tData.at(iData) == 2 ) hData.at(iData) = (TH2D*) fData.at(iData)->Get(histoName);
 //      if ( tData.at(iData) == 4 ) gData.at(iData) = (TGraphErrors*) fData.at(iData)->Get(histoName);
       if ( tData.at(iData) == 4 ) { cout << "TGraphErrors not available !" << endl; return;}
       if ( tData.at(iData) == 5 ) gData.at(iData) = (TGraphAsymmErrors*) fData.at(iData)->Get(histoName);
+
+      if ( tData.at(iData) == 3 ) { 
+        hData.at(iData) = (TProfile*) fData.at(iData)->Get(histoName);
+        //if ( dataSetHType.at(iData) ) hData.at(iData)->Smooth(1);
+        int nmax = 500;
+        int n = 0;  
+        Double_t x[nmax],ex[nmax],y[nmax],ey[nmax];
+        for (int i = 1 ; i <=  hData.at(iData)->GetNbinsX() ; ++i ) { 
+          x[n]   = hData.at(iData)->GetBinCenter(i);  
+          y[n]   = hData.at(iData)->GetBinContent(i);    
+          if ( dataSetIsMc.at(iData) ) {
+            ex[n]  = 0.;
+            ey[n]  = 0.;
+          } else {
+            ex[n]  = x[n] - hData.at(iData)->GetBinLowEdge(i);
+            ey[n]  = hData.at(iData)->GetBinError(i);
+          }
+          n++;       
+        } 
+        gData.at(iData) = new TGraphAsymmErrors(n,x,y,ex,ex,ey,ey);
+        tData.at(iData) = 5 ;
+      }
+
   
       if ( ! ( tData.at(iData) == 4 || tData.at(iData) == 5 ) ) { 
         if ( hData.at(iData) == 0 ) {
@@ -311,11 +386,11 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
 
       } else {
         if ( ! ( tData.at(iData) == 4 || tData.at(iData) == 5 ) ) {
-          hData.at(iData)->SetLineWidth(3);
+          hData.at(iData)->SetLineWidth(2);
           hData.at(iData)->SetLineColor(dataSetColor.at(iData));
           hData.at(iData)->SetLineStyle(dataSetStyle.at(iData));
         } else {
-          gData.at(iData)->SetLineWidth(3);
+          gData.at(iData)->SetLineWidth(2);
           gData.at(iData)->SetLineColor(dataSetColor.at(iData));
           gData.at(iData)->SetLineStyle(dataSetStyle.at(iData));
         }
@@ -394,6 +469,25 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
           if (tData.at(iData) == 5) TGAsymScale(gData.at(iData),dataSetFactor.at(iData));
         } 
       }
+      // Offset
+      cout << dataSetOffset.size() << " " << iData << endl;
+      if ( (signed) dataSetOffset.size() > iData ) {
+        cout << "ScaleOffset = " << dataSetOffset.at(iData) << endl ; 
+        if ( ! ( tData.at(iData) == 4 || tData.at(iData) == 5 ) ) {
+          for(int i = 1 ; i <= hData.at(iData)->GetNbinsX() ; ++i ) {
+            hData.at(iData)->SetBinContent(i,hData.at(iData)->GetBinContent(i)+dataSetOffset.at(iData));
+          }
+        } else {
+          if (tData.at(iData) == 4) cout << "fixme" << endl;
+          if (tData.at(iData) == 5) {
+            for(int i = 0 ; i <  gData.at(iData)->GetN() ; ++i ) {
+              Double_t x,y ;
+              gData.at(iData)->GetPoint(i,x,y);
+              gData.at(iData)->SetPoint(i,x,y+dataSetOffset.at(iData));  
+            } 
+          }  
+        }
+      } 
 
 
     // Data from external text file 
@@ -541,10 +635,56 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
     }
   }
 
+  // XMaxBinKiller
+
+  if ( (signed) BinKillMax.size() > 0 ) {
+    for(int iData2Kill = 0 ; iData2Kill < (signed) BinKillMax.size() ; ++iData2Kill ) {
+        cout << "XMaxBinKiller: " <<  BinKillMax.at(iData2Kill) << endl;
+        if ( tData.at(BinKillMax.at(iData2Kill)) == 1 ) 
+          XMaxBinKiller(hData.at(BinKillMax.at(iData2Kill)), BinKillXMax.at(iData2Kill)) ;
+        if ( tData.at(BinKillMax.at(iData2Kill)) == 5 ) 
+          XMaxBinKiller(gData.at(BinKillMax.at(iData2Kill)), BinKillXMax.at(iData2Kill)) ; 
+    } 
+  }
+
+
+  // YMin
+
+  cout << histoYMin << " MinMax " << histoYMax << endl;
+  if (histoYMin != histoYMax) {  
+    cout << " YMinBinKiller " << endl;
+    for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) {
+      double Ymin = histoYMin;
+      if ( (signed) dataSetOffset.size() > iData )  Ymin += dataSetOffset.at(iData) 
+                                                    + 0.01 * (histoYMax-histoYMin) ;
+        if ( tData.at(iData) == 1 ) 
+          YMinBinKiller(hData.at(iData), Ymin ) ;
+        if ( tData.at(iData) == 5 ) 
+          YMinBinKiller(gData.at(iData), Ymin) ; 
+    } 
+  } 
+
+  // Smoothing ( TH1 && MC ONLY !!!! )
+  if ( globalSmoothMC ) {
+    for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) {
+      if ( dataSetIsMc.at(iData) ) {
+        if ( tData.at(iData) == 1 ) {
+           double XMAX = 99999. ;  
+           //for(int iData2Kill = 0 ; iData2Kill < (signed) BinKillMax.size() ; ++iData2Kill ) {
+           //   if ( iData2Kill == iData ) XMAX = BinKillXMax.at(iData2Kill);
+           //} 
+           hData.at(iData)->GetXaxis()->SetRangeUser(1.5   ,XMAX); 
+           //hData.at(iData)->Smooth(3,"R");
+           hData.at(iData)->GetXaxis()->SetRangeUser(-9999.,XMAX);
+        }
+      }
+    } 
+  } 
+
   // Divide if requested and find hMax
 
   if ( globalRatioBase != -1 ) {
-    if ( tData.at(globalRatioBase) == 1 ) hDividor = (TH1F*) hData.at(globalRatioBase)->Clone("hDividor");
+    if ( tData.at(globalRatioBase) == 1 ) hDividor = (TH1D*) hData.at(globalRatioBase)->Clone("hDividor");
     if ( tData.at(globalRatioBase) == 4 || tData.at(globalRatioBase) == 5 )
                               gDividor = (TGraphAsymmErrors*) gData.at(globalRatioBase)->Clone("gDividor");  
   } 
@@ -561,7 +701,7 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
         if ( (tData.at(iData) == 1 || tData.at(iData) == 4 || tData.at(iData) == 5 ) ) {
           if ( tData.at(globalRatioBase) == 1 ) {
             if ( tData.at(iData) == 1 ) {
-               hDivData.at(iData) = (TH1F*) hData.at(iData)->Clone();
+               hDivData.at(iData) = (TH1D*) hData.at(iData)->Clone();
                for ( int ibin =1 ; ibin <= hDividor->GetNbinsX() ; ++ibin ) {
                  Double_t dividor = hDividor->GetBinContent(ibin);
                  if ( dividor != 0. ) {
@@ -591,7 +731,7 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
             }
           } else {
             if ( tData.at(iData) == 1 ) {
-               hDivData.at(iData) = (TH1F*) hData.at(iData)->Clone();
+               hDivData.at(iData) = (TH1D*) hData.at(iData)->Clone();
                for ( int ibin =1 ; ibin <= gDividor->GetN() ; ++ibin ) {
                  Double_t xx,dividor;
                  gDividor->GetPoint(ibin-1,xx,dividor);
@@ -646,7 +786,7 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
         }   
  
         if ( tData.at(iData) == 1 ) {
-          hDivData.at(iData) = (TH1F*) hData.at(iData)->Clone();
+          hDivData.at(iData) = (TH1D*) hData.at(iData)->Clone();
           for ( int ibin =1 ; ibin <= hDividor->GetNbinsX() ; ++ibin ) { 
             Double_t dividor = 1.;
             if (ibin < 20 ) {
@@ -716,7 +856,7 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
   if ( ! ( tData.at(0) == 4 || tData.at(0) == 5 ) ) {
   //if ( rData.at(0) ) {
 
-    hData.at(0)->GetYaxis()->SetTitleOffset(1.1);
+    hData.at(0)->GetYaxis()->SetTitleOffset(1.0);
     hData.at(0)->GetXaxis()->SetTitleSize(globalAxisTitleSize);
     hData.at(0)->GetYaxis()->SetTitleSize(globalAxisTitleSize);
     if (globalRatioType>0) {
@@ -746,7 +886,7 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
   // Global Style (TGraph) 
   } else {
 
-    gData.at(0)->GetYaxis()->SetTitleOffset(1.1);
+    gData.at(0)->GetYaxis()->SetTitleOffset(1.0);
     gData.at(0)->GetXaxis()->SetTitleSize(globalAxisTitleSize);
     gData.at(0)->GetYaxis()->SetTitleSize(globalAxisTitleSize);
     if (globalRatioType>0) {
@@ -798,8 +938,12 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
     // TGraph
     else if ( tData.at(iData) == 4 || tData.at(iData) == 5 )
     {
-      if ( sData.at(iData) == 0 ) opt  = "p" ;  // stat error style
-      if ( sData.at(iData) == 1 ) opt  = "pZ" ; // systematics error style
+      if ( dataSetIsMc.at(iData) ) { 
+        opt = "cZ";
+      } else {  
+        if ( sData.at(iData) == 0 ) opt  = "p" ;  // stat error style
+        if ( sData.at(iData) == 1 ) opt  = "pZ" ; // systematics error style
+      }  
       if ( iData == 0 ) opt += "a";
       gData.at(iData)->Draw(opt);
     }
@@ -832,8 +976,13 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
       // TGraph
       else if ( tData.at(iData) == 4 || tData.at(iData) == 5 )
       {
-        if ( sData.at(iData) == 0 ) opt  = "p" ;  // stat error style
-        if ( sData.at(iData) == 1 ) opt  = "pZ" ; // systematics error style
+       // if ( dataSetIsMc.at(iData) ) {
+       //   opt  = "c"; 
+       // } else {
+          if ( sData.at(iData) == 0 ) opt  = "p" ;  // stat error style
+          if ( sData.at(iData) == 1 ) opt  = "pZ" ; // systematics error style
+       // } 
+
         if ( iData == 0 ) opt += "a";
           gDivData.at(iData)->Draw(opt);
       }

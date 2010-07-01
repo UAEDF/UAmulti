@@ -42,7 +42,7 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
   XaxisTitle = "n";
   YaxisTitle = "P_{n}";
 
-  xGlobalLabel = 0.6 ;
+  xGlobalLabel = 0.4 ;
   if ( globalEnergy == 0.9 ) globalLabel =  "CMS Preliminary 0.9 TeV";
   if ( globalEnergy == 2.36) globalLabel =  "CMS Preliminary 2.36 TeV";
   if ( globalEnergy == 7.0 ) globalLabel =  "CMS Preliminary 7 TeV";
@@ -98,9 +98,11 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
 //  if ( globalEnergy == 2.36) plotdir = "../plots/finalv9/";
 //  if ( globalEnergy == 7.0 ) plotdir = "../plots/systv10/";
 
-  if ( globalEnergy == 0.9 ) plotdir = "../plots/systv10_niter100_2/";
-  if ( globalEnergy == 2.36) plotdir = "../plots/systv10_niter100_2/";
-  if ( globalEnergy == 7.0 ) plotdir = "../plots/systv10_niter100_2/";
+//  if ( globalEnergy == 0.9 ) plotdir = "../plots/systv10_niter100_2/";
+//  if ( globalEnergy == 2.36) plotdir = "../plots/systv10_niter100_2/";
+//  if ( globalEnergy == 7.0 ) plotdir = "../plots/systv10_niter100_2/";
+  
+  plotdir = "/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/plots/systv10_17_3/";
 
   ostringstream outstr0("");
   ostringstream outstr1("");
@@ -118,8 +120,8 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
   int kCMSPoint = kOpenCircle ;
   int kCMSColor = kBlack; 
 
-  int kTrackletsPoint = kOpenCircle ;
-  int kTrackletsColor = kRed; 
+  int kTrackletsPoint = kOpenSquare ;
+  int kTrackletsColor = kBlue; 
 
   int kUA1Point = kOpenStar ;
   int kUA1Color = kBlue; 
@@ -144,8 +146,9 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
 //  if (globalEnergy != 7.  ||  ! ( globalEnergy>2. && iBin == 15  ) ) 
 //                           dataSetLegend.push_back("CMS");
 //  else                     dataSetLegend.push_back("NONE"); 
-  if ( ! tracklets ) dataSetLegend.push_back("CMS");
-  else               dataSetLegend.push_back("Tracks");
+//  if ( ! tracklets ) dataSetLegend.push_back("CMS");
+//  else               dataSetLegend.push_back("CMS (Tracks)");
+   dataSetLegend.push_back("CMS Tracking");
 
   dataSetHisto.push_back("unfolding/nch_data_corrected");
   dataSetFactor.push_back(10000);
@@ -167,6 +170,7 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
     }
   }
 
+/*
   if ( globalEnergy == 0.9 && iBin == 15 ) {
     // ATLAS @ 900 GeV Pt>500 MeV
     dataSetId.push_back(-1);
@@ -189,6 +193,7 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
     dataSetHisto.push_back("ALICE");
     dataSetFactor.push_back(10000);
   }
+*/
 
 /* 
   dataSetId.push_back(-1);
@@ -218,17 +223,6 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
   
   // |eta| < 2.0
 
-  dataSetId.push_back(-1);
-  dataSetFile.push_back(fileManager(3,iMc,globalEnergy,1,0,0,outstr1.str(),plotdir));
-  dataSetIsMc.push_back(0);
-  dataSetHType.push_back(1);
-  dataSetStyle.push_back(kCMSPoint);
-  dataSetColor.push_back(kCMSColor);
-  dataSetLegend.push_back("NONE");
-  dataSetHisto.push_back("unfolding/nch_data_corrected");
-  dataSetFactor.push_back(1000);
-
-
   if ( tracklets && ( globalEnergy == 0.9 || globalEnergy == 7 ) ) {
     // Tracklets
     dataSetId.push_back(-1);
@@ -238,7 +232,7 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
     dataSetHType.push_back(5);
     dataSetStyle.push_back(kTrackletsPoint);
     dataSetColor.push_back(kTrackletsColor);
-    dataSetLegend.push_back("Tracklets");
+    dataSetLegend.push_back("CMS Tracklet");
     dataSetHisto.push_back("TRACKLETS");
     dataSetFactor.push_back(1000);
     // Syst on Tracklets
@@ -252,7 +246,21 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
     dataSetLegend.push_back("NONE");
     dataSetHisto.push_back("TRACKLETS");
     dataSetFactor.push_back(1000);
+    
+    BinKillStat.push_back( dataSetId.size()-2 );
+    BinKillSyst.push_back( dataSetId.size()-1 );
+
   }
+
+  dataSetId.push_back(-1);
+  dataSetFile.push_back(fileManager(3,iMc,globalEnergy,1,0,0,outstr1.str(),plotdir));
+  dataSetIsMc.push_back(0);
+  dataSetHType.push_back(1);
+  dataSetStyle.push_back(kCMSPoint);
+  dataSetColor.push_back(kCMSColor);
+  dataSetLegend.push_back("NONE");
+  dataSetHisto.push_back("unfolding/nch_data_corrected");
+  dataSetFactor.push_back(1000);
 
   dataSetId.push_back(-1);
   dataSetFile.push_back(fileManager(3,iMc,globalEnergy,1,0,0,outstr1.str(),plotdir));
@@ -270,7 +278,7 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
   // |eta| < 1.5
 
   if ( globalEnergy == 0.9 && iBin == 5 ) {
-    if (! tracklets ) {
+//    if (! tracklets ) {
       // UA5
       dataSetId.push_back(-1);
       dataSetFile.push_back("../expdata/ua5_dsigdn_eta15");
@@ -281,7 +289,7 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
       dataSetLegend.push_back("UA5");
       dataSetHisto.push_back("UA5");
       dataSetFactor.push_back(100);
-    } 
+//    } 
   } 
 
   if ( tracklets && ( globalEnergy == 0.9 || globalEnergy == 7 ) ) {
@@ -307,6 +315,10 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
     dataSetLegend.push_back("NONE");
     dataSetHisto.push_back("TRACKLETS");
     dataSetFactor.push_back(100);
+  BinKillStat.push_back( dataSetId.size()-2 );
+  BinKillSyst.push_back( dataSetId.size()-1 );
+
+
   }
 
   dataSetId.push_back(-1);
@@ -332,10 +344,18 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
   BinKillStat.push_back( dataSetId.size()-2 );
   BinKillSyst.push_back( dataSetId.size()-1 );
 
+  if (globalEnergy == 7. ) {
+    BinKillMax.push_back( dataSetId.size()-1 );
+    BinKillMax.push_back( dataSetId.size()-2 );
+    BinKillXMax.push_back( 160. );
+    BinKillXMax.push_back( 160. );
+  }
+
+
   // |eta| < 1.0
 
   if ( globalEnergy == 0.9 && iBin == 5 ) {
-    if (! tracklets ) {
+//    if (! tracklets ) {
       // ALICE (stat)
       dataSetId.push_back(-1);
       dataSetFile.push_back("../expdata/alice_dsigdn_nsd_900GeV_eta10");
@@ -356,7 +376,7 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
       dataSetLegend.push_back("NONE");
       dataSetHisto.push_back("ALICE");
       dataSetFactor.push_back(10);
-    }
+//    }
   } 
   if ( globalEnergy == 2.36 && iBin == 5 ) {
     // ALICE (stat)
@@ -405,6 +425,9 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
     dataSetLegend.push_back("NONE");
     dataSetHisto.push_back("TRACKLETS");
     dataSetFactor.push_back(10);
+  BinKillStat.push_back( dataSetId.size()-2 );
+  BinKillSyst.push_back( dataSetId.size()-1 );
+
   }
 
   dataSetId.push_back(-1);
@@ -429,10 +452,19 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
 
   BinKillStat.push_back( dataSetId.size()-2 );
   BinKillSyst.push_back( dataSetId.size()-1 );
+
+  if (globalEnergy == 7. ) {
+    BinKillMax.push_back( dataSetId.size()-1 );
+    BinKillMax.push_back( dataSetId.size()-2 );
+    BinKillXMax.push_back( 110. );
+    BinKillXMax.push_back( 110. );
+  }
+
+
   // |eta| < 0.5
 
   if ( globalEnergy == 0.9 && iBin == 5 ) {
-    if (! tracklets ) {
+//    if (! tracklets ) {
       // UA5
       dataSetId.push_back(-1);
       dataSetFile.push_back("../expdata/ua5_dsigdn_eta05");
@@ -443,11 +475,11 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
       dataSetLegend.push_back("NONE");
       dataSetHisto.push_back("UA5");
       dataSetFactor.push_back(1);
-    }
+//    }
   } 
 
   if ( globalEnergy == 0.9 && iBin == 5 ) {
-    if (! tracklets ) {
+//    if (! tracklets ) {
       // ALICE (stat)
       dataSetId.push_back(-1);
       dataSetFile.push_back("../expdata/alice_dsigdn_nsd_900GeV_eta05");
@@ -468,7 +500,9 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
       dataSetLegend.push_back("NONE");
       dataSetHisto.push_back("ALICE");
       dataSetFactor.push_back(1);
-    } 
+
+
+//    } 
   } 
   if ( globalEnergy == 2.36 && iBin == 5 ) {
     // ALICE (stat)
@@ -517,6 +551,11 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
     dataSetLegend.push_back("NONE");
     dataSetHisto.push_back("TRACKLETS");
     dataSetFactor.push_back(1);
+
+  BinKillStat.push_back( dataSetId.size()-2 );
+  BinKillSyst.push_back( dataSetId.size()-1 );
+
+
   }
 
   dataSetId.push_back(-1);
@@ -541,6 +580,15 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
 
   BinKillStat.push_back( dataSetId.size()-2 );
   BinKillSyst.push_back( dataSetId.size()-1 );
+
+  if (globalEnergy == 7. ) {
+    BinKillMax.push_back( dataSetId.size()-1 );
+    BinKillMax.push_back( dataSetId.size()-2 );
+    BinKillXMax.push_back( 70. );
+    BinKillXMax.push_back( 70. );
+  }
+
+
   // Curve legends
 
   Float_t xt1 , yt1  ;
@@ -552,7 +600,7 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
   if ( iBin == 5 ) {
     if ( Energy == 0.9 ) {
      xt1 = .58; yt1 = .80;
-     xt2 = .53; yt2 = .68;
+     xt2 = .53; yt2 = .70;
      xt3 = .50; yt3 = .57;
      xt4 = .38; yt4 = .49;
      xt5 = .27; yt5 = .41;
@@ -665,7 +713,7 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
 
   // PLOT NOW
 
-  plot("none","AUTO",1,7);
+  plot("none","AUTO",1,5);
 
 
 }

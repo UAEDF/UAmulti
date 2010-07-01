@@ -32,8 +32,8 @@
 void plotMoments(int acc = 5 , TString momtype = "C"){
 
   gROOT->ProcessLine(".x cmsStyleRoot.C");
+  TString globaldir = ("/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/plots/systv10_binning1v6_2/");
   
-  TString globaldir = ("../plots/systv10_binning1v6_2/");
   const int nenergy = 3;
   
   int colors[]  = {1,1,1,2,4,kMagenta};
@@ -337,6 +337,241 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
       ymin1 = 0.05; ymax1 = 0.5;
       ymin2 = -0.02; ymax2 = 0.12;
     }
+  }
+  else if(int(acc)%5==4){
+  
+    if(momtype.Contains("C")){
+
+      ua5[0]->SetPoint(1,200,1.90);
+      ua5[0]->SetPointError(1,0,0.05);
+      ua5[0]->SetPoint(2,540,1.93);
+      ua5[0]->SetPointError(2,0,0.02);
+      ua5[0]->SetPoint(3,880,1.94);
+      ua5[0]->SetPointError(3,0,0.05);
+
+      ua5[1]->SetPoint(1,200,4.80);
+      ua5[1]->SetPointError(1,0,0.04);
+      ua5[1]->SetPoint(2,540,5.2);
+      ua5[1]->SetPointError(2,0,0.2);
+      ua5[1]->SetPoint(3,880,5.4 );
+      ua5[1]->SetPointError(3,0,0.04);
+    
+      ua5[2]->SetPoint(1,200,5.8);
+      ua5[2]->SetPointError(1,0,0.5);
+      ua5[2]->SetPoint(2,540,15.);
+      ua5[2]->SetPointError(2,0,1. );
+      ua5[2]->SetPoint(3,880,19.);
+      ua5[2]->SetPointError(3,0,1.0);
+
+      ua5[3]->SetPoint(1,200,52);
+      ua5[3]->SetPointError(1,0,9.4);
+      ua5[3]->SetPoint(2,540,80);
+      ua5[3]->SetPointError(2,0,10);
+      ua5[3]->SetPoint(3,880,80);
+      ua5[3]->SetPointError(3,0,10);
+
+      NA22->SetPoint(1,22,2.06);
+      NA22->SetPointError(1,0,0.06);
+     
+      ymin1 = 1; ymax1 = 9;
+      ymin2 = 1; ymax2 = 120;
+      legmin = 0.47;
+      
+    }
+
+    if(momtype.Contains("F")){
+      ua5[0]->SetPoint(1,200,1.50);
+      ua5[0]->SetPointError(1,0,0.05);
+      ua5[0]->SetPoint(2,880,1.66);
+      ua5[0]->SetPointError(2,0,0.03);
+    
+      ua5[1]->SetPoint(1,200,2.80);
+      ua5[1]->SetPointError(1,0,0.4);
+      ua5[1]->SetPoint(2,880,3.9 );
+      ua5[1]->SetPointError(2,0,0.2 );
+    
+      ua5[2]->SetPoint(1,200,6.1);
+      ua5[2]->SetPointError(1,0,1.0 );
+      ua5[2]->SetPoint(2,880,12.);
+      ua5[2]->SetPointError(2,0,1.0);
+    
+      ua5[3]->SetPoint(1,200,15);
+      ua5[3]->SetPointError(1,0,8);
+      ua5[3]->SetPoint(2,880,43);
+      ua5[3]->SetPointError(2,0,10. );
+      
+      ymin1 = 1; ymax1 = 7;
+      ymin2 = 2; ymax2 = 80;
+    }
+/*
+    if(momtype.Contains("K")){
+      ua5[0]->SetPoint(1,200,0.36);
+      ua5[0]->SetPointError(1,0,0);
+      ua5[0]->SetPoint(2,880,0.48);
+      ua5[0]->SetPointError(2,0,0);
+    
+      ua5[1]->SetPoint(1,200,0.25);
+      ua5[1]->SetPointError(1,0,0);
+      ua5[1]->SetPoint(2,880,0.44);
+      ua5[1]->SetPointError(2,0,0);
+    
+      ua5[2]->SetPoint(1,200,0.151);
+      ua5[2]->SetPointError(1,0,0);
+      ua5[2]->SetPoint(2,880,0.469);
+      ua5[2]->SetPointError(2,0,0);
+    
+      ua5[3]->SetPoint(1,200,0.3);
+      ua5[3]->SetPointError(1,0,0);
+      ua5[3]->SetPoint(2,880,-0.112);
+      ua5[3]->SetPointError(2,0,0);
+      
+      ymin1 = 0.2; ymax1 = 1.05;
+      ymin2 = -0.4; ymax2 = 1.65;
+    }
+    if(momtype.Contains("H")){
+      ua5[0]->SetPoint(1,200,0.265);
+      ua5[0]->SetPointError(1,0,0);
+      ua5[0]->SetPoint(2,880,0.324);
+      ua5[0]->SetPointError(2,0,0);
+    
+      ua5[1]->SetPoint(1,200,0.107);
+      ua5[1]->SetPointError(1,0,0);
+      ua5[1]->SetPoint(2,880,0.153);
+      ua5[1]->SetPointError(2,0,0);
+    
+      ua5[2]->SetPoint(1,200,0.032);
+      ua5[2]->SetPointError(1,0,0);
+      ua5[2]->SetPoint(2,880,0.069);
+      ua5[2]->SetPointError(2,0,0);
+    
+      ua5[3]->SetPoint(1,200,0.027);
+      ua5[3]->SetPointError(1,0,0);
+      ua5[3]->SetPoint(2,880,-0.006);
+      ua5[3]->SetPointError(2,0,0);
+      
+      ymin1 = 0.05; ymax1 = 0.5;
+      ymin2 = -0.02; ymax2 = 0.12;
+    }
+*/
+
+  }
+
+
+  else if(int(acc)%5==2){
+  
+    if(momtype.Contains("C")){
+
+      ua5[0]->SetPoint(1,200,1.56);
+      ua5[0]->SetPointError(1,0,0.03);
+      ua5[0]->SetPoint(2,540,1.62);
+      ua5[0]->SetPointError(2,0,0.01);
+      ua5[0]->SetPoint(3,880,1.65);
+      ua5[0]->SetPointError(3,0,0.04);
+
+      ua5[1]->SetPoint(1,200,3.16);
+      ua5[1]->SetPointError(1,0,0.14);
+      ua5[1]->SetPoint(2,540,3.55);
+      ua5[1]->SetPointError(2,0,0.08);
+      ua5[1]->SetPoint(3,880,3.7 );
+      ua5[1]->SetPointError(3,0,0.1 );
+    
+      ua5[2]->SetPoint(1,200,7.7);
+      ua5[2]->SetPointError(1,0,0.6);
+      ua5[2]->SetPoint(2,540,9.9);
+      ua5[2]->SetPointError(2,0,0.5);
+      ua5[2]->SetPoint(3,880,10.5);
+      ua5[2]->SetPointError(3,0,1.1);
+    
+      ua5[3]->SetPoint(1,200,22);
+      ua5[3]->SetPointError(1,0,5);
+      ua5[3]->SetPoint(2,540,33);
+      ua5[3]->SetPointError(2,0,3 );
+      ua5[3]->SetPoint(3,880,34);
+      ua5[3]->SetPointError(3,0,6);
+
+      NA22->SetPoint(1,22,1.47);
+      NA22->SetPointError(1,0,0.02);
+     
+      ymin1 = 1; ymax1 = 7;
+      ymin2 = 3; ymax2 = 80;
+      legmin = 0.47;
+      
+    }
+    if(momtype.Contains("F")){
+      ua5[0]->SetPoint(1,200,1.53);
+      ua5[0]->SetPointError(1,0,0.04);
+      ua5[0]->SetPoint(2,880,1.36);
+      ua5[0]->SetPointError(2,0,0.03);
+    
+      ua5[1]->SetPoint(1,200,3.11);
+      ua5[1]->SetPointError(1,0,0.14);
+      ua5[1]->SetPoint(2,880,2.33);
+      ua5[1]->SetPointError(2,0,0.09);
+    
+      ua5[2]->SetPoint(1,200,7.7);
+      ua5[2]->SetPointError(1,0,0.6 );
+      ua5[2]->SetPoint(2,880,4.7);
+      ua5[2]->SetPointError(2,0,0.3);
+    
+      ua5[3]->SetPoint(1,200,22);
+      ua5[3]->SetPointError(1,0,2.2);
+      ua5[3]->SetPoint(2,880,11);
+      ua5[3]->SetPointError(2,0,1.0 );
+      
+      ymin1 = 1; ymax1 = 6;
+      ymin2 = 2; ymax2 = 60;
+    }
+/*
+    if(momtype.Contains("K")){
+      ua5[0]->SetPoint(1,200,0.36);
+      ua5[0]->SetPointError(1,0,0);
+      ua5[0]->SetPoint(2,880,0.48);
+      ua5[0]->SetPointError(2,0,0);
+    
+      ua5[1]->SetPoint(1,200,0.25);
+      ua5[1]->SetPointError(1,0,0);
+      ua5[1]->SetPoint(2,880,0.44);
+      ua5[1]->SetPointError(2,0,0);
+    
+      ua5[2]->SetPoint(1,200,0.151);
+      ua5[2]->SetPointError(1,0,0);
+      ua5[2]->SetPoint(2,880,0.469);
+      ua5[2]->SetPointError(2,0,0);
+    
+      ua5[3]->SetPoint(1,200,0.3);
+      ua5[3]->SetPointError(1,0,0);
+      ua5[3]->SetPoint(2,880,-0.112);
+      ua5[3]->SetPointError(2,0,0);
+      
+      ymin1 = 0.2; ymax1 = 1.05;
+      ymin2 = -0.4; ymax2 = 1.65;
+    }
+    if(momtype.Contains("H")){
+      ua5[0]->SetPoint(1,200,0.265);
+      ua5[0]->SetPointError(1,0,0);
+      ua5[0]->SetPoint(2,880,0.324);
+      ua5[0]->SetPointError(2,0,0);
+    
+      ua5[1]->SetPoint(1,200,0.107);
+      ua5[1]->SetPointError(1,0,0);
+      ua5[1]->SetPoint(2,880,0.153);
+      ua5[1]->SetPointError(2,0,0);
+    
+      ua5[2]->SetPoint(1,200,0.032);
+      ua5[2]->SetPointError(1,0,0);
+      ua5[2]->SetPoint(2,880,0.069);
+      ua5[2]->SetPointError(2,0,0);
+    
+      ua5[3]->SetPoint(1,200,0.027);
+      ua5[3]->SetPointError(1,0,0);
+      ua5[3]->SetPoint(2,880,-0.006);
+      ua5[3]->SetPointError(2,0,0);
+      
+      ymin1 = 0.05; ymax1 = 0.5;
+      ymin2 = -0.02; ymax2 = 0.12;
+    }
+*/
+
   }
   
   ua5[0]->SetMarkerStyle(markers[5]);

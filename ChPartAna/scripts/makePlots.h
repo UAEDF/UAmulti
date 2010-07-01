@@ -33,6 +33,9 @@ using namespace std;
  // 2: to Integral of each histo
  int           globalNorm    = 0 ;
 
+ // MC Smoothing option
+ bool          globalSmoothMC  =  0 ;
+
  // Plot Ratio 
  int           globalRatioType =  0;
  int           globalRatioBase = -1;
@@ -40,8 +43,11 @@ using namespace std;
 
  // Bin Killer
 
- vector<int>   BinKillStat (1,-1);
- vector<int>   BinKillSyst (1,-1);
+ vector<int>    BinKillStat (1,-1);
+ vector<int>    BinKillSyst (1,-1);
+ vector<int>    BinKillMax  (1,-1);
+ vector<double> BinKillXMax (1,-99999.);
+
 
  // histo limit 
  float           histoXMin = -99999.;   
@@ -61,7 +67,9 @@ using namespace std;
  TString  LegendTitle ("NONE"); 
  float    xLegendMin[] = { 0.57 , 0.35 , 0.20 , 0.70 , 0.70 , 0.75 , 0.45 , 0.80 , 0.20 , 0.55 , 0.60};
  float    xLegendWidth = 0.35;
+ float    yLegendMax[] = { 0.80 , 0.40 , 0.40 , 0.85 , 0.90 , 0.90 , 0.87 , 0.87 , 0.90 , 0.40 , 0.93};
  float    yLegendMax[] = { 0.80 , 0.40 , 0.40 , 0.85 , 0.90 , 1.00 , 0.87 , 0.87 , 0.90 , 0.40 , 0.93};
+
  float    yLegendWidth = 0.03;
  TString  ExtLegTitle ("NONE");
 
@@ -78,6 +86,7 @@ using namespace std;
  vector<int>     dataSetHType  (1,1);
  vector<int>     dataSetColor  (1,2);
  vector<float>   dataSetFactor (1,1);
+ vector<float>   dataSetOffset (1,1);
  vector<TString> dataSetLegend (1,"Undef");
  vector<TString> dataSetFile   (1,"Undef"); 
  vector<TString> dataSetDir    (1,"Undef"); 
@@ -119,6 +128,9 @@ void plotReset()
 
  BinKillStat.clear() ;
  BinKillSyst.clear() ;
+ BinKillMax.clear() ;
+ BinKillXMax.clear() ;
+
 
  // TLegend position +  Title 
  
@@ -146,6 +158,7 @@ void plotReset()
   dataSetHType.clear();  
   dataSetColor.clear();  
   dataSetFactor.clear();  
+  dataSetOffset.clear();  
   dataSetLegend.clear(); 
   dataSetFile.clear();
   dataSetDir.clear();    

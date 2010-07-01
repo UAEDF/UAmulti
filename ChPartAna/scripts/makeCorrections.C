@@ -93,15 +93,16 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 5 , d
        
   #include "../macro/acceptanceMap.C"
   
-  TString filedir("../plots/simpleanav10/");
+  TString filedir("../plots/");
   //TString addstr("binning1");
   TString addstr("");
   
   if(syst==201)
     addstr = "evtSelSyst";
     
-  
     
+     addstr = "MT_test";
+
   TFile* mctmp = NULL;
   
   //Get the MC file

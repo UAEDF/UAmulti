@@ -134,16 +134,16 @@ void trackPlots()
 
 
 
-gROOT->ProcessLine("makePlots(2,0.9 ,0.  )");
-gROOT->ProcessLine("makePlots(2,2.36,0.  )");
-gROOT->ProcessLine("makePlots(2,7.0 ,0.  )");
+//gROOT->ProcessLine("makePlots(2,0.9 ,0.  )");
+//gROOT->ProcessLine("makePlots(2,2.36,0.  )");
+//gROOT->ProcessLine("makePlots(2,7.0 ,0.  )");
 
 
   trkplot = 0;
   vtxplot = 1;
   nvtplot = 1;
 
-return;
+//return;
 
 
 /*
@@ -164,16 +164,16 @@ gROOT->ProcessLine("makePlots(3,7.0 ,0.  )");
 
   trkplot = 0;
   vtxplot = 0;
-  nvtplot = 0;
-  effplot = 1;
+  nvtplot = 1;
+  //effplot = 1;
   //mtxplot = 1;
   //genplot = 1;
 
-/*
+
 gROOT->ProcessLine("makePlots(2,0.9 ,0.  )");
 gROOT->ProcessLine("makePlots(2,2.36,0.  )");
 gROOT->ProcessLine("makePlots(2,7.0 ,0.  )");
-*/
+
 
 
 
@@ -284,7 +284,8 @@ void makePlots (int itracking = 1 , double energy = 0.9 , double ptcut = 0.4 , d
       dataSetColor.push_back(kRed);
       dataSetLegend.push_back("PHOJET");
 */
- 
+
+
       // PYTHIA - DW
       dataSetId.push_back(11);
       dataSetIsMc.push_back(1);

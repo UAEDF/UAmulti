@@ -88,9 +88,10 @@ void nchplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
   if ( globalEnergy == 7.0 ) iMc = 31 ;
 
   TString plotdir("");
-  if ( globalEnergy == 0.9 ) plotdir = "../plots/systv10_niter100_2/";
-  if ( globalEnergy == 2.36) plotdir = "../plots/systv10_niter100_2/";
-  if ( globalEnergy == 7.0 ) plotdir = "../plots/systv10_niter100_2/";
+  //if ( globalEnergy == 0.9 ) plotdir = "../plots/systv10_niter100_2/";
+  //if ( globalEnergy == 2.36) plotdir = "../plots/systv10_niter100_2/";
+  //if ( globalEnergy == 7.0 ) plotdir = "../plots/systv10_niter100_2/";
+  plotdir = "/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/plots/systv10_17_3/";
 
   ostringstream outstr("");
   outstr << "hyp" << 1 << "_niter" << 0 << "_cut" << iBin << "_DataType" << 0;  
@@ -150,7 +151,18 @@ void nchplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetColor.push_back(kOrange);
     dataSetLegend.push_back("PYTHIA ProQ20");
     dataSetHisto.push_back(mchisto.str()); 
-  
+
+   if ( iBin == 5) {
+    dataSetId.push_back(-1);
+    dataSetFile.push_back("../expdata/CW-0.9TeV-Multiplicity.root");
+    dataSetIsMc.push_back(1);
+    dataSetHType.push_back(1);
+    dataSetStyle.push_back(2);
+    dataSetColor.push_back(kBlack); 
+    dataSetLegend.push_back("PYTHIA CWA");
+    dataSetHisto.push_back("h24");
+   }
+
     dataSetId.push_back(-1);
     dataSetFile.push_back("../plots/smallcodev7/smallCode_MCtype20_0.9TeV.root");
     dataSetIsMc.push_back(1);
@@ -159,7 +171,7 @@ void nchplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetColor.push_back(kMagenta);
     dataSetLegend.push_back("PHOJET");
     dataSetHisto.push_back(mchisto.str());
-  
+ 
     // And data syst again
   
     dataSetId.push_back(-1);
@@ -222,6 +234,17 @@ void nchplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetLegend.push_back("PHOJET");
     dataSetHisto.push_back(mchisto.str()); 
 
+   if ( iBin == 5 ) {
+    dataSetId.push_back(-1);
+    dataSetFile.push_back("../expdata/CW-2.36TeV-Multiplicity.root");
+    dataSetIsMc.push_back(1);
+    dataSetHType.push_back(1);
+    dataSetStyle.push_back(2);
+    dataSetColor.push_back(kBlack); 
+    dataSetLegend.push_back("PYTHIA CWA");
+    dataSetHisto.push_back("h24");
+   }
+
     // Data systematics
 
     dataSetId.push_back(-1);
@@ -276,6 +299,17 @@ void nchplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetColor.push_back(kRed);
     dataSetLegend.push_back("PYTHIA D6T");
     dataSetHisto.push_back(mchisto.str());
+
+   if ( iBin == 5 ) {
+    dataSetId.push_back(-1);
+    dataSetFile.push_back("../expdata/CW-7TeV-Multiplicity.root");
+    dataSetIsMc.push_back(1);
+    dataSetHType.push_back(1);
+    dataSetStyle.push_back(2);
+    dataSetColor.push_back(kBlack); 
+    dataSetLegend.push_back("PYTHIA CWA");
+    dataSetHisto.push_back("h24");
+   }
 
 /*
     dataSetId.push_back(-1);
