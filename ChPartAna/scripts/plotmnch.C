@@ -360,7 +360,26 @@ void plotmnch(double acc = 5){
   if ( acc == 9 ) Likhoded = new TGraphErrors(n,s,s1,zero,zero);   
   ymin = 0.;
 
-  
+
+  if ( acc == 5 ) {
+    double x[3] , y[3] ;
+    n=3;
+    x[0]=900  ; y[0] = 3.672*4.8 ;
+    x[1]=2360 ; y[1] = 4.672*4.8 ;
+    x[2]=7000 ; y[2] = 6.008*4.8 ;
+    Levin = new TGraphErrors(n,x,y ,zero,zero);
+  }
+ 
+  if ( acc == 7 ) {
+    n=3;
+    double x[3] , y[3] ;
+    x[0]=900 ; y[0] = 3.621*3 ;
+    x[1]=2360; y[1] = 4.574*3 ;
+    x[2]=7000; y[2] = 5.858*3 ;
+    Levin = new TGraphErrors(n,x,y ,zero,zero);
+  }
+
+
   if ( acc == 9 ) {
     n = 0;
     mydata.open ("../theorydata/nchmena_sqrts_levin_eta0.5");
@@ -398,7 +417,7 @@ void plotmnch(double acc = 5){
   Likhoded->Draw("same l"); 
   
 
-  if ( acc == 9 ) {
+  if ( acc == 9 || acc == 7 || acc == 5) {
     Levin->SetLineColor(kBlue);
     Levin->SetLineWidth(2);
     Levin->SetLineStyle(1);
@@ -526,7 +545,7 @@ void plotmnch(double acc = 5){
   TLegend* legfunc = new TLegend(0.35,0.20,0.90,0.30);
  
   legfunc->AddEntry(Likhoded,"Likhoded et al.","l");
-  if ( acc == 9 ) 
+  if ( acc == 9 || acc == 7 || acc == 5 ) 
     legfunc->AddEntry(Levin,"Levin et al.","l");
  
   ostringstream func("");
