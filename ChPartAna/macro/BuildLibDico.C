@@ -17,5 +17,7 @@
   gROOT->ProcessLine(".L ../plugins/GenMultiPlots.C+");
   gROOT->ProcessLine(".L ../plugins/MatrixPlots.C+");
   gROOT->ProcessLine(".L ../plugins/TMoments.C+");
+  gROOT->ProcessLine(".L ../plugins/TPlotterBase.C+");
+  gROOT->ProcessLine(".L ../plugins/TPlotter.C+");
   gROOT->ProcessLine(".L ../plugins/LinkDef.C+");
 }
