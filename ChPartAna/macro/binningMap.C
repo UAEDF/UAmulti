@@ -710,7 +710,17 @@ if(Ebinning==7.0 ){
   }
 } 
     
-
+if(icut==44){
+  tmp = makeBins(34,-0.5,169.5);
+}
+    
+if(icut==45){
+  tmp = makeBins(25,-0.5,174.5);
+}
+    
+if(icut==46){
+  tmp = makeBins(17,-0.5,169.5);
+}
 
 
 

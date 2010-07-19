@@ -375,3 +375,36 @@ tmp.at(2) = 0.1;
 tmp.at(3) = 2.;
 tmp.at(4) = 0;
 accMap.push_back(tmp);
+
+
+//------- binwidth = 5 all along ---------
+
+//***** 44 *****
+tmp.at(0) = 0.;
+tmp.at(1) = 2.;
+tmp.at(2) = 0.1;
+tmp.at(3) = 2.;
+tmp.at(4) = 0;
+accMap.push_back(tmp);
+
+
+//------- binwidth = 7 all along ---------
+
+//***** 45 *****
+tmp.at(0) = 0.;
+tmp.at(1) = 2.;
+tmp.at(2) = 0.1;
+tmp.at(3) = 2.;
+tmp.at(4) = 0;
+accMap.push_back(tmp);
+
+
+//------- binwidth = 10 all along ---------
+
+//***** 46 *****
+tmp.at(0) = 0.;
+tmp.at(1) = 2.;
+tmp.at(2) = 0.1;
+tmp.at(3) = 2.;
+tmp.at(4) = 0;
+accMap.push_back(tmp);
