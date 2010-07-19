@@ -16,11 +16,11 @@ if(! (syst == 0 || int(syst/100)!=0)){
   if(syst == 3)
     syst_val = 1.5;
   if(syst == 4)
-    syst_val = 2.58;
+    syst_val = 2.53;
   if(syst == 5)
-    syst_val = 5;
+    syst_val = 3.58;
   if(syst == 6)
-    syst_val = 10;
+    syst_val = 4.58;
   
   TH1F* nch_tmp = (TH1F*) nch_INC->Clone("nch_tmp");
   nch_INC->Reset();
