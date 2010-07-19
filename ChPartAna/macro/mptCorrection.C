@@ -69,7 +69,7 @@ void mptCorrection(int type = 10 , double E = 0.9 , int iTracking = 1 , int nevt
 
   #include "acceptanceMap.C"
   
-  TString filedir("../plots/systv12/");
+  TString filedir("../plots/systv10_17_3/");
   
   
   //**********************************************
@@ -77,7 +77,7 @@ void mptCorrection(int type = 10 , double E = 0.9 , int iTracking = 1 , int nevt
   
   ostringstream fname("");
   //fname<<"../plots/smallcodev4/smallCode_MCtype"<<mctype<<"_"<<E<<"TeV.root";
-  fname<<"../plots/smallcodev6/smallCode_MCtype"<<mctype<<"_"<<E<<"TeV.root";
+  fname<<"../plots/smallcodev7/smallCode_MCtype"<<mctype<<"_"<<E<<"TeV.root";
   //fname<<"../macro/smallCode_MCtype"<<mctype<<"_"<<E<<"TeV.root";
   cout<<"smallCode file : "<<fname.str()<<endl;
   TFile* smallcode = TFile::Open(fname.str().c_str(),"READ");
@@ -535,7 +535,7 @@ void mptCorrection(int type = 10 , double E = 0.9 , int iTracking = 1 , int nevt
     
     
     //Doing the trk systematics
-    double syst_trk_frac = 2.58;
+    double syst_trk_frac = 2.53;
     double meanpt_losttrk = pt_genMINUSreco.at(acc)->GetMean();
     for(int igen = 1 ; igen <= mptVSnch.at(acc)->GetNbinsX() ; ++igen){
       if(mptVSnch.at(acc)->GetBinContent(igen)!=0){
@@ -569,10 +569,12 @@ void mptCorrection(int type = 10 , double E = 0.9 , int iTracking = 1 , int nevt
         exl[i-1] = mptVSnch.at(acc)->GetBinCenter(i) - mptVSnch.at(acc)->GetXaxis()->GetBinLowEdge(i);
         exh[i-1] = mptVSnch.at(acc)->GetXaxis()->GetBinUpEdge(i) - mptVSnch.at(acc)->GetBinCenter(i);
       
-        eyl[i-1] = pow(systm_trk.at(acc)->GetBinContent(i)-mptVSnch.at(acc)->GetBinContent(i),2) + pow(systm_pterr.at(acc)->GetBinContent(i)-mptVSnch.at(acc)->GetBinContent(i),2) + pow(mptVSnch.at(acc)->GetBinError(i),2);
+        //eyl[i-1] = pow(systm_trk.at(acc)->GetBinContent(i)-mptVSnch.at(acc)->GetBinContent(i),2) + pow(systm_pterr.at(acc)->GetBinContent(i)-mptVSnch.at(acc)->GetBinContent(i),2) + pow(mptVSnch.at(acc)->GetBinError(i),2);
+        eyl[i-1] = pow(systm_trk.at(acc)->GetBinContent(i)-mptVSnch.at(acc)->GetBinContent(i),2) + pow(mptVSnch.at(acc)->GetBinError(i),2);
         eyl[i-1] = sqrt(eyl[i-1]);
       
-        eyh[i-1] = pow(systp_trk.at(acc)->GetBinContent(i)-mptVSnch.at(acc)->GetBinContent(i),2) + pow(systp_pterr.at(acc)->GetBinContent(i)-mptVSnch.at(acc)->GetBinContent(i),2) + pow(mptVSnch.at(acc)->GetBinError(i),2);
+        //eyh[i-1] = pow(systp_trk.at(acc)->GetBinContent(i)-mptVSnch.at(acc)->GetBinContent(i),2) + pow(systp_pterr.at(acc)->GetBinContent(i)-mptVSnch.at(acc)->GetBinContent(i),2) + pow(mptVSnch.at(acc)->GetBinError(i),2);
+        eyh[i-1] = pow(systp_trk.at(acc)->GetBinContent(i)-mptVSnch.at(acc)->GetBinContent(i),2) + pow(mptVSnch.at(acc)->GetBinError(i),2);
         eyh[i-1] = sqrt(eyh[i-1]);
       }
       
