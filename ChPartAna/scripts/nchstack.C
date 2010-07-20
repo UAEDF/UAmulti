@@ -29,7 +29,7 @@ double  globalEnergy = 0.9;
 #include "plot.C"
 
 void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1, 
-               float npx = 1000 , float npy = 600 , bool tracklets = false  ){
+               float npx = 700 , float npy = 700 , bool tracklets = false  ){
 
   globalEnergy = Energy ;
   gROOT->ProcessLine(".x cmsStyleRoot.C");
@@ -134,6 +134,9 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
 
   int kATLASPoint = kOpenTriangleUp ;
   int kATLASColor = kBlue; 
+  
+  TString kCMSlegend = "CMS";
+  if(tracklets) kCMSlegend+=" Tracking";
 
   // Define plots DUMMY first histo (kWhite)
 
@@ -148,14 +151,14 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
 //  else                     dataSetLegend.push_back("NONE"); 
 //  if ( ! tracklets ) dataSetLegend.push_back("CMS");
 //  else               dataSetLegend.push_back("CMS (Tracks)");
-   dataSetLegend.push_back("CMS Tracking");
+   dataSetLegend.push_back(kCMSlegend);
 
   dataSetHisto.push_back("unfolding/nch_data_corrected");
   dataSetFactor.push_back(10000);
 
   // |eta| < 2.4
  
-  if ( globalEnergy == 0.9 && iBin == 5 ) {
+ /* if ( globalEnergy == 0.9 && iBin == 5 ) {
     if (! tracklets ) {
       // UA 1 @ 900 GeV |n|<2.5 
       dataSetId.push_back(-1);
@@ -168,7 +171,7 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
       dataSetHisto.push_back("UA1"); 
       dataSetFactor.push_back(10000/50.3); // Divided by UA1 sigma_inel
     }
-  }
+  }*/
 
 /*
   if ( globalEnergy == 0.9 && iBin == 15 ) {
@@ -247,8 +250,8 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
     dataSetHisto.push_back("TRACKLETS");
     dataSetFactor.push_back(1000);
     
-    BinKillStat.push_back( dataSetId.size()-2 );
-    BinKillSyst.push_back( dataSetId.size()-1 );
+    //BinKillStat.push_back( dataSetId.size()-2 );
+    //BinKillSyst.push_back( dataSetId.size()-1 );
 
   }
 
@@ -292,7 +295,7 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
 //    } 
   } 
 
-  if ( tracklets && ( globalEnergy == 0.9 || globalEnergy == 7 ) ) {
+  /*if ( tracklets && ( globalEnergy == 0.9 || globalEnergy == 7 ) ) {
     // Tracklets
     dataSetId.push_back(-1);
     if ( globalEnergy == 0.9 ) dataSetFile.push_back("../expdata/Run124023-1.5.txt");
@@ -319,7 +322,7 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
   BinKillSyst.push_back( dataSetId.size()-1 );
 
 
-  }
+  }*/
 
   dataSetId.push_back(-1);
   dataSetFile.push_back(fileManager(3,iMc,globalEnergy,1,0,0,outstr2.str(),plotdir));
@@ -680,7 +683,7 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
 
   }
 
-  globalTextSize = 0.03;
+  globalTextSize = 0.02;
 
   textXPos.push_back(xt1)  ; textYPos.push_back(yt1) ;
   textXPos.push_back(xt2)  ; textYPos.push_back(yt2) ;
@@ -690,7 +693,7 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
 
   textText.push_back("|#eta| < 2.4 (x10000)");
   textText.push_back("|#eta| < 2.0 (x1000)");
-  textText.push_back("|#eta| < 1,5 (x100)");
+  textText.push_back("|#eta| < 1.5 (x100)");
   textText.push_back("|#eta| < 1.0 (x10)");
   textText.push_back("|#eta| < 0.5 (x1)");
 
@@ -708,7 +711,7 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
 
   yLegendWidth = 0.04;
   xLegendWidth = .1 ;
-  globalLegendTextSize = 30;
+  globalLegendTextSize = 22;
 
 
   // PLOT NOW
