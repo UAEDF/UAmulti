@@ -412,7 +412,8 @@ void plotmnch(double acc = 5){
   
   // Theory 
 
-  Likhoded->SetLineColor(kRed);
+  Likhoded->SetLineColor(kMagenta);
+  Likhoded->SetLineStyle(6);
   Likhoded->SetLineWidth(2);
   Likhoded->Draw("same l"); 
   
@@ -420,7 +421,7 @@ void plotmnch(double acc = 5){
   if ( acc == 9 || acc == 7 || acc == 5) {
     Levin->SetLineColor(kBlue);
     Levin->SetLineWidth(2);
-    Levin->SetLineStyle(1);
+    Levin->SetLineStyle(7);
     Levin->Draw("same l");
   }  
   // Fits 
@@ -432,7 +433,7 @@ void plotmnch(double acc = 5){
   TF1* f1 = new TF1("f1","[0] + [1] * log(x*x) + [2] * log(x*x) * log(x*x) ",5,15000);
   f1->SetLineWidth(1);
   f1->SetLineColor(kBlack);
-  f1->SetLineStyle(3);
+  f1->SetLineStyle(1);
   f1->SetParameters(2.5,-.5,0.05);
   nchmean_all->Fit("f1","R");
   cout << "Xavier :"<<endl;
