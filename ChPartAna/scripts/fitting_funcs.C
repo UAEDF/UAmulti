@@ -1,7 +1,8 @@
 //From websight
 double NBD(double x, double nmean, double k){
   double p = 1. / ( (nmean / k) + 1 );
-  return Gamma(x+k)/( Gamma(x+1) * Gamma(k) ) * pow(p,k) * pow ( 1 - p , x);
+  //return Gamma(x+k)/( Gamma(x+1) * Gamma(k) ) * pow(p,k) * pow ( 1 - p , x);
+  return Exp(LnGamma(x+k) - ( LnGamma(x+1) + LnGamma(k) )) * pow(p,k) * pow ( 1 - p , x);
 }
 
 //From paper

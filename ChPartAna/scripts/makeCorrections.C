@@ -54,8 +54,10 @@ double getRMS(TH1F*);
 double* Divide( const TArrayD* , double );
 
 void divideByWidth(TH1F*);
+void divideByWidth(TH1D*);
 void divideByWidth(TH2F*);
 void multiplyByWidth(TH1F*);
+void multiplyByWidth(TH1D*);
 void multiplyByWidth(TH2F*);
 
 
@@ -66,6 +68,7 @@ TGraphAsymmErrors h2g(TH1F*);
 #include "../macro/fileManager.C"
 #include "unfolding.cc"
 #include "getNIter.C"
+#include "ptcorr_funcs.C"
 #include "resamplings.C"
 //#include "moments.C"
 
@@ -74,7 +77,7 @@ TGraphAsymmErrors h2g(TH1F*);
 //#include "makeFakeMatrix.C"
 
 void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 5 , double E = 0.9 ,
-                     int typeMC = 0 , int iTr = 1 , int syst = 0 , int syst_sign = 0 , double Emc = 0 ,
+                     int typeMC = 0 , int iTr = 1 , int syst = 0 , int syst_sign = 0 , bool doPTcorr = true , double Emc = 0 ,
 		     TString filename = "" , int scaleWbin0 = true , bool drawcanv = true ,
 		     float mu = 14 , float sigma = 15 ){
 
@@ -87,29 +90,30 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 5 , d
   //gROOT->ProcessLine(".x ../macro/BuildLibDico.C+");
    
   useData = true;
+  doptcorr = doPTcorr;
   if(Emc==0) Emc = E;
   double syst_val = 0;
   if(syst==0) syst_sign=0;
        
   #include "../macro/acceptanceMap.C"
   
-  TString filedir("../plots/");
+  TString filedir("../plots/simpleana_current/");
   //TString addstr("binning1");
   TString addstr("");
   
   if(syst==201)
     addstr = "evtSelSyst";
     
+  if(syst==600)
+    addstr = "nsigma5";
     
-     addstr = "MT_test";
+  //addstr = filename;
+    
 
   TFile* mctmp = NULL;
   
   //Get the MC file
   TString mcfile = fileManager(2,typeMC,Emc,iTr,0,0,addstr,filedir);
-  //TFile* mc = new TFile("/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/macro/collectionPlotter_MC_finalv2_900GeV.root","READ");
-  //TFile* mc = new TFile("../macro/GOODFILES/MC_v005b_2.36TeV_eta2.5_pt0.4_gTr.root","READ");
-  //TFile* mc = new TFile("../macro/GOODFILES/MC_v005b_0.9TeV_eta2.5_pt0.4_gTr.root","READ");
   TFile* mc = TFile::Open(mcfile,"READ");//"newbinning","../plots/unfoldingv2/"
   cout<<"MC input file : "<<mcfile<<endl;
   
@@ -117,9 +121,6 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 5 , d
   
   //Get the data file
   TString datafile = fileManager(2,typeData,E,iTr,0,0,addstr,filedir);
-  //TString datafile = fileManager(2,typeData,E,iTr,0,0,"newbinning","../plots/unfoldingv2/");
-  //TFile* data = new TFile("../macro/GOODFILES/data_v005b_2.36TeV_eta2.5_pt0.4_gTr.root","READ");
-  //TFile* data = new TFile("../macro/GOODFILES/data_v005b_0.9TeV_eta2.5_pt0.4_gTr.root","READ");
   TFile* data = TFile::Open(datafile,"READ");
   cout<<"Data input file : "<<datafile<<endl;
   
@@ -171,6 +172,7 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 5 , d
   ostringstream outstr("");
   outstr << "hyp" << hyp << "_niter" << niter << "_cut" << acc << "_DataType" << typeData;
   if(E!=Emc) outstr << "_Emc"<<Emc;
+  if(!doptcorr) outstr<<"_noPtCorr";
   if(filename!="") outstr << "__" << filename;
   cout<<"Output file : "<<fileManager(3,typeMC,E,iTr,syst,syst_sign,outstr.str())<<endl;
   TFile* out = new TFile(fileManager(3,typeMC,E,iTr,syst,syst_sign,outstr.str()),"RECREATE");
@@ -192,7 +194,6 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 5 , d
   
   
   
-  
   //------------------------------------------------------------------------------
   //---------------------------- UNFOLDING ---------------------------------------
   //------------------------------------------------------------------------------
@@ -205,10 +206,11 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 5 , d
   //TH2F* matrixhist = (TH2F*) mc_matrix->Get(dir+st("MatrixPlots_evtSel",acc)+st("/nch_matrix_evtSel",acc));
   TH2F* matrixhist = (TH2F*) mc->Get(dir+st("MatrixPlots_evtSel",acc)+st("/nch_matrix_evtSel",acc));
   #include "syst_matrix.C"
+  //if(matrixhist==0)cout<<dir+st("MatrixPlots_evtSel",acc)+st("/nch_matrix_evtSel",acc)<<endl;
+  
   matrixhist->SetName("nch_matrix");
   
  
-
   /*for(int i=1;i<=matrixhist->GetNbinsX();++i){
     matrixhist->SetBinContent(i,1,0);
     //matrixhist->SetBinContent(1,i,0);
@@ -446,8 +448,38 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 5 , d
     
   }
   
+  bool reweightmtx = false;
+  if(E==7.) reweightmtx = true;
+  TH1D* projX = new TH1D();
+  TH1D* projY = new TH1D();
+  cout << "Reweighting the matrix : " << reweightmtx << endl;
+  if(reweightmtx){
   
-  nch_unfolded = (runalgo(matrix,nch_toUnfold,hypothesis,niter));
+    matrixhist->Write("nch_matrix_beforeReweighting");
+  
+    projY = (TH1D*) (matrixhist->ProjectionY("_py",1,matrixhist->GetNbinsY()));
+    //reweighting the reco side
+    for(int ireco = 1 ; ireco <= matrixhist->GetNbinsY() ; ++ireco){
+      double factor = 0;
+      if(projY->GetBinContent(ireco)!=0)
+        factor =  nch_toUnfold->GetBinContent(ireco) / projY->GetBinContent(ireco);
+	
+      double sumb = 0 , suma = 0;
+      for(int igen = 1 ; igen <= matrixhist->GetNbinsX() ; ++igen){
+        sumb += matrixhist->GetBinContent(igen , ireco);
+        matrixhist->SetBinContent(igen , ireco ,  matrixhist->GetBinContent(igen , ireco) * factor );
+        suma += matrixhist->GetBinContent(igen , ireco);
+      }
+      
+      //cout << "bin " << ireco << "  before = " << sumb << "( " << projY->GetBinContent(ireco) << " )   after = " << suma << "( " << nch_toUnfold->GetBinContent(ireco) << " )"  << endl;
+      
+    }
+  }
+  projX = (TH1D*) (matrixhist->ProjectionX("_px",1,matrixhist->GetNbinsX()));
+  projY = (TH1D*) (matrixhist->ProjectionY("_py",1,matrixhist->GetNbinsY()));
+    
+    
+  nch_unfolded = (runalgo(matrixhist,nch_toUnfold,hypothesis,niter));
   TH1F* nch_unfoldedPtr = (TH1F*) nch_unfolded.Clone("nch_unfoldedPtr");
 
   cout<< nch_unfoldedPtr->GetBinContent(31) << "  " << nch_unfoldedPtr->GetBinError(31) << endl;
@@ -480,7 +512,12 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 5 , d
   gDirectory->mkdir("hist_resampling");
   gDirectory->cd("hist_resampling");
 
-  TH1F nch_resampled = resample(matrix,nch_INC,nch_NSD,nch_unfoldedPtr,hypothesis,100,0,nch_evtSel_SD,moment,eff_evtSel,false);
+  int niter_resampling = 100;
+  if(syst!=0) niter_resampling = 1;
+  
+  cout << "WARNING !! The resampling is done with " << niter_resampling << " iterations ..." << endl;
+
+  TH1F nch_resampled = resample(matrixhist,nch_INC,nch_NSD,nch_unfoldedPtr,hypothesis,niter_resampling,0,nch_evtSel_SD,moment,eff_evtSel,false);
   TH1F* nch_resampledPtr = &nch_resampled;
   
   gDirectory->cd("../");
@@ -499,19 +536,17 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 5 , d
   gDirectory->cd("mtx_resampling");
 
     
-  TH1F nch_mtxresampled = mtxresample(matrix,nch_toUnfold,hypothesis,100,moment,eff_evtSel);
+  TH1F nch_mtxresampled = mtxresample(matrixhist,nch_toUnfold,hypothesis,niter_resampling,moment,eff_evtSel);
   TH1F* nch_mtxresampledPtr = &nch_mtxresampled;
   
   gDirectory->cd("../");
   
   
   
-  for(int nbin = 1 ; nbin<=nch_unfoldedPtr->GetNbinsX() ; ++nbin){
+  
+/*  for(int nbin = 1 ; nbin<=nch_unfoldedPtr->GetNbinsX() ; ++nbin){
     nch_unfoldedPtr->SetBinError(nbin , sqrt(pow(nch_resampledPtr->GetBinError(nbin),2)+pow(nch_mtxresampledPtr->GetBinError(nbin),2)));
-    /*cout<<nbin<<"  "<<nch_resampledPtr->GetBinError(nbin)<<"  "<<nch_mtxresampledPtr->GetBinError(nbin)<<endl;
-    cout<<"  "<<sqrt(pow(nch_resampledPtr->GetBinError(nbin),2)+pow(nch_mtxresampledPtr->GetBinError(nbin),2))
-        <<"  "<<nch_unfoldedPtr->GetBinError(nbin)<<endl;*/
-  }
+  }*/
   
   
   //------------------------------------------------------------------------------
@@ -551,8 +586,41 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 5 , d
     leg->AddEntry(nch_unfoldedPtr,"Data after Unfolding","l" );
     leg->Draw("same");
   }
+  
+  //------------------------------------------------------------------------------
+  //---------------------------- pt frac Correction ------------------------------
+  //------------------------------------------------------------------------------
+  
+  
+  TH1F* nch_evtSelCorr = (TH1F*) nch_corrected->Clone("nch_data_evtSelCorr");
+  
+  if(doPTcorr){  
+    cout<<" ++++ DOING PT FRAC CORRECTION ++++" <<endl;
+    
+    #include "ptcorr.C"
+    
+    if(syst==700)
+      ptcorr_val += 1. * syst_sign;
+    
+    increaseNTracks(nch_corrected , ptcorr_val , 1);
+  }
+  
   cout<<"Mean of multiplicity --------> "<<nch_corrected->GetMean()<<endl;
   cout<<"RMS of multiplicity  --------> "<<nch_corrected->GetRMS()<<endl;
+  
+  
+  //------------------------------------------------------------------------------
+  //--------------------------   Adding Stat Errors   ----------------------------
+  //--------------------------   to the final curve   ----------------------------
+  //------------------------------------------------------------------------------
+  
+  for(int nbin = 1 ; nbin<=nch_corrected->GetNbinsX() ; ++nbin){
+    nch_corrected->SetBinError(nbin , sqrt(pow(nch_resampledPtr->GetBinError(nbin),2)+pow(nch_mtxresampledPtr->GetBinError(nbin),2)));
+    //cout<<nbin<<"  "<<nch_resampledPtr->GetBinError(nbin)<<"  "<<nch_mtxresampledPtr->GetBinError(nbin)<<endl;
+    //cout<<"  "<<sqrt(pow(nch_resampledPtr->GetBinError(nbin),2)+pow(nch_mtxresampledPtr->GetBinError(nbin),2))
+    //    <<"  "<<nch_unfoldedPtr->GetBinError(nbin)<<endl;
+  }
+  
   
   
   //------------------------------------------------------------------------------
@@ -567,12 +635,18 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 5 , d
   divideByWidth(nch_INC);
   divideByWidth(nch_NSD);
   divideByWidth(nch_unfoldedPtr);
+  if(doPTcorr) divideByWidth(nch_evtSelCorr);
   divideByWidth(nch_corrected);
   divideByWidth(nch_resampledPtr);
   divideByWidth(nch_mtxresampledPtr);
   
   divideByWidth(matrixhist);
   divideByWidth(hypothesis);
+  
+  divideByWidth(projX);
+  divideByWidth(projY);
+  //divideByWidth(projX);
+  //divideByWidth(projY);
   
   
   //nch_corrected->Scale(1./nch_corrected->Integral());
@@ -650,7 +724,7 @@ void makeCorrections(int typeData = 0, int hyp=1 , int niter=0 , int acc = 5 , d
   double knomean = nch_corrected->GetMean();
   
   TString tkno = out->GetName();
-  tkno.ReplaceAll("plots/","plots/systv10_binning1v3_2/");
+  tkno.ReplaceAll("plots/","plots/current_b1_2/");
   cout<<"Opening for kno mean the file : "<<tkno<<endl;
   TFile* fkno = TFile::Open(tkno,"READ");
   if(fkno!=0){
@@ -793,12 +867,13 @@ if(drawcanv){
 }//End of if(drawcanv) for final plot
   
   //Unfolding
-  hypothesis->Write();
+  hypothesis->Write("hypothesis");
   nch_trueGen->Write();
   nch_trueGen_afterUnfolding->Write();
   nch_INC->Write();
   nch_NSD->Write();
   nch_unfoldedPtr->Write();
+  if(doPTcorr) nch_evtSelCorr->Write();
   nch_corrected->Write();
   nch_resampledPtr->Write("nch_histresampled");
   nch_mtxresampledPtr->Write("nch_mtxresampledPtr");
@@ -812,6 +887,8 @@ if(drawcanv){
   //eff_nch_L1_hf_vtxSel->Write();
   kno->Write();
   matrixhist->Write();
+  projX->Write();
+  projY->Write();
   
   gDirectory->cd("../");
 
@@ -926,6 +1003,13 @@ void divideByWidth(TH1F* hist){
   }
 }
 
+void divideByWidth(TH1D* hist){
+  for(int i=1;i<=hist->GetNbinsX();++i){
+    hist->SetBinContent(i,double(hist->GetBinContent(i))/double(hist->GetBinWidth(i)));
+    hist->SetBinError(i,double(hist->GetBinError(i))/double(hist->GetBinWidth(i)));
+  }
+}
+
 void divideByWidth(TH2F* hist){
   double width = 1;
   for(int i=1;i<=hist->GetNbinsX();++i){
@@ -944,6 +1028,12 @@ void multiplyByWidth(TH1F* hist){
   }
 }
 
+void multiplyByWidth(TH1D* hist){
+  for(int i=1;i<=hist->GetNbinsX();++i){
+    hist->SetBinContent(i,double(hist->GetBinContent(i))*double(hist->GetBinWidth(i)));
+    hist->SetBinError(i,double(hist->GetBinError(i))*double(hist->GetBinWidth(i)));
+  }
+}
 
 void multiplyByWidth(TH2F* hist){
   double width = 1;

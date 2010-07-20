@@ -194,13 +194,8 @@ void mptplot(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float npx = 1
     dataSetIsMc.push_back(1);
     dataSetHType.push_back(1);
     dataSetStyle.push_back(20);
-<<<<<<< mptplot.C
-    dataSetColor.push_back(kBlue);
-    dataSetLegend.push_back("PYTHIA phojet");
-=======
     dataSetColor.push_back(kMagenta);
     dataSetLegend.push_back("PHOJET");
->>>>>>> 1.4
     dataSetHisto.push_back(mchisto.str());
     dataSetFactor.push_back(1);
 

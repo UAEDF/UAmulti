@@ -1,5 +1,7 @@
 int getNIter(int icut , double E){
   int niter = 4;
+
+  if(icut>=41 && icut <=46) icut = 6;
   
   if(E==0.9){
     if(icut==0)  niter = 7;
