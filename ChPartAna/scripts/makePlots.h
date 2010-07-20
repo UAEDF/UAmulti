@@ -4,6 +4,8 @@
 #include <vector>
 using namespace std;
 #include <TString.h>
+#include "../plugins/TPlotter.h"
+#include "../plugins/TPlotterBase.h"
 
  // TCanvas size 
  float         globalCanvasSizeX = 500 ;
@@ -54,10 +56,18 @@ using namespace std;
  float           histoXMax = -99999.;   
  float           histoYMin = -99999.;   
  float           histoYMax = -99999.;   
+ 
+ // ratio Y limit 
+ float           ratioYMin = 0.;   
+ float           ratioYMax = 4.;   
 
  // Axis Title
  TString         XaxisTitle = "NONE";
  TString         YaxisTitle = "NONE";
+ int             XaxisTitleOffset = 1.0;
+ int             YaxisTitleOffset = 1.0;
+ int             XaxisTitleSize   = 0.06;
+ int             YaxisTitleSize   = 0.06;
 
  double          globalAxisTitleSize = 0.06;
 
@@ -68,7 +78,6 @@ using namespace std;
  float    xLegendMin[] = { 0.57 , 0.35 , 0.20 , 0.70 , 0.70 , 0.75 , 0.45 , 0.80 , 0.20 , 0.55 , 0.60};
  float    xLegendWidth = 0.35;
  float    yLegendMax[] = { 0.80 , 0.40 , 0.40 , 0.85 , 0.90 , 0.90 , 0.87 , 0.87 , 0.90 , 0.40 , 0.93};
- float    yLegendMax[] = { 0.80 , 0.40 , 0.40 , 0.85 , 0.90 , 1.00 , 0.87 , 0.87 , 0.90 , 0.40 , 0.93};
 
  float    yLegendWidth = 0.03;
  TString  ExtLegTitle ("NONE");
@@ -78,19 +87,25 @@ using namespace std;
  bool          globalSaveFig = 0 ; 
  TString       globalFigDir  ("../figs/");
  TString       globalFigBaseName  ("NONE");
+ 
+ 
+ TPlotterBase plotterbase;
+ TPlotter     plotter;
 
  // Dataset Settings
- vector<int>     dataSetId     (1,0);
- vector<bool>    dataSetIsMc   (1,0);
- vector<int>     dataSetStyle  (1,20);
- vector<int>     dataSetHType  (1,1);
- vector<int>     dataSetColor  (1,2);
- vector<float>   dataSetFactor (1,1);
- vector<float>   dataSetOffset (1,1);
- vector<TString> dataSetLegend (1,"Undef");
- vector<TString> dataSetFile   (1,"Undef"); 
- vector<TString> dataSetDir    (1,"Undef"); 
- vector<TString> dataSetHisto  (1,"Undef"); 
+ vector<int>      dataSetId       (1,0);
+ vector<bool>     dataSetIsMc     (1,0);
+ vector<int>      dataSetStyle    (1,20);
+ vector<int>      dataSetHType    (1,1);
+ vector<int>      dataSetColor    (1,2);
+ vector<float>    dataSetFactor   (1,1);
+ vector<float>    dataSetOffset   (1,1);
+ vector<TString>  dataSetLegend   (1,"Undef");
+ vector<TString>  dataSetFile     (1,"Undef"); 
+ vector<TString>  dataSetDir      (1,"Undef"); 
+ vector<TString>  dataSetHisto    (1,"Undef"); 
+ vector<int>      dataSetNSmooth  (20,50); 
+ vector<TPlotter> dataSetTPlotter (20,TPlotter()); 
 
  // text  
 
@@ -149,9 +164,13 @@ void plotReset()
   histoYMin = -99999.;
   histoYMax = -99999.;
 
-  XaxisTitle = "NONE";
-  YaxisTitle = "NONE";
-
+  XaxisTitle       = "NONE";
+  YaxisTitle       = "NONE";
+  XaxisTitleOffset = 1.0;
+  YaxisTitleOffset = 1.0;
+  XaxisTitleSize   = 0.06;
+  YaxisTitleSize   = 0.06;
+  
   dataSetId.clear();     
   dataSetIsMc.clear();   
   dataSetStyle.clear();  
@@ -162,8 +181,10 @@ void plotReset()
   dataSetLegend.clear(); 
   dataSetFile.clear();
   dataSetDir.clear();    
-  dataSetHisto.clear();    
-
+  dataSetHisto.clear();  
+  //dataSetNSmooth.clear();   
+  //dataSetTPlotter.clear();
+  dataSetTPlotter.assign(20,TPlotter()); 
   // 
 
  globalTextSize = 0.02;
