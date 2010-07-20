@@ -91,7 +91,10 @@ TH1F resample(TH2F* matrixhist, TH1F* nch_INC , TH1F* toUnfold , TH1F* nch_unfol
       sample[i].Draw();
     else
       sample[i].Draw("same");*/
-  
+    
+    sample[i].Divide(&(sample[i]),eff_evtSel,1,1);
+    if(doptcorr) increaseNTracks(&(sample[i]) , ptcorr_val);
+    
     for(int k=1;k<=toUnfold->GetNbinsX();++k){
       bins[k-1].Fill(sample[i].GetBinContent(k));
       nch_resampled_profile->Fill(nch_resampled_profile->GetBinCenter(k) , sample[i].GetBinContent(k));
@@ -108,7 +111,6 @@ TH1F resample(TH2F* matrixhist, TH1F* nch_INC , TH1F* toUnfold , TH1F* nch_unfol
     //gPad->Update();
     //gPad->WaitPrimitive();
   
-    sample[i].Divide(&(sample[i]),eff_evtSel,1,1);
     divideByWidth(&(sample[i]));
     //sample[i].Scale(1./sample[i].Integral());
     moment->AddDataForResampling(&(sample[i]));
@@ -366,6 +368,9 @@ TH1F mtxresample(TH2F* matrixhist , TH1F* toUnfold , TH1F* hyp, int niter = 5,
     else
       sample[i].Draw("same");*/
   
+    sample[i].Divide(&(sample[i]),eff_evtSel,1,1);
+    if(doptcorr) increaseNTracks(&(sample[i]) , ptcorr_val);
+  
     for(int k=1;k<=toUnfold->GetNbinsX();++k){
       bins[k-1].Fill(sample[i].GetBinContent(k));
       nch_resampled_profile->Fill(double(k)-1.,sample[i].GetBinContent(k));
@@ -380,7 +385,6 @@ TH1F mtxresample(TH2F* matrixhist , TH1F* toUnfold , TH1F* hyp, int niter = 5,
       
     }  
       
-    sample[i].Divide(&(sample[i]),eff_evtSel,1,1);
     divideByWidth(&(sample[i]));
     //sample[i].Scale(1./sample[i].Integral());
     moment->AddDataForResampling(&(sample[i]));
