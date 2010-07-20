@@ -34,6 +34,8 @@ void mptplotstack(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float np
   gROOT->ProcessLine(".x cmsStyleRoot.C");
 
   plotReset();
+  
+  globalSmoothMC = true;
 
   globalCanvasSizeX = npx;
   globalCanvasSizeY = npy;
@@ -92,6 +94,11 @@ void mptplotstack(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float np
   cout << "mptcor7   = " << mptcor7   << endl;
 
 
+  int htypeMC     = 6;
+  int htypeMC_D6T = htypeMC;
+  //if(iBin == 7) htypeMC_D6T = 3;
+  int nsmooth = 50;
+  
   // LineStyle
 
   int kD6TLineStyle = 2 ;
@@ -141,7 +148,7 @@ void mptplotstack(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float np
     dataSetId.push_back(-1);
     dataSetFile.push_back("../plots/smallcodev6/smallCode_MCtype10_0.9TeV.root");
     dataSetIsMc.push_back(1);
-    dataSetHType.push_back(3);
+    dataSetHType.push_back(htypeMC_D6T);
     dataSetStyle.push_back(kD6TLineStyle);
     dataSetColor.push_back(kD6TLineColor);
     dataSetLegend.push_back("PYTHIA D6T");
@@ -151,14 +158,16 @@ void mptplotstack(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float np
 
     BinKillMax.push_back( dataSetId.size()-1 );
     if ( iBin == 5 ) BinKillXMax.push_back( 90. );
-    if ( iBin == 7 ) BinKillXMax.push_back( 70. );
-    if ( iBin == 9 ) BinKillXMax.push_back( 30. );
+    if ( iBin == 7 ) BinKillXMax.push_back( 60. );
+    if ( iBin == 9 ) BinKillXMax.push_back( 24. );
     
-
+    if ( iBin == 7 ) dataSetNSmooth.at( dataSetId.size()-1 ) = nsmooth;
+    
+  
     dataSetId.push_back(-1);
     dataSetFile.push_back("../expdata/meanPt-PYTHIA8-0.9TeV.root");
     dataSetIsMc.push_back(1);
-    dataSetHType.push_back(3);
+    dataSetHType.push_back(htypeMC);
     dataSetStyle.push_back(kPY8LineStyle);
     dataSetColor.push_back(kPY8LineColor); 
     dataSetLegend.push_back("PYTHIA 8");
@@ -171,8 +180,9 @@ void mptplotstack(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float np
     BinKillMax.push_back( dataSetId.size()-1 );
     if ( iBin == 5 ) BinKillXMax.push_back( 90. );
     if ( iBin == 7 ) BinKillXMax.push_back( 70. );
-    if ( iBin == 9 ) BinKillXMax.push_back( 30. );
-
+    if ( iBin == 9 ) BinKillXMax.push_back( 24. );
+    
+    //if ( iBin == 9 ) dataSetNSmooth.at( dataSetId.size()-1 ) = 5;
 
 
 /*  
@@ -202,7 +212,7 @@ void mptplotstack(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float np
     dataSetId.push_back(-1);
     dataSetFile.push_back("../plots/smallcodev6/smallCode_MCtype20_0.9TeV.root");
     dataSetIsMc.push_back(1);
-    dataSetHType.push_back(3);
+    dataSetHType.push_back(htypeMC);
     dataSetStyle.push_back(kPHOLineStyle);
     dataSetColor.push_back(kPHOLineColor);
     dataSetLegend.push_back("PHOJET");
@@ -214,6 +224,7 @@ void mptplotstack(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float np
     if ( iBin == 5 ) BinKillXMax.push_back( 90. );
     if ( iBin == 7 ) BinKillXMax.push_back( 70. );
     if ( iBin == 9 ) BinKillXMax.push_back( 30. );
+  
   
     // Data Syst
 
@@ -232,6 +243,10 @@ void mptplotstack(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float np
     if ( iBin == 5 ) BinKillXMax.push_back( 90. );
     if ( iBin == 7 ) BinKillXMax.push_back( 70. );
     if ( iBin == 9 ) BinKillXMax.push_back( 30. );
+
+
+
+
 
   // ------------ 2.36 TeV -------------------
 
@@ -257,7 +272,7 @@ void mptplotstack(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float np
     dataSetId.push_back(-1);
     dataSetFile.push_back("../plots/smallcodev6/smallCode_MCtype10_2.36TeV.root");
     dataSetIsMc.push_back(1);
-    dataSetHType.push_back(3);
+    dataSetHType.push_back(htypeMC_D6T);
     dataSetStyle.push_back(kD6TLineStyle);
     dataSetColor.push_back(kD6TLineColor);
     dataSetLegend.push_back("NONE");
@@ -266,14 +281,16 @@ void mptplotstack(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float np
     dataSetOffset.push_back(.5);
 
     BinKillMax.push_back( dataSetId.size()-1 );
-    if ( iBin == 5 ) BinKillXMax.push_back( 120 );
-    if ( iBin == 7 ) BinKillXMax.push_back(  95 );
-    if ( iBin == 9 ) BinKillXMax.push_back(  40 );
+    if ( iBin == 5 ) BinKillXMax.push_back( 105 );
+    if ( iBin == 7 ) BinKillXMax.push_back(  84 );
+    if ( iBin == 9 ) BinKillXMax.push_back(  32 );
+    
+    if ( iBin == 7 ) dataSetNSmooth.at( dataSetId.size()-1 ) = nsmooth;
 
     dataSetId.push_back(-1);
     dataSetFile.push_back("../expdata/meanPt-PYTHIA8-2.36TeV.root");
     dataSetIsMc.push_back(1);
-    dataSetHType.push_back(3);
+    dataSetHType.push_back(htypeMC);
     dataSetStyle.push_back(kPY8LineStyle);
     dataSetColor.push_back(kPY8LineColor);
     dataSetLegend.push_back("NONE");
@@ -291,7 +308,7 @@ void mptplotstack(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float np
     dataSetId.push_back(-1);
     dataSetFile.push_back("../plots/smallcodev6/smallCode_MCtype20_2.36TeV.root");
     dataSetIsMc.push_back(1);
-    dataSetHType.push_back(3);
+    dataSetHType.push_back(htypeMC);
     dataSetStyle.push_back(kPHOLineStyle);
     dataSetColor.push_back(kPHOLineColor);
     dataSetLegend.push_back("NONE");
@@ -302,7 +319,7 @@ void mptplotstack(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float np
     BinKillMax.push_back( dataSetId.size()-1 );
     if ( iBin == 5 ) BinKillXMax.push_back( 120 );
     if ( iBin == 7 ) BinKillXMax.push_back(  95 );
-    if ( iBin == 9 ) BinKillXMax.push_back(  40 );
+    if ( iBin == 9 ) BinKillXMax.push_back(  32 );
 
     // Data Syst
  
@@ -321,6 +338,16 @@ void mptplotstack(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float np
     if ( iBin == 5 ) BinKillXMax.push_back( 120 );
     if ( iBin == 7 ) BinKillXMax.push_back(  95 );
     if ( iBin == 9 ) BinKillXMax.push_back(  40 );
+
+
+
+
+
+
+
+
+
+
 
 
   // ------------ 7.0 TeV -------------------
@@ -346,7 +373,7 @@ void mptplotstack(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float np
     dataSetId.push_back(-1);
     dataSetFile.push_back("../plots/smallcodev6/smallCode_MCtype30_7TeV.root");
     dataSetIsMc.push_back(1);
-    dataSetHType.push_back(3);
+    dataSetHType.push_back(htypeMC_D6T);
     dataSetStyle.push_back(kD6TLineStyle);
     dataSetColor.push_back(kD6TLineColor);
     dataSetLegend.push_back("NONE");
@@ -355,16 +382,17 @@ void mptplotstack(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float np
     dataSetOffset.push_back(1.);
 
     BinKillMax.push_back( dataSetId.size()-1 );
-    if ( iBin == 5 ) BinKillXMax.push_back( 150 );
-    if ( iBin == 7 ) BinKillXMax.push_back( 100 );
+    if ( iBin == 5 ) BinKillXMax.push_back( 135 );
+    if ( iBin == 7 ) BinKillXMax.push_back( 94 );
     if ( iBin == 9 ) BinKillXMax.push_back(  35 );
 
+    if ( iBin == 7 ) dataSetNSmooth.at( dataSetId.size()-1 ) = nsmooth;
 
 
     dataSetId.push_back(-1);
     dataSetFile.push_back("../expdata/meanPt-PYTHIA8-7TeV.root");
     dataSetIsMc.push_back(1);
-    dataSetHType.push_back(3);
+    dataSetHType.push_back(htypeMC);
     dataSetStyle.push_back(kPY8LineStyle);
     dataSetColor.push_back(kPY8LineColor);
     dataSetLegend.push_back("NONE");
@@ -395,7 +423,7 @@ void mptplotstack(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float np
     dataSetId.push_back(-1);
     dataSetFile.push_back("../plots/smallcodev6/smallCode_MCtype20_7TeV.root");
     dataSetIsMc.push_back(1);
-    dataSetHType.push_back(3);
+    dataSetHType.push_back(htypeMC);
     dataSetStyle.push_back(kPHOLineStyle);
     dataSetColor.push_back(kPHOLineColor);
     dataSetLegend.push_back("NONE");
