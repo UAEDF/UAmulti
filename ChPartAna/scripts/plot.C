@@ -26,14 +26,24 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
    TPad *p1 = NULL; 
    TPad *p2 = NULL; 
 
+  double pad_frac         = 0.35;
+  double bot_margin_ratio = 0.2;
+  double rfrac            = pad_frac * (1. - bot_margin_ratio);
+         rfrac            = 0.45;
   if (globalRatioType>0) { 
     //c1->Divide(1,2);
     //c1->cd(1);
-    p1=new TPad("p1","p1",0,0.5, 1,1);
-    p2=new TPad("p2","p2",0,0, 1,0.5);
+    p1=new TPad("p1","p1",0,pad_frac, 1,1);
+    p2=new TPad("p2","p2",0,0, 1,pad_frac);
     p1->Draw();
     p2->Draw();
-    p1->cd();   
+    p1->cd();
+    
+    p1->SetBottomMargin(0);
+    p2->SetTopMargin(0);
+    p2->SetBottomMargin(bot_margin_ratio);
+    
+      
   }
 
   // FIXME
@@ -60,6 +70,7 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
 
   vector<TH1*>                hDivData ( dataSetId.size() , NULL );
   vector<TGraphAsymmErrors*>  gDivData ( dataSetId.size() , NULL ); 
+  vector<TGraphAsymmErrors>   gDivData_noPtr ( dataSetId.size() , TGraphAsymmErrors() );
 
   TF1* f1 = NULL;
 
@@ -839,7 +850,15 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
     YaxisRatio->SetTitle("Ratio");
     YaxisRatio->SetTitleOffset(YaxisTitleOffset);
     XaxisBase = Xaxis;
-    XaxisBase->SetTitle("");
+    //XaxisBase->SetTitle("");
+    
+    YaxisRatio->SetLabelSize(Yaxis->GetLabelSize()/rfrac);
+    YaxisRatio->SetNdivisions(200+int(ratioYMax-ratioYMin+1));
+    YaxisRatio->SetTitleSize(Yaxis->GetTitleSize()/rfrac);
+    YaxisRatio->SetTitleOffset(YaxisTitleOffset*rfrac);
+    Xaxis->SetLabelSize(XaxisBase->GetLabelSize()/rfrac);
+    Xaxis->SetTitleSize(globalAxisTitleSize/rfrac);
+    Xaxis->SetTickLength(XaxisBase->GetTickLength()/rfrac);
   }
  
  
@@ -900,13 +919,29 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
     cout << " Divided panel Plotting " << endl;
 
     p2->cd();
+    
+    if(globalRatioErrorBand){
+      if ( tData.at(globalRatioBase) == 1 ){
+	gDivData_noPtr.at(globalRatioBase) = h2g(hDivData.at(globalRatioBase) , 1);
+        gDivData.at(globalRatioBase) = &(gDivData_noPtr.at(globalRatioBase));
+      }
+      if ( tData.at(globalRatioBase) == 1 || tData.at(globalRatioBase) == 4 || tData.at(globalRatioBase) == 5 ){
+        gDivData.at(globalRatioBase)->SetFillColor(16);
+        gDivData.at(globalRatioBase)->Draw("a2");
+      }
+    }
+    
     for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) {
+    
+      if(globalRatioErrorBand && globalRatioBase==iData)
+        continue;
   
       // TH1F Plot
       if ( tData.at(iData) == 1 )
       {
         if ( dataSetIsMc.at(iData) )  opt  = "hist"; 
         else                          opt  = "e1";
+	
         if ( iData > 0 )              opt += "same";
         if ( rData.at(iData) ) hDivData.at(iData)->Draw(opt);
       }
@@ -924,7 +959,7 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
        //   opt  = "c"; 
        // } else {
           if ( sData.at(iData) == 0 ) opt  = "p" ;  // stat error style
-          if ( sData.at(iData) == 1 ) opt  = "pZ" ; // systematics error style
+          if ( sData.at(iData) == 1 ) opt  = "pZ" ; // systematics error style     
        // } 
 
         if ( iData == 0 ) opt += "a";
