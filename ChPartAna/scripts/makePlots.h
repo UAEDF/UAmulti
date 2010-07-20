@@ -42,6 +42,7 @@ using namespace std;
  int           globalRatioType =  0;
  int           globalRatioBase = -1;
  int           globalRatioSyst = -1;
+ bool          globalRatioErrorBand = 1;
 
  // Bin Killer
 
@@ -166,7 +167,7 @@ void plotReset()
 
   XaxisTitle       = "NONE";
   YaxisTitle       = "NONE";
-  XaxisTitleOffset = 1.0;
+  XaxisTitleOffset = 1.0; 
   YaxisTitleOffset = 1.0;
   XaxisTitleSize   = 0.06;
   YaxisTitleSize   = 0.06;
