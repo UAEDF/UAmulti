@@ -39,7 +39,7 @@ void nchPlotRecoFinal(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, floa
   globalCanvasSizeY = npy;
 
   XaxisTitle = "n";
-  YaxisTitle = "N";
+  YaxisTitle = "Events";
 
   xGlobalLabel = 0.5 ;
   if ( globalEnergy == 0.9 ) globalLabel =  "CMS Preliminary 0.9 TeV";
@@ -86,15 +86,6 @@ void nchPlotRecoFinal(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, floa
   // PLOT
 
 
-    dataSetId.push_back(-1);
-    dataSetFile.push_back(fileManager(3,iMc,globalEnergy,1,0,0,outstr.str(),plotdir));
-    dataSetIsMc.push_back(0);
-    dataSetHType.push_back(5);
-    dataSetStyle.push_back(kOpenCircle);
-    dataSetColor.push_back(kBlack);
-    dataSetLegend.push_back("Hadrons");
-    dataSetHisto.push_back("unfolding/gnch_data_corrected");
-
 
     dataSetId.push_back(-1);
     dataSetFile.push_back(fileManager(3,iMc,globalEnergy,1,0,0,outstr.str(),plotdir));
@@ -102,9 +93,19 @@ void nchPlotRecoFinal(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, floa
     dataSetHType.push_back(1);
     dataSetStyle.push_back(kOpenSquare);
     dataSetColor.push_back(kRed);
-    dataSetLegend.push_back("Tracks");
+    dataSetLegend.push_back("Before Corrections");
     dataSetHisto.push_back("unfolding/nch_data_INC_beforeSDsub");
     //dataSetHisto.push_back("unfolding/gnch_data_corrected");
+
+
+    dataSetId.push_back(-1);
+    dataSetFile.push_back(fileManager(3,iMc,globalEnergy,1,0,0,outstr.str(),plotdir));
+    dataSetIsMc.push_back(0);
+    dataSetHType.push_back(5);
+    dataSetStyle.push_back(kOpenCircle);
+    dataSetColor.push_back(kBlack);
+    dataSetLegend.push_back("After Corrections");
+    dataSetHisto.push_back("unfolding/gnch_data_corrected");
 
     dataSetId.push_back(-1);
     dataSetFile.push_back(fileManager(3,iMc,globalEnergy,1,0,0,outstr.str(),plotdir));
