@@ -41,7 +41,7 @@ void Multiply(double*, int , double);
 
 
 void plotSystematics(int syst , double E = 0.9 , int icut = 5 , int iMC = -1, int basesyst = 0, int iDataType = 0, int icutsyst = -1,
-                     TString systleg = "NONE" , bool mirror = true){
+                     TString systleg = "NONE" , bool mirror = false){
   
   cut = icut;
   energy = E;
@@ -56,7 +56,8 @@ void plotSystematics(int syst , double E = 0.9 , int icut = 5 , int iMC = -1, in
   if(energy==7.0 && iMC==-1) typeMC = 31;
   else if(iMC==-1) typeMC = 10;
   
-  plotdir = "../plots/systv10_niter100_2/";
+  plotdir = "../plots/current/";
+  //plotdir = "../plots/";
   ostringstream outstr("");
   outstr << "hyp" << 1 << "_niter" << 0 << "_cut" << cut << "_DataType" << iDataType;
   
@@ -196,7 +197,9 @@ void plotSystematics(TString tdata, TString tsyst1, TString tsyst2, TString plot
 	}
       }
     }
-    
+  }//end of loop over bins
+  
+  for(int i = 1 ; i <= hdata->GetNbinsX() ; ++i){
     //doing the ratio arrays
     ry[i-1] = 0.;
     reyl[i-1] = reyh[i-1] = 0;
@@ -512,13 +515,14 @@ void plotSystematics(TString tdata, TString tsyst1, TString tsyst2, TString plot
 
 void finaleSystematic(double energy = 0.9, int cut = 5 , int typePlotting = 0 , bool plotPoissErr = false , bool printFig = true){
   vector<int> syst;
-  syst.push_back(4);
   syst.push_back(102);
+  syst.push_back(4);
   syst.push_back(200);
   if(energy==0.9 || energy==2.36){
     syst.push_back(500);
-    syst.push_back(510);
+    //syst.push_back(510);
   }
+  syst.push_back(700);
   //syst.push_back(411);
   //syst.push_back(1000);//always last !!
   
@@ -675,7 +679,8 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , int typePlotting = 0 , 
   Double_t* exlOpoiss = new Double_t[hdata->GetNbinsX()];
   
   double maxr = 0. , minr = 0.;
-
+  
+  //initializing the arrays
   for(int i = 1 ; i <= hdata->GetNbinsX() ; ++i){
     x[i-1] = hdata->GetBinCenter(i);
     y[i-1] = hdata->GetBinContent(i);
@@ -683,15 +688,26 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , int typePlotting = 0 , 
     exh[i-1] = hdata->GetXaxis()->GetBinUpEdge(i) - hdata->GetBinCenter(i);
     eyl[i-1] = 0;
     eyh[i-1] = 0;
+  }
     
-    double binc = hdata->GetBinContent(i);
-    for(int isyst = 0 ; isyst < syst1.size() ; ++isyst){
+  for(int isyst = 0 ; isyst < syst1.size() ; ++isyst){
+        
+    bool s2IsVoid = false;
+    if(TString(syst2.at(isyst).GetName()).Contains("dummy")) s2IsVoid = true;
+    double sbinc2 = 0;
+    
+    for(int i = 1 ; i <= hdata->GetNbinsX() ; ++i){
+      /*x[i-1] = hdata->GetBinCenter(i);
+      y[i-1] = hdata->GetBinContent(i);
+      exl[i-1] = hdata->GetBinCenter(i) - hdata->GetXaxis()->GetBinLowEdge(i);
+      exh[i-1] = hdata->GetXaxis()->GetBinUpEdge(i) - hdata->GetBinCenter(i);
+      eyl[i-1] = 0;
+      eyh[i-1] = 0;*/
+    
+      double binc = hdata->GetBinContent(i);
     
       double sbinc1 = syst1.at(isyst).GetBinContent(i);
-      
-      bool s2IsVoid = false;
-      if(TString(syst2.at(isyst).GetName()).Contains("dummy")) s2IsVoid = true;
-      double sbinc2 = 0;
+
       if(!s2IsVoid)sbinc2 = syst2.at(isyst).GetBinContent(i);
       
       if(sbinc1 > binc){
@@ -731,10 +747,20 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , int typePlotting = 0 , 
       
       //cout<<i<<"  "<<eyl[i-1]<<"  "<<eyh[i-1]<<endl;
      // cout<<binc<<"  "<<sbinc1<<"  "<<sbinc2<<endl;
-    }//end of loop over syst
+    }//end of loop over bins
     
+    #include "smoothingSDsyst.C"
+
+  }//end of loop over syst
+  
+  //here the total sum of syst is finished
+    
+  for(int i = 1 ; i <= hdata->GetNbinsX() ; ++i){
     eyl[i-1] = sqrt(eyl[i-1] + pow(hdata->GetBinError(i),2));
     eyh[i-1] = sqrt(eyh[i-1] + pow(hdata->GetBinError(i),2));
+    //eyl[i-1] = sqrt(eyl[i-1]);
+    //eyh[i-1] = sqrt(eyh[i-1]);
+    
     
     systm->SetBinContent(i,eyl[i-1]);
     systp->SetBinContent(i,eyh[i-1]);
@@ -760,7 +786,7 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , int typePlotting = 0 , 
       exlOpoiss[i-1] = hdata_mtxerr->GetBinError(i) * sqrt(hdata->GetBinWidth(i)) / sqrt(hdata->GetBinContent(i));
       exhOpoiss[i-1] = hdata_mtxerr->GetBinError(i) * sqrt(hdata->GetBinWidth(i)) / sqrt(hdata->GetBinContent(i));
       
-      cout<<i<<"  "<<hdata_mtxerr->GetBinError(i)<<endl;
+      //cout<<i<<"  "<<hdata_mtxerr->GetBinError(i)<<endl;
       if(0.-reyl[i-1]<minr) minr = 0.-reyl[i-1];
       if(0.+reyh[i-1]>maxr) maxr = reyh[i-1];
       /*cout<<i<<"  "<<hdata_mtxerr->GetBinError(i)
@@ -921,7 +947,7 @@ void finaleSystematic(double energy = 0.9, int cut = 5 , int typePlotting = 0 , 
   double knomean = hdata->GetMean();
 
   TString tkno = fdata->GetName();
-  tkno.ReplaceAll("plots/","plots/systv10_binning1v3_2/");
+  tkno.ReplaceAll("plots/","plots/current_b1/");
   cout<<"Opening for kno mean the file : "<<tkno<<endl;
   TFile* fkno = TFile::Open(tkno,"READ");
   if(fkno!=0){
