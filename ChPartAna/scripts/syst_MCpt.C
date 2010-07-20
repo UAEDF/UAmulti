@@ -163,7 +163,7 @@ void syst_MCpt(double E = 0.9 , int cut = 5){
   double knomean = hsyst->GetMean();
   
   TString tkno = toutput;
-  tkno.ReplaceAll("plots/","plots/systv10_binning1v2/");
+  tkno.ReplaceAll("plots/","plots/current_b1_2/");
   cout<<"Opening for kno mean the file : "<<tkno<<endl;
   TFile* fkno = TFile::Open(tkno,"READ");
   if(fkno!=0){
