@@ -1,224 +1,4 @@
-#include <TROOT.h>
-#include <TH1D.h>
-#include <TH2D.h>
-#include <TGraphErrors.h>
-#include <TGraphAsymmErrors.h>
-#include <TString.h>
-#include <TProfile.h>
-#include <TStyle.h> 
-#include <TCanvas.h>
-#include <TFrame.h>
-#include <TFile.h>
-#include <TDirectory.h>
-#include <TLegend.h>
-#include <TF1.h>
-//#include <TText.h>
-#include <TLatex.h>
-#include <iostream>
-#include <fstream>
-using namespace std;
-
-#include "TMath.h"
-using namespace TMath;
-
-// This give the integral of a TGraph assuming x error bar as bin width
-// Integral done between iBinMin and iBinMax
-Double_t TGIntegral ( TGraphAsymmErrors *&graph , int iBinMin , int iBinMax )
-{
-   //cout << graph->GetN() << endl;
-   if ( graph->GetN() > iBinMax ) iBinMax = graph->GetN() ;  
-   if ( iBinMin       > iBinMax ) return 0. ;
-   Double_t Integral = 0.;
-   for(int i = iBinMin ; i < iBinMax ; ++i) {
-     Double_t x,y,deltax ; 
-     graph->GetPoint(i,x,y);
-     deltax = graph->GetErrorXhigh(i) + graph->GetErrorXlow(i) ;
-     //cout << i << " " << x << " " << y << " " << graph->GetErrorXhigh(i) << " " << graph->GetErrorXlow(i)  << " " << deltax << endl;
-     Integral += y*deltax ;
-   }
-   return Integral;
-}
-
-
-//NBD: From websight
-Double_t NBD(Double_t x, Double_t nmean, Double_t k){
-  Double_t p = 1. / ( (nmean / k) + 1. );
-
-/*  
-  cout << "p: " << p << endl;
-  cout << "1: " << Gamma(x+k) << endl;
-  cout << "2: " << ( Gamma(x+1) * Gamma(k) ) << endl;
-  cout << "3: " << pow(p,k) << endl;
-  cout << "4: " << pow ( 1 - p , x) << endl;
-*/
-
-  //Double_t val = Gamma(x+k)/( Gamma(x+1) * Gamma(k) ) * pow(p,k) * pow ( 1 - p , x);
-  Double_t val = Exp ( LnGamma(x+k) - LnGamma(x+1) - LnGamma(k) ) * pow(p,k) * pow ( 1 - p , x);
-  if ( isnan(val) || isinf(val) ) val=0. ;
-  return val;
-}
-
-Double_t funcSingleNBD(Double_t *x, Double_t *par)
-{
-   Float_t xx =x[0];
-   Double_t f = par[0] * NBD( xx , par[1] , par[2] ) ;
-   return f;
-}
-
-Double_t funcDoubleNBD(Double_t *x, Double_t *par)
-{
-   Float_t xx =x[0];
-   Double_t f = par[0] * (   (1.-par[1]) * NBD( xx , par[2] , par[3] )
-                           +   par[1]    * NBD( xx , par[4] , par[5] ) )  ;
-   return f;
-}
-
-
-// Scale a TGraphAsymErrors
-void TGAsymScale ( TGraphAsymmErrors *&graph , Float_t Scale )
-{
-   for(int i = 0 ; i < graph->GetN() ; ++i) {
-     Double_t x,y,eyup,eydown ;
-     graph->GetPoint(i,x,y);
-     eyup   = graph->GetErrorYhigh(i);
-     eydown = graph->GetErrorYlow(i);
-     y      *= Scale;
-     eyup   *= Scale;
-     eydown *= Scale;
-     graph->SetPoint(i,x,y);
-     graph->SetPointEYhigh(i,eyup); 
-     graph->SetPointEYlow(i,eydown);
-   }   
-}
-
-void XMaxBinKiller ( TH1 *&hstat  , double XMax ) {
-
-//    for(int i = 1 ; i <=  hstat->GetNbinsX() ; ++i ) {
-    for(int i = (hstat->GetNbinsX()) ; i>0 ; --i) {  
-      if ( hstat->GetBinCenter(i) > XMax ) {
-         cout << "Killing bin: "  << i << " " << hstat->GetBinCenter(i) << endl;
-         hstat->SetBinContent(i,0.);
-         hstat->SetBinError(i,0.);
-      }
-    } 
-}
-
-void YMinBinKiller ( TH1 *&hstat  , double XMin ) {
-
-    //for(int i = 1 ; i <=  hstat->GetNbinsX() ; ++i ) {
-    for(int i = (hstat->GetNbinsX()) ; i>0 ; --i) {  
-      if ( hstat->GetBinContent(i) <= XMin ) {
-         cout << "Killing bin: "  << i << " " << hstat->GetBinCenter(i) << endl;
-         hstat->SetBinContent(i,0.);
-         hstat->SetBinError(i,0.);
-      }
-    } 
-}
-
-
-
-// Remove Points with RelError > 100 % 
-void SerialBinKiller ( TH1 *&hstat  , TGraphAsymmErrors *&gsyst , 
-                       Float_t downLimit     = -9999. , Float_t upLimit     = 9999. , 
-                       Float_t downTolerance =   1.   , Float_t upTolerance = 9999.   ) {
-
-  
-  cout << hstat->GetNbinsX() << endl; 
-  cout << gsyst->GetN() << endl;
-  if ( hstat->GetNbinsX() !=   gsyst->GetN() ) return;
-  
-  for(int i = (gsyst->GetN()-1) ; i>-1 ; --i) {  
-     Double_t x,y,eyup,eydown ;
-     gsyst->GetPoint(i,x,y);
-     eyup   = gsyst->GetErrorYhigh(i);
-     eydown = gsyst->GetErrorYlow(i);
-     float iSLargeError = false;
-     //cout << "Bin : " << i << " " << x << endl; 
-     if ( fabs(y) > 0 ) {
-        if ( fabs(eydown/y) >= downTolerance ) iSLargeError = true ;
-        if ( fabs(eyup/y)   >= upTolerance   ) iSLargeError = true ;
-     } 
-     if (iSLargeError) {
-         cout << "Killing : " << x << " " << y << " " << endl; 
-         hstat->SetBinContent(i+1,0.);
-         hstat->SetBinError(i+1,0.);
-         gsyst->RemovePoint(i);
-     }
-
-   }   
-}
-
-void XMaxBinKiller ( TGraphAsymmErrors *&gstat  , double XMax ) {
-    //for(int i = 0 ; i < gstat->GetN() ; ++i ) {
-    for(int i = (gstat->GetN()-1) ; i>-1 ; --i) {
-      Double_t x,y ;  
-      gstat->GetPoint(i,x,y);
-      if ( x > XMax ) { 
-        gstat->RemovePoint(i); 
-        cout << "Killing bin: "  << i << " " << x << endl;
-      }  
-    }
-}
-
-void YMinBinKiller ( TGraphAsymmErrors *&gstat  , double YMin ) {
-    //for(int i = 0 ; i < gstat->GetN() ; ++i ) {
-    for(int i = (gstat->GetN()-1) ; i>-1 ; --i) {
-      Double_t x,y ;  
-      gstat->GetPoint(i,x,y);
-      if ( y <= YMin ) { 
-        gstat->RemovePoint(i); 
-        cout << "Killing bin: "  << i << " " << x << endl;
-      }  
-    }
-}
-
-
-// Remove Points with RelError > 100 % 
-void SerialBinKiller ( TGraphAsymmErrors *&gstat  , TGraphAsymmErrors *&gsyst , 
-                       Float_t downLimit     = -9999. , Float_t upLimit     = 9999. , 
-                       Float_t downTolerance = 1. , Float_t upTolerance = 999.  ) {
-
-    cout << gstat->GetN() << endl;
-    cout << gsyst->GetN() << endl;
-    if (  gsyst->GetN() != gstat->GetN() ) return;
-
-    for(int i = (gsyst->GetN()-1) ; i>-1 ; --i) {
-       Double_t x,y,eyup,eydown ;
-       gsyst->GetPoint(i,x,y);
-       eyup   = gsyst->GetErrorYhigh(i);
-       eydown = gsyst->GetErrorYlow(i);
-       float iSLargeError = false;
-       if ( fabs(y) > 0 ) {
-         if ( fabs(eydown/y) >= downTolerance ) iSLargeError = true ;
-         if ( fabs(eyup/y)   >= upTolerance   ) iSLargeError = true ;
-       } else iSLargeError = true ;
-
-       if (iSLargeError) {
-         cout << "Killing : " << x << " " << y << " " << endl;
-         gstat->RemovePoint(i);        
-         gsyst->RemovePoint(i);
-       }
-    }
-}
-
-Double_t getLastFilledBin(TH1* h){
-  int ibin = 2;
-  for(;ibin <= h->GetNbinsX() ; ++ibin){
-    if(h->GetBinContent(ibin) == 0.) break;
-  }
-  return h->GetBinCenter(ibin-1) + h->GetBinWidth(ibin-1)/2.;
-}
-
-Double_t getLastFilledBin(TGraphAsymmErrors* g){
-  int ibin = 1;
-  Double_t x , y;
-  for(;ibin < g->GetN() ; ++ibin){
-    g->GetPoint(ibin , x , y);
-    if(y == 0.) break;
-  }
-  g->GetPoint(ibin-1 , x , y);
-  return x + g->GetErrorXhigh(ibin-1);
-}
+#include "plot_funcs.C"
 
 void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
 {
@@ -276,6 +56,7 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
   vector<TH1*>            hData ( dataSetId.size() , NULL );
 //  vector<TGraph*>         gData ( dataSetId.size() , NULL );
   vector<TGraphAsymmErrors*> gData ( dataSetId.size() , NULL );
+  vector<TGraphAsymmErrors>  gData_noPtr ( dataSetId.size() , TGraphAsymmErrors() );
 
   vector<TH1*>                hDivData ( dataSetId.size() , NULL );
   vector<TGraphAsymmErrors*>  gDivData ( dataSetId.size() , NULL ); 
@@ -337,8 +118,8 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
 
       if ( tData.at(iData) == 3 ) { 
         hData.at(iData) = (TProfile*) fData.at(iData)->Get(histoName);
-        //if ( dataSetHType.at(iData) ) hData.at(iData)->Smooth(1);
-        int nmax = 500;
+        //if ( dataSetHType.at(iData) ) hData.at(iData)->Smooth(1);	
+        int nmax = hData.at(iData)->GetNbinsX()-1;
         int n = 0;  
         Double_t x[nmax],ex[nmax],y[nmax],ey[nmax];
         for (int i = 1 ; i <=  hData.at(iData)->GetNbinsX() ; ++i ) { 
@@ -356,7 +137,38 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
         gData.at(iData) = new TGraphAsymmErrors(n,x,y,ex,ex,ey,ey);
         tData.at(iData) = 5 ;
       }
-
+      
+      if ( tData.at(iData) == 6 ) { 
+        hData.at(iData) = (TH1*) fData.at(iData)->Get(histoName);
+        double XMAX = 99999. ;
+	for(int iData2Kill = 0 ; iData2Kill < (signed) BinKillMax.size() ; ++iData2Kill ) {
+          if ( BinKillMax.at(iData2Kill) == iData )
+            XMAX = BinKillXMax.at(iData2Kill) ;
+        }
+	   
+	TH1F* h = new TH1F("h","h",hData.at(iData)->GetNbinsX() , hData.at(iData)->GetXaxis()->GetXbins()->GetArray() );
+        for(int i = 1 ; i<=hData.at(iData)->GetNbinsX() ; ++i)
+          h->SetBinContent(i,hData.at(iData)->GetBinContent(i));
+	  
+        h->GetXaxis()->SetRangeUser(10.5   ,XMAX); 
+        h->Smooth(dataSetTPlotter.at(iData).nSmooth,"R");
+        h->GetXaxis()->SetRangeUser(-0.5,XMAX);
+	
+        int nmax = hData.at(iData)->GetNbinsX()-1;
+        int n = 0;  
+        Double_t x[nmax],ex[nmax],y[nmax],ey[nmax];
+        for (int i = 1 ; i <=  hData.at(iData)->GetNbinsX() ; ++i ) { 
+          x[n]   = hData.at(iData)->GetBinCenter(i);
+          y[n]   = 0;
+	  if(    hData.at(iData)->GetBinContent(i) != 0 )
+	    y[n]   = h->GetBinContent(i);
+          ex[n]  = 0.;
+          ey[n]  = 0.;
+          n++;       
+        } 
+        gData.at(iData) = new TGraphAsymmErrors(n,x,y,ex,ex,ey,ey);
+        tData.at(iData) = 5 ;
+      }
   
       if ( ! ( tData.at(iData) == 4 || tData.at(iData) == 5 ) ) { 
         if ( hData.at(iData) == 0 ) {
@@ -490,7 +302,13 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
       } 
 
 
-    // Data from external text file 
+
+
+
+  //----------------------------------------------------------
+  //----------------      External Data      -----------------
+  //----------------------------------------------------------
+  
     } else {
      
  
@@ -525,7 +343,7 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
       { 
 
         int   n = 0;
-        const int  nmax = 300 ;
+        const int  nmax = 700 ;
         double x[nmax], xl[nmax] , xh[nmax] , y[nmax] , ex[nmax] , eyl[nmax] , eyh[nmax] , wh[nmax] ;
         double syl[nmax] , syh[nmax] ;     
  
@@ -621,6 +439,10 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
     }
   }
 
+
+
+
+
   // SerialBinKiller
 
   if ( (signed) BinKillStat.size() > 0 ) {
@@ -635,6 +457,10 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
     }
   }
 
+
+
+
+
   // XMaxBinKiller
 
   if ( (signed) BinKillMax.size() > 0 ) {
@@ -645,6 +471,15 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
         if ( tData.at(BinKillMax.at(iData2Kill)) == 5 ) 
           XMaxBinKiller(gData.at(BinKillMax.at(iData2Kill)), BinKillXMax.at(iData2Kill)) ; 
     } 
+  }
+
+  for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData){
+    if(dataSetTPlotter.at(iData).binKillXMax != -999. ){
+      if ( tData.at(iData) == 1 || tData.at(iData) == 3 ) 
+        XMaxBinKiller(hData.at(iData), dataSetTPlotter.at(iData).binKillXMax) ; 
+      if ( tData.at(iData) == 5 ) 
+        XMaxBinKiller(gData.at(iData), dataSetTPlotter.at(iData).binKillXMax) ; 
+    }
   }
 
 
@@ -664,8 +499,10 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
     } 
   } 
 
-  // Smoothing ( TH1 && MC ONLY !!!! )
-  if ( globalSmoothMC ) {
+
+
+  // Smoothing TH1 && MC ONLY !!!! 
+/*  if ( globalSmoothMC ) {
     for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) {
       if ( dataSetIsMc.at(iData) ) {
         if ( tData.at(iData) == 1 ) {
@@ -673,15 +510,49 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
            //for(int iData2Kill = 0 ; iData2Kill < (signed) BinKillMax.size() ; ++iData2Kill ) {
            //   if ( iData2Kill == iData ) XMAX = BinKillXMax.at(iData2Kill);
            //} 
-           hData.at(iData)->GetXaxis()->SetRangeUser(1.5   ,XMAX); 
-           //hData.at(iData)->Smooth(3,"R");
+           hData.at(iData)->GetXaxis()->SetRangeUser(20.5   ,XMAX); 
+           hData.at(iData)->Smooth(1,"R");
            hData.at(iData)->GetXaxis()->SetRangeUser(-9999.,XMAX);
         }
       }
     } 
   } 
+*/
 
-  // Divide if requested and find hMax
+
+  // Smoothing TH1 && MC ONLY !!!! 
+  for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) {
+    if ( tData.at(iData) == 1 && dataSetTPlotter.at(iData).doSmoothing) {
+      double XMAX = 99999. ;
+      double XMIN = 30.5;
+      double xmin = hData.at(iData)->GetXaxis()->GetXmin();
+      double xmax = hData.at(iData)->GetXaxis()->GetXmax();
+      for(int iData2Kill = 0 ; iData2Kill < (signed) BinKillMax.size() ; ++iData2Kill ) {
+        if ( BinKillMax.at(iData2Kill) == iData )
+          XMAX = BinKillXMax.at(iData2Kill) ;
+      }
+      if(dataSetTPlotter.at(iData).binKillXMax != -999. ) XMAX = dataSetTPlotter.at(iData).binKillXMax;
+      cout << dataSetTPlotter.at(iData).smoothingXMin << "  " << dataSetTPlotter.at(iData).smoothingXMax<< endl;
+      if(dataSetTPlotter.at(iData).smoothingXMin < dataSetTPlotter.at(iData).smoothingXMax){
+        cout << "Using specified range ..." << endl;
+        XMIN = dataSetTPlotter.at(iData).smoothingXMin;
+        XMAX = dataSetTPlotter.at(iData).smoothingXMax;
+      }
+      cout << "Smoothing in range : " << XMIN << "  "  << XMAX << endl;
+      hData.at(iData)->GetXaxis()->SetRangeUser(XMIN , XMAX);
+      hData.at(iData)->Smooth(dataSetTPlotter.at(iData).nSmooth,"R");
+      hData.at(iData)->GetXaxis()->SetRangeUser(xmin,xmax);
+    } 
+  } 
+
+
+
+
+
+
+  //----------------------------------------------------------
+  //----------------       Divide Plots      -----------------
+  //----------------------------------------------------------
 
   if ( globalRatioBase != -1 ) {
     if ( tData.at(globalRatioBase) == 1 ) hDividor = (TH1D*) hData.at(globalRatioBase)->Clone("hDividor");
@@ -849,11 +720,17 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
   } 
 
 
+  //----------------------------------------------------------
+  //----------------       Plots TAxis       -----------------
+  //----------------------------------------------------------
 
-  // Global Style (histo)
   cout << " Global Style (histo) " << endl;
+  
+  
+//---- OLD VERSION : DEPRECATED
+
   // FIXME 
-  if ( ! ( tData.at(0) == 4 || tData.at(0) == 5 ) ) {
+/*  if ( ! ( tData.at(0) == 4 || tData.at(0) == 5 ) ) {
   //if ( rData.at(0) ) {
 
     hData.at(0)->GetYaxis()->SetTitleOffset(1.0);
@@ -879,7 +756,7 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
       if (histoXMin != histoXMax) hDivData.at(0)->GetXaxis()->SetRangeUser(histoXMin,histoXMax);
       if(histoXMax==999.)         hDivData.at(0)->GetXaxis()->SetRangeUser(histoXMin,getLastFilledBin(hData.at(0)));
       
-      hDivData.at(0)->GetYaxis()->SetRangeUser(0,4);
+      hDivData.at(0)->GetYaxis()->SetRangeUser(ratioYMin,ratioYMax);
       hDivData.at(0)->GetYaxis()->SetTitle("Ratio");
     }
 
@@ -908,20 +785,83 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
     if (globalRatioType>0) {
       if (histoXMin != histoXMax) gDivData.at(0)->GetXaxis()->SetRangeUser(histoXMin,histoXMax);
       if(histoXMax==999.)         gDivData.at(0)->GetXaxis()->SetRangeUser(histoXMin,getLastFilledBin(gData.at(0)));
-      gDivData.at(0)->GetYaxis()->SetRangeUser(0,2);
+      gDivData.at(0)->GetYaxis()->SetRangeUser(ratioYMin,ratioYMax);
       gDivData.at(0)->GetYaxis()->SetTitle("Ratio");
     }
+  }*/
 
+//---- NEW VERSION
 
-
+  TAxis* Xaxis      = NULL;
+  TAxis* XaxisBase  = NULL;
+  TAxis* Yaxis      = NULL;
+  TAxis* YaxisRatio = NULL;
+  
+  if ( ! ( tData.at(0) == 4 || tData.at(0) == 5 ) ) {
+    Xaxis = XaxisBase = hData.at(0)->GetXaxis();
+    Yaxis = hData.at(0)->GetYaxis();
+    if(globalRatioType>0){
+      Xaxis      = hDivData.at(0)->GetXaxis();
+      YaxisRatio = hDivData.at(0)->GetYaxis();
+    }
+  }
+  else{
+    Xaxis = XaxisBase = gData.at(0)->GetXaxis();
+    Yaxis = gData.at(0)->GetYaxis();
+    if(globalRatioType>0){
+      Xaxis      = gDivData.at(0)->GetXaxis();
+      YaxisRatio = gDivData.at(0)->GetYaxis();
+    }
   }
 
+
+  Xaxis->SetTitleOffset(XaxisTitleOffset);
+  Yaxis->SetTitleOffset(YaxisTitleOffset);
+  Xaxis->SetTitleSize(globalAxisTitleSize);
+  Yaxis->SetTitleSize(globalAxisTitleSize);
+  if (XaxisTitle != "NONE" ) Xaxis->SetTitle(XaxisTitle);
+  //if (globalRatioType>0)     XaxisBase->SetTitle("");
+  if (YaxisTitle != "NONE" ) Yaxis->SetTitle(YaxisTitle);
+  
+  if(!( logY == 1 ))
+    Yaxis->SetRangeUser( 0,hMax*1.1 );
+  
+  if (histoYMin != histoYMax) Yaxis->SetRangeUser(histoYMin,histoYMax);
+  if (histoXMin != histoXMax) Xaxis->SetRangeUser(histoXMin,histoXMax);
+  if(histoXMax==999.){
+    if(! ( tData.at(0) == 4 || tData.at(0) == 5 ))
+      Xaxis->SetRangeUser(histoXMin,getLastFilledBin(hData.at(0)));
+    else
+      Xaxis->SetRangeUser(histoXMin,getLastFilledBin(gData.at(0)));
+  }
+  if (globalRatioType>0) {    
+    YaxisRatio->SetRangeUser(ratioYMin,ratioYMax);
+    YaxisRatio->SetTitle("Ratio");
+    YaxisRatio->SetTitleOffset(YaxisTitleOffset);
+    XaxisBase = Xaxis;
+    XaxisBase->SetTitle("");
+  }
+ 
+ 
+ 
+ 
+ 
+  //----------------------------------------------------------
+  //----------------      Drawing Plots      -----------------
+  //----------------------------------------------------------
 
   TString opt;
   for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) {
 
+    if(dataSetTPlotter.at(iData).smoothDrawing && dataSetIsMc.at(iData)){
+      gData_noPtr.at(iData) = h2g(hData.at(iData) , !dataSetIsMc.at(iData));
+      //gData_noPtr.at(iData) = TGraphAsymmErrors(hData.at(iData));
+      gData.at(iData) = &(gData_noPtr.at(iData));
+      tData.at(iData) = 5;
+    }
+
     // TH1F Plot
-    if ( tData.at(iData) == 1 )
+    if ( tData.at(iData) == 1 || tData.at(iData) == 3)
     {
       if ( dataSetIsMc.at(iData) )  opt  = "hist"; 
       else                          opt  = "e1";
@@ -949,9 +889,13 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
     }
   } 
 
-   if ( globalRatioType == 2  ) f1->Draw("same"); 
+  if ( globalRatioType == 2  ) f1->Draw("same"); 
 
-  // Bottom: Divided panel
+
+
+
+  //Bottom plots
+    
   if (globalRatioType>0) { 
     cout << " Divided panel Plotting " << endl;
 
@@ -1018,9 +962,12 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
   }
 */
 
-  // Legend
 
 
+  //----------------------------------------------------------
+  //-------------------      Legend      ---------------------
+  //----------------------------------------------------------
+  
   int LegendSize = 1;
   for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) 
     if ( dataSetLegend.at(iData) != "NONE" ) ++LegendSize;
@@ -1092,6 +1039,8 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
   
   if (globalWait) gPad->WaitPrimitive();
   
+  
+  //Saving Figs
   bool save = globalSaveFig;
   if(save){
 
@@ -1157,6 +1106,7 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
   
   }
 
+  //Closing files
   for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) 
     if ( rData.at(iData) ) fData.at(iData)->Close(); 
 
