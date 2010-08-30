@@ -19,6 +19,7 @@
 #include "TDirectory.h"
 //#include "TFitResult.h"
 #include "TVirtualFitter.h"
+#include "TMatrixD.h"
 
 #include "TFrame.h"
 
@@ -88,8 +89,9 @@ void plotmnch(double acc = 5){
   //instantiating the histos
   
   //filling the histos/graphs
+  TMoments* moments = NULL;
   for(int i = 0 ; i < nenergy ; ++i){
-    TMoments* moments = (TMoments*) files.at(i)->Get("unfolding/moments/moments_syst");
+    moments = (TMoments*) files.at(i)->Get("unfolding/moments/moments_syst");
     //moments->print();
     
     int ibin = mnch->GetXaxis()->FindFixBin(E.at(i));
@@ -262,10 +264,10 @@ void plotmnch(double acc = 5){
     UA5mean->SetPointError(4,0,0.12);
 */    
     
-    ALICE->SetPoint(0,900,3.60);
-    ALICE->SetPointError(0,0,0.11);
-    ALICE->SetPoint(1,2360,4.47);
-    ALICE->SetPointError(1,0,0.1);
+    ALICE->SetPoint(0,900,3.58);
+    ALICE->SetPointError(0,0,0.12);
+    ALICE->SetPoint(1,2360,4.43);
+    ALICE->SetPointError(1,0,0.15);
   }
   
   
@@ -302,13 +304,13 @@ void plotmnch(double acc = 5){
   np+=H1->GetN();
 */  
 
-  for(int i = np ; i < UA1->GetN() + np ; ++i){
+  /*for(int i = np ; i < UA1->GetN() + np ; ++i){
     double x = 0 , y = 0;
     UA1->GetPoint(i - np,x,y);
     nchmean_all->SetPoint(i,x,y);
     nchmean_all->SetPointError(i,0,0,UA1->GetErrorYlow(i- np),UA1->GetErrorYhigh(i- np));
   }
-  np+=UA1->GetN();
+  np+=UA1->GetN();*/
   
   for(int i = np ; i < UA5mean->GetN() + np ; ++i){
     double x = 0 , y = 0;
@@ -337,6 +339,10 @@ void plotmnch(double acc = 5){
   for(int i =  np; i <  nchmean_all->GetN() ; ++i){
     double x = 0 , y = 0;
     gmnch->GetPoint(i-np,x,y);
+    
+    //skip last point in the fits
+    if(x==7000) continue;
+    
     nchmean_all->SetPoint(i,x,y);
     nchmean_all->SetPointError(i,0,0,gmnch->GetErrorYlow(i-np),gmnch->GetErrorYhigh(i-np));
   }
@@ -430,20 +436,18 @@ void plotmnch(double acc = 5){
   //TF1* fua5mnch = new TF1("fua5mnch","[0] + [1] * x + [2] * x * x",5,15000);
   //TF1* f1 = new TF1("f1","[0] + [1] * log(x*x) + [2] * log(x*x) * log(x*x) + [3]*pow(log(x*x),3)",5,15000);
   //TF1* f1 = new TF1("f1","[0] + [1] * log(x*x)  + [2]*pow(log(x*x),3)",5,15000);
-  TF1* f1 = new TF1("f1","[0] + [1] * log(x*x) + [2] * log(x*x) * log(x*x) ",5,15000);
+  TF1* f1 = new TF1("f1","[0] + [1] * log(x*x) + [2] * log(x*x) * log(x*x) ",5,12000);
+  //TF1* f1 = new TF1("f1","[0] + 0 * log(x*x) + [1] * log(x*x) * log(x*x) ",5,15000);
   f1->SetLineWidth(1);
   f1->SetLineColor(kBlack);
   f1->SetLineStyle(1);
   f1->SetParameters(2.5,-.5,0.05);
+  //f1->SetParameters(2.5,0.05);
+  //f1->SetParameter(0,2.5);
   nchmean_all->Fit("f1","R");
-  cout << "Xavier :"<<endl;
-  TVirtualFitter::Fitter(nchmean_all)->PrintResults(10,0.);
-  for (int i=0 ; i<3 ; i++) {
-   for (int j=0 ; j<3 ; j++) {
-    cout << TVirtualFitter::Fitter(nchmean_all)->GetCovarianceMatrixElement(i,j) << "   " ;
-   }
-   cout << endl;
-  }
+  
+  
+  #include "plotmnch_resampling.C"
   f1->SetLineWidth(2);
   f1->Draw("same");
   
@@ -474,6 +478,7 @@ void plotmnch(double acc = 5){
   TF1* fdndeta = new TF1("dndeta","[0] + [1] * log(x*x) + [2] * log(x*x) * log(x*x) ",50,15000);
   fdndeta->SetParameters(2.716,-0.307,0.0267);
   //fdndeta->Draw("same");
+ 
  
   UA5mean->SetLineColor(kBlue);
   UA5mean->SetMarkerColor(kBlue);
@@ -517,7 +522,24 @@ void plotmnch(double acc = 5){
   ALICE->SetMarkerSize(2);
   ALICE->SetMarkerStyle(kOpenDiamond);
   if(ALICE->GetN()!=0) ALICE->Draw("same p");
-    
+  
+  
+  //Charged Hadron fits
+  TF1* pubFit = new TF1();
+  if(acc == 9) pubFit = new TF1("pubFit","2.716 - 0.307*log(x*x) + 0.0267*log(x*x)*log(x*x)",50,7500);
+  if(acc == 7) pubFit = new TF1("pubFit","8.148 - 0.921*log(x*x) + 0.0801*log(x*x)*log(x*x)",50,7500);
+  if(acc == 5) pubFit = new TF1("pubFit","13.0368 - 1.4736*log(x*x) + 0.12816*log(x*x)*log(x*x)",50,7500);
+  //pubFit->SetParameter(0,0);
+  pubFit->SetLineColor(kRed);
+  pubFit->SetLineWidth(2);
+  /*
+  cout<<"GGGGGGGGGGGGGGGGGGG           "<<(*pubFit)(100)<<endl;
+  
+  TCanvas* cc = new TCanvas("cc","cc",500,500);
+  cc->cd();*/
+  //gPad->WaitPrimitive();
+  
+  
   
   TLegend* leg = new TLegend(0.25,minleg,0.45,0.90);
   leg->SetHeader(legheader);
@@ -588,6 +610,9 @@ void plotmnch(double acc = 5){
   c_all->cd();
   
   nchmean_all->Draw("ap");*/
+  
+  
+  pubFit->Draw("same");
   
   gPad->WaitPrimitive();
   gPad->SaveAs(TString("../figs/nchmean")+basefig.str()+TString(".gif"),"");
