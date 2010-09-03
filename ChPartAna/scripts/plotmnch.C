@@ -134,6 +134,8 @@ void plotmnch(double acc = 5){
   // Theory:
   TGraphErrors* Likhoded = new TGraphErrors();
   TGraphErrors* Levin    = new TGraphErrors();
+  TGraphErrors* QGSM     = new TGraphErrors();
+  TGraphErrors* Gotsman  = new TGraphErrors();
  
   if(acc==0 || acc==5){
     ymin = 4.;
@@ -392,29 +394,40 @@ void plotmnch(double acc = 5){
     while (mydata >>  s[n] >> s1[n] ) { zero [n] = 0. ; n++; } 
     mydata.close();
     Levin = new TGraphErrors(n,s,s1,zero,zero);
-  } 
+  }
+  
+  if( acc == 5 ){
+    n = 3;
+    double x[n] , y[n] ;
+    x[0]=900  ; y[0] = 18*2.4/2.5;
+    x[1]=7000 ; y[1] = 25.7*2.4/2.5 ;
+    x[2]=10000; y[2] = 27.1*2.4/2.5 ;
+    QGSM = new TGraphErrors(n,x,y ,zero,zero);
+  }
 
+  
+  if( acc == 5 ){
+    n = 7;
+    double x[n] , y[n] ;
+    x[0]=200  ; y[0] = 5.9638*2;
+    x[1]=546  ; y[1] = 7.9721*2;
+    x[2]=900  ; y[2] = 8.8706*2;
+    x[3]=1800 ; y[3] = 10.3884*2;
+    x[4]=2360 ; y[4] = 10.9615*2;
+    x[5]=7000 ; y[5] = 12.8045*2;
+    x[6]=14000; y[6] = 14.2964*2;
+    Gotsman = new TGraphErrors(n,x,y ,zero,zero);
+  }
 
   //mnch->GetXaxis()->SetRangeUser(xmin,xmax);
   mnch->GetYaxis()->SetRangeUser(ymin,gmnch->GetYaxis()->GetXmax()*1.02);
   //cout<<gmnch->GetYaxis()->GetXmin()<<"  "<<gmnch->GetYaxis()->GetXmax()*1.03<<endl;
-  mnch->GetXaxis()->SetTitleOffset(1.1);
+  mnch->GetXaxis()->SetTitleOffset(1.0);
   
   c_mnch->cd();
   mnch->Draw("E1");
   //gPad->WaitPrimitive();
   
-  gmnch->Draw("same z");
-    
-  gPad->SetLogx();
-  gPad->SetLeftMargin(0.17);
-  gPad->SetBottomMargin(0.15);
-  gPad->SetFillColor(0);
-  gPad->GetFrame()->SetFillColor(21);
-  gPad->GetFrame()->SetBorderSize(12);
-  gPad->SetGrid(0,0);
-  gStyle->SetOptStat(0);
-  gStyle->SetOptTitle(kFALSE);
   
   // Theory 
 
@@ -429,25 +442,55 @@ void plotmnch(double acc = 5){
     Levin->SetLineWidth(2);
     Levin->SetLineStyle(7);
     Levin->Draw("same l");
-  }  
+  }
+  
+  if ( acc == 5) {
+    QGSM->SetLineColor(kOrange);
+    QGSM->SetLineWidth(3);
+    QGSM->SetLineStyle(10);
+    QGSM->Draw("same l");
+  }
+  
+  if ( acc == 5) {
+    Gotsman->SetLineColor(kGreen);
+    Gotsman->SetLineWidth(3);
+    Gotsman->SetLineStyle(3);
+    Gotsman->Draw("same l");
+  }
+  
+  gmnch->Draw("same z");
+    
+  gPad->SetLogx();
+  gPad->SetLeftMargin(0.17);
+  gPad->SetBottomMargin(0.15);
+  gPad->SetFillColor(0);
+  gPad->GetFrame()->SetFillColor(21);
+  gPad->GetFrame()->SetBorderSize(12);
+  gPad->SetGrid(0,0);
+  gStyle->SetOptStat(0);
+  gStyle->SetOptTitle(kFALSE);
+  
   // Fits 
   
   //TF1* fua5mnch = new TF1("fua5mnch","[0] + [1] * sqrt(x) + [2] * x",5,15000);
   //TF1* fua5mnch = new TF1("fua5mnch","[0] + [1] * x + [2] * x * x",5,15000);
   //TF1* f1 = new TF1("f1","[0] + [1] * log(x*x) + [2] * log(x*x) * log(x*x) + [3]*pow(log(x*x),3)",5,15000);
   //TF1* f1 = new TF1("f1","[0] + [1] * log(x*x)  + [2]*pow(log(x*x),3)",5,15000);
-  TF1* f1 = new TF1("f1","[0] + [1] * log(x*x) + [2] * log(x*x) * log(x*x) ",5,12000);
+  TF1* f1 = new TF1("f1","[0] + [1] * log(x*x) + [2] * log(x*x) * log(x*x) ",5,10000);
   //TF1* f1 = new TF1("f1","[0] + 0 * log(x*x) + [1] * log(x*x) * log(x*x) ",5,15000);
   f1->SetLineWidth(1);
   f1->SetLineColor(kBlack);
+  f1->SetFillColor(16);
+  f1->SetFillStyle(4100);
   f1->SetLineStyle(1);
   f1->SetParameters(2.5,-.5,0.05);
   //f1->SetParameters(2.5,0.05);
   //f1->SetParameter(0,2.5);
   nchmean_all->Fit("f1","R");
-  
+    
   
   #include "plotmnch_resampling.C"
+  
   f1->SetLineWidth(2);
   f1->Draw("same");
   
@@ -480,6 +523,16 @@ void plotmnch(double acc = 5){
   //fdndeta->Draw("same");
  
  
+  //gf1->Draw("3same");
+  Likhoded->Draw("same l"); 
+  if ( acc == 9 || acc == 7 || acc == 5)
+    Levin->Draw("same l");
+  if ( acc == 5 )
+    QGSM->Draw("same l");
+  if ( acc == 5 )
+    Gotsman->Draw("same l");
+  
+  
   UA5mean->SetLineColor(kBlue);
   UA5mean->SetMarkerColor(kBlue);
   UA5mean->SetMarkerSize(2);
@@ -558,18 +611,25 @@ void plotmnch(double acc = 5){
   mnch->Draw("SAME");
   //if(UA5mean->GetN()) UA5mean->Draw("same p");
 
-  TLatex* text = new TLatex(0.45,0.90,"CMS Preliminary");
+  TLatex* text = new TLatex(0.80,0.90,"CMS");
   text->SetNDC(kTRUE);
   text->SetTextSize(0.05);
-  text->DrawLatex(0.47,0.88,"CMS Preliminary");
+  text->DrawLatex(0.70,0.88,"CMS");
 
-
-  
-  TLegend* legfunc = new TLegend(0.35,0.20,0.90,0.30);
+  double ylegmin = 0.2 , ylegmax = 0.3;
+  if(acc==5){
+    ylegmin = 0.18;
+    ylegmax = 0.32;
+  }
+  TLegend* legfunc = new TLegend(0.35,ylegmin,0.90,ylegmax);
  
   legfunc->AddEntry(Likhoded,"Likhoded et al.","l");
   if ( acc == 9 || acc == 7 || acc == 5 ) 
     legfunc->AddEntry(Levin,"Levin et al.","l");
+  if ( acc == 5 ) 
+    legfunc->AddEntry(QGSM,"Kaidalov and Poghosyan.","l");
+  if ( acc == 5 ) 
+    legfunc->AddEntry(Gotsman,"Gotsman et al.","l");
  
   ostringstream func("");
   func<<fixed<<setprecision(3)<<f1->GetParameter(0);
@@ -578,7 +638,7 @@ void plotmnch(double acc = 5){
   func <<" ln(s) + "<<f1->GetParameter(2)<<" ln^{2}(s)";
   cout<<func.str().c_str()<<endl;
   
-  legfunc->AddEntry(f1,func.str().c_str(),"l");
+  legfunc->AddEntry(f1,func.str().c_str(),"lf");
   
   func.str("");
   func<<fixed<<setprecision(3)<<f2->GetParameter(0)<<" + "<<
@@ -612,7 +672,7 @@ void plotmnch(double acc = 5){
   nchmean_all->Draw("ap");*/
   
   
-  pubFit->Draw("same");
+  //pubFit->Draw("same");
   
   gPad->WaitPrimitive();
   gPad->SaveAs(TString("../figs/nchmean")+basefig.str()+TString(".gif"),"");
