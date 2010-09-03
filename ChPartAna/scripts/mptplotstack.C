@@ -32,7 +32,16 @@ void mptplotstack(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float np
 
   globalEnergy = energy;
   gROOT->ProcessLine(".x cmsStyleRoot.C");
-
+  
+  //plotterbase.g_tf1 = TF1("","[0] + [1]*sqrt(x) + [2]*x + [3]*x*sqrt(x) + [4]*x*x + [5]*x*x*sqrt(x) + [6]*x*x*x",10,180);
+  //plotterbase.g_tf1 = TF1("","[0] + [1]*sqrt(x) + [2]*x + [3]*x*sqrt(x)",10,189);
+  plotterbase.g_tf1 = TF1("","[0] + [1]*sqrt(x) + [2]*x ",10,189);
+  plotterbase.g_ratioType = "fit";
+  plotterbase.g_ratioLegPos = 0;
+  plotterbase.g_ratioLegX = 0.6;
+  plotterbase.g_ratioLegY = 0.92;
+  
+  
   plotReset();
   
   globalSmoothMC = true;
@@ -49,7 +58,9 @@ void mptplotstack(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float np
   LegendTitle = legheader.str();
   
   xGlobalLabel = 0.6 ; 
-  globalLabel =  "CMS Preliminary";
+  yGlobalLabel = 0.85 ; 
+  globalLabelSize = 0.08 ; 
+  globalLabel =  "CMS";
 
   globalSaveFig = iSaveFig;
   if (iBin == 5 ) globalFigBaseName = "mptstack_eta24" ; 
@@ -73,8 +84,11 @@ void mptplotstack(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float np
   if (iBin == 19 ) histoXMax  = 60.;
 
 
-  histoYMin  = 0.0;
+  histoYMin  = 0.05;
   histoYMax  = 2.5;
+  
+  ratioYMin = 0.8;
+  ratioYMax = 1.3;
 
   ostringstream mchisto("");
   mchisto << "mptVSnchgen_gen_cut" << iBin;  
@@ -101,10 +115,10 @@ void mptplotstack(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float np
   
   // LineStyle
 
-  int kD6TLineStyle = 2 ;
+  int kD6TLineStyle = 3 ;
   int kD6TLineColor = kRed   ;
 
-  int kPY8LineStyle = 1 ;
+  int kPY8LineStyle = 6 ;
   int kPY8LineColor = kMagenta ;
 
   int kPHOLineStyle = 7 ;
@@ -122,6 +136,7 @@ void mptplotstack(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float np
     dataSetHisto.push_back(datahisto.str());
     dataSetFactor.push_back(mptcor7);
     dataSetOffset.push_back(1.);
+    //dataSetTPlotter.at(dataSetId.size()-1).divideBy = 1;
 
 
 
@@ -142,6 +157,9 @@ void mptplotstack(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float np
     if ( iBin == 5 ) BinKillXMax.push_back( 90. );
     if ( iBin == 7 ) BinKillXMax.push_back( 70. );
     if ( iBin == 9 ) BinKillXMax.push_back( 30. );
+    
+    dataSetTPlotter.at(dataSetId.size()-1).doFit = 1;
+    dataSetTPlotter.at(dataSetId.size()-1).tf1.SetRange(10,95);
 
     // MC
   
@@ -244,6 +262,7 @@ void mptplotstack(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float np
     if ( iBin == 7 ) BinKillXMax.push_back( 70. );
     if ( iBin == 9 ) BinKillXMax.push_back( 30. );
 
+    //dataSetTPlotter.at(dataSetId.size()-1).doFit = 1;
 
 
 
@@ -267,6 +286,13 @@ void mptplotstack(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float np
     if ( iBin == 9 ) BinKillXMax.push_back(  40 );
 
 
+    dataSetTPlotter.at(dataSetId.size()-1).doFit = 1;
+    dataSetTPlotter.at(dataSetId.size()-1).tf1.SetRange(10,130);
+    //dataSetTPlotter.at(dataSetId.size()-1).tf1Formula = "\\alpha + \\beta \\sqrt{n} + \\gamma n + \\delta n \\sqrt{n}";
+    dataSetTPlotter.at(dataSetId.size()-1).tf1Formula = "\\alpha + \\beta \\sqrt{n} + \\gamma n";
+    dataSetTPlotter.at(dataSetId.size()-1).divideBy = 1;
+    dataSetTPlotter.at(dataSetId.size()-1).ratioLeg = "2.36 TeV / 0.9 TeV";
+    
     // MC
  
     dataSetId.push_back(-1);
@@ -339,9 +365,8 @@ void mptplotstack(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float np
     if ( iBin == 7 ) BinKillXMax.push_back(  95 );
     if ( iBin == 9 ) BinKillXMax.push_back(  40 );
 
-
-
-
+    //dataSetTPlotter.at(dataSetId.size()-1).divideBy = 5;
+    //dataSetTPlotter.at(dataSetId.size()-1).doFit = 1;
 
 
 
@@ -363,10 +388,36 @@ void mptplotstack(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float np
     dataSetFactor.push_back(mptcor7);
     dataSetOffset.push_back(1.);
 
-   BinKillMax.push_back( dataSetId.size()-1 );
+    BinKillMax.push_back( dataSetId.size()-1 );
     if ( iBin == 5 ) BinKillXMax.push_back( 180 );
     if ( iBin == 7 ) BinKillXMax.push_back( 140 );
     if ( iBin == 9 ) BinKillXMax.push_back(  55 );
+    
+    dataSetTPlotter.at(dataSetId.size()-1).doFit = 1;
+    dataSetTPlotter.at(dataSetId.size()-1).divideBy = 1;
+    dataSetTPlotter.at(dataSetId.size()-1).ratioLeg = "7 TeV / 0.9 TeV";
+    
+    dataSetId.push_back(-1);
+    dataSetFile.push_back("../plots/mptcorrv9/mptCorr_MC_ATLAS_7.0TeV_mbTr__dataType0.root");
+    dataSetIsMc.push_back(0);
+    dataSetHType.push_back(3);
+    dataSetStyle.push_back(kOpenCircle);
+    dataSetColor.push_back(kBlack);
+    dataSetLegend.push_back("NONE");
+    dataSetHisto.push_back(datahisto.str());
+    dataSetFactor.push_back(mptcor7);
+    dataSetOffset.push_back(1.);
+
+    BinKillMax.push_back( dataSetId.size()-1 );
+    if ( iBin == 5 ) BinKillXMax.push_back( 180 );
+    if ( iBin == 7 ) BinKillXMax.push_back( 140 );
+    if ( iBin == 9 ) BinKillXMax.push_back(  55 );
+    
+    dataSetTPlotter.at(dataSetId.size()-1).doFit = 1;
+    dataSetTPlotter.at(dataSetId.size()-1).divideBy = 6;
+    dataSetTPlotter.at(dataSetId.size()-1).ratioLeg = "7 TeV / 2.36 TeV";
+    
+    
 
     // MC
 
@@ -472,10 +523,12 @@ void mptplotstack(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float np
     dataSetFactor.push_back(mptcor7);
     dataSetOffset.push_back(1.);
 
-   BinKillMax.push_back( dataSetId.size()-1 );
+    BinKillMax.push_back( dataSetId.size()-1 );
     if ( iBin == 5 ) BinKillXMax.push_back( 180 );
     if ( iBin == 7 ) BinKillXMax.push_back( 140 );
     if ( iBin == 9 ) BinKillXMax.push_back(  55 );
+    
+    //dataSetTPlotter.at(dataSetId.size()-1).divideBy = 5;
 
 
 
@@ -501,7 +554,13 @@ void mptplotstack(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float np
      xt2 = .68; yt2 = .52;
      xt3 = .68; yt3 = .32;
   }
-
+  
+  if(plotterbase.g_ratioType != "none"){
+    xt1 = xt2 = xt3 = .75;
+    yt1 = .72;
+    yt2 = .42;
+    yt3 = .22;
+  }
 
 
   globalTextSize = 0.03;
