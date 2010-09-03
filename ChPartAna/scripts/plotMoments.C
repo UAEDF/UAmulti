@@ -149,7 +149,7 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
   hmoments[5]->Draw("same E1");*/
   
   //Writing UA5
-  TGraphErrors** ua5 = new TGraphErrors*[4];
+  /*TGraphErrors** ua5 = new TGraphErrors*[4];
   ua5[0] = new TGraphErrors();
   ua5[1] = new TGraphErrors();
   ua5[2] = new TGraphErrors();
@@ -159,7 +159,17 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
   TGraphErrors** NA22 = new TGraphErrors*[3];
   NA22[0] = new TGraphErrors();
   NA22[1] = new TGraphErrors();
-  NA22[2] = new TGraphErrors();
+  NA22[2] = new TGraphErrors();*/
+  
+  
+  TGraphErrors** ua5  = new TGraphErrors*[nmoments-2];
+  TGraphErrors** UA1  = new TGraphErrors*[nmoments-2];
+  TGraphErrors** NA22 = new TGraphErrors*[nmoments-2];
+  for(int m = 0 ; m < nmoments-2 ; ++m){
+    ua5[m]  = new TGraphErrors();
+    UA1[m]  = new TGraphErrors();
+    NA22[m] = new TGraphErrors();
+  }
   
   if(int(acc)%5==3){
     if(momtype.Contains("C")){
@@ -252,20 +262,20 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
       NA22[2]->SetPoint(1,22,3.6);
       NA22[2]->SetPointError(1,0,0.2);
       
-      UA1->SetPoint(1,200,1.385);
-      UA1->SetPointError(1,0,0.005);
-      UA1->SetPoint(2,260,1.395);
-      UA1->SetPointError(2,0,0.005);
-      UA1->SetPoint(3,380,1.405);
-      UA1->SetPointError(3,0,0.015);
-      UA1->SetPoint(4,500,1.415);
-      UA1->SetPointError(4,0,0.015);
-      UA1->SetPoint(5,620,1.420);
-      UA1->SetPointError(5,0,0.010);
-      UA1->SetPoint(6,790,1.430);
-      UA1->SetPointError(6,0,0.010);
-      UA1->SetPoint(7,880,1.445);
-      UA1->SetPointError(7,0,0.005);
+      UA1[0]->SetPoint(1,200,1.385);
+      UA1[0]->SetPointError(1,0,0.005);
+      UA1[0]->SetPoint(2,260,1.395);
+      UA1[0]->SetPointError(2,0,0.005);
+      UA1[0]->SetPoint(3,380,1.405);
+      UA1[0]->SetPointError(3,0,0.015);
+      UA1[0]->SetPoint(4,500,1.415);
+      UA1[0]->SetPointError(4,0,0.015);
+      UA1[0]->SetPoint(5,620,1.420);
+      UA1[0]->SetPointError(5,0,0.010);
+      UA1[0]->SetPoint(6,790,1.430);
+      UA1[0]->SetPointError(6,0,0.010);
+      UA1[0]->SetPoint(7,880,1.445);
+      UA1[0]->SetPointError(7,0,0.005);
       
       ymin1 = 1; ymax1 = 5;
       ymin2 = 3; ymax2 = 52;
@@ -620,10 +630,85 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
   NA22[2]->SetMarkerStyle(markers[3]);
   
   
-  UA1->SetLineColor(kBlue);
-  UA1->SetMarkerColor(kBlue);
-  UA1->SetMarkerSize(1.5);
-  UA1->SetMarkerStyle(markers[4]);
+  UA1[0]->SetLineColor(kBlue);
+  UA1[0]->SetMarkerColor(kBlue);
+  UA1[0]->SetMarkerSize(1.5);
+  UA1[0]->SetMarkerStyle(markers[4]);
+  
+  cout<<"arrived here"<<endl;
+  TGraphAsymmErrors** mom_all = new TGraphAsymmErrors*[nmoments-2];
+  for(int n = 0 ; n < nmoments-2 ; ++n){
+  
+    mom_all[n] = new TGraphAsymmErrors(1+ua5[n]->GetN()+NA22[n]->GetN()+UA1[n]->GetN()+nmoments-2);
+    //mom_all[n]->SetPoint(0,0.0001,1);
+    //mom_all[n]->SetPointError(0,0,0,0,0);
+    int np = 0;
+  
+    for(int i = np ; i < NA22[n]->GetN() + np ; ++i){
+      double x = 0 , y = 0;
+      NA22[n]->GetPoint(i - np,x,y);
+      mom_all[n]->SetPoint(i,x,y);
+      mom_all[n]->SetPointError(i,0,0,NA22[n]->GetErrorYlow(i- np),NA22[n]->GetErrorYhigh(i- np));
+    }
+    np+=NA22[n]->GetN();
+    
+    
+    /*for(int i = np ; i < UA1[n]->GetN() + np ; ++i){
+      double x = 0 , y = 0;
+      UA1[n]->GetPoint(i - np,x,y);
+      mom_all[n]->SetPoint(i,x,y);
+      mom_all[n]->SetPointError(i,0,0,UA1[n]->GetErrorYlow(i- np),UA1[n]->GetErrorYhigh(i- np));
+    }
+    np+=UA1[n]->GetN();*/
+    
+    for(int i = np ; i < ua5[n]->GetN() + np ; ++i){
+      double x = 0 , y = 0;
+      ua5[n]->GetPoint(i - np,x,y);
+      mom_all[n]->SetPoint(i,x,y);
+      mom_all[n]->SetPointError(i,0,0,ua5[n]->GetErrorYlow(i- np),ua5[n]->GetErrorYhigh(i- np));
+    }
+    np+=ua5[n]->GetN();
+    
+    
+    for(int i = np ; i < gmoments[n+2]->GetN() + np ; ++i){
+      double x = 0 , y = 0;
+      gmoments[n+2]->GetPoint(i - np,x,y);
+      mom_all[n]->SetPoint(i,x,y);
+      mom_all[n]->SetPointError(i,0,0,gmoments[n+2]->GetErrorYlow(i- np),gmoments[n+2]->GetErrorYhigh(i- np));
+    }
+    np+=gmoments[n+2]->GetN();
+  }
+  /*TCanvas* c_mom1 = new TCanvas("c_mom1","c_mom",450,600);
+  mom_all[0]->Draw("a2");
+  gPad->WaitPrimitive();*/
+  
+  bool doFits = true;
+  TF1** f1 = new TF1*[nmoments - 2];
+  if(doFits){
+    //cout << legheader.str() << endl;
+    double x1 = 0 , y1 = 0;
+    double x2 = 0 , y2 = 0;
+    for(int nmom = 0 ; nmom < nmoments - 2 ; ++nmom){
+      if(acc==9)
+        f1[nmom] = new TF1("f1"," [0] " , 20 ,7500);
+      else
+        f1[nmom] = new TF1("f1"," [0] + [1] * log(x)" , 20 ,7500);
+      //f1[nmom] = new TF1("f1"," [0] " , 20 ,7500);
+      f1[nmom]->SetLineColor(kBlack);
+      f1[nmom]->SetLineWidth(2);
+      f1[nmom]->SetLineStyle(7);
+      mom_all[nmom]->Fit(f1[nmom],"R");
+      cout << "Fit of "<< momtype << nmom+2  << " : slope " << f1[nmom]->GetParameter(1) << " +- " << f1[nmom]->GetParError(1) << endl;
+      hmoments.at(nmom+2)->GetPoint(0,x1,y1);
+      hmoments.at(nmom+2)->GetPoint(2,x2,y2);
+      cout << "    just from 2 points : "<< ( y2 - y1 ) / ( log(7000) - log(900) ) << endl;
+      //cout << x1 << "  "  << x2 << endl;
+      //cout << y1 << "  "  << y2 << endl;
+    }  
+  }
+  
+  
+  
   
   TCanvas* c_mom = new TCanvas("c_mom","c_mom",450,600);
   c_mom->Divide(1,2);
@@ -657,6 +742,9 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
   gStyle->SetOptTitle(kFALSE);
     
 
+  f1[1]->Draw("same");
+  f1[0]->Draw("same");
+  
   hmoments[3]->Draw("same E1");
   //hmoments[4]->Draw("same E1");
   //hmoments[5]->Draw("same E1");
@@ -666,7 +754,7 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
   
   if(NA22[0]->GetN())   NA22[0]->Draw("samep");
   if(NA22[1]->GetN())   NA22[1]->Draw("samep");
-  if(UA1->GetN())    UA1->Draw("samep");
+  if(UA1[0]->GetN())    UA1[0]->Draw("samep");
   
   for(int m = 2 ; m < 4 ; ++m){
     gmoments.at(m)->Draw("same z ");
@@ -678,16 +766,19 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
   ostringstream legheader("");
   legheader<< "   |#eta| < "<<accMap.at(acc).at(1);
 
-  TLegend* leg = new TLegend(0.15,legmin,0.35,0.93);;
+  double xleg1 = 0.15;
+  if(acc==9) xleg1 = 0.25;
+  
+  TLegend* leg = new TLegend(xleg1,legmin,xleg1+0.20,0.93);;
   leg->SetHeader(legheader.str().c_str());
   leg->SetTextSize(0.05);
                       leg->AddEntry(hmoments[2],momtype+TString("_{2} CMS"),"p");
   if(NA22[0]->GetN()) leg->AddEntry(NA22[0],momtype+TString("_{2} NA22"),"p");
   if(ua5[0]->GetN())  leg->AddEntry(ua5[0],momtype+TString("_{2} UA5"),"p");
-  if(UA1->GetN())     leg->AddEntry(UA1,momtype+TString("_{2} UA1"),"p");
+  if(UA1[0]->GetN())  leg->AddEntry(UA1[0],momtype+TString("_{2} UA1"),"p");
                       leg->AddEntry(hmoments[3],momtype+TString("_{3} CMS"),"p");
   if(NA22[1]->GetN()) leg->AddEntry(NA22[1],momtype+TString("_{3} NA22"),"p");
-  if(ua5[1]->GetN()) leg->AddEntry(ua5[1],momtype+TString("_{3} UA5"),"p");
+  if(ua5[1]->GetN())  leg->AddEntry(ua5[1],momtype+TString("_{3} UA5"),"p");
   //leg->AddEntry(hmoments[4],momtype+TString("_{4}"),"l");
   //leg->AddEntry(hmoments[5],momtype+TString("_{5}"),"l");
   //leg->AddEntry(hmoments[2],"CMS","p");
@@ -695,10 +786,10 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
   leg->SetFillColor(kWhite);
   leg->Draw("same");
   
-  TLatex* text = new TLatex(0.45,0.90,"CMS Preliminary");
+  TLatex* text = new TLatex(0.65,0.85,"CMS");
   text->SetNDC(kTRUE);
-  text->SetTextSize(0.06);
-  text->DrawLatex(0.45,0.90,"CMS Preliminary");
+  text->SetTextSize(0.08);
+  text->DrawLatex(0.65,0.85,"CMS");
 
   
   //--------------------
@@ -730,6 +821,10 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(kFALSE);
   
+  
+  f1[3]->Draw("same");
+  f1[2]->Draw("same");
+  
   hmoments[5]->Draw("same E1");
     
   if(ua5[2]->GetN()) ua5[2]->Draw("samep");
@@ -742,14 +837,15 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
     hmoments.at(m)->Draw("same p");
   }
   
+   
   leg = new TLegend(0.15,0.60,0.35,0.93);
   leg->SetHeader(legheader.str().c_str());
   leg->SetTextSize(0.05);
-  leg->AddEntry(hmoments[4],momtype+TString("_{4} CMS"),"p");
-  if(ua5[2]->GetN()) leg->AddEntry(ua5[2],momtype+TString("_{4} UA5"),"p");
+                      leg->AddEntry(hmoments[4],momtype+TString("_{4} CMS"),"p");
+  if(ua5[2]->GetN())  leg->AddEntry(ua5[2],momtype+TString("_{4} UA5"),"p");
   if(NA22[2]->GetN()) leg->AddEntry(NA22[2],momtype+TString("_{4} NA22"),"p");
-  leg->AddEntry(hmoments[5],momtype+TString("_{5} CMS"),"p");
-  if(ua5[3]->GetN()) leg->AddEntry(ua5[3],momtype+TString("_{5} UA5"),"p");
+                      leg->AddEntry(hmoments[5],momtype+TString("_{5} CMS"),"p");
+  if(ua5[3]->GetN())  leg->AddEntry(ua5[3],momtype+TString("_{5} UA5"),"p");
   //leg->AddEntry(hmoments[4],momtype+TString("_{4}"),"l");
   //leg->AddEntry(hmoments[5],momtype+TString("_{5}"),"l");
   //leg->AddEntry(hmoments[2],"CMS","p");
@@ -757,9 +853,12 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
   leg->SetFillColor(kWhite);
   leg->Draw("same");
   
-  text->DrawLatex(0.45,0.85,"CMS Preliminary");
+  text->DrawLatex(0.65,0.85,"CMS");
   
-    
+  
+  
+  
+  
   gPad->Update();
   c_mom->cd(2);
   gPad->Update();
@@ -774,7 +873,7 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
   gSystem->Exec(TString("convert ")+dirfig+momtype+TString("moments")+basefig.str()+TString(".eps ")+dirfig+momtype+TString("moments")+basefig.str()+TString(".pdf"));
   
   
-  
+  /*
   bool doFits = true;
   if(doFits){
     cout << legheader.str() << endl;
@@ -790,5 +889,7 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
       //cout << x1 << "  "  << x2 << endl;
       //cout << y1 << "  "  << y2 << endl;
     }  
-  }
+  }*/
+  
+  
 }
