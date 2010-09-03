@@ -18,9 +18,10 @@ using namespace std;
 // TString       globalDirPlot = "../plots.xavier/";
   
  // Energy + CMS Label
- TString       globalLabel   ("CMS");
- float         xGlobalLabel  = 0.45 ;
- float         yGlobalLabel  = 0.90 ;
+ TString       globalLabel      ("CMS");
+ double        globalLabelSize = 0.04;
+ float         xGlobalLabel    = 0.45 ;
+ float         yGlobalLabel    = 0.90 ;
 
  // hiso type
  // 1 = TH1F
@@ -65,10 +66,10 @@ using namespace std;
  // Axis Title
  TString         XaxisTitle = "NONE";
  TString         YaxisTitle = "NONE";
- int             XaxisTitleOffset = 1.0;
- int             YaxisTitleOffset = 1.0;
- int             XaxisTitleSize   = 0.06;
- int             YaxisTitleSize   = 0.06;
+ double          XaxisTitleOffset = 0.70;
+ double          YaxisTitleOffset = 1.0 ;
+ double          XaxisTitleSize   = 0.06;
+ double          YaxisTitleSize   = 0.06;
 
  double          globalAxisTitleSize = 0.06;
 
@@ -79,6 +80,11 @@ using namespace std;
  float    xLegendMin[] = { 0.57 , 0.35 , 0.20 , 0.70 , 0.70 , 0.75 , 0.45 , 0.80 , 0.20 , 0.55 , 0.60};
  float    xLegendWidth = 0.35;
  float    yLegendMax[] = { 0.80 , 0.40 , 0.40 , 0.85 , 0.90 , 0.90 , 0.87 , 0.87 , 0.90 , 0.40 , 0.93};
+
+ float    standardColor[]  = {kBlack , kRed , kBlue , kMagenta , kOrange , kGreen};
+ float    standardMarker[] = {kOpenCircle , kOpenSquare , kOpenTriangleUp , kOpenStar};
+ float    standardStyle[]  = {1 , 2 , 3 , 4 , 5, 6 , 7};
+
 
  float    yLegendWidth = 0.03;
  TString  ExtLegTitle ("NONE");
@@ -100,7 +106,7 @@ using namespace std;
  vector<int>      dataSetHType    (1,1);
  vector<int>      dataSetColor    (1,2);
  vector<float>    dataSetFactor   (1,1);
- vector<float>    dataSetOffset   (1,1);
+ vector<float>    dataSetOffset   (1,0);
  vector<TString>  dataSetLegend   (1,"Undef");
  vector<TString>  dataSetFile     (1,"Undef"); 
  vector<TString>  dataSetDir      (1,"Undef"); 
@@ -167,8 +173,8 @@ void plotReset()
 
   XaxisTitle       = "NONE";
   YaxisTitle       = "NONE";
-  XaxisTitleOffset = 1.0; 
-  YaxisTitleOffset = 1.0;
+  XaxisTitleOffset = 0.7 ; 
+  YaxisTitleOffset = 1.0 ;
   XaxisTitleSize   = 0.06;
   YaxisTitleSize   = 0.06;
   
