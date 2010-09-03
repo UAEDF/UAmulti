@@ -13,6 +13,33 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
   } 
    
   cout<<histo<<endl;
+  
+  //FIXME : for backward-compatibility purpose
+  if(globalRatioType==1)
+    plotterbase.g_ratioType="standard";
+  else if(globalRatioType==2)
+    plotterbase.g_ratioType="fit";
+  if(globalRatioType>0 && globalRatioBase!=-1){
+    //f1 = new TF1("f1","[0] + [1] * x + [2] * x*x + [3] * x*x*x + [4] * x*x*x*x + [5] * pow(x,5) + [6] * pow(x,6) + [7] * pow(x,7) + [8] * pow(x,8) + [9] * pow(x,9) ",1.,180.);
+    //f1 = new TF1("f1","[0] + [1] * x + [2] * x*x + [3] * x*x*x  ",.5,150.);
+    plotterbase.g_tf1 = TF1("f1",funcDoubleNBD , 2.5 , 180.5 , 6 );
+    plotterbase.g_tf1.SetParameters(1,.5,12.,3.,30.,7.);
+    plotterbase.g_divideBy = globalRatioBase ;
+    dataSetTPlotter.at(globalRatioBase).doFit = 1;
+    for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData){
+      dataSetTPlotter.at(iData).tf1 = TF1("f1",funcDoubleNBD , 2.5 , 180.5 , 6 );
+      dataSetTPlotter.at(iData).tf1.SetParameters(1,.5,12.,3.,30.,7.);
+      dataSetTPlotter.at(iData).divideBy = globalRatioBase ;
+    }
+  }
+  for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData){
+    if ( (signed) dataSetFactor.size() > iData )
+      dataSetTPlotter.at(iData).factor = dataSetFactor.at(iData);
+    if ( (signed) dataSetOffset.size() > iData )
+      dataSetTPlotter.at(iData).offset = dataSetOffset.at(iData);
+  }
+  
+  
   //TCanvas* c1 = new TCanvas("c1","c",500,500); 
   TCanvas* c1 = new TCanvas("c1","c",globalCanvasSizeX,globalCanvasSizeY);
   //c1->SetLeftMargin(0.17);
@@ -30,7 +57,7 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
   double bot_margin_ratio = 0.2;
   double rfrac            = pad_frac * (1. - bot_margin_ratio);
          rfrac            = 0.45;
-  if (globalRatioType>0) { 
+  if (!plotterbase.g_ratioType.Contains("none")) { 
     //c1->Divide(1,2);
     //c1->cd(1);
     p1=new TPad("p1","p1",0,pad_frac, 1,1);
@@ -281,24 +308,30 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
         }  
 
       }
+      
+      
       // Factor
-      cout << dataSetFactor.size() << " " << iData << endl;
-      if ( (signed) dataSetFactor.size() > iData ) {
-        cout << "ScaleFactor = " << dataSetFactor.at(iData) << endl ; 
+      //cout << dataSetFactor.size() << " " << iData << endl;
+      //if ( (signed) dataSetFactor.size() > iData ) {
+        cout << "ScaleFactor = " << dataSetTPlotter.at(iData).factor << endl ; 
         if ( ! ( tData.at(iData) == 4 || tData.at(iData) == 5 ) ) {
-          hData.at(iData)->Scale(dataSetFactor.at(iData));
+          hData.at(iData)->Scale(dataSetTPlotter.at(iData).factor);
         } else {
           if (tData.at(iData) == 4) cout << "fixme" << endl;
-          if (tData.at(iData) == 5) TGAsymScale(gData.at(iData),dataSetFactor.at(iData));
+          if (tData.at(iData) == 5) TGAsymScale(gData.at(iData),dataSetTPlotter.at(iData).factor);
         } 
-      }
+      //}
+      
+      
+      
+      
       // Offset
-      cout << dataSetOffset.size() << " " << iData << endl;
-      if ( (signed) dataSetOffset.size() > iData ) {
-        cout << "ScaleOffset = " << dataSetOffset.at(iData) << endl ; 
+      //cout << dataSetOffset.size() << " " << iData << endl;
+      //if ( (signed) dataSetOffset.size() > iData ) {
+        cout << "ScaleOffset = " << dataSetTPlotter.at(iData).offset << endl ; 
         if ( ! ( tData.at(iData) == 4 || tData.at(iData) == 5 ) ) {
           for(int i = 1 ; i <= hData.at(iData)->GetNbinsX() ; ++i ) {
-            hData.at(iData)->SetBinContent(i,hData.at(iData)->GetBinContent(i)+dataSetOffset.at(iData));
+            hData.at(iData)->SetBinContent(i,hData.at(iData)->GetBinContent(i)+dataSetTPlotter.at(iData).offset);
           }
         } else {
           if (tData.at(iData) == 4) cout << "fixme" << endl;
@@ -306,14 +339,25 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
             for(int i = 0 ; i <  gData.at(iData)->GetN() ; ++i ) {
               Double_t x,y ;
               gData.at(iData)->GetPoint(i,x,y);
-              gData.at(iData)->SetPoint(i,x,y+dataSetOffset.at(iData));  
+              gData.at(iData)->SetPoint(i,x,y+dataSetTPlotter.at(iData).offset);  
             } 
           }  
         }
-      } 
+      //} 
 
 
 
+      
+      //Fitting
+      if(dataSetTPlotter.at(iData).doFit){
+        if ( ! ( tData.at(iData) == 4 || tData.at(iData) == 5 ) )
+	  hData.at(iData)->Fit(&(dataSetTPlotter.at(iData).tf1),"R0");
+        else
+	  gData.at(iData)->Fit(&(dataSetTPlotter.at(iData).tf1),"R0");
+	
+	dataSetTPlotter.at(iData).tf1.SetLineColor(dataSetTPlotter.at(iData).tf1Color);
+        dataSetTPlotter.at(iData).tf1.SetLineStyle(dataSetTPlotter.at(iData).tf1Style);
+      }
 
 
   //----------------------------------------------------------
@@ -501,8 +545,7 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
     cout << " YMinBinKiller " << endl;
     for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) {
       double Ymin = histoYMin;
-      if ( (signed) dataSetOffset.size() > iData )  Ymin += dataSetOffset.at(iData) 
-                                                    + 0.01 * (histoYMax-histoYMin) ;
+      Ymin += dataSetTPlotter.at(iData).offset + 0.01 * (histoYMax-histoYMin) ;
         if ( tData.at(iData) == 1 ) 
           YMinBinKiller(hData.at(iData), Ymin ) ;
         if ( tData.at(iData) == 5 ) 
@@ -557,6 +600,12 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
   } 
 
 
+  //----------------------------------------------------------
+  //----------------        Fit Curves       -----------------
+  //----------------------------------------------------------
+
+  
+  
 
 
 
@@ -565,23 +614,30 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
   //----------------       Divide Plots      -----------------
   //----------------------------------------------------------
 
-  if ( globalRatioBase != -1 ) {
-    if ( tData.at(globalRatioBase) == 1 ) hDividor = (TH1D*) hData.at(globalRatioBase)->Clone("hDividor");
-    if ( tData.at(globalRatioBase) == 4 || tData.at(globalRatioBase) == 5 )
-                              gDividor = (TGraphAsymmErrors*) gData.at(globalRatioBase)->Clone("gDividor");  
-  } 
-
+  int iratio = 0;
   for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) {
+  
+    if(plotterbase.g_ratioType.Contains("none")) break;
+    
+    int divideby = dataSetTPlotter.at(iData).divideBy;
+    cout << divideby << endl;
+    if ( divideby != -1 ) {
+      if ( tData.at(divideby) == 1 ) hDividor = (TH1D*) hData.at(divideby)->Clone("hDividor");
+      if ( tData.at(divideby) == 4 || tData.at(divideby) == 5 )
+                                     gDividor = (TGraphAsymmErrors*) gData.at(divideby)->Clone("gDividor");  
+    }
+    else continue;
+  
 //    if ( rData.at(iData) ) 
     {
 
       // Divide by 1 of the histogram (same binning !)
-      if ( globalRatioType > 0 ) {
+      if ( plotterbase.g_ratioType.Contains("standard") || plotterbase.g_ratioType.Contains("only")) {
         cout << "  Divide by 1 of the histogram " << endl;
 
         // TH1F and TGraph only FIXME: same binning !!!
         if ( (tData.at(iData) == 1 || tData.at(iData) == 4 || tData.at(iData) == 5 ) ) {
-          if ( tData.at(globalRatioBase) == 1 ) {
+          if ( tData.at(divideby) == 1 ) {
             if ( tData.at(iData) == 1 ) {
                hDivData.at(iData) = (TH1D*) hData.at(iData)->Clone();
                for ( int ibin =1 ; ibin <= hDividor->GetNbinsX() ; ++ibin ) {
@@ -600,10 +656,10 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
                  Double_t dividor = hDividor->GetBinContent(ibin);
                  if ( dividor != 0. ) {
                    Double_t x,y;
-                   gDivData.at(iData)->GetPoint(ibin-1,x,y);
-                   gDivData.at(iData)->SetPoint(ibin-1,x,y / dividor);
-                   gDivData.at(iData)->SetPointEYhigh(ibin-1, gDivData.at(iData)->GetErrorYhigh(ibin-1) / dividor );
-                   gDivData.at(iData)->SetPointEYlow (ibin-1, gDivData.at(iData)->GetErrorYlow(ibin-1)  / dividor );
+                   gData.at(iData)->GetPoint(ibin-1,x,y);
+                   gDivData.at(iData)->SetPoint(ibin-1,x,(y - dataSetTPlotter.at(iData).offset) / dataSetTPlotter.at(iData).factor / dividor);
+                   gDivData.at(iData)->SetPointEYhigh(ibin-1, gData.at(iData)->GetErrorYhigh(ibin-1)/ dataSetTPlotter.at(iData).factor / dividor );
+                   gDivData.at(iData)->SetPointEYlow (ibin-1, gData.at(iData)->GetErrorYlow(ibin-1) / dataSetTPlotter.at(iData).factor / dividor );
                  } else {
                    gDivData.at(iData)->SetPoint(ibin-1,0,0);
                    gDivData.at(iData)->SetPointEYhigh(ibin-1,0);
@@ -651,73 +707,98 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
         }  
 
       }
-
+       
+       
+       
       // Divide by fit to 1 of the histogram (allow different binning !)
-      if ( globalRatioType == 2  ) {
-        cout << "  Divide by 1 of the histogram " << endl;
-        //f1 = new TF1("f1","[0] + [1] * x + [2] * x*x + [3] * x*x*x + [4] * x*x*x*x + [5] * pow(x,5) + [6] * pow(x,6) + [7] * pow(x,7) + [8] * pow(x,8) + [9] * pow(x,9) ",1.,180.);
-        //f1 = new TF1("f1","[0] + [1] * x + [2] * x*x + [3] * x*x*x  ",.5,150.);
-        f1 = new TF1("f1",funcDoubleNBD , 2.5 , 180.5 , 6 );
-        f1->SetParameters(1,.5,12.,3.,30.,7.);
-
-         
-        if ( tData.at(globalRatioBase) == 1 ) {
+      if ( plotterbase.g_ratioType.Contains("fit")  ) {
+       cout<<"arrived here"<<endl;
+       
+       if(dataSetTPlotter.at(divideby).doFit==0){
+         cout << "Error !! [iData = " << iData << "] plotterbase.g_ratioType = \"fit\" and and hist (tplotter.divideBy) = " << divideby << " has tplotter.doFit = 0" << endl;
+         cout << "Please set  tplotter.doFit = 1 and set a TF1 to tplotter.tf1 for this histo" << endl;
+         cout << "Exiting now ..." << endl;
+	 return;
+       }
+        /*if ( tData.at(globalRatioBase) == 1 ) {
           hDividor->Fit("f1","R");
         } else {
           gDividor->Fit("f1","R");
-        }   
- 
+        }   */
+	int nbin = 0;
+	if ( tData.at(divideby) == 1 )
+          nbin = hDividor->GetNbinsX();
+	else
+          nbin = gDividor->GetN();
+	
+	Double_t x = 0,y,xmax;
+	xmax = dataSetTPlotter.at(divideby).tf1.GetXmax();
+	  
         if ( tData.at(iData) == 1 ) {
           hDivData.at(iData) = (TH1D*) hData.at(iData)->Clone();
-          for ( int ibin =1 ; ibin <= hDividor->GetNbinsX() ; ++ibin ) { 
-            Double_t dividor = 1.;
+          hDivData.at(iData)->Reset("ICE");
+          for ( int ibin =1 ; x <= xmax ; ++ibin ) { 
+            
+	    Double_t dividor = 1. , xx = 0;
             if (ibin < 20 ) {
-              if ( tData.at(globalRatioBase) == 1 ) {
+              if ( tData.at(divideby) == 1 )
                 dividor = hDividor->GetBinContent(ibin);
-              } else {
-                Double_t xx;
+	      else 
                 gDividor->GetPoint(ibin-1,xx,dividor);
-              }
-            } else { 
-              dividor = f1->Eval(hData.at(iData)->GetBinCenter(ibin));
             }
+	    else
+              dividor  = dataSetTPlotter.at(divideby).tf1.Eval(hData.at(iData)->GetBinCenter(ibin));
+	    
+	    dividor /= dataSetTPlotter.at(divideby).factor;
+	    dividor -= dataSetTPlotter.at(divideby).offset;
+	    
+	    
             if ( dividor != 0. ) {
-              hDivData.at(iData)->SetBinContent(ibin, hData.at(iData)->GetBinContent(ibin) / dividor );
-              hDivData.at(iData)->SetBinError  (ibin, hData.at(iData)->GetBinError(ibin)   / dividor );
+              hDivData.at(iData)->SetBinContent(ibin, (hData.at(iData)->GetBinContent(ibin)- dataSetTPlotter.at(iData).offset) / dataSetTPlotter.at(iData).factor / dividor );
+              hDivData.at(iData)->SetBinError  (ibin, hData.at(iData)->GetBinError(ibin) / dataSetTPlotter.at(iData).factor  / dividor );
             } else {
               hDivData.at(iData)->SetBinContent(ibin,0.);
               hDivData.at(iData)->SetBinError(ibin,0.);
             }
+	    x = hData.at(iData)->GetBinCenter(ibin+1);
           }
-        } else {  
-               gDivData.at(iData) = (TGraphAsymmErrors*) gData.at(iData)->Clone();
-               for ( int ibin =1 ; ibin <= hDividor->GetNbinsX() ; ++ibin ) {
-                 Double_t xx,yy,dividor;
-                 if (ibin < 20 ) {
-                   if ( tData.at(globalRatioBase) == 1 ) {
-                     dividor = hDividor->GetBinContent(ibin);
-                   } else {
-                     gDividor->GetPoint(ibin-1,xx,dividor);
-                   }
-                 } else { 
-                   gDivData.at(iData)->GetPoint(ibin-1,xx,yy); 
-                   dividor = f1->Eval(xx);
-                 }
-                 if ( dividor != 0. ) {
-                   Double_t x,y;
-                   gDivData.at(iData)->GetPoint(ibin-1,x,y);
-                   gDivData.at(iData)->SetPoint(ibin-1,x,y / dividor);
-                   gDivData.at(iData)->SetPointEYhigh(ibin-1, gDivData.at(iData)->GetErrorYhigh(ibin-1) / dividor );
-                   gDivData.at(iData)->SetPointEYlow (ibin-1, gDivData.at(iData)->GetErrorYlow(ibin-1)  / dividor );
-                 } else {
-                   gDivData.at(iData)->SetPoint(ibin-1,0,0);
-                   gDivData.at(iData)->SetPointEYhigh(ibin-1,0);
-                   gDivData.at(iData)->SetPointEYlow(ibin-1,0);
-                 }
-               }
         }
-
-
+	else {
+          gDivData.at(iData) = (TGraphAsymmErrors*) gData.at(iData)->Clone();
+          for ( int ibin =1 ; x <=xmax ; ++ibin ) {
+            Double_t xx,yy,dividor;
+            if (ibin < 20 ) {
+              if ( tData.at(divideby) == 1 )
+                dividor = hDividor->GetBinContent(ibin);
+	      else 
+                gDividor->GetPoint(ibin-1,xx,dividor);
+            }
+	    else { 
+              gData.at(iData)->GetPoint(ibin-1,xx,yy); 
+              dividor  = dataSetTPlotter.at(divideby).tf1.Eval(xx);
+            }
+	    
+	    dividor /= dataSetTPlotter.at(divideby).factor;
+	    dividor -= dataSetTPlotter.at(divideby).offset;
+	    
+	    cout << ibin << "  " << dividor << "  " ;
+	    
+            if ( dividor != 0. ) {
+              gData.at(iData)->GetPoint(ibin-1,x,y);
+	      cout << x << "  " << y << endl;
+              gDivData.at(iData)->SetPoint(ibin-1,x,(y - dataSetTPlotter.at(iData).offset) / dataSetTPlotter.at(iData).factor / dividor);
+              gDivData.at(iData)->SetPointEYhigh(ibin-1, gData.at(iData)->GetErrorYhigh(ibin-1)/ dataSetTPlotter.at(iData).factor / dividor );
+              gDivData.at(iData)->SetPointEYlow (ibin-1, gData.at(iData)->GetErrorYlow(ibin-1) / dataSetTPlotter.at(iData).factor / dividor );
+            }
+	    else{
+              gDivData.at(iData)->SetPoint(ibin-1,0,0);
+              gDivData.at(iData)->SetPointEYhigh(ibin-1,0);
+              gDivData.at(iData)->SetPointEYlow(ibin-1,0);
+            }
+	    gDivData.at(iData)->Set(ibin);
+	    gData.at(iData)->GetPoint(ibin,x,y);
+          }
+        }
       }
 
       // hMax
@@ -728,8 +809,41 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
       }
     
     }
-  } 
+    
+    
+    //----------------------------------------------------------
+    //----------------       Ratio Style       -----------------
+    //----------------------------------------------------------
+  
+    
+    if(tData.at(iData) == 1){
+      if(plotterbase.g_useStandardFormat){
+        hDivData.at(iData)->SetLineColor(  standardColor[iratio]);
+        hDivData.at(iData)->SetLineStyle(  standardStyle[iratio]);
+        hDivData.at(iData)->SetMarkerColor(standardColor[iratio]);
+        hDivData.at(iData)->SetMarkerStyle(standardMarker[iratio]);
+      }
+    
+    }
+    else{
+      if(plotterbase.g_useStandardFormat){
+        gDivData.at(iData)->SetLineColor(  standardColor[iratio]);
+        //gDivData.at(iData)->SetLineStyle(  standardStyle[iratio]);
+        gDivData.at(iData)->SetMarkerColor(standardColor[iratio]);
+        gDivData.at(iData)->SetMarkerStyle(standardMarker[iratio]);
+      }
+    }
+    
+    ++iratio;
+    
+    
+  }//end of loop on iData 
 
+  
+  
+  
+  
+  
 
   //----------------------------------------------------------
   //----------------       Plots TAxis       -----------------
@@ -803,35 +917,42 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
 
 //---- NEW VERSION
 
+  int ifirstRatio = 0;
+  for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData){
+    if(dataSetTPlotter.at(iData).divideBy != -1){
+      ifirstRatio = iData;
+      break;
+    }
+  }
+  
   TAxis* Xaxis      = NULL;
   TAxis* XaxisBase  = NULL;
   TAxis* Yaxis      = NULL;
   TAxis* YaxisRatio = NULL;
-  
   if ( ! ( tData.at(0) == 4 || tData.at(0) == 5 ) ) {
     Xaxis = XaxisBase = hData.at(0)->GetXaxis();
     Yaxis = hData.at(0)->GetYaxis();
-    if(globalRatioType>0){
-      Xaxis      = hDivData.at(0)->GetXaxis();
-      YaxisRatio = hDivData.at(0)->GetYaxis();
+    if(!plotterbase.g_ratioType.Contains("none")){
+      Xaxis      = hDivData.at(ifirstRatio)->GetXaxis();
+      YaxisRatio = hDivData.at(ifirstRatio)->GetYaxis();
     }
   }
   else{
     Xaxis = XaxisBase = gData.at(0)->GetXaxis();
     Yaxis = gData.at(0)->GetYaxis();
-    if(globalRatioType>0){
-      Xaxis      = gDivData.at(0)->GetXaxis();
-      YaxisRatio = gDivData.at(0)->GetYaxis();
+    if(!plotterbase.g_ratioType.Contains("none")){
+      Xaxis      = gDivData.at(ifirstRatio)->GetXaxis();
+      YaxisRatio = gDivData.at(ifirstRatio)->GetYaxis();
     }
   }
 
-
+  XaxisBase->Copy(*Xaxis);
   Xaxis->SetTitleOffset(XaxisTitleOffset);
   Yaxis->SetTitleOffset(YaxisTitleOffset);
   Xaxis->SetTitleSize(globalAxisTitleSize);
   Yaxis->SetTitleSize(globalAxisTitleSize);
   if (XaxisTitle != "NONE" ) Xaxis->SetTitle(XaxisTitle);
-  //if (globalRatioType>0)     XaxisBase->SetTitle("");
+  //if (!plotterbase.g_ratioType.Contains("none"))     XaxisBase->SetTitle("");
   if (YaxisTitle != "NONE" ) Yaxis->SetTitle(YaxisTitle);
   
   if(!( logY == 1 ))
@@ -845,15 +966,16 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
     else
       Xaxis->SetRangeUser(histoXMin,getLastFilledBin(gData.at(0)));
   }
-  if (globalRatioType>0) {    
+  if (!plotterbase.g_ratioType.Contains("none")) {    
     YaxisRatio->SetRangeUser(ratioYMin,ratioYMax);
     YaxisRatio->SetTitle("Ratio");
     YaxisRatio->SetTitleOffset(YaxisTitleOffset);
-    XaxisBase = Xaxis;
+    //*XaxisBase = *Xaxis;
+    Xaxis->Copy(*XaxisBase);
     //XaxisBase->SetTitle("");
     
     YaxisRatio->SetLabelSize(Yaxis->GetLabelSize()/rfrac);
-    YaxisRatio->SetNdivisions(200+int(ratioYMax-ratioYMin+1));
+    YaxisRatio->SetNdivisions(300+int(((ratioYMax-ratioYMin<1)?2:ratioYMax-ratioYMin)+1));
     YaxisRatio->SetTitleSize(Yaxis->GetTitleSize()/rfrac);
     YaxisRatio->SetTitleOffset(YaxisTitleOffset*rfrac);
     Xaxis->SetLabelSize(XaxisBase->GetLabelSize()/rfrac);
@@ -878,6 +1000,11 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
       gData.at(iData) = &(gData_noPtr.at(iData));
       tData.at(iData) = 5;
     }
+
+
+    // TF1 func
+    if(dataSetTPlotter.at(iData).doFit && dataSetTPlotter.at(iData).tf1Show)
+      dataSetTPlotter.at(iData).tf1.Draw("same");
 
     // TH1F Plot
     if ( tData.at(iData) == 1 || tData.at(iData) == 3)
@@ -915,7 +1042,7 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
 
   //Bottom plots
     
-  if (globalRatioType>0) { 
+ /* if (!plotterbase.g_ratioType.Contains("none")) { 
     cout << " Divided panel Plotting " << endl;
 
     p2->cd();
@@ -969,8 +1096,113 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
     } 
 
     p1->cd();
-  } 
+  } */
+   
+  if (!plotterbase.g_ratioType.Contains("none")) { 
+    cout << " Divided panel Plotting " << endl;
 
+    p2->cd();
+    
+    /*if(globalRatioErrorBand){
+      if ( tData.at(globalRatioBase) == 1 ){
+	gDivData_noPtr.at(globalRatioBase) = h2g(hDivData.at(globalRatioBase) , 1);
+        gDivData.at(globalRatioBase) = &(gDivData_noPtr.at(globalRatioBase));
+      }
+      if ( tData.at(globalRatioBase) == 1 || tData.at(globalRatioBase) == 4 || tData.at(globalRatioBase) == 5 ){
+        gDivData.at(globalRatioBase)->SetFillColor(16);
+        gDivData.at(globalRatioBase)->Draw("a2");
+      }
+    }*/
+    
+    for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) {
+      
+      int divideby = dataSetTPlotter.at(iData).divideBy;
+      if(divideby == -1) continue;
+      
+      if(globalRatioErrorBand && divideby==iData)
+        continue;
+  
+      // TH1F Plot
+      if ( tData.at(iData) == 1 )
+      {
+        if ( dataSetIsMc.at(iData) )  opt  = "hist"; 
+        else                          opt  = "e1";
+	
+        if ( iData > ifirstRatio )    opt += "same";
+        if ( rData.at(iData) ) hDivData.at(iData)->Draw(opt);
+      }
+  
+      // TH2F Plot // Only 1 TH2F  possible ! 
+      else if ( tData.at(iData) == 2 && dataSetId.size() == 1 )
+      {
+        if ( rData.at(iData) ) hDivData.at(iData)->Draw(global2DplotOpt);
+      }
+      
+      // TGraph
+      else if ( tData.at(iData) == 4 || tData.at(iData) == 5 )
+      {
+       // if ( dataSetIsMc.at(iData) ) {
+       //   opt  = "c"; 
+       // } else {
+          if ( sData.at(iData) == 0 ) opt  = "p" ;  // stat error style
+          if ( sData.at(iData) == 1 ) opt  = "pZ" ; // systematics error style     
+       // } 
+
+        if ( iData == ifirstRatio ) opt += "a";
+          gDivData.at(iData)->Draw(opt);
+      }
+  
+    }
+    
+     
+    int LegendSize = 1;
+    for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) 
+      if ( dataSetTPlotter.at(iData).ratioLeg != "none" ) ++LegendSize;
+
+    double xlegmin = 0.5 , ylegmax = 0.5;
+    if(plotterbase.g_ratioLegX != -1 && plotterbase.g_ratioLegY != -1){
+      xlegmin = plotterbase.g_ratioLegX;
+      ylegmax = plotterbase.g_ratioLegY;            
+    }
+    else{
+      xlegmin = xLegendMin[plotterbase.g_ratioLegPos];
+      ylegmax = yLegendMax[plotterbase.g_ratioLegPos];
+    }
+
+    TLegend *leg = new TLegend (xlegmin ,
+                                ylegmax - yLegendWidth * LegendSize / rfrac  ,
+                                xlegmin + xLegendWidth / rfrac,
+                                ylegmax );
+    //if ( LegendTitle != "NONE")  leg->SetHeader(LegendTitle);
+    for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) {
+      if( dataSetTPlotter.at(iData).divideBy == -1 ) continue;
+    
+      if( dataSetIsMc.at(iData) )  opt  = "l"; 
+      else                         opt  = "p";
+    
+    
+      if ( dataSetTPlotter.at(iData).ratioLeg != "none" ){ 
+        if ( rData.at(iData) ) {
+          if ( ! ( tData.at(iData) == 4 || tData.at(iData) == 5 ) ) 
+            leg->AddEntry(hDivData.at(iData),dataSetTPlotter.at(iData).ratioLeg,opt );
+          else 
+            leg->AddEntry(gDivData.at(iData),dataSetTPlotter.at(iData).ratioLeg,opt );
+        }
+	else {
+            leg->AddEntry(gDivData.at(iData),dataSetTPlotter.at(iData).ratioLeg,opt );
+        } 
+      }
+    }
+  
+    leg->SetBorderSize(0);
+    leg->SetFillColor(0);
+    leg->SetTextSizePixels(globalLegendTextSize / rfrac); 
+    leg->Draw();
+
+  
+  
+    p1->cd();
+  } 
 
 /*  if ( tData.at(iData) == 1 ) 
   {
@@ -1056,11 +1288,24 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
 
   }
 
+  TLegend* tf1Leg = new TLegend (0.60,0.14,0.85,0.22);
+  if(plotterbase.g_ratioType != "none" )
+    tf1Leg = new TLegend (0.6,0.03,0.90,0.13);
+  for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) 
+    if(dataSetTPlotter.at(iData).tf1Formula != "none") 
+      tf1Leg->AddEntry(&(dataSetTPlotter.at(iData).tf1) , dataSetTPlotter.at(iData).tf1Formula , "l");
+      
+  tf1Leg->SetBorderSize(0);
+  tf1Leg->SetFillColor(0);
+  tf1Leg->SetTextSizePixels(globalLegendTextSize);
+  tf1Leg->Draw("same");
+
+
   // 
   //TLatex* txt=new TLatex(.65, 0.96, "CMS 0.9 TeV");
   TLatex* txt=new TLatex(xGlobalLabel,yGlobalLabel,globalLabel);
   txt->SetNDC(kTRUE);
-  txt->SetTextSize(0.04);
+  txt->SetTextSize(globalLabelSize);
   txt->Draw();
 
   // Save Plot
