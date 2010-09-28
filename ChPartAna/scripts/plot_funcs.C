@@ -130,7 +130,7 @@ void XMaxBinKiller ( TH1 *&hstat  , double XMax ) {
     for(int i = 1 ; i <=  hstat->GetNbinsX() ; ++i ) {
 //    for(int i = (hstat->GetNbinsX()) ; i>0 ; --i) {  
       if ( hstat->GetBinCenter(i) > XMax ) {
-         cout << "-------------------------------- Killing bin: "  << i << " " << hstat->GetBinCenter(i) << endl;
+         cout << "    Killing bin: "  << i << " " << hstat->GetBinCenter(i) << endl;
          hstat->SetBinContent(i,0.0);
          hstat->SetBinError(i,0.0);
 	 cout << "-------------------------------- "  << hstat->GetBinContent(i) << endl;
@@ -143,7 +143,7 @@ void YMinBinKiller ( TH1 *&hstat  , double YMin ) {
     //for(int i = 1 ; i <=  hstat->GetNbinsX() ; ++i ) {
     for(int i = (hstat->GetNbinsX()) ; i>0 ; --i) {  
       if ( hstat->GetBinContent(i) <= YMin ) {
-         cout << "Killing bin: "  << i << " " << hstat->GetBinCenter(i) << endl;
+         cout << "    Killing bin: "  << i << " " << hstat->GetBinCenter(i) << endl;
          hstat->SetBinContent(i,0.);
          hstat->SetBinError(i,0.);
       }
@@ -158,9 +158,12 @@ void SerialBinKiller ( TH1 *&hstat  , TGraphAsymmErrors *&gsyst ,
                        Float_t downTolerance =   1.   , Float_t upTolerance = 9999.   ) {
 
   
-  cout << hstat->GetNbinsX() << endl; 
-  cout << gsyst->GetN() << endl;
-  if ( hstat->GetNbinsX() !=   gsyst->GetN() ) return;
+  //cout << hstat->GetNbinsX() << endl; 
+  //cout << gsyst->GetN() << endl;
+  if ( hstat->GetNbinsX() !=   gsyst->GetN() ){
+    cout << "ERROR !! The histo and its syst don't have the same bin number ( " << hstat->GetNbinsX() << " , " << gsyst->GetN() << " )." << endl << " Exiting NOW ..." << endl;
+    return;
+  }
   
   for(int i = (gsyst->GetN()-1) ; i>-1 ; --i) {  
      Double_t x,y,eyup,eydown ;
@@ -174,7 +177,7 @@ void SerialBinKiller ( TH1 *&hstat  , TGraphAsymmErrors *&gsyst ,
         if ( fabs(eyup/y)   >= upTolerance   ) iSLargeError = true ;
      } 
      if (iSLargeError) {
-         cout << "Killing : " << x << " " << y << " " << endl; 
+         cout << "    Killing : " << x << " " << y << " " << endl; 
          hstat->SetBinContent(i+1,0.);
          hstat->SetBinError(i+1,0.);
          gsyst->RemovePoint(i);
@@ -190,7 +193,7 @@ void XMaxBinKiller ( TGraphAsymmErrors *&gstat  , double XMax ) {
       gstat->GetPoint(i,x,y);
       if ( x > XMax ) { 
         gstat->RemovePoint(i); 
-        cout << "Killing bin: "  << i << " " << x << endl;
+        cout << "    Killing bin: "  << i << " " << x << endl;
       }  
     }
 }
@@ -202,7 +205,7 @@ void YMinBinKiller ( TGraphAsymmErrors *&gstat  , double YMin ) {
       gstat->GetPoint(i,x,y);
       if ( y <= YMin ) { 
         gstat->RemovePoint(i); 
-        cout << "Killing bin: "  << i << " " << x << endl;
+        cout << "    Killing bin: "  << i << " " << x << endl;
       }  
     }
 }
@@ -229,7 +232,7 @@ void SerialBinKiller ( TGraphAsymmErrors *&gstat  , TGraphAsymmErrors *&gsyst ,
        } else iSLargeError = true ;
 
        if (iSLargeError) {
-         cout << "Killing : " << x << " " << y << " " << endl;
+         cout << "    Killing : " << x << " " << y << " " << endl;
          gstat->RemovePoint(i);        
          gsyst->RemovePoint(i);
        }
@@ -254,3 +257,93 @@ Double_t getLastFilledBin(TGraphAsymmErrors* g){
   g->GetPoint(ibin-1 , x , y);
   return x + g->GetErrorXhigh(ibin-1);
 }
+
+
+void Divide(TH1* hnum, TH1* hdenom, TH1D* hratio){
+
+  if(hnum->GetNbinsX()!=hdenom->GetNbinsX()){
+    cout << "WARNING !! Going to divide TH1s with different binning ! You should try to fit one of the plots and specify plotterbase.ratioType = \"fit\"." << endl;
+    cout << "Exiting now ..." << endl;
+    exit(1);
+  }
+
+  for(int i = 1 ; i <= hdenom->GetNbinsX() ; ++i ){
+    if(hdenom->GetBinContent(i)!=0){
+      hratio->SetBinContent(i , hnum->GetBinContent(i) / hdenom->GetBinContent(i) );
+      hratio->SetBinError(i , hnum->GetBinError(i) / hdenom->GetBinContent(i) );
+    }
+    else{
+      hratio->SetBinContent(i , 0 );
+      hratio->SetBinError(i , 0 );
+    }
+  }
+}
+
+
+void Divide(TH1* hnum , TH1* hdenom , TF1* fit , TH1D* hratio , int fitBelongsTo = 1){
+
+  for(int i = 1 ; i <= hdenom->GetNbinsX() ; ++i ){
+    double num = 0 , num_err = 0 , denom = 0 ;
+    if( hnum->GetBinWidth(i) == hdenom->GetBinWidth(i) && hnum->GetBinCenter(i) == hdenom->GetBinCenter(i) ){
+      num     = hnum->GetBinContent(i);
+      num_err = hnum->GetBinError(i);
+      denom   = hdenom->GetBinContent(i);
+    }
+    else{
+      if(fitBelongsTo==1){
+        num     = fit->Eval(hdenom->GetBinCenter(i));
+        num_err = 0;
+        denom   = hdenom->GetBinContent(i);
+      }
+      else{
+        num     = hnum->GetBinContent(i);
+        num_err = hnum->GetBinError(i);
+        denom   = fit->Eval(hnum->GetBinCenter(i));
+      }
+    }
+    
+    if(denom!=0){
+      hratio->SetBinContent(i , num   / denom );
+      hratio->SetBinError(i , num_err / denom );
+    }
+    else{
+      hratio->SetBinContent(i , 0 );
+      hratio->SetBinError(  i , 0 );
+    }
+  }
+}
+
+/*
+void Divide(TGraphAsymmErrors* hnum , TGraphAsymmErrors* hdenom , TF1* fit , TGraphAsymmErrors* ratio , int fitBelongsTo = 1){
+
+  for(int i = 1 ; i <= hdenom->GetN() ; ++i ){
+    double num = 0 , num_err = 0 , denom = 0 ;
+    if( hnum->GetBinWidth(i) == hdenom->GetBinWidth(i) && hnum->GetBinCenter(i) == hdenom->GetBinCenter(i) ){
+      num     = hnum->GetBinContent(i);
+      num_err = hnum->GetBinError(i);
+      denom   = hdenom->GetBinContent(i);
+    }
+    else{
+      if(fitBelongsTo==1){
+        num     = fit->Eval(hdenom->GetBinCenter(i));
+        num_err = 0;
+        denom   = hdenom->GetBinContent(i);
+      }
+      else{
+        num     = hnum->GetBinContent(i);
+        num_err = hnum->GetBinError(i);
+        denom   = fit->Eval(hnum->GetBinCenter(i));
+      }
+    }
+    
+    if(denom!=0){
+      hratio->SetBinContent(i , num   / denom );
+      hratio->SetBinError(i , num_err / denom );
+    }
+    else{
+      hratio->SetBinContent(i , 0 );
+      hratio->SetBinError(  i , 0 );
+    }
+  }
+}
+*/

@@ -502,8 +502,8 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
 
   if ( (signed) BinKillStat.size() > 0 ) {
     for(int iData2Kill = 0 ; iData2Kill < (signed) BinKillStat.size() ; ++iData2Kill ) {
-        cout << "SerialBinKiller: " << BinKillStat.at(iData2Kill) << " " << BinKillSyst.at(iData2Kill) << endl; 
-        cout << "SerialBinKiller: " << tData.at(BinKillStat.at(iData2Kill)) << " " << tData.at(BinKillSyst.at(iData2Kill)) << endl; 
+        cout << "+ Starting SerialBinKiller on : " << BinKillStat.at(iData2Kill) << " " << BinKillSyst.at(iData2Kill) ; 
+        cout << "      with types : " << tData.at(BinKillStat.at(iData2Kill)) << " " << tData.at(BinKillSyst.at(iData2Kill)) << endl; 
 
         if (   tData.at(BinKillStat.at(iData2Kill)) == 1 &&    tData.at(BinKillSyst.at(iData2Kill)) == 5 )
            SerialBinKiller(hData.at(BinKillStat.at(iData2Kill)),gData.at(BinKillSyst.at(iData2Kill)));
@@ -520,7 +520,7 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
 
   if ( (signed) BinKillMax.size() > 0 ) {
     for(int iData2Kill = 0 ; iData2Kill < (signed) BinKillMax.size() ; ++iData2Kill ) {
-        cout << "XMaxBinKiller: " <<  BinKillMax.at(iData2Kill) << endl;
+        cout << "+ Starting XMaxBinKiller : " <<  BinKillMax.at(iData2Kill) << endl;
         if ( tData.at(BinKillMax.at(iData2Kill)) == 1 ) 
           XMaxBinKiller(hData.at(BinKillMax.at(iData2Kill)), BinKillXMax.at(iData2Kill)) ;
         if ( tData.at(BinKillMax.at(iData2Kill)) == 5 ) 
@@ -542,14 +542,16 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
 
   cout << histoYMin << " MinMax " << histoYMax << endl;
   if (histoYMin != histoYMax) {  
-    cout << " YMinBinKiller " << endl;
+    cout << "+ Starting YMinBinKiller " << endl;
     for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) {
       double Ymin = histoYMin;
-      Ymin += dataSetTPlotter.at(iData).offset + 0.01 * (histoYMax-histoYMin) ;
-        if ( tData.at(iData) == 1 ) 
-          YMinBinKiller(hData.at(iData), Ymin ) ;
-        if ( tData.at(iData) == 5 ) 
-          YMinBinKiller(gData.at(iData), Ymin) ; 
+      Ymin += dataSetTPlotter.at(iData).offset + bool(dataSetTPlotter.at(iData).offset)*0.01 * (histoYMax-histoYMin) ;
+      //cout << histoYMin << "  " << dataSetTPlotter.at(iData).offset << "  " << 0.01 * (histoYMax-histoYMin);
+      cout << "  --> histo "<< iData << " with type " << tData.at(iData) << " , cut Ymin = " << Ymin << endl;
+      if ( tData.at(iData) == 1 ) 
+        YMinBinKiller(hData.at(iData), Ymin ) ;
+      if ( tData.at(iData) == 5 ) 
+        YMinBinKiller(gData.at(iData), Ymin) ; 
     } 
   } 
 
