@@ -42,10 +42,10 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
   XaxisTitle = "n";
   YaxisTitle = "P_{n}";
 
-  xGlobalLabel = 0.4 ;
-  if ( globalEnergy == 0.9 ) globalLabel =  "CMS Preliminary 0.9 TeV";
-  if ( globalEnergy == 2.36) globalLabel =  "CMS Preliminary 2.36 TeV";
-  if ( globalEnergy == 7.0 ) globalLabel =  "CMS Preliminary 7 TeV";
+  xGlobalLabel = 0.666666 ;
+  if ( globalEnergy == 0.9 ) globalLabel =  "CMS 0.9 TeV";
+  if ( globalEnergy == 2.36) globalLabel =  "CMS 2.36 TeV";
+  if ( globalEnergy == 7.0 ) globalLabel =  "CMS 7 TeV";
 
   globalSaveFig = iSaveFig;
   if ( iBin == 5 ) { 
