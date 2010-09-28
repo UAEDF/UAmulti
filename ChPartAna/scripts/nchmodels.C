@@ -35,6 +35,7 @@ void nchmodels(int iBin = 5 , int iSaveFig = 1,
   
   plotterbase.g_smoothDrawing = 1;
   plotterbase.g_doSmoothing = 1;
+  if(iBin==5)  plotterbase.g_nSmooth = 50;
   if(iBin==15) plotterbase.g_nSmooth = 100;
 
   plotReset();
@@ -45,8 +46,8 @@ void nchmodels(int iBin = 5 , int iSaveFig = 1,
   XaxisTitle = "n";
   YaxisTitle = "P_{n}";
 
-  xGlobalLabel = 0.3 ;
-  globalLabel =  "CMS Preliminary"; 
+  xGlobalLabel = 0.6 ;
+  globalLabel =  "CMS"; 
 
   globalSaveFig = iSaveFig;
   if ( iBin == 5  ) globalFigBaseName = "nch_models_pt0";
@@ -148,7 +149,11 @@ void nchmodels(int iBin = 5 , int iSaveFig = 1,
   dataSetLegend.push_back("PYTHIA D6T");
   dataSetHisto.push_back(mchisto.str());
   dataSetFactor.push_back(10000);
-  if(iBin==5) dataSetTPlotter.at( dataSetId.size()-1 ).binKillXMax = 160;
+  if(iBin==5)  dataSetTPlotter.at( dataSetId.size()-1 ).binKillXMax = 160;
+  if(iBin==5)  dataSetTPlotter.at( dataSetId.size()-1 ).nSmooth = 70;
+  if(iBin==5)  dataSetTPlotter.at( dataSetId.size()-1 ).smoothingXMin = 60;
+  if(iBin==5)  dataSetTPlotter.at( dataSetId.size()-1 ).smoothingXMax = 140;
+  //if(iBin==5)  dataSetTPlotter.at( dataSetId.size()-1 ).doSmoothing = 0;
   if(iBin==15) dataSetTPlotter.at( dataSetId.size()-1 ).doSmoothing = 0;
   if(iBin==15) dataSetTPlotter.at( dataSetId.size()-1 ).binKillXMax = 100;
 
@@ -165,7 +170,11 @@ void nchmodels(int iBin = 5 , int iSaveFig = 1,
   dataSetLegend.push_back("NONE");
   dataSetHisto.push_back(mchisto.str());
   dataSetFactor.push_back(100);
-  if(iBin==5) dataSetTPlotter.at( dataSetId.size()-1 ).binKillXMax = 108;
+  //if(iBin==5) dataSetTPlotter.at( dataSetId.size()-1 ).binKillXMax = 108;
+  //if(iBin==5)  dataSetTPlotter.at( dataSetId.size()-1 ).doSmoothing = 0;
+  if(iBin==5)  dataSetTPlotter.at( dataSetId.size()-1 ).nSmooth = 10;
+  if(iBin==5)  dataSetTPlotter.at( dataSetId.size()-1 ).smoothingXMin = 100;
+  if(iBin==5)  dataSetTPlotter.at( dataSetId.size()-1 ).smoothingXMax = 115;
   if(iBin==15) dataSetTPlotter.at( dataSetId.size()-1 ).doSmoothing = 0;
 
 //  if ( iBin ==  5 ) { BinKillMax.push_back( dataSetId.size()-1 ) ; BinKillXMax.push_back( 120 ); }
@@ -180,6 +189,10 @@ void nchmodels(int iBin = 5 , int iSaveFig = 1,
   dataSetLegend.push_back("NONE");
   dataSetHisto.push_back(mchisto.str());
   dataSetFactor.push_back(1);
+  if(iBin==5)  dataSetTPlotter.at( dataSetId.size()-1 ).doSmoothing = 0;
+  if(iBin==5)  dataSetTPlotter.at( dataSetId.size()-1 ).nSmooth = 10;
+  if(iBin==5)  dataSetTPlotter.at( dataSetId.size()-1 ).smoothingXMin = 100;
+  if(iBin==5)  dataSetTPlotter.at( dataSetId.size()-1 ).smoothingXMax = 115;
   if(iBin==15) dataSetTPlotter.at( dataSetId.size()-1 ).doSmoothing = 0;
 
 //  if ( iBin ==  5 ) { BinKillMax.push_back( dataSetId.size()-1 ) ; BinKillXMax.push_back( 100 ); }
@@ -270,6 +283,11 @@ void nchmodels(int iBin = 5 , int iSaveFig = 1,
     dataSetLegend.push_back("PYTHIA 8");
     dataSetHisto.push_back("h24");
     dataSetFactor.push_back(1);
+    //if(iBin==5)  dataSetTPlotter.at( dataSetId.size()-1 ).doSmoothing = 0;
+    if(iBin==5)  dataSetTPlotter.at( dataSetId.size()-1 ).nSmooth = 20;
+    if(iBin==5)  dataSetTPlotter.at( dataSetId.size()-1 ).smoothingXMin = 20;
+    if(iBin==5)  dataSetTPlotter.at( dataSetId.size()-1 ).smoothingXMax = 75;
+    if(iBin==5)  dataSetTPlotter.at( dataSetId.size()-1 ).binKillXMax = 100;
 
 //    BinKillMax.push_back( dataSetId.size()-1 );
 //    BinKillXMax.push_back( 50 );
@@ -297,6 +315,10 @@ void nchmodels(int iBin = 5 , int iSaveFig = 1,
     dataSetLegend.push_back("NONE");
     dataSetHisto.push_back("h24");
     dataSetFactor.push_back(10000);
+    //if(iBin==5)  dataSetTPlotter.at( dataSetId.size()-1 ).doSmoothing = 0;
+    if(iBin==5)  dataSetTPlotter.at( dataSetId.size()-1 ).nSmooth = 50;
+    if(iBin==5)  dataSetTPlotter.at( dataSetId.size()-1 ).smoothingXMin = 40;
+    if(iBin==5)  dataSetTPlotter.at( dataSetId.size()-1 ).smoothingXMax = 130;
 
 //    BinKillMax.push_back( dataSetId.size()-1 );
 //    BinKillXMax.push_back( 100 );
@@ -317,6 +339,9 @@ void nchmodels(int iBin = 5 , int iSaveFig = 1,
     dataSetHisto.push_back("h24");
     dataSetFactor.push_back(1);
     dataSetTPlotter.at( dataSetId.size()-1 ).nSmooth = 50;
+    //dataSetTPlotter.at( dataSetId.size()-1 ).doSmoothing = 0;
+    //dataSetTPlotter.at( dataSetId.size()-1 ).smoothingXMin = 10;
+    //dataSetTPlotter.at( dataSetId.size()-1 ).smoothingXMax = 35;
 
   //  BinKillMax.push_back( dataSetId.size()-1 );
   //  BinKillXMax.push_back( 110 );
@@ -347,7 +372,10 @@ void nchmodels(int iBin = 5 , int iSaveFig = 1,
     dataSetLegend.push_back("NONE");
     dataSetHisto.push_back("h24");
     dataSetFactor.push_back(10000);
-    dataSetTPlotter.at( dataSetId.size()-1 ).nSmooth = 50;
+    dataSetTPlotter.at( dataSetId.size()-1 ).nSmooth = 150;
+    //dataSetTPlotter.at( dataSetId.size()-1 ).doSmoothing = 0;
+    //dataSetTPlotter.at( dataSetId.size()-1 ).smoothingXMin = 10;
+    //dataSetTPlotter.at( dataSetId.size()-1 ).smoothingXMax = 35;
 
 
  //   BinKillMax.push_back( dataSetId.size()-1 );
@@ -366,12 +394,16 @@ void nchmodels(int iBin = 5 , int iSaveFig = 1,
   dataSetLegend.push_back("PHOJET");
   dataSetHisto.push_back(mchisto.str());
   dataSetFactor.push_back(10000);
-  //dataSetTPlotter.at( dataSetId.size()-1 ).doSmoothing = 1;
-  if(iBin==5) dataSetTPlotter.at( dataSetId.size()-1 ).smoothingXMin = 80;
+  //if(iBin==5) dataSetTPlotter.at( dataSetId.size()-1 ).doSmoothing = 0;
+  if(iBin==5) dataSetTPlotter.at( dataSetId.size()-1 ).smoothingXMin = 70;
   if(iBin==5) dataSetTPlotter.at( dataSetId.size()-1 ).smoothingXMax = 140;
-  if(iBin==5) dataSetTPlotter.at( dataSetId.size()-1 ).nSmooth = 200;
+  if(iBin==5) dataSetTPlotter.at( dataSetId.size()-1 ).nSmooth = 300;
   if(iBin==5) dataSetTPlotter.at( dataSetId.size()-1 ).binKillXMax = 160;
   if(iBin==15) dataSetTPlotter.at( dataSetId.size()-1 ).binKillXMax = 70;
+  //if(iBin==15) dataSetTPlotter.at( dataSetId.size()-1 ).doSmoothing = 0;
+  //if(iBin==15) dataSetTPlotter.at( dataSetId.size()-1 ).nSmooth = 40;
+  //if(iBin==15) dataSetTPlotter.at( dataSetId.size()-1 ).smoothingXMin = 10;
+  //if(iBin==15) dataSetTPlotter.at( dataSetId.size()-1 ).smoothingXMax = 35;
 
   dataSetId.push_back(-1);
   dataSetFile.push_back("../plots/smallcodev8/smallCode_MCtype20_2.36TeV.root");
@@ -386,6 +418,10 @@ void nchmodels(int iBin = 5 , int iSaveFig = 1,
   if(iBin==5) dataSetTPlotter.at( dataSetId.size()-1 ).nSmooth = 20;
   if(iBin==5) dataSetTPlotter.at( dataSetId.size()-1 ).binKillXMax = 118;
   if(iBin==15) dataSetTPlotter.at( dataSetId.size()-1 ).binKillXMax = 47;
+  //if(iBin==15) dataSetTPlotter.at( dataSetId.size()-1 ).doSmoothing = 0;
+  if(iBin==15) dataSetTPlotter.at( dataSetId.size()-1 ).nSmooth = 40;
+  if(iBin==15) dataSetTPlotter.at( dataSetId.size()-1 ).smoothingXMin = 10;
+  if(iBin==15) dataSetTPlotter.at( dataSetId.size()-1 ).smoothingXMax = 35;
 
   dataSetId.push_back(-1);
   dataSetFile.push_back("../plots/smallcodev8/smallCode_MCtype20_0.9TeV.root");
@@ -397,9 +433,14 @@ void nchmodels(int iBin = 5 , int iSaveFig = 1,
   dataSetHisto.push_back(mchisto.str());
   dataSetFactor.push_back(1);
   //dataSetTPlotter.at( dataSetId.size()-1 ).doSmoothing = 0;
-  if(iBin==5) dataSetTPlotter.at( dataSetId.size()-1 ).nSmooth = 3;
+  if(iBin==5) dataSetTPlotter.at( dataSetId.size()-1 ).nSmooth = 30;
+  if(iBin==5) dataSetTPlotter.at( dataSetId.size()-1 ).smoothingXMin = 30;
+  if(iBin==5) dataSetTPlotter.at( dataSetId.size()-1 ).smoothingXMax = 70;
   if(iBin==5) dataSetTPlotter.at( dataSetId.size()-1 ).binKillXMax = 95;
-  if(iBin==15) dataSetTPlotter.at( dataSetId.size()-1 ).doSmoothing = 0;
+  //if(iBin==15) dataSetTPlotter.at( dataSetId.size()-1 ).doSmoothing = 0;
+  if(iBin==15) dataSetTPlotter.at( dataSetId.size()-1 ).nSmooth = 100;
+  if(iBin==15) dataSetTPlotter.at( dataSetId.size()-1 ).smoothingXMin = 20;
+  if(iBin==15) dataSetTPlotter.at( dataSetId.size()-1 ).smoothingXMax = 35;
 
 
   // Data systematics
