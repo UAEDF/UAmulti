@@ -41,10 +41,10 @@ void nchPlotRecoFinal(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, floa
   XaxisTitle = "n";
   YaxisTitle = "Events";
 
-  xGlobalLabel = 0.5 ;
-  if ( globalEnergy == 0.9 ) globalLabel =  "CMS Preliminary 0.9 TeV";
-  if ( globalEnergy == 2.36) globalLabel =  "CMS Preliminary 2.36 TeV";
-  if ( globalEnergy == 7.0 ) globalLabel =  "CMS Preliminary 7 TeV";
+  xGlobalLabel = 0.6 ;
+  if ( globalEnergy == 0.9 ) globalLabel =  "CMS 0.9 TeV";
+  if ( globalEnergy == 2.36) globalLabel =  "CMS 2.36 TeV";
+  if ( globalEnergy == 7.0 ) globalLabel =  "CMS 7 TeV";
 
   globalSaveFig = iSaveFig;
   if ( iBin == 5 ) {
@@ -66,13 +66,13 @@ void nchPlotRecoFinal(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, floa
   if ( globalEnergy == 7.0 ) {
     histoXMax  = 160. ;
     if ( iBin == 15 ) histoXMax  =  70;
-    histoYMax  = 29000.;
+    histoYMax  = 20000.;
     if ( iBin == 15 ) histoYMax  = 45000;
   }
 
 
   TString plotdir("");
-  plotdir = "/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/plots/systv10_17_3/";
+  plotdir = "/user/rougny/Ferenc_Tracking_bis/CMSSW_3_3_6_patch3/src/UAmulti/ChPartAna/plots/current_2/";
 
   ostringstream outstr("");
   outstr << "hyp" << 1 << "_niter" << 0 << "_cut" << iBin << "_DataType" << 0;
