@@ -39,9 +39,15 @@ void nchPlotRecoFinal(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, floa
   globalCanvasSizeY = npy;
 
   XaxisTitle = "n";
-  YaxisTitle = "Events";
-
+  YaxisTitle = "Events / binwidth";
+  leftMargin = 0.19;
+  YaxisTitleOffset = 1.35;
+  plotterbase.g_legX = 0.4;
+  plotterbase.g_legY = 0.6;
+  
   xGlobalLabel = 0.6 ;
+  yGlobalLabel = 0.85 ;
+  globalLabelSize = 0.06;
   if ( globalEnergy == 0.9 ) globalLabel =  "CMS 0.9 TeV";
   if ( globalEnergy == 2.36) globalLabel =  "CMS 2.36 TeV";
   if ( globalEnergy == 7.0 ) globalLabel =  "CMS 7 TeV";
@@ -120,7 +126,7 @@ void nchPlotRecoFinal(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, floa
 
   // ----- PLOT ----
 
-  plot("none","AUTO",0,0);
+  plot("none","AUTO",0,1);
 
 }
 
