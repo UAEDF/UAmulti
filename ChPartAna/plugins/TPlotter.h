@@ -17,8 +17,21 @@ class TPlotter : public TPlotterBase{
   Double_t smoothingXMax;
   Bool_t   smoothDrawing;
   
+  Double_t offset;
+  Double_t factor;
+  
   Double_t binKillXMax;
   Int_t    divideBy;
+  TString  ratioLeg;
+  
+  TString  leg;
+  
+  bool     doFit;
+  TF1      tf1;
+  TString  tf1Formula;
+  Bool_t   tf1Show;
+  Int_t    tf1Color;
+  Int_t    tf1Style;
   
   private:
   
