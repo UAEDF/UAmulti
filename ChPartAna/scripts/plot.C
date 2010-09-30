@@ -38,7 +38,15 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
     if ( (signed) dataSetOffset.size() > iData )
       dataSetTPlotter.at(iData).offset = dataSetOffset.at(iData);
   }
-  
+  if(plotterbase.g_legPos == -1)
+    plotterbase.g_legPos = iLegendPos;
+  if(dataSetLegend.size()>0){
+    for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData){
+      if(dataSetLegend.at(iData).Contains("NONE"))
+        dataSetLegend.at(iData).ToLower();
+      dataSetTPlotter.at(iData).leg = dataSetLegend.at(iData);
+    }
+  }
   
   //TCanvas* c1 = new TCanvas("c1","c",500,500); 
   TCanvas* c1 = new TCanvas("c1","c",globalCanvasSizeX,globalCanvasSizeY);
@@ -49,6 +57,8 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
   c1->GetFrame()->SetBorderSize(12);
   c1->SetGrid(0,0);
   c1->cd();
+
+  
 
    TPad *p1 = NULL; 
    TPad *p2 = NULL; 
@@ -71,6 +81,12 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
     p2->SetBottomMargin(bot_margin_ratio);
     
       
+  }
+  else{
+    if(leftMargin>=0) gPad->SetLeftMargin(leftMargin);
+    if(rightMargin>=0) gPad->SetRightMargin(rightMargin);
+    if(topMargin>=0) gPad->SetTopMargin(topMargin);
+    if(bottomMargin>=0) gPad->SetBottomMargin(bottomMargin);
   }
 
   // FIXME
@@ -1239,12 +1255,22 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
   
   int LegendSize = 1;
   for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) 
-    if ( dataSetLegend.at(iData) != "NONE" ) ++LegendSize;
+    if ( dataSetTPlotter.at(iData).leg != "none" ) ++LegendSize;
 
-  TLegend *leg = new TLegend (xLegendMin[iLegendPos] ,
-                              yLegendMax[iLegendPos] - yLegendWidth * LegendSize  ,
-                              xLegendMin[iLegendPos] + xLegendWidth ,
-                              yLegendMax[iLegendPos] );
+  double xlegmin = 0.5 , ylegmax = 0.5;
+  if(plotterbase.g_legX != -1 && plotterbase.g_legY != -1){
+    xlegmin = plotterbase.g_legX;
+    ylegmax = plotterbase.g_legY;            
+  }
+  else{
+    xlegmin = xLegendMin[plotterbase.g_legPos];
+    ylegmax = yLegendMax[plotterbase.g_legPos];
+  }
+
+  TLegend *leg = new TLegend (xlegmin ,
+                              ylegmax - yLegendWidth * LegendSize  ,
+                              xlegmin + xLegendWidth,
+                              ylegmax );
   if ( LegendTitle != "NONE")  leg->SetHeader(LegendTitle);
   for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) {
     if ( tData.at(iData) != 2 ) {
@@ -1253,17 +1279,17 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
     } else
       opt  = "box";
     
-    if ( dataSetLegend.at(iData) != "NONE" ) 
+    if ( dataSetTPlotter.at(iData).leg != "none" ) 
     { 
       //if ( rData.at(iData) ) leg->AddEntry(hData.at(iData),dataSetLegend.at(iData),opt );
       //else                   leg->AddEntry(gData.at(iData),dataSetLegend.at(iData),opt );
       if ( rData.at(iData) ) {
         if ( ! ( tData.at(iData) == 4 || tData.at(iData) == 5 ) ) 
-          leg->AddEntry(hData.at(iData),dataSetLegend.at(iData),opt );
+          leg->AddEntry(hData.at(iData),dataSetTPlotter.at(iData).leg,opt );
         else 
-          leg->AddEntry(gData.at(iData),dataSetLegend.at(iData),opt );
+          leg->AddEntry(gData.at(iData),dataSetTPlotter.at(iData).leg,opt );
       } else {
-          leg->AddEntry(gData.at(iData),dataSetLegend.at(iData),opt );
+          leg->AddEntry(gData.at(iData),dataSetTPlotter.at(iData).leg,opt );
       } 
     }
   }
@@ -1290,17 +1316,21 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
 
   }
 
+  bool drawtf1Leg = false;
   TLegend* tf1Leg = new TLegend (0.60,0.14,0.85,0.22);
   if(plotterbase.g_ratioType != "none" )
     tf1Leg = new TLegend (0.6,0.03,0.90,0.13);
-  for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) 
-    if(dataSetTPlotter.at(iData).tf1Formula != "none") 
+  for(int iData = 0 ; iData < (signed) dataSetId.size() ; ++iData) {
+    if(dataSetTPlotter.at(iData).tf1Formula != "none"){
       tf1Leg->AddEntry(&(dataSetTPlotter.at(iData).tf1) , dataSetTPlotter.at(iData).tf1Formula , "l");
+      drawtf1Leg = true;
+    }
+  }
       
   tf1Leg->SetBorderSize(0);
   tf1Leg->SetFillColor(0);
   tf1Leg->SetTextSizePixels(globalLegendTextSize);
-  tf1Leg->Draw("same");
+  if(drawtf1Leg) tf1Leg->Draw("same");
 
 
   // 
@@ -1395,3 +1425,8 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
   // delete c1;
   // return 1;
 }  
+
+/*void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 ){
+  plotterbase.g_legPos = iLegendPos;
+  plot(dir,histo,logY);
+}*/

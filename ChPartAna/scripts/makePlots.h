@@ -44,6 +44,12 @@ using namespace std;
  int           globalRatioBase = -1;
  int           globalRatioSyst = -1;
  bool          globalRatioErrorBand = 1;
+ 
+ // Pad Margins
+ double        leftMargin   = -1;
+ double        rightMargin  = -1;
+ double        topMargin    = -1;
+ double        bottomMargin = -1;
 
  // Bin Killer
 
