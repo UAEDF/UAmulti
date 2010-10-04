@@ -45,13 +45,28 @@ void nchmodels(int iBin = 5 , int iSaveFig = 1,
 
   XaxisTitle = "n";
   YaxisTitle = "P_{n}";
-
-  xGlobalLabel = 0.6 ;
+  
+  globalLabelSize = 0.06;
+  xGlobalLabel = 0.5 ;
+  yGlobalLabel = 0.87 ;
   globalLabel =  "CMS"; 
 
   globalSaveFig = iSaveFig;
   if ( iBin == 5  ) globalFigBaseName = "nch_models_pt0";
-  if ( iBin == 15 ) globalFigBaseName = "nch_models_pt500"; 
+  if ( iBin == 15 ) globalFigBaseName = "nch_models_pt500";
+  
+  /*globalTextSize = 0.03;
+  textXPos.push_back(0.89);
+  textYPos.push_back(0.90) ;
+  if(iBin == 5)
+    textText.push_back("a)");
+  if(iBin == 15)
+    textText.push_back("b)");*/
+  if(iBin == 5)
+    plotterbase.g_vtext.push_back(TLatex(0.89,0.9,"a)"));
+  if(iBin == 15)
+    plotterbase.g_vtext.push_back(TLatex(0.89,0.9,"b)"));
+  plotterbase.g_vtext.at(0).SetTextSize(0.04);
 
   globalSmoothMC = 1 ; 
 

@@ -42,10 +42,29 @@ void nchstack( double Energy = 0.9 , int iBin = 5 , int iSaveFig = 1,
   XaxisTitle = "n";
   YaxisTitle = "P_{n}";
 
-  xGlobalLabel = 0.666666 ;
+  xGlobalLabel = 0.45 ;
+  yGlobalLabel = 0.87 ;
   if ( globalEnergy == 0.9 ) globalLabel =  "CMS 0.9 TeV";
   if ( globalEnergy == 2.36) globalLabel =  "CMS 2.36 TeV";
   if ( globalEnergy == 7.0 ) globalLabel =  "CMS 7 TeV";
+  
+  /*globalTextSize = 0.04;
+  textXPos.push_back(0.89);
+  textYPos.push_back(0.90) ;
+  if(Energy == 0.9)
+    textText.push_back("a)");
+  if(Energy == 2.36)
+    textText.push_back("b)");
+  if(Energy == 7.0)
+    textText.push_back("c)");*/
+    
+  if(Energy == 0.9)
+    plotterbase.g_vtext.push_back(TLatex(0.89,0.9,"a)"));
+  if(Energy == 2.36)
+    plotterbase.g_vtext.push_back(TLatex(0.89,0.9,"b)"));
+  if(Energy == 7.0)
+    plotterbase.g_vtext.push_back(TLatex(0.89,0.9,"c)"));
+  plotterbase.g_vtext.at(0).SetTextSize(0.04);
 
   globalSaveFig = iSaveFig;
   if ( iBin == 5 ) { 
