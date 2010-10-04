@@ -28,7 +28,7 @@ double  globalEnergy = 0.9;
 #include "../macro/fileManager.C"
 #include "plot.C"
 
-void knoplot(int iBin = 5 , int iSaveFig = 1, bool plot2360 = false , float npx = 700 , float npy = 500){
+void knoplot(int iBin = 5 , int iSaveFig = 1, bool plot2360 = false , float npx = 700 , float npy = 700){
 
   gROOT->ProcessLine(".x cmsStyleRoot.C");
 
@@ -45,8 +45,10 @@ void knoplot(int iBin = 5 , int iSaveFig = 1, bool plot2360 = false , float npx 
   yLegendWidth = 0.06;
   xLegendWidth = .1 ;
 
-  xGlobalLabel = 0.6 ;
-  globalLabel =  "CMS Preliminary";
+  xGlobalLabel = 0.50 ;
+  yGlobalLabel = 0.87 ;
+  globalLabelSize = 0.06;
+  globalLabel =  "CMS";
 
   globalSaveFig = iSaveFig;
   if ( iBin ==  5 ) globalFigBaseName = "kno_eta25";  
@@ -87,7 +89,14 @@ void knoplot(int iBin = 5 , int iSaveFig = 1, bool plot2360 = false , float npx 
   if (iBin == 17 ) LegendTitle = "        |#eta| < 1.5  p_{t} > 0.5 GeV/c";
   if (iBin == 19 ) LegendTitle = "        |#eta| < 0.5  p_{t} > 0.5 GeV/c";
 
-
+  globalTextSize = 0.04;
+  textXPos.push_back(0.89);
+  textYPos.push_back(0.90) ;
+  if(iBin == 5)
+    textText.push_back("a)");
+  if(iBin == 9)
+    textText.push_back("b)");
+  
   int iMc;
 //  if ( globalEnergy == 0.9 ) iMc = 10 ;
 //  if ( globalEnergy == 2.36) iMc = 10 ;
