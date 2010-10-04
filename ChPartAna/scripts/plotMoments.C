@@ -786,11 +786,10 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
   leg->SetFillColor(kWhite);
   leg->Draw("same");
   
-  TLatex* text = new TLatex(0.65,0.85,"CMS");
+  TLatex* text = new TLatex(0.50,0.85,"CMS");
   text->SetNDC(kTRUE);
   text->SetTextSize(0.08);
-  text->DrawLatex(0.65,0.85,"CMS");
-
+  text->DrawLatex(0.50,0.85,"CMS");
   
   //--------------------
   //OTHER CANVAS
@@ -853,9 +852,16 @@ void plotMoments(int acc = 5 , TString momtype = "C"){
   leg->SetFillColor(kWhite);
   leg->Draw("same");
   
-  text->DrawLatex(0.65,0.85,"CMS");
+  text->DrawLatex(0.5,0.85,"CMS");
   
-  
+  TLatex* fignum = NULL;
+  if(acc==5) fignum = new TLatex(0.83,0.87,"a)");
+  if(acc==9) fignum = new TLatex(0.83,0.87,"b)");
+  if(acc==5 || acc==9){
+    fignum->SetNDC(kTRUE);
+    fignum->SetTextSize(0.06);
+    fignum->Draw();
+  }
   
   
   
