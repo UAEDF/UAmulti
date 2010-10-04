@@ -35,7 +35,10 @@ void mptplotstack(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float np
   
   //plotterbase.g_tf1 = TF1("","[0] + [1]*sqrt(x) + [2]*x + [3]*x*sqrt(x) + [4]*x*x + [5]*x*x*sqrt(x) + [6]*x*x*x",10,180);
   //plotterbase.g_tf1 = TF1("","[0] + [1]*sqrt(x) + [2]*x + [3]*x*sqrt(x)",10,189);
-  plotterbase.g_tf1 = TF1("","[0] + [1]*sqrt(x) + [2]*x ",10,189);
+  plotterbase.g_tf1 = TF1("","[0] + [1]*sqrt(x)",15,189);
+  //plotterbase.g_tf1 = TF1("","[0] + [1]*sqrt(x) + [2]*x ",10,189);
+  plotterbase.g_tf1.SetLineWidth(2);
+  plotterbase.g_tf1Color = kBlack;
   plotterbase.g_ratioType = "fit";
   plotterbase.g_ratioLegPos = 0;
   plotterbase.g_ratioLegX = 0.6;
@@ -57,9 +60,9 @@ void mptplotstack(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float np
   legheader<< "  |#eta| < "<<accMap.at(iBin).at(1);
   LegendTitle = legheader.str();
   
-  xGlobalLabel = 0.6 ; 
+  xGlobalLabel = 0.5 ; 
   yGlobalLabel = 0.85 ; 
-  globalLabelSize = 0.08 ; 
+  globalLabelSize = 0.07 ; 
   globalLabel =  "CMS";
 
   globalSaveFig = iSaveFig;
@@ -289,7 +292,7 @@ void mptplotstack(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float np
     dataSetTPlotter.at(dataSetId.size()-1).doFit = 1;
     dataSetTPlotter.at(dataSetId.size()-1).tf1.SetRange(10,130);
     //dataSetTPlotter.at(dataSetId.size()-1).tf1Formula = "\\alpha + \\beta \\sqrt{n} + \\gamma n + \\delta n \\sqrt{n}";
-    dataSetTPlotter.at(dataSetId.size()-1).tf1Formula = "\\alpha + \\beta \\sqrt{n} + \\gamma n";
+    dataSetTPlotter.at(dataSetId.size()-1).tf1Formula = "\\alpha + \\beta \\sqrt{n}";
     dataSetTPlotter.at(dataSetId.size()-1).divideBy = 1;
     dataSetTPlotter.at(dataSetId.size()-1).ratioLeg = "2.36 TeV / 0.9 TeV";
     
@@ -572,6 +575,15 @@ void mptplotstack(double energy = 0.9, int iBin = 5 , int iSaveFig = 1, float np
   textText.push_back("   7 TeV (a=1)");
   textText.push_back("2.36 TeV (a=0.5)" );
   textText.push_back(" 0.9 TeV (a=0)" );
+
+  if(iBin == 5){
+    textText.push_back("0.33 + 0.027 #sqrt{n}");
+    textText.push_back("0.82 + 0.031 #sqrt{n}");
+    textText.push_back("1.35 + 0.028 #sqrt{n}");
+    textXPos.push_back(0.3)  ; textYPos.push_back(0.12) ;
+    textXPos.push_back(0.37)  ; textYPos.push_back(0.32) ;
+    textXPos.push_back(0.45)  ; textYPos.push_back(0.55) ;
+  }
 
   // PLOT
 
