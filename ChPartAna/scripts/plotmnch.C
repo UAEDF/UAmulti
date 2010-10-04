@@ -431,30 +431,30 @@ void plotmnch(double acc = 5){
   
   // Theory 
 
-  Likhoded->SetLineColor(kMagenta);
-  Likhoded->SetLineStyle(6);
-  Likhoded->SetLineWidth(2);
+  Likhoded->SetLineColor(kMagenta+1);
+  Likhoded->SetLineStyle(3);
+  Likhoded->SetLineWidth(3);
   Likhoded->Draw("same l"); 
   
 
   if ( acc == 9 || acc == 7 || acc == 5) {
-    Levin->SetLineColor(kBlue);
-    Levin->SetLineWidth(2);
+    Levin->SetLineColor(kGreen+1);
+    Levin->SetLineWidth(3);
     Levin->SetLineStyle(7);
     Levin->Draw("same l");
   }
   
   if ( acc == 5) {
-    QGSM->SetLineColor(kOrange);
+    QGSM->SetLineColor(kOrange-5);
     QGSM->SetLineWidth(3);
     QGSM->SetLineStyle(10);
     QGSM->Draw("same l");
   }
   
   if ( acc == 5) {
-    Gotsman->SetLineColor(kGreen);
-    Gotsman->SetLineWidth(3);
-    Gotsman->SetLineStyle(3);
+    Gotsman->SetLineColor(kBlue);
+    Gotsman->SetLineWidth(4);
+    Gotsman->SetLineStyle(6);
     Gotsman->Draw("same l");
   }
   
@@ -489,10 +489,11 @@ void plotmnch(double acc = 5){
   nchmean_all->Fit("f1","R");
     
   
+  f1->SetLineWidth(2);
+  //f1->Draw("same");
+  
   #include "plotmnch_resampling.C"
   
-  f1->SetLineWidth(2);
-  f1->Draw("same");
   
   TF1* f2 = new TF1("f2","[0] + [1] * pow(x*x,[2])",5,15000);
   f2->SetParameters(0,1.,0.5);
@@ -611,10 +612,10 @@ void plotmnch(double acc = 5){
   mnch->Draw("SAME");
   //if(UA5mean->GetN()) UA5mean->Draw("same p");
 
-  TLatex* text = new TLatex(0.80,0.90,"CMS");
+  TLatex* text = new TLatex(0.50,0.87,"CMS");
   text->SetNDC(kTRUE);
   text->SetTextSize(0.05);
-  text->DrawLatex(0.70,0.88,"CMS");
+  text->DrawLatex(0.50,0.87,"CMS");
 
   double ylegmin = 0.2 , ylegmax = 0.3;
   if(acc==5){
@@ -638,7 +639,7 @@ void plotmnch(double acc = 5){
   func <<" ln(s) + "<<f1->GetParameter(2)<<" ln^{2}(s)";
   cout<<func.str().c_str()<<endl;
   
-  legfunc->AddEntry(f1,func.str().c_str(),"lf");
+  legfunc->AddEntry(gf1,func.str().c_str(),"lf");
   
   func.str("");
   func<<fixed<<setprecision(3)<<f2->GetParameter(0)<<" + "<<
@@ -671,6 +672,8 @@ void plotmnch(double acc = 5){
   
   nchmean_all->Draw("ap");*/
   
+  
+  //f1->Draw("fcsame");
   
   //pubFit->Draw("same");
   
