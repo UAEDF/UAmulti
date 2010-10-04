@@ -54,8 +54,8 @@
   
   
   
-  int npoints = 100;
-  int nresampling = 10;
+  int npoints = 1000;
+  int nresampling = 1000;
   vector<TMean> pull(npoints+2,TMean());
   vector<TH1F*> hpull;
   for(int n = 0 ; n <= npoints+1 ; ++n){
@@ -124,20 +124,39 @@
   }//end of loop over samples
   
   TGraphAsymmErrors* gf1 = new TGraphAsymmErrors(npoints+2);
+  TGraphAsymmErrors* gf1_systm = new TGraphAsymmErrors(npoints+2);
+  TGraphAsymmErrors* gf1_systp = new TGraphAsymmErrors(npoints+2);
   for(int n = 0 ; n <= npoints+1 ; ++n){
     //cout << pull.at(n).GetRMS() << endl;
     gf1->SetPoint( n , exp(v_x.at(n)) , f1->Eval(exp(v_x.at(n))) );
     gf1->SetPointError( n , 0 , 0 , pull.at(n).GetRMS() , pull.at(n).GetRMS() );
+    
+    gf1_systm->SetPoint( n , exp(v_x.at(n)) , f1->Eval(exp(v_x.at(n))) - pull.at(n).GetRMS() );
+    gf1_systp->SetPoint( n , exp(v_x.at(n)) , f1->Eval(exp(v_x.at(n))) + pull.at(n).GetRMS() );
+    gf1_systm->SetPointError( n , 0 , 0 , 0 , 0 );
+    gf1_systp->SetPointError( n , 0 , 0 , 0 , 0 );
+    
+    
     cout << "    " << n << "  " << exp(v_x.at(n)) << "  " << f1->Eval(exp(v_x.at(n))) << "  " << pull.at(n).GetMean() << "  " << pull.at(n).GetRMS() << endl;
   }
   
   gf1->SetFillColor(16);
+  gf1_systm->SetFillColor(16);
+  gf1_systp->SetFillColor(16);
   gf1->SetMarkerStyle(kOpenCircle);
-  gf1->Draw("3 same");
+  gf1->SetFillStyle(3244);
+  gf1->Draw("3same");
+  gf1->Draw("Xlsame");
+  //gf1_systm->Draw("cXsame");
+  //gf1_systp->Draw("cXsame");
+  
+  //gPad->WaitPrimitive();
+  
   
   TFile* f_mnch = new TFile("plotmnch_output.root","RECREATE");
   for(int n = 0 ; n <= npoints+1 ; ++n)
     hpull.at(n)->Write();
+  gf1->Write();
   f_mnch->Close();
   
   //double chi2 = sqrt( pow(moments->mean->GetMean(),2) - pow(f1->Eval(exp(v_x.at(n_7TeV))),2) / ( moments->mean->_MeanSystM * pull.at(n_7TeV).GetRMS() ));
@@ -148,3 +167,6 @@
   cout << "Compared to our measurement : " << moments->mean->GetMean() << "  -  " <<  moments->mean->_MeanSystM << endl;
   cout << "Which means a Chisquare of : " << chi2;
   cout << endl << endl << " ====================================================================" << endl << endl;
+
+
+  //gf1->Draw("l4same");
