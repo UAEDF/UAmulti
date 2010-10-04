@@ -65,9 +65,13 @@ void getGoodBinning(TString filename){
 	first = true;
       }
       
-      if(hist->GetBinContent(i)>=20 && first)
+      if(hist->GetBinContent(i)>=20 && first){
+        while(binwidth<lastwidth){
+	  i++;
+	  binwidth+=int(hist->GetBinWidth(i));
+	}
         cout<<"    addBins(1,"<<binwidth<<",tmp);"<<endl;
-      
+      }
       //making bins with stat<20
       if(hist->GetBinContent(i)<20){
         first = true;
@@ -83,8 +87,12 @@ void getGoodBinning(TString filename){
 	  if(nnull>5){useLastBin=true;break;}
 	  if(n>20) break;
         }
-	
+        
 	if(!useLastBin && binwidth<=10){
+	  while(binwidth<lastwidth){
+	    j++;
+	    binwidth+=int(hist->GetBinWidth(j));
+	  }
           cout<<"    addBins(1,"<<binwidth<<",tmp);"<<endl;
 	  i=j;
 	}
