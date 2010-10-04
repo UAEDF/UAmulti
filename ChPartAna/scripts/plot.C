@@ -467,7 +467,7 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
               eyh[n] =    sqrt( eyh[n]*eyh[n] + syh[n]*syh[n] ) ;
               eyl[n] =    sqrt( eyl[n]*eyl[n] + syl[n]*syl[n] ) ;              
             }
-            cout << " " << eyh[n] << " " << eyl[n] << endl;
+            //cout << " " << eyh[n] << " " << eyl[n] << endl;
             n++;
           }
         }
@@ -638,7 +638,7 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
     if(plotterbase.g_ratioType.Contains("none")) break;
     
     int divideby = dataSetTPlotter.at(iData).divideBy;
-    cout << divideby << endl;
+    //cout << divideby << endl;
     if ( divideby != -1 ) {
       if ( tData.at(divideby) == 1 ) hDividor = (TH1D*) hData.at(divideby)->Clone("hDividor");
       if ( tData.at(divideby) == 4 || tData.at(divideby) == 5 )
@@ -730,7 +730,7 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
        
       // Divide by fit to 1 of the histogram (allow different binning !)
       if ( plotterbase.g_ratioType.Contains("fit")  ) {
-       cout<<"arrived here"<<endl;
+       //cout<<"arrived here"<<endl;
        
        if(dataSetTPlotter.at(divideby).doFit==0){
          cout << "Error !! [iData = " << iData << "] plotterbase.g_ratioType = \"fit\" and and hist (tplotter.divideBy) = " << divideby << " has tplotter.doFit = 0" << endl;
@@ -799,11 +799,11 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
 	    dividor /= dataSetTPlotter.at(divideby).factor;
 	    dividor -= dataSetTPlotter.at(divideby).offset;
 	    
-	    cout << ibin << "  " << dividor << "  " ;
+	    //cout << ibin << "  " << dividor << "  " ;
 	    
             if ( dividor != 0. ) {
               gData.at(iData)->GetPoint(ibin-1,x,y);
-	      cout << x << "  " << y << endl;
+	      //cout << x << "  " << y << endl;
               gDivData.at(iData)->SetPoint(ibin-1,x,(y - dataSetTPlotter.at(iData).offset) / dataSetTPlotter.at(iData).factor / dividor);
               gDivData.at(iData)->SetPointEYhigh(ibin-1, gData.at(iData)->GetErrorYhigh(ibin-1)/ dataSetTPlotter.at(iData).factor / dividor );
               gDivData.at(iData)->SetPointEYlow (ibin-1, gData.at(iData)->GetErrorYlow(ibin-1) / dataSetTPlotter.at(iData).factor / dividor );
@@ -1314,6 +1314,11 @@ void plot (TString dir , TString histo , int logY = false , int iLegendPos = 0 )
     Text.at(iText)->SetTextSize(globalTextSize);
     Text.at(iText)->Draw();  
 
+  }
+
+  for ( int iText = 0 ; iText < (signed) plotterbase.g_vtext.size() ; ++iText ){
+    plotterbase.g_vtext.at(iText).SetNDC(kTRUE);
+    plotterbase.g_vtext.at(iText).Draw();
   }
 
   bool drawtf1Leg = false;
