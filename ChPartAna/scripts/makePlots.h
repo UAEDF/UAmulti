@@ -70,14 +70,18 @@ using namespace std;
  float           ratioYMax = 4.;   
 
  // Axis Title
- TString         XaxisTitle = "NONE";
- TString         YaxisTitle = "NONE";
+ TString         XaxisTitle       = "NONE";
+ TString         YaxisTitle       = "NONE";
+ TString         YratioTitle      = "Ratio";
  double          XaxisTitleOffset = 0.70;
  double          YaxisTitleOffset = 1.0 ;
  double          XaxisTitleSize   = 0.06;
  double          YaxisTitleSize   = 0.06;
+ int             nDivX            = -1; // n1 + 100*n2 + 10000*n3    [n1=primary , n2=secondary etc]
+ int             nDivY            = -1;
 
  double          globalAxisTitleSize = 0.06;
+ double          globalAxisLabelSize = 0.04;
 
  // TLegend position +  Title 
 
@@ -126,6 +130,8 @@ using namespace std;
  vector<float>   textXPos (1,0); 
  vector<float>   textYPos (1,0); 
  vector<TString> textText (1,"Undef"); 
+
+ bool debug = false;
 
 void plotReset()
 {
@@ -179,6 +185,7 @@ void plotReset()
 
   XaxisTitle       = "NONE";
   YaxisTitle       = "NONE";
+  YratioTitle      = "Ratio";
   XaxisTitleOffset = 0.7 ; 
   YaxisTitleOffset = 1.0 ;
   XaxisTitleSize   = 0.06;
@@ -199,6 +206,8 @@ void plotReset()
   //dataSetTPlotter.clear();
   dataSetTPlotter.assign(20,TPlotter()); 
   // 
+
+  plotter = TPlotter();
 
  globalTextSize = 0.02;
  textXPos.clear();  
