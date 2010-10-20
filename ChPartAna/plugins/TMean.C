@@ -48,6 +48,11 @@ Double_t TMean::GetRMS(){
   return _RMS;
 }
 
+Double_t TMean::GetMeanSquare(){
+  if(_TotalNumber!=0) return _TotalSumSquare/_TotalNumber;
+  else return 0;
+}
+
 void TMean::Reset(){
   _Mean = 0. ;
   _RMS = -1. ;

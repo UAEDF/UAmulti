@@ -14,6 +14,7 @@ class TMean : public TObject{
   void Substract(Double_t, Double_t = 1.);
   Double_t GetMean();
   Double_t GetMeanError(){return _MeanError;}
+  Double_t GetMeanSquare();
   Double_t GetRMS();
   Double_t GetRMSError(){return _RMSError;}
   Double_t GetN(){return _TotalNumber;};
