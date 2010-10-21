@@ -69,7 +69,7 @@ void TTProfile::Init(){
   nBins = binning.size() - 1;
   nEvents = 0;
   profileDone = false;
-  if(vbinning.size()==0 && switchTH1On){
+  if(vbinning.size()==0 && (switchTH1On || switchTH2On) ){
     vector<Double_t> tmp = this->makeBins(101 , -0.5 , 100.5);
     vbinning = vector< vector<Double_t> >(nBins , tmp);
   }
