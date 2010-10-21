@@ -19,5 +19,9 @@
   gROOT->ProcessLine(".L ../plugins/TMoments.C+");
   gROOT->ProcessLine(".L ../plugins/TPlotterBase.C+");
   gROOT->ProcessLine(".L ../plugins/TPlotter.C+");
+  gROOT->ProcessLine(".L ../plugins/TTProfile.C+");
+  gROOT->ProcessLine(".L ../plugins/FBCorrel.C+");
+  gROOT->ProcessLine(".L ../plugins/TResponseMtx.C+");
+  gROOT->ProcessLine(".L ../plugins/FBResults.C+");
   gROOT->ProcessLine(".L ../plugins/LinkDef.C+");
 }
