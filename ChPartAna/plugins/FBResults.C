@@ -36,16 +36,19 @@ void FBResults::MakeAllPlots( vector<FBCorrel>& vfbc , Double_t accmin , Double_
   //b VS dEta From Reg
   str.str("");
   str << "bVSdEta_fromReg_" << name << "_" << dirname;
+  bVSdEta_fromReg.SetName(str.str().c_str());
   this->GetbVSdEta(vfbc , accmin , accmax , bVSdEta_fromReg );
   
   //b VS dEta From Fit
   str.str("");
   str << "bVSdEta_fromFit_" << name << "_" << dirname;
-  this->GetbVSdEtaFromFit(vfbc , accmin , accmax , bVSdEta_fromReg );
+  bVSdEta_fromFit.SetName(str.str().c_str());
+  this->GetbVSdEtaFromFit(vfbc , accmin , accmax , bVSdEta_fromFit );
   
   //sigC VS eta
   str.str("");
   str << "sigCVSeta_" << name << "_" << dirname;
+  sigCVSeta.SetName(str.str().c_str());
   this->GetsigCVSeta(vfbc , accmin , accmax , sigCVSeta );
 }
 
@@ -83,7 +86,7 @@ void FBResults::GetsigCVSeta(vector<FBCorrel>& vfbc , int accmin , int accmax , 
 
 
 void FBResults::write(){
-  if(! (gDirectory->Cd(dirname)) ){
+  if(! (gDirectory->Cd(dirname) || gDirectory->GetName()==dirname) ){
     gDirectory->mkdir(dirname);
     gDirectory->cd(dirname);
   }
@@ -93,8 +96,9 @@ void FBResults::write(){
   
   bVSdEta_fromReg.Write();
   bVSdEta_fromFit.Write();
-  
+  sigCVSeta.Write();
+  cout << gDirectory->GetName() << "  " << "FBResults_class_"+name+"_"+dirname << endl;
   this->Write("FBResults_class_"+name+"_"+dirname);
 
-  gDirectory->cd("../");
+  gDirectory->cd("../..");
 }
