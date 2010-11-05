@@ -17,19 +17,21 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 #process.GlobalTag.globaltag = 'MC_31X_V3::All'
 #process.GlobalTag.globaltag = 'STARTUP3X_V8O::All'
-process.GlobalTag.globaltag = 'GR09_R_V5::All'
+#process.GlobalTag.globaltag = 'GR_R_35X_V6::All'
+process.GlobalTag.globaltag = 'GR_R_37X_V6A::All'
 
 # Data source -----------------------------------------------------------------------
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-            ' '
+           'file:///user/xjanssen/data/CMSSW_3_7_0_patch4/DataCopy_37x/__MinimumBias__Commissioning10-Jun9thReReco_v1__RECO/DataCopy_37x__CMSSW_3_7_0_patch4__MinimumBias__Commissioning10-Jun9thReReco_v1__RECO_1_2_ihT.root'
+#            'rfio:///castor/cern.ch/cms/store/data/Commissioning10/MinimumBias/RECO/Apr1ReReco-v2/0129/58274A60-523E-DF11-A311-0030486792F0.root'
 #          'file:///user/xjanssen/MBdata/__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO/DataCopy_mb__CMSSW_3_3_6_patch3__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO_1.root'
 #          'file:///user/rougny/TESTFILES/Summer09-MC_31X_V3-v1_GEN-SIM-RECO_900GeV.root'
 #          'file:///user/xjanssen/MBdata/D6T2360GeV_test01/simrecofile_103.root'
      )
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(200) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 #process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 # gen particles printouts -----------------------------------------------------------
@@ -113,7 +115,21 @@ process.GenPartAna = cms.EDAnalyzer('ChPartTree'
 # Define DATA Collections
   , genPartColl   = cms.InputTag("genParticles")
   , hepMCColl     = cms.InputTag("generator")
+  , requested_hlt_bits = cms.vstring( 'HLT_L1_BscMinBiasOR_BptxPlusORMinus' ,
+                                      'HLT_PixelTracks_Multiplicity40' ,
+                                      'HLT_PixelTracks_Multiplicity70' ,
+                                      'HLT_PixelTracks_Multiplicity85' 
+                                    )
 
+# Fwd Gap Stuff
+  , CaloTowerTag = cms.InputTag("towerMaker")
+  ,  EnergyThresholdHB = cms.double(1.5)
+  ,  EnergyThresholdHE = cms.double(2.0)
+  ,  EnergyThresholdHF = cms.double(4.0)
+  ,  EnergyThresholdEB = cms.double(1.5)
+  ,  EnergyThresholdEE = cms.double(2.5)
+
+  
 
 )
 
@@ -130,8 +146,6 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 process.freco = cms.Path(
                            process.goodLumiBlocks
-                         * process.evtSelData 
-                         * process.looseEvtSelFilter
 #                        * process.collisionBunchCrossings
 #                         * process.hltLevel1GTSeed
                         )
@@ -144,6 +158,8 @@ process.lreco = cms.Path(
                        )
 
 process.greco = cms.Path(
+                         process.evtSelData * 
+                         process.looseEvtSelFilter *
                          process.minBiasTracking *
                          process.allVertices *
 #                        process.generalVertices *
