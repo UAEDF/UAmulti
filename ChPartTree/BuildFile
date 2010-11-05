@@ -15,6 +15,9 @@
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/VertexReco>
 <use name=DataFormats/BeamSpot>
+<use name=DataFormats/HLTReco>
+<use name=DataFormats/CaloTowers>
+<use name=DataFormats/HcalDetId>
 <use name=MitEdm/DataFormats>
 
 <export>
@@ -36,6 +39,7 @@
   <use name=DataFormats/TrackReco>
   <use name=DataFormats/VertexReco>
   <use name=DataFormats/BeamSpot>
+  <use name=DataFormats/HLTReco>
   <use name=MitEdm/DataFormats>
 
 </export>
