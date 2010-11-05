@@ -30,6 +30,12 @@ using namespace std;
 // Point 3D
 #include "DataFormats/Math/interface/Point3D.h"
 
+// Trigger
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+
+
+
 
 // ChPartTree Analysis class decleration
 
@@ -37,6 +43,7 @@ using namespace std;
 
 #include "UAmulti/ChPartTree/interface/MyEvtId.h"
 #include "UAmulti/ChPartTree/interface/MyL1Trig.h"
+#include "UAmulti/ChPartTree/interface/MyHLTrig.h"
 
 #include "UAmulti/ChPartTree/interface/MyGenKin.h"
 #include "UAmulti/ChPartTree/interface/MyGenPart.h"
@@ -44,6 +51,8 @@ using namespace std;
 #include "UAmulti/ChPartTree/interface/MyBeamSpot.h"
 #include "UAmulti/ChPartTree/interface/MyVertex.h"
 #include "UAmulti/ChPartTree/interface/MyTracks.h"
+
+#include "UAmulti/ChPartTree/interface/MyFwdGap.h"
 
 // #include "UAmulti/ChPartTree/interface/MyVtxAux.h"
 
@@ -82,6 +91,11 @@ class ChPartTree : public edm::EDAnalyzer {
 
       virtual void GetEvtId(const edm::Event&);
       virtual void GetL1Trig(const edm::Event&, const edm::EventSetup& );
+      virtual void GetHLTrig(const edm::Event&, const edm::EventSetup& );
+      bool hasFired(const std::string& triggerName,
+   		const edm::TriggerNames& triggerNames,
+  		const edm::TriggerResults& triggerResults) const;
+
 
       virtual void GetGenKin(const edm::Event&);
       virtual void GetGenPart(const edm::Event&, const edm::EventSetup&);      
@@ -93,6 +107,7 @@ class ChPartTree : public edm::EDAnalyzer {
                                  const char[60]    , vector<MyTracks>& );
 
       virtual void GetMITEvtSel(const edm::Event&, const edm::EventSetup& );
+      virtual void GetFwdGap(const edm::Event&, const edm::EventSetup& );
 
       // ----------Config data --------------------------- 
 
@@ -109,6 +124,20 @@ class ChPartTree : public edm::EDAnalyzer {
       edm::InputTag genPartColl_ ;
       edm::InputTag hepMCColl_ ;
 
+      vector<string> hlt_bits;
+
+
+      // Calo Sum:
+
+       edm::InputTag caloTowerTag_; 
+
+       double energyThresholdHB_;
+       double energyThresholdHE_;
+       double energyThresholdHF_;
+       double energyThresholdEB_;
+       double energyThresholdEE_;
+
+
       // ----------Tree & File ---------------------------
 
       string fOutputFileName ;
@@ -119,6 +148,8 @@ class ChPartTree : public edm::EDAnalyzer {
 
       MyEvtId           EvtId;
       MyL1Trig          L1Trig; 
+      MyHLTrig          HLTrig;
+
 
       MyGenKin          GenKin;
       vector<MyGenPart> GenPart;
@@ -136,12 +167,17 @@ class ChPartTree : public edm::EDAnalyzer {
 
 
       MyMITEvtSel       MITEvtSel;
+      MyFwdGap          FwdGap;
 
       // --------- Vtx ID --------------------------
 
 
       Int_t vtxid;
       vector<math::XYZPoint> vtxid_xyz;
+
+
+       map<int,string> HLT_map;
+
 
 //    vector<MyVtxAux>  VtxAux ;
 //    vector<Double_t> vtxid_x;

@@ -6,6 +6,7 @@
 
 #pragma link C++ class MyEvtId+;
 #pragma link C++ class MyL1Trig+;
+#pragma link C++ class MyHLTrig+;
 
 #pragma link C++ class MyGenKin+;
 
@@ -23,7 +24,7 @@
 #pragma link C++ class vector<MyTracks>+;
 
 #pragma link C++ class MyMITEvtSel+;
-
+#pragma link C++ class MyFwdGap+;
 
 
 #endif
