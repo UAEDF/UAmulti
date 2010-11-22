@@ -137,6 +137,9 @@ ChPartTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    // ... MIT VtxQuality
    GetMITEvtSel(iEvent,iSetup); 
 
+   // ... FwdGap
+   GetFwdGap(iEvent,iSetup); 
+
    // Event Selection (DATA ONLY) 
    bool badEvent = false;
    if ( EvtId.IsData ) { 

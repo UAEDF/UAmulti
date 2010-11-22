@@ -129,8 +129,6 @@ process.GenPartAna = cms.EDAnalyzer('ChPartTree'
   ,  EnergyThresholdEB = cms.double(1.5)
   ,  EnergyThresholdEE = cms.double(2.5)
 
-  
-
 )
 
 

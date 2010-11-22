@@ -103,7 +103,19 @@ process.GenPartAna = cms.EDAnalyzer('ChPartTree'
 # Define DATA Collections
   , genPartColl   = cms.InputTag("genParticles")
   , hepMCColl     = cms.InputTag("generator")
+  , requested_hlt_bits = cms.vstring( 'HLT_L1_BscMinBiasOR_BptxPlusORMinus' ,
+                                      'HLT_PixelTracks_Multiplicity40' ,
+                                      'HLT_PixelTracks_Multiplicity70' ,
+                                      'HLT_PixelTracks_Multiplicity85'
+                                    )
 
+# Fwd Gap Stuff
+  , CaloTowerTag = cms.InputTag("towerMaker")
+  ,  EnergyThresholdHB = cms.double(1.5)
+  ,  EnergyThresholdHE = cms.double(2.0)
+  ,  EnergyThresholdHF = cms.double(4.0)
+  ,  EnergyThresholdEB = cms.double(1.5)
+  ,  EnergyThresholdEE = cms.double(2.5)
 
 )
 

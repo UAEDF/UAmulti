@@ -208,5 +208,13 @@ void ChPartTree::GetFwdGap(const edm::Event& iEvent , const edm::EventSetup& iSe
    FwdGap.sumETEB_plus = sumETEB_plus ;
    FwdGap.sumETEB_minus = sumETEB_minus ;
 
+
+/*
+   cout << "[FwdGap]: " << sumEHF_plus << " " << sumEHF_minus << " " 
+                        << sumEHE_plus << " " << sumEHE_minus << " "
+                        << sumEHB_plus << " " << sumEHB_minus << " "
+                        << sumEEE_plus << " " << sumEEE_minus << " "
+                        << sumEEB_plus << " " << sumEEB_minus << " " << endl ;
+*/
 }
 
