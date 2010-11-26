@@ -17,7 +17,8 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 #process.GlobalTag.globaltag = 'MC_31X_V3::All'
 #process.GlobalTag.globaltag = 'STARTUP3X_V8O::All'
-process.GlobalTag.globaltag = 'STARTUP3X_V8K::All'
+#process.GlobalTag.globaltag = 'STARTUP3X_V8K::All'
+process.GlobalTag.globaltag = 'START36_V10::All'
 
 # Data source -----------------------------------------------------------------------
 process.source = cms.Source("PoolSource",

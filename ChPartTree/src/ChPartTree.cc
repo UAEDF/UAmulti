@@ -150,8 +150,8 @@ ChPartTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if( ! (    !L1Trig.TechTrigWord[36]
               && !L1Trig.TechTrigWord[37]
               && !L1Trig.TechTrigWord[38]
-              && !L1Trig.TechTrigWord[39]
-              &&  L1Trig.TechTrigWord[0]  ) )  badEvent = true;
+              && !L1Trig.TechTrigWord[39] ) )  badEvent = true; 
+//            &&  L1Trig.TechTrigWord[0]  ) )  badEvent = true;
 
      if ( ! badEvent ) ++nEvtCut_L1Common;
 
@@ -168,6 +168,7 @@ ChPartTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
      if ( ! badEvent ) ++nEvtCut_HLTMult;
 
+/*
      // HF Cut 
      double hfEnergyMin = min(MITEvtSel.eHfPos,MITEvtSel.eHfNeg);
      if( ! (    MITEvtSel.nHfTowersP >= 1
@@ -175,10 +176,11 @@ ChPartTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
              && hfEnergyMin >= 3. )          ) badEvent = true;
 
      if ( ! badEvent ) ++nEvtCut_HF;
+*/
 
      // Vertex Cut
      bool goodVtx = false ;
-     double vtxz_cut = 20.;
+     double vtxz_cut = 30.;
      for(vector<MyVertex>::iterator itvtx=primaryVertex.begin();itvtx!=primaryVertex.end();++itvtx){
        if(itvtx->validity && fabs(itvtx->z)<vtxz_cut && itvtx->ntracks>0 ) goodVtx = true;
      }
@@ -191,16 +193,17 @@ ChPartTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      if ( ! goodVtx ) badEvent = true;
 
      if ( ! badEvent ) ++nEvtCut_VTX;
-
+/*
      // #Tracks Cut
      bool goodTracks = false ;
-     int  nTracksCut = 1  ;
+     int  nTracksCut = 0  ;
      if ( (signed) generalTracks.size() >= nTracksCut )  goodTracks = true ;
      if ( (signed) ferencTracks.size()  >= nTracksCut )  goodTracks = true ;
 
      if ( ! goodTracks ) badEvent = true;
  
      if ( ! badEvent ) ++nEvtCut_Ntracks;
+*/
 
    } // End of Event Selection 
 
@@ -262,9 +265,9 @@ ChPartTree::endJob() {
    cout << " L1Common = " << nEvtCut_L1Common << endl;
    cout << " L1Mult   = " << nEvtCut_L1Mult   << endl;
    cout << " HLTMult  = " << nEvtCut_HLTMult  << endl;
-   cout << " HF       = " << nEvtCut_HF       << endl;
+//   cout << " HF       = " << nEvtCut_HF       << endl;
    cout << " VTX      = " << nEvtCut_VTX      << endl;
-   cout << " #Tracks  = " << nEvtCut_Ntracks  << endl;
+//   cout << " #Tracks  = " << nEvtCut_Ntracks  << endl;
 
    fout->Write() ;
    fout->Close() ;
