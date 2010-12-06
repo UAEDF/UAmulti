@@ -16,18 +16,18 @@ TrackPlots::TrackPlots(TString collname){
 TrackPlots::~TrackPlots(){ }
 
 void TrackPlots::init(){
-  charge   = new TH1F("charge_"+trackcoll,"charge_"+trackcoll+";charge;# events",3,-1.5,1.5);
-  nch   = new TH1F("nch_"+trackcoll,"nch_"+trackcoll+";n_{CH};# events",111,-0.5,110.5);
-  pt    = new TH1F("pt_"+trackcoll,"pt_"+trackcoll+";pt [GeV];# events",100,0.,3.);
-  eta   = new TH1F("eta_"+trackcoll,"eta_"+trackcoll+";#eta;# events",40,-3.,3.);
-  phi   = new TH1F("phi_"+trackcoll,"phi_"+trackcoll+";#phi;# events",30,-TMath::Pi(),TMath::Pi());
-  nhit  = new TH1F("nhit_"+trackcoll,"nhit_"+trackcoll+";nhit;# events",51,-0.5,50.5);
-  chi2n = new TH1F("chi2n_"+trackcoll,"chi2n_"+trackcoll+";#chi^{2}/ndof;# events",25,0.,5.);
-  dz    = new TH1F("dz_"+trackcoll,"dz_"+trackcoll+";dz(vertex) [cm];# events",120,-30.,30.);
-  d0    = new TH1F("d0_"+trackcoll,"d0_"+trackcoll+";d0(vertex) [cm];# events",50,-2.5,2.5);
-  d0bs  = new TH1F("d0bs_"+trackcoll,"d0bs_"+trackcoll+";d0(beamspot) [cm];# events",50,-2.5,2.5);
-  edz   = new TH1F("edz_"+trackcoll,"edz_"+trackcoll+";dzError(0,0,0);# events", 50,0.,5.);
-  ed0   = new TH1F("ed0_"+trackcoll,"ed0_"+trackcoll+";d0Error(0,0,0);# events", 50,0.,5.);
+  charge    = new TH1F("charge_"+trackcoll,"charge_"+trackcoll+";charge;# events",3,-1.5,1.5);
+  nch       = new TH1F("nch_"+trackcoll,"nch_"+trackcoll+";n_{CH};# events",111,-0.5,110.5);
+  pt        = new TH1F("pt_"+trackcoll,"pt_"+trackcoll+";pt [GeV];# events",100,0.,3.);
+  eta       = new TH1F("eta_"+trackcoll,"eta_"+trackcoll+";#eta;# events",40,-3.,3.);
+  phi       = new TH1F("phi_"+trackcoll,"phi_"+trackcoll+";#phi;# events",30,-TMath::Pi(),TMath::Pi());
+  nhit      = new TH1F("nhit_"+trackcoll,"nhit_"+trackcoll+";nhit;# events",51,-0.5,50.5);
+  chi2n     = new TH1F("chi2n_"+trackcoll,"chi2n_"+trackcoll+";#chi^{2}/ndof;# events",25,0.,5.);
+  dz        = new TH1F("dz_"+trackcoll,"dz_"+trackcoll+";dz(vertex) [cm];# events",120,-30.,30.);
+  d0        = new TH1F("d0_"+trackcoll,"d0_"+trackcoll+";d0(vertex) [cm];# events",50,-2.5,2.5);
+  d0bs      = new TH1F("d0bs_"+trackcoll,"d0bs_"+trackcoll+";d0(beamspot) [cm];# events",50,-2.5,2.5);
+  edz       = new TH1F("edz_"+trackcoll,"edz_"+trackcoll+";dzError(0,0,0);# events", 50,0.,5.);
+  ed0       = new TH1F("ed0_"+trackcoll,"ed0_"+trackcoll+";d0Error(0,0,0);# events", 50,0.,5.);
   dzOedz    = new TH1F("dzOedz_"+trackcoll,"dzOedz_"+trackcoll+";dz(vtx)/dzError;# events",60,0,15.);
   dxyOed0   = new TH1F("dxyOed0_"+trackcoll,"dxyOed0_"+trackcoll+";d0(vtx)/d0Error;# events",60,0,15.);
   dxyOsxy   = new TH1F("dxyOsxy_"+trackcoll,"dxyOsxy_"+trackcoll+";#dxy(vtx) / #sigma_{xy};# events", 50,0,10.);
@@ -36,17 +36,17 @@ void TrackPlots::init(){
   eptOpt    = new TH1F("eptOpt_"+trackcoll,"eptOpt_"+trackcoll+";pTerror / p_{T};# events",80,0,0.8);
   dxyz      = new TH1F("dxyz_"+trackcoll,"dxyz_"+trackcoll+";dxyz;# events",60,0,15.);
 
-  quality  = new TH1F("quality_"+trackcoll,"quality_"+trackcoll+";quality;# events",4,-0.5,3.5);
+  quality   = new TH1F("quality_"+trackcoll,"quality_"+trackcoll+";quality;# events",4,-0.5,3.5);
   
-  fdz    = new TH1F("fdz_"+trackcoll,"fdz_"+trackcoll+";track.vertex.z - vertex.z [cm];# events",120,-30.,30.);
-  sz     = new TH1F("sz_"+trackcoll,"sz_"+trackcoll+";#sigma_{Z};# events", 50,0.,5.);
-  sxy    = new TH1F("sxy_"+trackcoll,"sxy_"+trackcoll+";#sigma_{XY};# events", 50,0.,5.);
+  fdz       = new TH1F("fdz_"+trackcoll,"fdz_"+trackcoll+";track.vertex.z - vertex.z [cm];# events",120,-30.,30.);
+  sz        = new TH1F("sz_"+trackcoll,"sz_"+trackcoll+";#sigma_{Z};# events", 50,0.,5.);
+  sxy       = new TH1F("sxy_"+trackcoll,"sxy_"+trackcoll+";#sigma_{XY};# events", 50,0.,5.);
   
-  dzOsz_old = new TH1F("dzOsz_old_"+trackcoll,"dzOsz_old_"+trackcoll+";#dz / sigma_z;# events", 50,0,10.);
+  dzOsz_old      = new TH1F("dzOsz_old_"+trackcoll,"dzOsz_old_"+trackcoll+";#dz / sigma_z;# events", 50,0,10.);
   dzOszVSphi_old = new TH2F("dzOszVSphi_old_"+trackcoll,"dzOszVSphi_old_"+trackcoll+";#dz / sigma_z;#phi;# events", 50,0,10.,30,-TMath::Pi(),TMath::Pi());
   
   dxyOsxyVSphi = new TH2F("dxyOsxyVSphi_"+trackcoll,"dxyOsxyVSphi_"+trackcoll+";#dxy / sigma_xy;#phi;# events", 50,0,10.,30,-TMath::Pi(),TMath::Pi());
-  dzOszVSphi = new TH2F("dzOszVSphi_"+trackcoll,"dzOszVSphi_"+trackcoll+";#dz / sigma_z;#phi;# events", 50,0,10.,30,-TMath::Pi(),TMath::Pi());
+  dzOszVSphi   = new TH2F("dzOszVSphi_"+trackcoll,"dzOszVSphi_"+trackcoll+";#dz / sigma_z;#phi;# events", 50,0,10.,30,-TMath::Pi(),TMath::Pi());
   
   etaVSnhit = new TH2F("etaVSnhit"+trackcoll,"etaVSnhit"+trackcoll+";#eta;nhit;# events",20,-3.,3.,51,-0.5,50.5);
 
@@ -182,4 +182,68 @@ int TrackPlots::getVtxposFromId(MyTracks& tr,int goodvtxId){
   
   return -1;
 }
+
+void TrackPlots::divide(TrackPlots& trp, TString name){
+  
+  gDirectory->mkdir("EffTrackPlots_"+name);
+  gDirectory->cd("EffTrackPlots_"+name);
+  
+  this->makeEff( charge    , trp.charge    , "eff_charge_" + name);
+  this->makeEff( nch       , trp.nch       , "eff_nch_" + name);
+  this->makeEff( pt        , trp.pt        , "eff_pt_" + name);
+  this->makeEff( eta       , trp.eta       , "eff_eta_" + name);
+  this->makeEff( phi       , trp.phi       , "eff_phi_" + name);
+  this->makeEff( nhit      , trp.nhit      , "eff_nhit_" + name);
+  this->makeEff( chi2n     , trp.chi2n     , "eff_chi2n_" + name);
+  this->makeEff( dz        , trp.dz        , "eff_dz_" + name);
+  this->makeEff( d0        , trp.d0        , "eff_d0_" + name);
+  this->makeEff( d0bs      , trp.d0bs      , "eff_d0bs_" + name);
+  this->makeEff( edz       , trp.edz       , "eff_edz_" + name);
+  this->makeEff( ed0       , trp.ed0       , "eff_ed0_" + name);
+  this->makeEff( dzOedz    , trp.dzOedz    , "eff_dzOedz_" + name);
+  this->makeEff( dxyOed0   , trp.dxyOed0   , "eff_xyOed0_" + name);
+  this->makeEff( dxyOsxy   , trp.dxyOsxy   , "eff_dxyOsxy_" + name);
+  this->makeEff( dxybsOsxy , trp.dxybsOsxy , "eff_dxybsOsxy_" + name);
+  this->makeEff( dzOsz     , trp.dzOsz     , "eff_zOsz_" + name);
+  this->makeEff( eptOpt    , trp.eptOpt    , "eff_eptOpt_" + name);
+
+  this->makeEff( quality   , trp.quality   , "eff_quality_" + name); 
+ 
+  this->makeEff( fdz , trp.fdz , "eff_fdz_" + name);
+  this->makeEff( sz  , trp.sz  , "eff_sz_" + name);
+  this->makeEff( sxy , trp.sxy , "eff_xy_" + name);
+  
+  this->makeEff( dzOsz_old      , trp.dzOsz_old      , "eff_dzOsz_" + name);
+  this->makeEff( dzOszVSphi_old , trp.dzOszVSphi_old , "eff_dzOszVSphi_old_" + name);
+  
+  this->makeEff( dxyOsxyVSphi , trp.dxyOsxyVSphi , "eff_dxyOsxyVSphi_" + name);
+  this->makeEff( dzOszVSphi   , trp.dzOszVSphi   , "eff_dzOszVSphi_" + name);
+ 
+  this->makeEff( dxyz         , trp.dxyz         , "eff_dxyz_" + name);
+
+  this->makeEff( etaVSnhit    , trp.etaVSnhit    , "eff_etaVSnhit_" + name);
+  
+  gDirectory->cd("../");
+}
+
+
+void TrackPlots::makeEff(TH1F* num , TH1F* denom , TString name){
+  TH1F* eff    = (TH1F*) num->Clone(name);
+  eff->Divide(num , denom , 1 , 1 , "B");
+  eff->SetMinimum(0);
+  eff->Write();
+}
+
+
+void TrackPlots::makeEff(TH2F* num , TH2F* denom , TString name){
+  TH2F* eff    = (TH2F*) num->Clone(name);
+  eff->Divide(num , denom , 1 , 1 , "B");
+  eff->SetMinimum(0);
+  eff->Write();
+}
+
+
+
+
+
 
