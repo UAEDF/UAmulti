@@ -5,7 +5,7 @@ ClassImp(TResponseMtx)
 
 void TResponseMtx::Init(){
   if(binning.size() == 0) this->makeBins(101,-0.5,100.5);
-  mtx = TH2F( "mtx_"+name , "mtx_"+name , binning.size()-1 , &(binning.at(0)) , binning.size()-1 , &(binning.at(0)) );
+  mtx = TH2F( "mtx_"+name , "mtx_"+name+";gen;reco" , binning.size()-1 , &(binning.at(0)) , binning.size()-1 , &(binning.at(0)) );
   nEvts = 0;
   isNormalised = isNormalisedByColumn = isNormalisedByLine = false;
   gen_inEvt = reco_inEvt;
@@ -31,6 +31,7 @@ void TResponseMtx::Fill(Double_t xval , Double_t yval , Double_t weight){
 }
 
 void TResponseMtx::NormalizeByLine(){
+  if(isNormalisedByLine) return;
   isNormalisedByLine = true;
   if(isNormalised)         cout << "[TResponseMtx] WARNING !! Already normalized ..." << endl;
   if(isNormalisedByColumn) cout << "[TResponseMtx] WARNING !! Already normalized by column ..." << endl;
@@ -59,6 +60,7 @@ void TResponseMtx::NormalizeByLine(){
 
 
 void TResponseMtx::NormalizeByColumn(){
+  if(isNormalisedByColumn) return;
   isNormalisedByColumn = true;
   if(isNormalisedByLine) cout << "[TResponseMtx] WARNING !! Already normalized by line ..." << endl;
   if(isNormalised)       cout << "[TResponseMtx] WARNING !! Already normalized ..." << endl;
@@ -87,6 +89,7 @@ void TResponseMtx::NormalizeByColumn(){
 
 
 void TResponseMtx::Normalize(Bool_t countOverFlows){
+  if(isNormalised) return;
   isNormalised = true;
   if(isNormalisedByLine)   cout << "[TResponseMtx] WARNING !! Already normalized by line ..." << endl;
   if(isNormalisedByColumn) cout << "[TResponseMtx] WARNING !! Already normalized by column ..." << endl;

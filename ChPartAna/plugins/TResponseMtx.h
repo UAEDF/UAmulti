@@ -16,7 +16,7 @@ class TResponseMtx : public TObject {
     TResponseMtx(TString s):name(s){this->Init();};
     TResponseMtx(TString s , vector<Double_t> v):name(s),binning(v){this->Init();};
     ~TResponseMtx(){};
-     void makeBins(Int_t, Double_t, Double_t);
+    void makeBins(Int_t, Double_t, Double_t);
 
     TString  name;
     Double_t nEvts;
