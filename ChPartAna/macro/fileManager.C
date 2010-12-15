@@ -13,8 +13,12 @@
 //#             11 : MC - PYTHIA DW
 //#             12 : MC - PYTHIA P0 
 //#             13 : MC - PYTHIA ProQ20
+//#             15 : MC - PYTHIA Z2
 //#             20 : MC - PHOJET
 //#             30 : MC - PYTHIA D6T <--- V8P file
+//#             51 : MC - PYTHIA X1
+//#             52 : MC - PYTHIA X2
+//#             60 : MC - PYTHIA 8
 //#
 //# Energy    = 0.9  : 900 GeV  Data/MC
 //#             2.36 : 2.36 TeV Data/MC
@@ -56,7 +60,14 @@ TString fileManager ( int     iFileType  = 0
   TString BaseDirTree = "/user/xjanssen/data/" ;
   if(Energy == 7.0 && (iDataType == 51 || iDataType == 52))
     BaseDirTree = "/user/rougny/data/" ;
-    
+  
+  //******NEW
+  if( (Energy == 0.9 || Energy == 7.0) && (iDataType == 0 || iDataType == 10 || iDataType == 15 || iDataType == 60) ){
+    BaseDirTree = "dcap:///pnfs/iihe/cms/store/user/rougny/data/" ;
+    CMSSW       = "CMSSW_3_6_2";
+  }
+  //******END NEW
+  
   TString BaseDirPlot = "../plots/";
   
   if ( BaseDirPlIn != "NONE" )
@@ -74,18 +85,28 @@ TString fileManager ( int     iFileType  = 0
     if        ( Energy == 0.9 ){
 
       if      ( iDataType == 0 ) {
-        TreeBase = "ChPartTree_v005b_d900"; 
-        DataSet  = "__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO";
+        //TreeBase = "ChPartTree_v005b_d900"; 
+        //DataSet  = "__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO";
+	
+        TreeBase = "ChPartTree_36x_d900v3"; 
+        DataSet  = "__MinimumBias__Commissioning10-Jun14thReReco_v1__RECO";
       }
-      else if ( iDataType == 5  ) {
+      /*else if ( iDataType == 5  ) {
         TreeBase = "ChPartTree_v005c_d900";
         DataSet  = "__ZeroBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO";
-      }
+      }*/
       else if ( iDataType == 10 ) {
-        TreeBase = "ChPartTree_v005c_mc900";
-        DataSet  = "__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO";
+        //TreeBase = "ChPartTree_v005c_mc900";
+        //DataSet  = "__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO";
+	
+        TreeBase = "ChPartTree_36x_mcv2";
+        DataSet  = "__MinBias_TuneD6T_900GeV-pythia6__Summer10-START36_V10A-v1__GEN-SIM-RECODEBUG";
       }
-      else if ( iDataType == 11 ) {
+      else if ( iDataType == 15 ) {
+        TreeBase = "ChPartTree_36x_mc900";
+        DataSet  = "__MinBias_TuneZ2_900GeV-pythia6__Summer10-START36_V10A-v1__GEN-SIM-RECO";
+      } 
+      /*else if ( iDataType == 11 ) {
         TreeBase = "ChPartTree_v005c_mc900";
         DataSet  = "__MinBias__Summer09-STARTUP3X_V8K_900GeV_DW-v1__GEN-SIM-RECO";
       } 
@@ -105,6 +126,10 @@ TString fileManager ( int     iFileType  = 0
       else if ( iDataType == 40 ) {
         TreeBase = "ChPartTree_v005c_mc900_V8P";
         DataSet  = "__MinBias__Summer09-STARTUP3X_V8P_900GeV-v1__GEN-SIM-RECO";
+      }*/
+      else if ( iDataType == 60 ) {
+        TreeBase = "ChPartTree_36x_mcv2";
+        DataSet  = "__MinBias_900GeV-pythia8__Summer10-START36_V10A-v1__GEN-SIM-RECO";
       }
 
 
@@ -118,7 +143,7 @@ TString fileManager ( int     iFileType  = 0
     // --- 2.36 TeV ---
     else if ( Energy == 2.36 ){
 
-      if      ( iDataType == 0 ) {
+    /*  if      ( iDataType == 0 ) {
         //TreeBase = "ChPartTree_v005b_d236";
         //DataSet  = "__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO";
         TreeBase = "ChPartTree_v005_d236_loosevtxqual";
@@ -144,7 +169,7 @@ TString fileManager ( int     iFileType  = 0
         TreeBase = "ChPartTree_v005_mc236_V22B";
         DataSet  = "__MinBias__Summer09-START3X_V22B_2360GeV-v1__GEN-SIM-RECO";
       }
-      else {
+      else */{
         cout << "[fileManager] Unknown DataType: " << iDataType << endl;
         return "NONE";
       }
@@ -156,18 +181,25 @@ TString fileManager ( int     iFileType  = 0
     else if ( Energy == 7.00 ){
 
       if      ( iDataType == 0 ) {
-        TreeBase = "ChPartTree_v005_d7000";
-        DataSet  = "__MinimumBias__Commissioning10-Apr1ReReco-v2__RECO";
+        //TreeBase = "ChPartTree_v005_d7000";
+        //DataSet  = "__MinimumBias__Commissioning10-Apr1ReReco-v2__RECO";
+        
+	TreeBase = "ChPartTree_36x_d7000v3";
+        DataSet  = "__MinimumBias__Commissioning10-Jun14thReReco_v1__RECO";
       }
-      else if ( iDataType == 5  ) {
+      /*else if ( iDataType == 5  ) {
         TreeBase = "ChPartTree_v005b_d7000";
         DataSet  = "__ZeroBias__Commissioning10-Apr1ReReco-v2__RECO";
-      }
-      else if ( iDataType == 10 ) {
+      }*/
+      /*else if ( iDataType == 10 ) {
         TreeBase = "ChPartTree_v005_mc7000";
         DataSet  = "__MinBias__Spring10-START3X_V26A_356ReReco-v1__GEN-SIM-RECO";
+      }*/
+      else if ( iDataType == 15 ) {
+        TreeBase = "ChPartTree_36x_mc7000";
+        DataSet  = "__MinBias_TuneZ2_7TeV_pythia6__Summer10-START36_V10-v1__GEN-SIM-RECO";
       }
-      else if ( iDataType == 20 ) {
+      /*else if ( iDataType == 20 ) {
         TreeBase = "ChPartTree_v005c_mc7000_v25b";
         DataSet  = "__MinBiasPhojet_SIM_0413__yilmaz-MinBiasPhojet_RECO_0413_v1-309b694e9ccf1df48e24b126fab6958b__USER";
       }
@@ -186,6 +218,10 @@ TString fileManager ( int     iFileType  = 0
       else if ( iDataType == 52 ) {
         TreeBase = "ChPartTree_v005_mc7000_v26_FS";
         DataSet  = "__MinBias_TuneX2_7TeV-pythia6__Spring10-START3X_V26_FastSim-v1__GEN-SIM-DIGI-RECO";
+      }*/
+      else if ( iDataType == 60 ) {
+        TreeBase = "ChPartTree_36x_mcv4";
+        DataSet  = "__MinBias_7TeV-pythia8__Summer10-START36_V10_SP10-v1__GEN-SIM-RECODEBUG";
       }
 
       else {
@@ -232,12 +268,14 @@ TString fileManager ( int     iFileType  = 0
     if ( iDataType == 11) DataSet = "_MC_DW" ; 
     if ( iDataType == 12) DataSet = "_MC_P0" ; 
     if ( iDataType == 13) DataSet = "_MC_ProQ20" ; 
+    if ( iDataType == 15) DataSet = "_MC_Z2" ;
     if ( iDataType == 20) DataSet = "_MC_PHOJET" ;
     if ( iDataType == 30) DataSet = "_MC_D6T_newBS" ; 
     if ( iDataType == 31) DataSet = "_MC_ATLAS" ; 
     if ( iDataType == 40) DataSet = "_MC_D6T_35X" ; 
     if ( iDataType == 51) DataSet = "_MC_D6T_X1" ; 
-    if ( iDataType == 52) DataSet = "_MC_D6T_X2" ; 
+    if ( iDataType == 52) DataSet = "_MC_D6T_X2" ;
+    if ( iDataType == 52) DataSet = "_MC_Pythia8" ;
     
     if ( Energy == 0.9  ) SEnergy = "_0.9TeV"  ;
     if ( Energy == 2.36 ) SEnergy = "_2.36TeV" ;
