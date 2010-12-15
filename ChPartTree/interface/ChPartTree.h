@@ -32,7 +32,10 @@ using namespace std;
 
 // Trigger
 #include "FWCore/Common/interface/TriggerNames.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
 
 
 
@@ -84,6 +87,7 @@ class ChPartTree : public edm::EDAnalyzer {
 
    private:
       virtual void beginJob() ;
+      virtual void beginRun(edm::Run const &, edm::EventSetup const&) ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -129,13 +133,17 @@ class ChPartTree : public edm::EDAnalyzer {
 
       // Calo Sum:
 
-       edm::InputTag caloTowerTag_; 
+      edm::InputTag caloTowerTag_; 
 
-       double energyThresholdHB_;
-       double energyThresholdHE_;
-       double energyThresholdHF_;
-       double energyThresholdEB_;
-       double energyThresholdEE_;
+      double energyThresholdHB_;
+      double energyThresholdHE_;
+      double energyThresholdHF_;
+      double energyThresholdEB_;
+      double energyThresholdEE_;
+       
+      // ---------- Needed for retrieving HLT ---------------------------
+      bool isValidHltConfig_;
+      HLTConfigProvider hltConfig;
 
 
       // ----------Tree & File ---------------------------

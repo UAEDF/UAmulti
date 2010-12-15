@@ -54,7 +54,8 @@ ChPartTree::ChPartTree(const edm::ParameterSet& iConfig)
    energyThresholdHF_ = iConfig.getParameter<double>("EnergyThresholdHF") ;
    energyThresholdEB_ = iConfig.getParameter<double>("EnergyThresholdEB") ;
    energyThresholdEE_ = iConfig.getParameter<double>("EnergyThresholdEE") ;
-
+   
+   isValidHltConfig_ = false;
 }
 
 
@@ -164,7 +165,8 @@ ChPartTree::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      if ( ! (    HLTrig.HLTmap["HLT_L1_BscMinBiasOR_BptxPlusORMinus"] 
               || HLTrig.HLTmap["HLT_PixelTracks_Multiplicity40"]
               || HLTrig.HLTmap["HLT_PixelTracks_Multiplicity70"]
-              || HLTrig.HLTmap["HLT_PixelTracks_Multiplicity85"]     ) ) badEvent = true;
+              || HLTrig.HLTmap["HLT_PixelTracks_Multiplicity85"]
+	      || HLTrig.HLTmap["HLT_MinBiasPixel_SingleTrack"]    ) ) badEvent = true;
   
      if ( ! badEvent ) ++nEvtCut_HLTMult;
 
@@ -254,6 +256,20 @@ ChPartTree::beginJob()
 
 
 }
+
+
+//-- method called to for each run
+void ChPartTree::beginRun(edm::Run const & iRun, edm::EventSetup const& iSetup)
+{
+  using namespace std;
+  using namespace edm;
+
+  bool changed = true;
+  isValidHltConfig_ = hltConfig.init(iRun,iSetup,"HLT",changed);
+    
+}
+
+
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 

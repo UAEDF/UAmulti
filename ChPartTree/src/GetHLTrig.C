@@ -11,6 +11,7 @@
 // Trigger Inclides
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+//#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 //#include "FWCore/Framework/interface/TriggerNames.h"
 //#include "FWCore/Common/interface/TriggerNames.h"
 
@@ -42,6 +43,7 @@ void ChPartTree::GetHLTrig(const edm::Event& iEvent, const edm::EventSetup& iSet
   // Loop on requested triggers by user (config file)
   for(vector<string>::iterator requested_hlt_bit=hlt_bits.begin() ; requested_hlt_bit!=hlt_bits.end();requested_hlt_bit++){
     HLTrig.HLTmap[*requested_hlt_bit]= hasFired(*requested_hlt_bit, trgNames,*trgResults);
+    HLTrig.HLTprescale[*requested_hlt_bit]= hltConfig.prescaleValue(iEvent,iSetup,*requested_hlt_bit);
     // cout << (*requested_hlt_bit).c_str() << " = " << hasFired(*requested_hlt_bit, trgNames,*trgResults) << endl ;
   }
 
