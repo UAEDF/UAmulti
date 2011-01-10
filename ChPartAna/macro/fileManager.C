@@ -20,6 +20,9 @@
 //#             52 : MC - PYTHIA X2
 //#             60 : MC - PYTHIA 8
 //#
+//#             100 : DATA TEST
+//#             101 : MC   TEST
+//#
 //# Energy    = 0.9  : 900 GeV  Data/MC
 //#             2.36 : 2.36 TeV Data/MC
 //# 
@@ -65,6 +68,12 @@ TString fileManager ( int     iFileType  = 0
   if( (Energy == 0.9 || Energy == 7.0) && (iDataType == 0 || iDataType == 10 || iDataType == 15 || iDataType == 60) ){
     BaseDirTree = "dcap:///pnfs/iihe/cms/store/user/rougny/data/" ;
     CMSSW       = "CMSSW_3_6_2";
+  }
+  if(iDataType == 100 || iDataType == 101){
+    BaseDirTree = "/user/rougny/data/";
+    CMSSW       = "CMSSW_3_6_2";
+    if(iDataType == 100 ) iDataType = 0 ;
+    if(iDataType == 101 ) iDataType = 60;
   }
   //******END NEW
   
