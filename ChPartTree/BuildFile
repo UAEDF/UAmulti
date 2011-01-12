@@ -8,6 +8,7 @@
 <use name=SimDataFormats/GeneratorProducts>
 <use name=DataFormats/METReco>
 <use name=L1Trigger/GlobalTriggerAnalyzer>
+<use name=HLTrigger/HLTcore>
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
 <use name=DataFormats/L1GlobalTrigger>
@@ -32,6 +33,7 @@
    <use name=SimDataFormats/GeneratorProducts>
    <use name=DataFormats/METReco>
    <use name=L1Trigger/GlobalTriggerAnalyzer>
+   <use name=HLTrigger/HLTcore>
    <use name=CondFormats/L1TObjects>
    <use name=CondFormats/DataRecord>
    <use name=DataFormats/L1GlobalTrigger>
