@@ -4,8 +4,10 @@ ClassImp(TResponseMtx)
 
 
 void TResponseMtx::Init(){
-  if(binning.size() == 0) this->makeBins(101,-0.5,100.5);
+
+  if(binning.size() == 0) this->makeBins(301,-0.5,300.5);
   mtx = TH2F( "mtx_"+name , "mtx_"+name+";gen;reco" , binning.size()-1 , &(binning.at(0)) , binning.size()-1 , &(binning.at(0)) );
+
   nEvts = 0;
   isNormalised = isNormalisedByColumn = isNormalisedByLine = false;
   gen_inEvt = reco_inEvt;
