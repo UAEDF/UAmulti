@@ -85,7 +85,7 @@ void GenPartPlots::divide(GenPartPlots& trp, const TString name){
 //_____________________________________________________________________________
 template <class T>
 void GenPartPlots::makeEff( T* num, T* denom, const TString name){
-  TH1F* eff    = (TH1F*) num->Clone(name);
+  T* eff    = (T*) num->Clone(name);
   eff->Divide(num , denom , 1 , 1 , "B");
   eff->SetMinimum(0);
   eff->Write();
