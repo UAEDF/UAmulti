@@ -89,7 +89,7 @@ void NCHEvtSelPlots::init(){
     mppart_noSel                      = new MultiPlots("partnoSel_"+trackcoll);
     mppart_full                       = new MultiPlots("partfull_"+trackcoll);    
     //matrix
-    mtx_full                          = new TResponseMtx("full_"+trackcoll, 
+    mtx_full                          = new TResponseMtx("partfull_"+trackcoll, 
                                 vector<Double_t>( mppart_full->nch_array, mppart_full->nch_array+mppart_full->nch_nbin+1) );     
   }
   
