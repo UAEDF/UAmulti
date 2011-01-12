@@ -36,8 +36,8 @@ class VertexPlots : public TObject {
     TH2F* yz;
     
     void init();
-    void fill(vector<MyVertex>&,double = 1.);
-    void fill(MyVertex&,double = 1.);
+    void fill(vector<MyVertex>&, double = 1.);
+    void fill(MyVertex&, double = 1.);
     void write();
     
   private:
