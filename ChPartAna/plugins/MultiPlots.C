@@ -16,6 +16,10 @@ MultiPlots::~MultiPlots(){
   delete mt;
   delete ptmVSnch;
   delete ptmVSnch_2D;
+  delete ptVSnch;
+  delete ptVSnch_2D;
+  
+  delete ptm_inEvt;
 }
 
 
@@ -57,6 +61,9 @@ void MultiPlots::init(){
   nch_inEvt = 0;
   ptm_inEvt = new TMean();
   //vpt_inEvt = new vector<double>();
+  
+  
+
 }
 
 void MultiPlots::fill(MyPart& p , double weight){
@@ -193,4 +200,41 @@ void MultiPlots::setNbOfMoments(int NbOfMoments){
   
   nb_moments = NbOfMoments;
   moments = new vector<TMean>(nb_moments,TMean());
+}
+
+
+//_____________________________________________________________________________
+void MultiPlots::divide(MultiPlots& mppart, const TString name){
+  
+  gDirectory->mkdir("Eff_"+name);
+  gDirectory->cd("Eff_"+name);
+  
+  //TH1F
+  this->makeEff( nch         , mppart.nch         , "eff_nch_"     + name);
+  //this->makeEff( kno         , mppart.kno         , "eff_kno_"     + name);
+  this->makeEff( rapidity    , mppart.rapidity    , "eff_rapidity_"+ name);
+  this->makeEff( eta         , mppart.eta         , "eff_eta_"     + name);
+  this->makeEff( pt          , mppart.pt          , "eff_pt_"      + name);
+  this->makeEff( pt2         , mppart.pt2         , "eff_pt2_"     + name);
+  this->makeEff( mt          , mppart.mt          , "eff_mt_"      + name);
+  
+  //TH2F
+  this->makeEff( ptmVSnch_2D    , mppart.ptmVSnch_2D   , "eff_ptmVSnch_2D_"   + name);
+  this->makeEff( ptVSnch_2D     , mppart.ptVSnch_2D    , "eff_ptVSnch_2D_"    + name);
+  
+  //TProfile
+  this->makeEff( ptmVSnch_2D    , mppart.ptmVSnch_2D    , "eff_ptmVSnch_2D"   + name);
+  this->makeEff( ptVSnch_2D     , mppart.ptVSnch_2D     , "eff_ptVSnch_2D_"   + name);
+  
+  
+  gDirectory->cd("../");
+}
+
+ 
+//_____________________________________________________________________________
+template <class T> void MultiPlots::makeEff( T* num, T* denom, const TString name){
+  T* eff    = (T*) num->Clone(name);
+  eff->Divide(num , denom , 1 , 1 , "B");
+  eff->SetMinimum(0);
+  eff->Write();
 }

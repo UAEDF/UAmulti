@@ -57,10 +57,9 @@ class TrackPlots : public TObject {
     TH2F* etaVSnhit;
     
     void init();
-    void fill(vector<MyTracks>& , vector<MyVertex>& , int , MyBeamSpot*, double = 1.);
-    void divide(TrackPlots& , TString);
-    void makeEff(TH1F* , TH1F* , TString);
-    void makeEff(TH2F* , TH2F* , TString);
+    void fill(vector<MyTracks>& , vector<MyVertex>::iterator&, int , MyBeamSpot*, double = 1.);
+    void divide(TrackPlots& , const TString);
+    template <class T> void makeEff( T*, T*, const TString);
     void write();
     
   private:

@@ -9,7 +9,6 @@
 #include "TH1.h"
 #include "TProfile.h"
 #include "TString.h"
-#include "TObject.h"
 #include "TDirectory.h"
 
 #include "TMean.h"
@@ -29,7 +28,9 @@ class MultiPlots : public BasePlots {
   void nextEvent(bool = true , double = 1.);
   void makeKNO();
   void write(bool = true);
-  
+  void divide(MultiPlots&, TString);
+  template <class T> void makeEff(T*, T*, TString);
+
   //getters/setters
   vector<double> getMoments();
   void setNbOfMoments(Int_t);
