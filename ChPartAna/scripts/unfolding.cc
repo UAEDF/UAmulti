@@ -26,7 +26,7 @@ using namespace std;
 
 int iterStep=0;
 
-TH1F runalgo(TH2F* matrixhist, TH1F* toUnfold, TH1F* hypothesis, int niter = 5, int nsample = 0, bool smooth = true , bool smoothInputDistr = false/* , bool reweightmtx = true*/){
+TH1F runalgo(TH2F* matrixhist, TH1F* toUnfold, TH1F* hypothesis, int niter = 5, int nsample = 0, bool smooth = false , bool smoothInputDistr = false/* , bool reweightmtx = true*/){
 //TH1F runalgo(double matrix[][matrixsize], TH1F* toUnfold, TH1F* hypothesis, int niter = 5, int nsample = 0, bool smooth = true , bool smoothInputDistr = false){
   //cout<<"starting the unfolding ..."<<endl;
   
@@ -53,8 +53,19 @@ TH1F runalgo(TH2F* matrixhist, TH1F* toUnfold, TH1F* hypothesis, int niter = 5, 
     
   
   }*/
+  if(debug_!=0) {
+    matrixhist->Draw();
+    gPad->WaitPrimitive();
+  } 
   
-  
+  if(debug_!=0) {
+    toUnfold->Draw();
+    gPad->WaitPrimitive();
+  }
+  if(debug_!=0) {
+    hypothesis->Draw();
+    gPad->WaitPrimitive();
+  }
   //Definition of the matrices
   matrix4dObj matrix;
   matrix4dObj matrix_normalized;
@@ -107,32 +118,43 @@ TH1F runalgo(TH2F* matrixhist, TH1F* toUnfold, TH1F* hypothesis, int niter = 5, 
     sprintf(name,tmp,it);
     strcat(name,"_nsample%d");
     sprintf(name,name,nsample);
-    vtoUnfold->at(it)->SetNameTitle(name,name);
-    vtoUnfold->at(it)->SetBins(toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray());
+    vtoUnfold->at(it)=(TH1F*) toUnfold->Clone(name);
+    //vtoUnfold->at(it)->SetNameTitle(name,name);
+    //vtoUnfold->at(it)->SetBins(toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray());
+    vtoUnfold->at(it)->Reset("M");
     //vtoUnfold->at(it)->Sumw2();
     
+    cout << "step further"<<endl;
     tmp = (char*) "toUnfold_scaled_step%d";
     sprintf(name,tmp,it);
     strcat(name,"_nsample%d");
     sprintf(name,name,nsample);
-    vtoUnfold_scaled->at(it)->SetNameTitle(name,name);
-    vtoUnfold_scaled->at(it)->SetBins(toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray());
+     vtoUnfold_scaled->at(it)=(TH1F*) toUnfold->Clone(name);
+    //vtoUnfold_scaled->at(it)->SetNameTitle(name,name);
+    //vtoUnfold_scaled->at(it)->SetBins(toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray());
     //vtoUnfold_scaled->at(it)->Sumw2();
+    vtoUnfold_scaled->at(it)->Reset("M");
     
     tmp = (char*) "err_obs_step%d";
     sprintf(name,tmp,it);
     strcat(name,"_nsample%d");
     sprintf(name,name,nsample);
-    verr_obs->at(it)->SetNameTitle(name,name);
-    verr_obs->at(it)->SetBins(toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray());
+    verr_obs->at(it)=(TH1F*) toUnfold->Clone(name);
+    //verr_obs->at(it)->SetNameTitle(name,name);
+    //verr_obs->at(it)->SetBins(toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray());
+    verr_obs->at(it)->Reset("M");
     
     tmp = (char*) "recoHypothesis_step%d";
     sprintf(name,tmp,it);
     strcat(name,"_nsample%d");
     sprintf(name,name,nsample);
-    vhyp_reco->at(it)->SetNameTitle(name,name);
-    vhyp_reco->at(it)->SetBins(toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray());
+    vhyp_reco->at(it)=(TH1F*) toUnfold->Clone(name);
+    //vhyp_reco->at(it)->SetNameTitle(name,name);
+    //vhyp_reco->at(it)->SetBins(toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray());
     //verr_obs->at(it)->Sumw2();
+    vhyp_reco->at(it)->Reset("M");
+   
+    cout << "after cloning" <<endl;
     
     if(it==0)
       unfold(vtoUnfold->at(it),vtoUnfold_scaled->at(it),vhyp_reco->at(it),matrix_normalized,toUnfold,hypothesis,verr_obs->at(it));
