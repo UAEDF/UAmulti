@@ -17,7 +17,7 @@ EvtSelPlots::~EvtSelPlots(){ }
 void EvtSelPlots::init(){
 
   // -------- Multi Histos ---------
-  int nbinmulti = 25;
+  //int nbinmulti = 25;
   /*nch_noSel  = new TH1F("nch_noSel_"+trackcoll,"nch_noSel;n_{CH};# events",(int)nbinmulti+1,-0.5,nbinmulti+0.5);
   nch_b40Sel  = new TH1F("nch_b40Sel_"+trackcoll,"nch_b40Sel;n_{CH};# events",(int)nbinmulti+1,-0.5,nbinmulti+0.5);
   nch_L1Sel  = new TH1F("nch_L1Sel_"+trackcoll,"nch_L1Sel;n_{CH};# events",(int)nbinmulti+1,-0.5,nbinmulti+0.5);
