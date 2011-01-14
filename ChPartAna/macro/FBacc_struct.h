@@ -1,3 +1,6 @@
+#ifndef _FBACC_STRUCT_
+#define _FBACC_STRUCT_ 
+
 struct FBacc{
   Double_t widthM;
   Double_t widthP;
@@ -16,3 +19,5 @@ struct FBacc{
     ptP = 0.1;
   };
 };
+
+#endif
