@@ -13,6 +13,8 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <fstream>
+
 using namespace std;
 
 #include "../macro/fileManager.C"
@@ -20,10 +22,17 @@ using namespace std;
 #include "../plugins/TMoments.h"
 #include "../plugins/TMean.h"
 
+//-----------------------------------------------------------
+//          !!!    WARNING   !!!
+//
+// the syst for the moments are the total errors !!!
+// was fixed only for the mean
+//-----------------------------------------------------------
+
+
 
 void printMoments(int cut = 5){
-  TString plotdir = "../plots/systv10_binning1v3_2/";
-  
+  TString plotdir = "../plots/current_b1_2/";
   
   ostringstream outstr("");
   outstr << "hyp" << 1 << "_niter" << 0 << "_cut" << cut << "_DataType" << 0;
@@ -51,17 +60,18 @@ void printMoments(int cut = 5){
   cout<<"\\begin{tabular}{|l|c|c|c|}"<<endl;
   cout<<"Center of mass energy	& 0.9 \\TeV & 2.36 \\TeV & 7.0 \\TeV\\\\\\hline"<<endl;
   
-  cout<<fixed <<setprecision(3);
+  cout<<fixed <<setprecision(1);
   cout<<"$<n>$"<<" & $"
-  	<<mom0->mean->GetMean()<<" \\pm "<<mom0->mean->GetMeanError()<<"^{+ "<<mom0->mean->_MeanSystP<<"}_{- "<<mom0->mean->_MeanSystM<<"}$ & $"
-  	<<mom1->mean->GetMean()<<" \\pm "<<mom1->mean->GetMeanError()<<"^{+ "<<mom1->mean->_MeanSystP<<"}_{- "<<mom1->mean->_MeanSystM<<"}$ & $"
-  	<<mom2->mean->GetMean()<<" \\pm "<<mom2->mean->GetMeanError()<<"^{+ "<<mom2->mean->_MeanSystP<<"}_{- "<<mom2->mean->_MeanSystM<<"}$ \\\\ "<<endl;
+  	<<mom0->mean->GetMean()<<" \\pm "<<mom0->mean->GetMeanError()<<"^{+ "<<mom0->mean->GetMeanSystP()<<"}_{- "<<mom0->mean->GetMeanSystM()<<"}$ & $"
+  	<<mom1->mean->GetMean()<<" \\pm "<<mom1->mean->GetMeanError()<<"^{+ "<<mom1->mean->GetMeanSystP()<<"}_{- "<<mom1->mean->GetMeanSystM()<<"}$ & $"
+  	<<mom2->mean->GetMean()<<" \\pm "<<mom2->mean->GetMeanError()<<"^{+ "<<mom2->mean->GetMeanSystP()<<"}_{- "<<mom2->mean->GetMeanSystM()<<"}$ \\\\ "<<endl;
 	
   cout<<"D_{2}"<<" & $"
   	<<mom0->mean->GetRMS()<<" \\pm "<<mom0->mean->GetRMSError()<<"^{+ "<<mom0->mean->_RMSSystP<<"}_{- "<<mom0->mean->_RMSSystM<<"}$ & $"
   	<<mom1->mean->GetRMS()<<" \\pm "<<mom1->mean->GetRMSError()<<"^{+ "<<mom1->mean->_RMSSystP<<"}_{- "<<mom1->mean->_RMSSystM<<"}$ & $"
   	<<mom2->mean->GetRMS()<<" \\pm "<<mom2->mean->GetRMSError()<<"^{+ "<<mom2->mean->_RMSSystP<<"}_{- "<<mom2->mean->_RMSSystM<<"}$ \\\\ "<<endl;
 	
+  cout<<fixed <<setprecision(3);
   
   for(int i = 2 ; i <=5 ; ++i){
   ostringstream mom("");
@@ -105,27 +115,77 @@ void printMoments(int cut = 5){
   cout<<"\\end{table}"<<endl;
   
   
-  cout<<mom0->mean->GetMean()<<"  "<<sqrt(pow(mom0->mean->GetMeanError(),2)+pow((mom0->mean->_MeanSystP+mom0->mean->_MeanSystM)/2,2))<<endl;
-  cout	<<mom1->mean->GetMean()<<"  "<<sqrt(pow(mom1->mean->GetMeanError(),2)+pow((mom1->mean->_MeanSystP+mom1->mean->_MeanSystM)/2,2))<<endl;
-  cout	<<mom2->mean->GetMean()<<"  "<<sqrt(pow(mom2->mean->GetMeanError(),2)+pow((mom2->mean->_MeanSystP+mom2->mean->_MeanSystM)/2,2))<<endl;
-/*
-\begin{table}[htbH]
-\begin{center}
-\caption{Event yields in each data sample after sequential trigger and
-event selection cuts.\label{tab1}}
-\begin{tabular}{|l|c|c|c|}
-\hline
-Center of mass energy	& 0.9 \TeV & 2.36 \TeV & 7.0 \TeV\\\hline
-Selection        	& Nev 	& Nev & NeV\\\hline
-Level 1 trigger  	& 264468 & 19214  & xxx\\
-beam bg rejection  	& 254666 & 18627 & xxx\\
-Forward calorimeters    & 146658 & 11991  & xxx\\
-vertex presence         & 127892 & 11356  & xxx\\
-\hline
-\end{tabular}
-\end{center}
-\end{table}*/
+  cout<<mom0->mean->GetMean()<<"  "<<sqrt(pow(mom0->mean->GetMeanError(),2)+pow((mom0->mean->GetMeanSystP()+mom0->mean->GetMeanSystM())/2,2))<<endl;
+  cout	<<mom1->mean->GetMean()<<"  "<<sqrt(pow(mom1->mean->GetMeanError(),2)+pow((mom1->mean->GetMeanSystP()+mom1->mean->GetMeanSystM())/2,2))<<endl;
+  cout	<<mom2->mean->GetMean()<<"  "<<sqrt(pow(mom2->mean->GetMeanError(),2)+pow((mom2->mean->GetMeanSystP()+mom2->mean->GetMeanSystM())/2,2))<<endl;
 
+
+  //------------------------------------------
+  //------------------------------------------
+  //--                                      --
+  //--        Dumping in text file          --
+  //--                                      --
+  //------------------------------------------
+  //------------------------------------------
+  
+  #include "acceptanceMap.C"
+
+
+  vector<TMoments*> vmom;
+  vmom.push_back(mom0);
+  vmom.push_back(mom1);
+  vmom.push_back(mom2);
+  vector<double> E;
+  E.push_back(0.9);
+  E.push_back(2.36);
+  E.push_back(7);
+  
+  ostringstream txtstr("");
+  txtstr << "../txt/Cmoments_eta" << accMap.at(cut).at(1) << ".txt";
+  ofstream txtout(txtstr.str().c_str());
+  cout << " ++    dumping points in : " << txtstr.str() << endl;
+  
+  txtout << "Fig. 6 (";
+  if(cut==5) txtout << "a)" << endl << endl;
+  if(cut==9) txtout << "b)" << endl << endl;
+  
+  for(int imom = 0 ; imom < vmom.size() ; ++imom){
+    txtout.unsetf(ios_base::floatfield);
+    txtout << "  Cmoments at sqrt(s) = " << setprecision(3) << setw(4) << E.at(imom) << "TeV for | eta | < " << accMap.at(cut).at(1) << endl << endl;
+    txtout << left 
+           << setw(5) << "q"
+           << setw(10) << "C_q"
+           << setw(10) << "stat-"
+           << setw(10) << "stat+"
+           << setw(10) << "syst-"
+           << setw(10) << "syst+"
+	   << endl << endl;
+	   
+    for(int q = 2 ; q <= 5 ; ++q){
+    
+      //precision
+      int precision = 1;
+      for(int ipow = 1 ; ipow <=10 ; ++ipow){
+        precision = ipow+1;
+        if(vmom.at(imom)->cmoments->at(q) > pow(10.,-ipow)){
+          break;
+        }
+      }
+
+      txtout << left 
+             << setw(5) << q
+	     << setprecision(precision) << fixed
+             << setw(10) << vmom.at(imom)->cmoments->at(q)
+             << setw(10) << vmom.at(imom)->cstaterr->at(q)
+             << setw(10) << vmom.at(imom)->cstaterr->at(q)
+             << setw(10) << sqrt( pow(vmom.at(imom)->csystmerr->at(q),2) - pow(vmom.at(imom)->cstaterr->at(q),2) )
+             << setw(10) << sqrt( pow(vmom.at(imom)->csystperr->at(q),2) - pow(vmom.at(imom)->cstaterr->at(q),2) )
+	     << endl;
+    }
+    txtout << endl << endl << endl;
+  }
+
+  txtout.close();
 
 }
 
