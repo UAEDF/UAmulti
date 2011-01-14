@@ -200,10 +200,13 @@ TString fileManager ( int     iFileType  = 0
         TreeBase = "ChPartTree_v005b_d7000";
         DataSet  = "__ZeroBias__Commissioning10-Apr1ReReco-v2__RECO";
       }*/
-      /*else if ( iDataType == 10 ) {
-        TreeBase = "ChPartTree_v005_mc7000";
-        DataSet  = "__MinBias__Spring10-START3X_V26A_356ReReco-v1__GEN-SIM-RECO";
-      }*/
+      else if ( iDataType == 10 ) {
+        //TreeBase = "ChPartTree_v005_mc7000";
+        //DataSet  = "__MinBias__Spring10-START3X_V26A_356ReReco-v1__GEN-SIM-RECO";
+	
+        TreeBase = "ChPartTree_36x_mcv2";
+        DataSet  = "__MinBias_TuneD6T_7TeV-pythia6__Summer10-START36_V10_SP10-v1__GEN-SIM-RECODEBUG";
+      }
       else if ( iDataType == 15 ) {
         TreeBase = "ChPartTree_36x_mc7000";
         DataSet  = "__MinBias_TuneZ2_7TeV_pythia6__Summer10-START36_V10-v1__GEN-SIM-RECO";
