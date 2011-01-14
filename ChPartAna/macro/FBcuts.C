@@ -1,5 +1,5 @@
-double pt_cut   = 0.2;
-double eta_cut  = 2.5;
+double pt_cut   = 0.1;
+double eta_cut  = 2.4;
 double vtxz_cut = 15.;
 double nsigma   = 4.;
 
@@ -301,3 +301,50 @@ pair<Double_t,Double_t> getnCorrelGenPart(vector<MyGenPart>& v_tr , FBacc& cut){
   }
   return make_pair(nTrM , nTrP);
 }
+
+template <class T>
+pair<Double_t,Double_t> getnCorrel(vector<T>& v_tr , FBacc& cut){
+  Int_t nTrM = 0 , nTrP = 0;
+  for(typename vector<T>::iterator it_tr = v_tr.begin() ; it_tr != v_tr.end() ; ++it_tr){
+    if( it_tr->Part.v.Eta() < cut.etaM && it_tr->Part.v.Eta() > cut.etaM - cut.widthM ) nTrM++;
+    if( it_tr->Part.v.Eta() > cut.etaP && it_tr->Part.v.Eta() < cut.etaP + cut.widthP ) nTrP++;
+  }
+  if(debug) cout << "[getnCorrel] ntrM , nTrP : " << nTrM << "  " << nTrP << endl;
+  return make_pair(nTrM , nTrP);
+}
+
+
+template <class T>
+pair<Double_t,Double_t> getnCorrelTrReweight(vector<T>& v_tr , FBacc& cut , TH2F& trEff , TH2F& trFakes=0){
+  Double_t nTrM = 0 , nTrP = 0;
+  Int_t xbin = 0 , ybin = 0;
+  Double_t weight = 1 , trEff_val = 1 , trFakes_val = 1;
+  for(typename vector<T>::iterator it_tr = v_tr.begin() ; it_tr != v_tr.end() ; ++it_tr){
+    xbin = trEff.GetXaxis()->FindFixBin( it_tr->Part.v.Eta() ) ;
+    ybin = trEff.GetYaxis()->FindFixBin( it_tr->Part.v.Pt()  ) ;
+    trEff_val = trEff.GetBinContent( xbin , ybin );
+    trFakes_val =  1. - trFakes.GetBinContent( xbin , ybin );
+    if(&trFakes==0) trFakes_val = 1;
+    if(debug){
+      cout << "[getnCorrelTrReweight] trEff_val , trFakes_val : " << trEff_val << "  " << trFakes_val << endl;
+      cout << "[getnCorrelTrReweight] pt , eta                : " << it_tr->Part.v.Pt() << "  " << it_tr->Part.v.Eta() << endl;
+    }
+
+    if( xbin<1 || ybin<1 || xbin>trEff.GetNbinsX() || ybin>trEff.GetNbinsY() || trEff_val == 0 ) weight = 1.;
+    else					                                                 weight = trFakes_val / trEff_val;
+
+    if( it_tr->Part.v.Eta() < cut.etaM && it_tr->Part.v.Eta() > cut.etaM - cut.widthM ) nTrM+=weight;
+    if( it_tr->Part.v.Eta() > cut.etaP && it_tr->Part.v.Eta() < cut.etaP + cut.widthP ) nTrP+=weight;
+  }
+  if(debug) cout << "[getnCorrelTrReweight] ntrM , nTrP : " << nTrM << "  " << nTrP << endl;
+  return make_pair(nTrM , nTrP);
+}
+
+
+
+
+
+
+
+
+
