@@ -32,12 +32,21 @@ vector< vector<double> > getBins(int inch , int ipt , int ieta){
     addBins(10,5,tmp);
     bins.push_back(tmp);
   }
+  if(inch==2){
+    bins.push_back(makeBins(271,-0.5,270.5));
+  }
   
   //---------------- PT BINNING ---------------
   if(ipt==0){
     bins.push_back(makeBins(30,0.,3.));
   }
-  
+  else if(ipt == 1){
+    vector<double> tmp = makeBins(200,0.,1.5);
+    addBins(20,.05,tmp);
+    addBins(80,.1,tmp);
+    bins.push_back(tmp);
+  }
+ 
   //---------------- ETA BINNING ---------------
   if(ieta==0){
     bins.push_back(makeBins(60,-3.,3.));
@@ -47,6 +56,9 @@ vector< vector<double> > getBins(int inch , int ipt , int ieta){
   }
   else if(ieta==2){
     bins.push_back(makeBins(12,-3.,3.));
+  }
+  else if(ieta==3){
+    bins.push_back(makeBins(48,-2.4,2.4));
   }
   
   return bins;
