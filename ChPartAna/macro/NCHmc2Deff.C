@@ -32,6 +32,8 @@ using namespace std;
 #include "../plugins/GenMultiPlots.h"
 #include "../plugins/MatrixPlots.h"
 
+#include "../../../UAHiggs/UAHiggsAna/src/MatchTools.C"
+
 bool isMC = true;
 bool debug = false;
 
@@ -48,7 +50,7 @@ TString st(string input , int cut){
 }
 
 
-void NCHmc2Deff(int type = 31 , double E = 7. , int iTracking = 1 , int nevt_max = 1000000000){
+void NCHmc2Deff(int type = 31 , double E = 7. , int iTracking = 1 , int nevt_max = 900000){
   
   
   if(type==0) isMC = false;
@@ -66,6 +68,13 @@ void NCHmc2Deff(int type = 31 , double E = 7. , int iTracking = 1 , int nevt_max
   nTr_ptVSeta_NSD_evtSel_reco_gt4hit->Sumw2();
   nTr_ptVSeta_NSD_evtSel_gen  ->Sumw2();
   nTr_ptVSeta_NSD_noEvtSel_gen->Sumw2();
+  
+  TH2F* nTr_ptVSeta_NSD_evtSel_matched_reco  = new TH2F("nTr_ptVSeta_NSD_evtSel_matched_reco" , "nTr_ptVSeta_NSD_evtSel_matched_reco ;#eta;pt" , binning.at(2).size()-1 , &(binning.at(2).at(0)) ,  binning.at(1).size()-1 , &(binning.at(1).at(0)) );   
+  TH2F* nTr_ptVSeta_NSD_evtSel_fakes_reco   = new TH2F("nTr_ptVSeta_NSD_evtSel_fakes_reco"  , "nTr_ptVSeta_NSD_evtSel_fakes_reco  ;#eta;pt" , binning.at(2).size()-1 , &(binning.at(2).at(0)) ,  binning.at(1).size()-1 , &(binning.at(1).at(0)) );   
+  TH2F* nTr_ptVSeta_NSD_evtSel_matched_gen   = new TH2F("nTr_ptVSeta_NSD_evtSel_matched_gen"  , "nTr_ptVSeta_NSD_evtSel_matched_gen  ;#eta;pt" , binning.at(2).size()-1 , &(binning.at(2).at(0)) ,  binning.at(1).size()-1 , &(binning.at(1).at(0)) );   
+  nTr_ptVSeta_NSD_evtSel_matched_reco->Sumw2();
+  nTr_ptVSeta_NSD_evtSel_fakes_reco ->Sumw2();
+  nTr_ptVSeta_NSD_evtSel_matched_gen ->Sumw2();
   
   cout << "Finished initialization of TH2s " << endl;
   
@@ -162,12 +171,27 @@ void NCHmc2Deff(int type = 31 , double E = 7. , int iTracking = 1 , int nevt_max
         nTr_ptVSeta_NSD_evtSel_reco_gt4hit->Fill(it_tr->Part.v.Eta() , it_tr->Part.v.Pt());
     }
     
+    vector<MyGenPart>* gpcoll = new vector<MyGenPart>();
+    if(isMC){
+      for(vector<MyGenPart>::iterator p=genPart->begin() ; p!=genPart->end() ; p++ )
+        if ( isGenPartGood(*p) && isInAcceptance(p->Part,0.05,2.4,0) )
+	  gpcoll->push_back(*p);
+	  
+      //cout << "gp size : " << gpcoll->size() << endl;
     
+      vector< pair<MyGenPart* , MyTracks*> > match;
+      vector<MyTracks*>                      fakes;
+      vector<MyGenPart*>                     gp_notMatched;
+
+      GetMatch2(gpcoll , &trcoll , &match , &fakes , &gp_notMatched , 0.4);
+
+      for(vector< pair<MyGenPart* , MyTracks*> >::iterator mpair = match.begin() ; mpair != match.end() ; ++mpair)
+        nTr_ptVSeta_NSD_evtSel_matched_reco->Fill(mpair->second->Part.v.Eta() , mpair->second->Part.v.Pt());
     
+      for(vector<MyTracks*>::iterator it_fake = fakes.begin() ; it_fake != fakes.end() ; ++it_fake)
+        nTr_ptVSeta_NSD_evtSel_fakes_reco->Fill((*it_fake)->Part.v.Eta() , (*it_fake)->Part.v.Pt());
     
-    
-    
-    
+    }
     
     
   }//end of loop over events
@@ -175,7 +199,7 @@ void NCHmc2Deff(int type = 31 , double E = 7. , int iTracking = 1 , int nevt_max
   
   //output file
   ostringstream strout("FBtest");
-  strout<<"NCHtest1_type"<<type<<"_"<<E<<"TeV_";
+  strout<<"NCHtest2_type"<<type<<"_"<<E<<"TeV_";
   if(iTracking==0)
     strout<<"gTr";
   if(iTracking==1)
@@ -188,6 +212,25 @@ void NCHmc2Deff(int type = 31 , double E = 7. , int iTracking = 1 , int nevt_max
   nTr_ptVSeta_NSD_evtSel_reco_gt4hit->Write();
   nTr_ptVSeta_NSD_evtSel_gen  ->Write();
   nTr_ptVSeta_NSD_noEvtSel_gen->Write();
-     
+  
+  nTr_ptVSeta_NSD_evtSel_matched_reco->Write();
+  nTr_ptVSeta_NSD_evtSel_fakes_reco->Write();
+  
+  TH2F* eff_ptVSeta_NSD_evtSel_matched = (TH2F*) nTr_ptVSeta_NSD_evtSel_matched_reco ->Clone("eff_ptVSeta_NSD_evtSel_matched");
+  TH2F* eff_ptVSeta_NSD_evtSel_fakes   = (TH2F*) nTr_ptVSeta_NSD_evtSel_fakes_reco   ->Clone("eff_ptVSeta_NSD_evtSel_fakes");
+  TH2F* eff_ptVSeta_NSD_evtSel         = (TH2F*) nTr_ptVSeta_NSD_evtSel_reco         ->Clone("eff_ptVSeta_NSD_evtSel");
+  TH2F* eff_ptVSeta_NSD_evtSel_gt4hit  = (TH2F*) nTr_ptVSeta_NSD_evtSel_reco_gt4hit  ->Clone("eff_ptVSeta_NSD_evtSel_gt4hit");
+  
+  eff_ptVSeta_NSD_evtSel_matched->Divide(nTr_ptVSeta_NSD_evtSel_gen);
+  eff_ptVSeta_NSD_evtSel_fakes  ->Divide(nTr_ptVSeta_NSD_evtSel_gen);
+  eff_ptVSeta_NSD_evtSel        ->Divide(nTr_ptVSeta_NSD_evtSel_gen);
+  eff_ptVSeta_NSD_evtSel_gt4hit ->Divide(nTr_ptVSeta_NSD_evtSel_gen);
+
+  eff_ptVSeta_NSD_evtSel_matched->Write();
+  eff_ptVSeta_NSD_evtSel_fakes  ->Write();
+  eff_ptVSeta_NSD_evtSel        ->Write();
+  eff_ptVSeta_NSD_evtSel_gt4hit ->Write();
+
+
   output->Close();
 }
