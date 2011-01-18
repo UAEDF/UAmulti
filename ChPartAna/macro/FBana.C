@@ -7,6 +7,7 @@
 #include <TTree.h>
 #include <TFile.h>
 #include <TChain.h>
+#include <TChainElement.h>
 //#include <TDirectory.h>
 #include <iostream>
 #include <sstream>
@@ -115,122 +116,139 @@ void FBana(int type = 31 , double E = 7.0 , int iTracking = 1 , int nevt_max = 1
   TString MCtype = "pythia";
   if(type == 20) MCtype = "phojet";
   
-  //adding files to the tree chain
-  cout << "Reading files : " << fileManager(0,type,E) << endl;
-  TChain* tree = new TChain("evt","");
-  tree->Add(fileManager(0,type,E));
   
-  
-  //adding branches to the tree
-  
-  MyEvtId* evtId      = NULL ;
-  tree->SetBranchAddress("EvtId",&evtId);
-  
-  vector<MyGenPart>* genPart = NULL;
-  if(isMC) tree->SetBranchAddress("GenPart",&genPart);
-  
-  MyGenKin* genKin = NULL;
-  if(isMC) tree->SetBranchAddress("GenKin",&genKin);
-  
-  vector<MyTracks>*  tracks  = NULL;
-  vector<MyVertex>*  vertex  = NULL;
+  //getting the list of files
+  vector<TString>* vfiles = getListOfFiles(fileManager(0,type,E));
+
+  //Declaration of tree and its branches variables
+  TTree* tree = new TChain("evt","");
+  MyEvtId*           evtId        = NULL ;
+  vector<MyGenPart>* genPart      = NULL;
+  MyGenKin*          genKin       = NULL;
+  vector<MyTracks>*  tracks       = NULL;
+  vector<MyVertex>*  vertex       = NULL;
   vector<MyVertex>*  vertexToCut  = NULL;
-  MyL1Trig*     L1Trig    = NULL;
-  MyMITEvtSel*  MITEvtSel = NULL;
-  MyBeamSpot*   bs        = NULL;
-  if(iTracking==0){
-    tree->SetBranchAddress("generalTracks",&tracks); 
-    tree->SetBranchAddress("primaryVertex",&vertex);
-  }
-  else if(iTracking==1){
-    tree->SetBranchAddress("minbiasTracks",&tracks); 
-    tree->SetBranchAddress("ferencVtxFerTrk",&vertex);
-  }
-  
-  tree->SetBranchAddress("pixel3Vertex",&vertexToCut);
-  tree->SetBranchAddress("L1Trig",&L1Trig);
-  tree->SetBranchAddress("MITEvtSel",&MITEvtSel);
-  tree->SetBranchAddress("beamSpot",&bs);
-  
-  //Getting number of events
-  int nev = int(tree->GetEntries());
-  std::cout <<"number of entries is : "<< nev << std::endl;
-  cout<<"Running on: "<<min(nev,nevt_max)<<" events"<<endl;
-  // Event TYPE counting --> Weights
-  
-  //starting loop over events
-  for(int i = 0; i < nev; i++){
-     
-    if( ((i+1) % 10000) == 0) cout <<int(double(i+1)/double(min(nev,nevt_max))*100.)<<" % done"<<endl;
-    
-    if(i>min(nev,nevt_max)) break;
-    
-    tree->GetEntry(i);
-    
-    if(i==0) vertexToCut = vertex;
+  MyL1Trig*          L1Trig       = NULL;
+  MyMITEvtSel*       MITEvtSel    = NULL;
+  MyBeamSpot*        bs           = NULL;
 
-    //Selection of good BX for data && MC
-    if(!isMC && !goodBX(evtId->Run,evtId->Bunch)) continue;
+  int i_tot = 0 , nevt_tot = 0;
+  //starting Loop over files, stops at end of list of files or when reached nevt_max
+  for(vector<TString>::iterator itfiles = vfiles->begin() ; itfiles != vfiles->end() && i_tot < nevt_max ; ++itfiles){
 
+    TFile* file = TFile::Open(*itfiles,"READ");
 
+    //getting the tree form the current file
+    tree = (TTree*) file->Get("evt");
 
-    vector<MyGenPart> gpcoll;
-    pair<double,double> nCorrelGp = make_pair(0,0);
-    if(isMC){
-      gpcoll = getPrimaryGenPart(*genPart);
-      
-      //Filling Inelastic Gen Level
-      for(int acc = 0 ; acc < (signed) accMap.size() ; ++acc){
-        nCorrelGp = getnCorrel(gpcoll , accMap.at(acc));
-        fbc_noEvtSel_gen.at(acc)->Fill(nCorrelGp.first , nCorrelGp.second);
-      }
-      
-      //Skipping the SD events starting from here
-      if(isSD(genKin , MCtype) ) continue;
-      
-      //Filling NSD Gen Level
-      for(int acc = 0 ; acc < (signed) accMap.size() ; ++acc){
-        nCorrelGp = getnCorrel(gpcoll , accMap.at(acc));
-        fbc_NSD_noEvtSel_gen.at(acc)->Fill(nCorrelGp.first , nCorrelGp.second);
-        fbc_NSD_noEvtSel_gen_mnMVSnP.at(acc)->Fill(nCorrelGp.second , nCorrelGp.first);
-      }
-    }  
-      
-    //skipping events that don't pass our event selection
-    if(!isEvtGood(E,*L1Trig , *MITEvtSel , vertexToCut)) continue;
-    
-    
-    //Filling NSD Gen Level AFTER evtSel
-    if(isMC){
-      for(int acc = 0 ; acc < (signed) accMap.size() ; ++acc){
-        nCorrelGp = getnCorrel(gpcoll , accMap.at(acc));
-        fbc_NSD_evtSel_gen.at(acc)->Fill(nCorrelGp.first , nCorrelGp.second);
-      }
+    //adding branches to the tree ----------------------------------------------------------------------
+    tree->SetBranchAddress("EvtId",&evtId);
+    if(isMC) tree->SetBranchAddress("GenPart",&genPart);
+    if(isMC) tree->SetBranchAddress("GenKin",&genKin);
+    if(iTracking==0){
+      tree->SetBranchAddress("generalTracks",&tracks);
+      tree->SetBranchAddress("primaryVertex",&vertex);
     }
+    else if(iTracking==1){
+      tree->SetBranchAddress("minbiasTracks",&tracks);
+      tree->SetBranchAddress("ferencVtxFerTrk",&vertex);
+    }
+    tree->SetBranchAddress("pixel3Vertex",&vertexToCut);
+    tree->SetBranchAddress("L1Trig",&L1Trig);
+    tree->SetBranchAddress("MITEvtSel",&MITEvtSel);
+    tree->SetBranchAddress("beamSpot",&bs);
+
+
+    //Just to put the good collection of vertex in vertexToCut
+    vertexToCut = vertex;
+
+    //Getting number of events
+    int nev = int(tree->GetEntriesFast());
+    nevt_tot += nev;
+    cout <<"The current file has " << nev << " entries : "<< endl << *itfiles << endl;
+    //cout<<"Running on: "<<min(nev,nevt_max)<<" events"<<endl;
+
+    //starting loop over events, stops when reached end of file or nevt_max
+    for(int i = 0; i < nev && i_tot < nevt_max; ++i , ++i_tot){
+
+      //printing the % of events done every 10k evts
+      if( ((i_tot+1) % 10000) == 0) cout <<int(double(i_tot+1)/1000)<<"k done"<<endl;
+
+      //if(i>min(nev,nevt_max)) break;
+
+      //Filling the variables defined setting branches
+      tree->GetEntry(i);
+
+  
+      //Selection of good BX for data && MC
+      //==> Not Needed anymore for 36X files
+      //if(!isMC && !goodBX(evtId->Run,evtId->Bunch)) continue;
+
+
+
+      vector<MyGenPart> gpcoll;
+      pair<double,double> nCorrelGp = make_pair(0,0);
+      if(isMC){
+        gpcoll = getPrimaryGenPart(*genPart);
+      
+        //Filling Inelastic Gen Level
+        for(int acc = 0 ; acc < (signed) accMap.size() ; ++acc){
+          nCorrelGp = getnCorrel(gpcoll , accMap.at(acc));
+          fbc_noEvtSel_gen.at(acc)->Fill(nCorrelGp.first , nCorrelGp.second);
+        }
+      
+        //Skipping the SD events starting from here
+        if(isSD(genKin , MCtype) ) continue;
+      
+        //Filling NSD Gen Level
+        for(int acc = 0 ; acc < (signed) accMap.size() ; ++acc){
+          nCorrelGp = getnCorrel(gpcoll , accMap.at(acc));
+          fbc_NSD_noEvtSel_gen.at(acc)->Fill(nCorrelGp.first , nCorrelGp.second);
+          fbc_NSD_noEvtSel_gen_mnMVSnP.at(acc)->Fill(nCorrelGp.second , nCorrelGp.first);
+        }
+      }  
+      
+      //skipping events that don't pass our event selection
+      if(!isEvtGood(E,*L1Trig , *MITEvtSel , vertexToCut)) continue;
     
     
-    vector<MyTracks> trcoll;
-    if(iTracking==0) trcoll = getPrimaryTracks(*tracks,vertex);
-    if(iTracking==1) trcoll = getPrimaryTracks(*tracks,vertex,bs);
+      //Filling NSD Gen Level AFTER evtSel
+      if(isMC){
+        for(int acc = 0 ; acc < (signed) accMap.size() ; ++acc){
+          nCorrelGp = getnCorrel(gpcoll , accMap.at(acc));
+          fbc_NSD_evtSel_gen.at(acc)->Fill(nCorrelGp.first , nCorrelGp.second);
+        }
+      }
+    
+    
+      vector<MyTracks> trcoll;
+      if(iTracking==0) trcoll = getPrimaryTracks(*tracks,vertex);
+      if(iTracking==1) trcoll = getPrimaryTracks(*tracks,vertex,bs);
    
-    pair<double,double> nCorrelTr         = make_pair(0,0);
-    pair<double,double> nCorrelTrReweight = make_pair(0,0);
-    for(int acc = 0 ; acc < (signed) accMap.size() ; ++acc){
-      nCorrelTr = getnCorrel(trcoll , accMap.at(acc));
-      fbcwc_NSD_evtSel_reco.at(acc)->Fill(nCorrelTr.first , nCorrelTr.second);
-      fbc_NSD_evtSel_reco.at(acc)->Fill(nCorrelTr.first , nCorrelTr.second);
-      fbc_NSD_evtSel_reco_mnMVSnP.at(acc)->Fill(nCorrelTr.second , nCorrelTr.first);
+      pair<double,double> nCorrelTr         = make_pair(0,0);
+      pair<double,double> nCorrelTrReweight = make_pair(0,0);
+      for(int acc = 0 ; acc < (signed) accMap.size() ; ++acc){
+        nCorrelTr = getnCorrel(trcoll , accMap.at(acc));
+        fbcwc_NSD_evtSel_reco.at(acc)->Fill(nCorrelTr.first , nCorrelTr.second);
+        fbc_NSD_evtSel_reco.at(acc)->Fill(nCorrelTr.first , nCorrelTr.second);
+        fbc_NSD_evtSel_reco_mnMVSnP.at(acc)->Fill(nCorrelTr.second , nCorrelTr.first);
       
-      nCorrelTrReweight = getnCorrelTrReweight(trcoll , accMap.at(acc) , fbcwc_NSD_evtSel_reco.at(acc)->trEff , fbcwc_NSD_evtSel_reco.at(acc)->trFakes);
-      fbcwc_NSD_evtSel_reco.at(acc)->FillTrReweight(nCorrelTrReweight.first , nCorrelTrReweight.second);
+        nCorrelTrReweight = getnCorrelTrReweight(trcoll , accMap.at(acc) , fbcwc_NSD_evtSel_reco.at(acc)->trEff , fbcwc_NSD_evtSel_reco.at(acc)->trFakes);
+        fbcwc_NSD_evtSel_reco.at(acc)->FillTrReweight(nCorrelTrReweight.first , nCorrelTrReweight.second);
       
-      if(nCorrelTr.first>0)
-        diffWeightM.at(acc)->Fill( (nCorrelTrReweight.first - nCorrelTr.first) / nCorrelTr.first);
-      if(nCorrelTr.second>0)
-        diffWeightP.at(acc)->Fill( (nCorrelTrReweight.second - nCorrelTr.second) / nCorrelTr.second);
-    }
+        if(nCorrelTr.first>0)
+          diffWeightM.at(acc)->Fill( (nCorrelTrReweight.first - nCorrelTr.first) / nCorrelTr.first);
+        if(nCorrelTr.second>0)
+          diffWeightP.at(acc)->Fill( (nCorrelTrReweight.second - nCorrelTr.second) / nCorrelTr.second);
+      }
     
-  }//end of loop over events
+    }//end of loop over events
+    
+    //Closing current files
+    file->Close();
+
+  }//end of loop over files
+
   
   
   //output file
