@@ -326,3 +326,21 @@ TString fileManager ( int     iFileType  = 0
   return FileName;
 
 }
+
+
+vector<TString>* getListOfFiles(TString strfiles){
+  TChain chain("evt","");
+  chain.Add(strfiles);
+  TObjArray* fileElements=chain.GetListOfFiles();
+  TIter next(fileElements);
+  TChainElement *chEl=0;
+  //Int_t ifile = 0;
+  vector<TString>* vfiles = new vector<TString>;//(fileElements->GetSize(),"");
+  while (( chEl=(TChainElement*)next() ))
+    //vfiles[ifile++]=TString(chEl->GetTitle());
+    vfiles->push_back(TString(chEl->GetTitle()));
+  
+  cout << "[getListOfFiles] Will run on " << vfiles->size() << " files" << endl;
+  return vfiles;
+}
+
