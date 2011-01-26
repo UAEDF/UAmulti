@@ -37,7 +37,10 @@
 //# iSystSign = +1/-1
 //#
 //#################################################
-
+#include "TChain.h"
+#include "TChainElement.h"
+#include <iostream>
+#include <fstream>
 
 TString fileManager ( int     iFileType  = 0
                     , int     iDataType  = 0
@@ -329,17 +332,34 @@ TString fileManager ( int     iFileType  = 0
 
 
 vector<TString>* getListOfFiles(TString strfiles){
-  TChain chain("evt","");
-  chain.Add(strfiles);
-  TObjArray* fileElements=chain.GetListOfFiles();
-  TIter next(fileElements);
-  TChainElement *chEl=0;
-  //Int_t ifile = 0;
-  vector<TString>* vfiles = new vector<TString>;//(fileElements->GetSize(),"");
-  while (( chEl=(TChainElement*)next() ))
-    //vfiles[ifile++]=TString(chEl->GetTitle());
-    vfiles->push_back(TString(chEl->GetTitle()));
+
+  vector<TString>* vfiles = new vector<TString>;
   
+  if(strfiles.Contains(".root")){
+    TChain chain("evt","");
+    chain.Add(strfiles);
+    TObjArray* fileElements=chain.GetListOfFiles();
+    TIter next(fileElements);
+    TChainElement *chEl=0;
+    while (( chEl=(TChainElement*)next() ))
+      vfiles->push_back(TString(chEl->GetTitle()));
+  }
+  else if(strfiles.Contains(".txt")){
+    ifstream txtfile;
+    txtfile.open(strfiles);
+    if(!txtfile) {
+      cout<<"Unable to read the txt file where the rootfiles are." << endl << "Aborting ...";
+      exit(0);
+    }
+    string filename;
+    while(txtfile>>filename && filename!="EOF")
+      vfiles->push_back(TString(filename));
+    txtfile.close();
+  }
+  else {
+    cout << "Unknown type of input to get files. Must contain either .root or .txt extension." << endl << "Aborting ..." << endl;
+    exit(0);
+  }
   cout << "[getListOfFiles] Will run on " << vfiles->size() << " files" << endl;
   return vfiles;
 }
