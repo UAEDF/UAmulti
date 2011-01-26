@@ -43,7 +43,9 @@ vector< vector<double> > getBins(int inch , int ipt , int ieta){
   else if(ipt == 1){
     vector<double> tmp = makeBins(200,0.,1.5);
     addBins(20,.05,tmp);
-    addBins(80,.1,tmp);
+    addBins(10,.1,tmp);
+    addBins(5,.2,tmp);
+    addBins(15,1,tmp);
     bins.push_back(tmp);
   }
  
@@ -58,7 +60,7 @@ vector< vector<double> > getBins(int inch , int ipt , int ieta){
     bins.push_back(makeBins(12,-3.,3.));
   }
   else if(ieta==3){
-    bins.push_back(makeBins(48,-2.4,2.4));
+    bins.push_back(makeBins(75,-2.5,2.5));
   }
   
   return bins;
