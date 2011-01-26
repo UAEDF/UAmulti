@@ -15,8 +15,16 @@ class TMean : public TObject{
   Double_t GetMean();
   Double_t GetMeanError(){return _MeanError;}
   Double_t GetMeanSquare();
+  Double_t GetMeanSystP();
+  Double_t GetMeanSystM();
+  Double_t GetMeanTotalErrorP(){return _MeanSystP;}
+  Double_t GetMeanTotalErrorM(){return _MeanSystM;}
   Double_t GetRMS();
   Double_t GetRMSError(){return _RMSError;}
+  Double_t GetRMSSystP();
+  Double_t GetRMSSystM();
+  Double_t GetRMSTotalErrorP(){return _RMSSystP;}
+  Double_t GetRMSTotalErrorM(){return _RMSSystM;}
   Double_t GetN(){return _TotalNumber;};
   Double_t GetSum(){return _TotalSum;};
   void SetMeanError(Double_t err){_MeanError = err;}

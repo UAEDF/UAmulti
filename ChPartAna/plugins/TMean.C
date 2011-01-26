@@ -42,15 +42,31 @@ Double_t TMean::GetMean(){
   return _Mean;
 }
 
+Double_t TMean::GetMeanSquare(){
+  if(_TotalNumber!=0) return _TotalSumSquare/_TotalNumber;
+  else return 0;
+}
+
+Double_t TMean::GetMeanSystP(){
+  return sqrt( pow(_MeanSystP,2) - pow(_MeanError,2) );
+}
+
+Double_t TMean::GetMeanSystM(){
+  return sqrt( pow(_MeanSystM,2) - pow(_MeanError,2) );
+}
+
 Double_t TMean::GetRMS(){
   ComputeMean();
   ComputeRMS();
   return _RMS;
 }
 
-Double_t TMean::GetMeanSquare(){
-  if(_TotalNumber!=0) return _TotalSumSquare/_TotalNumber;
-  else return 0;
+Double_t TMean::GetRMSSystP(){
+  return sqrt( pow(_RMSSystP,2) - pow(_RMSError,2) );
+}
+
+Double_t TMean::GetRMSSystM(){
+  return sqrt( pow(_RMSSystM,2) - pow(_RMSError,2) );
 }
 
 void TMean::Reset(){
