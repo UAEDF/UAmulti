@@ -17,6 +17,7 @@ using namespace std;
 
 #include "../plugins/MyEvtId.h"
 #include "../plugins/MyL1Trig.h"
+#include "../plugins/MyHLTrig.h"
 #include "../plugins/MyGenKin.h"
 #include "../plugins/MyPart.h"
 #include "../plugins/MyGenPart.h"
@@ -39,8 +40,9 @@ bool debug = false;
 
 
 #include "fileManager.C"
-#include "cuts.C"
-#include "evtSel.C"
+#include "FBacc.C"
+#include "FBcuts.C"
+#include "NCHEvtSel.C"
 #include "binningMap.C"
 
 TString st(string input , int cut){
@@ -49,157 +51,176 @@ TString st(string input , int cut){
   return input+"_cut"+out.str();
 }
 
+//nohup root -b -l BuildLibDico.C+ NCHmc2Deff.C+"(60,7,1,100000000)" -q > log_nchmc2deff_type60_7TeV.txt
 
-void NCHmc2Deff(int type = 31 , double E = 7. , int iTracking = 1 , int nevt_max = 900000){
+void NCHmc2Deff(int type = 31 , double E = 7. , int iTracking = 1 , int nevt_max = 900000000){
   
   
   if(type==0) isMC = false;
   TString MCtype = "pythia";
   if(type == 20) MCtype = "phojet";
-    
+  if(type == 60 || type==101) MCtype = "pythia8";
+  
+  pt_cut  = 0.05;
+  eta_cut = 2.5 ;
+
   vector< vector<double> > binning;
   binning = getBins(2,1,3);//nch,pt,eta
     
-  TH2F* nTr_ptVSeta_NSD_evtSel_reco  = new TH2F("nTr_ptVSeta_NSD_evtSel_reco" , "nTr_ptVSeta_NSD_evtSel_reco ;#eta;pt" , binning.at(2).size()-1 , &(binning.at(2).at(0)) ,  binning.at(1).size()-1 , &(binning.at(1).at(0)) );   
-  TH2F* nTr_ptVSeta_NSD_evtSel_reco_gt4hit  = new TH2F("nTr_ptVSeta_NSD_evtSel_reco_gt4hit" , "nTr_ptVSeta_NSD_evtSel_reco_gt4hit ;#eta;pt" , binning.at(2).size()-1 , &(binning.at(2).at(0)) ,  binning.at(1).size()-1 , &(binning.at(1).at(0)) );   
-  TH2F* nTr_ptVSeta_NSD_evtSel_gen   = new TH2F("nTr_ptVSeta_NSD_evtSel_gen"  , "nTr_ptVSeta_NSD_evtSel_gen  ;#eta;pt" , binning.at(2).size()-1 , &(binning.at(2).at(0)) ,  binning.at(1).size()-1 , &(binning.at(1).at(0)) );   
-  TH2F* nTr_ptVSeta_NSD_noEvtSel_gen = new TH2F("nTr_ptVSeta_NSD_noEvtSel_gen", "nTr_ptVSeta_NSD_noEvtSel_gen;#eta;pt" , binning.at(2).size()-1 , &(binning.at(2).at(0)) ,  binning.at(1).size()-1 , &(binning.at(1).at(0)) );   
-  nTr_ptVSeta_NSD_evtSel_reco ->Sumw2();
-  nTr_ptVSeta_NSD_evtSel_reco_gt4hit->Sumw2();
-  nTr_ptVSeta_NSD_evtSel_gen  ->Sumw2();
-  nTr_ptVSeta_NSD_noEvtSel_gen->Sumw2();
+  TH2F* nTr_ptVSeta_INEL_evtSel_reco  = new TH2F("nTr_ptVSeta_INEL_evtSel_reco" , "nTr_ptVSeta_INEL_evtSel_reco ;#eta;pt" , binning.at(2).size()-1 , &(binning.at(2).at(0)) ,  binning.at(1).size()-1 , &(binning.at(1).at(0)) );   
+  TH2F* nTr_ptVSeta_INEL_evtSel_reco_gt4hit  = new TH2F("nTr_ptVSeta_INEL_evtSel_reco_gt4hit" , "nTr_ptVSeta_INEL_evtSel_reco_gt4hit ;#eta;pt" , binning.at(2).size()-1 , &(binning.at(2).at(0)) ,  binning.at(1).size()-1 , &(binning.at(1).at(0)) );   
+  TH2F* nTr_ptVSeta_INEL_evtSel_gen   = new TH2F("nTr_ptVSeta_INEL_evtSel_gen"  , "nTr_ptVSeta_INEL_evtSel_gen  ;#eta;pt" , binning.at(2).size()-1 , &(binning.at(2).at(0)) ,  binning.at(1).size()-1 , &(binning.at(1).at(0)) );   
+  TH2F* nTr_ptVSeta_INEL_noEvtSel_gen = new TH2F("nTr_ptVSeta_INEL_noEvtSel_gen", "nTr_ptVSeta_INEL_noEvtSel_gen;#eta;pt" , binning.at(2).size()-1 , &(binning.at(2).at(0)) ,  binning.at(1).size()-1 , &(binning.at(1).at(0)) );   
+  nTr_ptVSeta_INEL_evtSel_reco ->Sumw2();
+  nTr_ptVSeta_INEL_evtSel_reco_gt4hit->Sumw2();
+  nTr_ptVSeta_INEL_evtSel_gen  ->Sumw2();
+  nTr_ptVSeta_INEL_noEvtSel_gen->Sumw2();
   
-  TH2F* nTr_ptVSeta_NSD_evtSel_matched_reco  = new TH2F("nTr_ptVSeta_NSD_evtSel_matched_reco" , "nTr_ptVSeta_NSD_evtSel_matched_reco ;#eta;pt" , binning.at(2).size()-1 , &(binning.at(2).at(0)) ,  binning.at(1).size()-1 , &(binning.at(1).at(0)) );   
-  TH2F* nTr_ptVSeta_NSD_evtSel_fakes_reco   = new TH2F("nTr_ptVSeta_NSD_evtSel_fakes_reco"  , "nTr_ptVSeta_NSD_evtSel_fakes_reco  ;#eta;pt" , binning.at(2).size()-1 , &(binning.at(2).at(0)) ,  binning.at(1).size()-1 , &(binning.at(1).at(0)) );   
-  TH2F* nTr_ptVSeta_NSD_evtSel_matched_gen   = new TH2F("nTr_ptVSeta_NSD_evtSel_matched_gen"  , "nTr_ptVSeta_NSD_evtSel_matched_gen  ;#eta;pt" , binning.at(2).size()-1 , &(binning.at(2).at(0)) ,  binning.at(1).size()-1 , &(binning.at(1).at(0)) );   
-  nTr_ptVSeta_NSD_evtSel_matched_reco->Sumw2();
-  nTr_ptVSeta_NSD_evtSel_fakes_reco ->Sumw2();
-  nTr_ptVSeta_NSD_evtSel_matched_gen ->Sumw2();
+  TH2F* nTr_ptVSeta_INEL_evtSel_matched_reco  = new TH2F("nTr_ptVSeta_INEL_evtSel_matched_reco" , "nTr_ptVSeta_INEL_evtSel_matched_reco ;#eta;pt" , binning.at(2).size()-1 , &(binning.at(2).at(0)) ,  binning.at(1).size()-1 , &(binning.at(1).at(0)) );   
+  TH2F* nTr_ptVSeta_INEL_evtSel_fakes_reco    = new TH2F("nTr_ptVSeta_INEL_evtSel_fakes_reco"   , "nTr_ptVSeta_INEL_evtSel_fakes_reco   ;#eta;pt" , binning.at(2).size()-1 , &(binning.at(2).at(0)) ,  binning.at(1).size()-1 , &(binning.at(1).at(0)) );   
+  TH2F* nTr_ptVSeta_INEL_evtSel_matched_gen   = new TH2F("nTr_ptVSeta_INEL_evtSel_matched_gen"  , "nTr_ptVSeta_INEL_evtSel_matched_gen  ;#eta;pt" , binning.at(2).size()-1 , &(binning.at(2).at(0)) ,  binning.at(1).size()-1 , &(binning.at(1).at(0)) );   
+  nTr_ptVSeta_INEL_evtSel_matched_reco->Sumw2();
+  nTr_ptVSeta_INEL_evtSel_fakes_reco ->Sumw2();
+  nTr_ptVSeta_INEL_evtSel_matched_gen ->Sumw2();
   
   cout << "Finished initialization of TH2s " << endl;
   
-  //adding files to the tree chain
-  TChain* tree = new TChain("evt","");
-  tree->Add(fileManager(0,type,E));
-  
-  
-  //adding branches to the tree
-  
-  MyEvtId* evtId      = NULL ;
-  tree->SetBranchAddress("EvtId",&evtId);
-  
-  vector<MyGenPart>* genPart = NULL;
-  if(isMC) tree->SetBranchAddress("GenPart",&genPart);
-  
-  MyGenKin* genKin = NULL;
-  if(isMC) tree->SetBranchAddress("GenKin",&genKin);
-  
-  vector<MyTracks>*  tracks  = NULL;
-  vector<MyVertex>*  vertex  = NULL;
+  //getting the list of files
+  vector<TString>* vfiles = getListOfFiles(fileManager(0,type,E));
+
+  //Declaration of tree and its branches variables
+  TTree* tree = new TChain("evt","");
+  MyEvtId*           evtId        = NULL ;
+  vector<MyGenPart>* genPart      = NULL;
+  MyGenKin*          genKin       = NULL;
+  vector<MyTracks>*  tracks       = NULL;
+  vector<MyVertex>*  vertex       = NULL;
   vector<MyVertex>*  vertexToCut  = NULL;
-  MyL1Trig*     L1Trig    = NULL;
-  MyMITEvtSel*  MITEvtSel = NULL;
-  MyBeamSpot*   bs        = NULL;
-  if(iTracking==0){
-    tree->SetBranchAddress("generalTracks",&tracks); 
-    tree->SetBranchAddress("primaryVertex",&vertex);
-  }
-  else if(iTracking==1){
-    tree->SetBranchAddress("minbiasTracks",&tracks); 
-    tree->SetBranchAddress("ferencVtxFerTrk",&vertex);
-  }
-  
-  tree->SetBranchAddress("pixel3Vertex",&vertexToCut);
-  tree->SetBranchAddress("L1Trig",&L1Trig);
-  tree->SetBranchAddress("MITEvtSel",&MITEvtSel);
-  tree->SetBranchAddress("beamSpot",&bs);
-  
-  //Getting number of events
-  int nev = int(tree->GetEntries());
-  std::cout <<"number of entries is : "<< nev << std::endl;
-  cout<<"Running on: "<<min(nev,nevt_max)<<" events"<<endl;
-  // Event TYPE counting --> Weights
-  
-  //starting loop over events
-  for(int i = 0; i < nev; i++){
-     
-    if( ((i+1) % 10000) == 0) cout <<int(double(i+1)/double(min(nev,nevt_max))*100.)<<" % done"<<endl;
-    
-    if(i>min(nev,nevt_max)) break;
-    
-    tree->GetEntry(i);
-    
-    if(i==0) vertexToCut = vertex;
-    
-    //Selection of good BX for data && MC
-    if(!isMC && !goodBX(evtId->Run,evtId->Bunch)) continue;
-    
-    //Skipping the SD events starting from here
-    if(isMC)
-      if(isSD(genKin , MCtype) ) continue;
-    
-    
-    if(isMC){
-      for(vector<MyGenPart>::iterator p=genPart->begin() ; p!=genPart->end() ; p++ )
-        if ( isGenPartGood(*p) && isInAcceptance(p->Part,0.05,2.4,0) )
-	  nTr_ptVSeta_NSD_noEvtSel_gen->Fill(p->Part.v.Eta() , p->Part.v.Pt());
+  MyL1Trig*          L1Trig       = NULL;
+  MyHLTrig*          HLTrig       = NULL;
+  MyMITEvtSel*       MITEvtSel    = NULL;
+  MyBeamSpot*        bs           = NULL;
+
+  int i_tot = 0 , nevt_tot = 0;
+  //starting Loop over files, stops at end of list of files or when reached nevt_max
+  for(vector<TString>::iterator itfiles = vfiles->begin() ; itfiles != vfiles->end() && i_tot < nevt_max ; ++itfiles){
+
+    TFile* file = TFile::Open(*itfiles,"READ");
+
+    //getting the tree form the current file
+    tree = (TTree*) file->Get("evt");
+
+    //adding branches to the tree ----------------------------------------------------------------------
+    tree->SetBranchAddress("EvtId",&evtId);
+    if(isMC) tree->SetBranchAddress("GenPart",&genPart);
+    if(isMC) tree->SetBranchAddress("GenKin",&genKin);
+    if(iTracking==0){
+      tree->SetBranchAddress("generalTracks",&tracks);
+      tree->SetBranchAddress("primaryVertex",&vertex);
     }
-    
-    
-    //skipping events that don't pass our event selection
-    if(!isEvtGood(E,*L1Trig , *MITEvtSel , vertexToCut)) continue;
-    
-    if(isMC){
-      for(vector<MyGenPart>::iterator p=genPart->begin() ; p!=genPart->end() ; p++ )
-        if ( isGenPartGood(*p) && isInAcceptance(p->Part,0.05,2.4,0) )
-	  nTr_ptVSeta_NSD_evtSel_gen->Fill(p->Part.v.Eta() , p->Part.v.Pt()); 
+    else if(iTracking==1){
+      tree->SetBranchAddress("minbiasTracks",&tracks);
+      tree->SetBranchAddress("ferencVtxFerTrk",&vertex);
     }
+    tree->SetBranchAddress("pixel3Vertex",&vertexToCut);
+    tree->SetBranchAddress("L1Trig",&L1Trig);
+    tree->SetBranchAddress("HLTrig",&HLTrig);
+    tree->SetBranchAddress("MITEvtSel",&MITEvtSel);
+    tree->SetBranchAddress("beamSpot",&bs);
+
+    
+    //Just to put the good collection of vertex in vertexToCut
+    vertexToCut = vertex;
+
+    //Getting number of events
+    int nev = int(tree->GetEntriesFast());
+    nevt_tot += nev;
+    cout <<"The current file has " << nev << " entries : "<< endl << *itfiles << endl;
+    //cout<<"Running on: "<<min(nev,nevt_max)<<" events"<<endl;
+
+    //starting loop over events, stops when reached end of file or nevt_max
+    for(int i = 0; i < nev && i_tot < nevt_max; ++i , ++i_tot){
+
+      //printing the % of events done every 10k evts
+      if( ((i_tot+1) % 10000) == 0) cout <<int(double(i_tot+1)/1000)<<"k done"<<endl;
+
+      //if(i>min(nev,nevt_max)) break;
+
+      //Filling the variables defined setting branches
+      tree->GetEntry(i);
+
+
+    
+      //Skipping the SD events starting from here
+      //if(isMC) if(isSD(genKin , MCtype) ) continue;
+    
+      
+      vector<MyTracks> trcoll = *tracks;
+      if(iTracking==0) getPrimaryTracks(trcoll,vertex,pt_cut,eta_cut);
+      if(iTracking==1) getPrimaryTracks(trcoll,vertex,bs,pt_cut,eta_cut);
+    
+      //If doesn't pass central requirement, skip event
+      //if( ! ( passCentral(trcoll,"ATLAS1",0.5) )) continue;
+
+      vector<MyGenPart> gpcoll = *genPart;
+      if(isMC){
+        getPrimaryGenPart(gpcoll);
+        for(vector<MyGenPart>::iterator p=gpcoll.begin() ; p!=gpcoll.end() ; p++ )
+	    nTr_ptVSeta_INEL_noEvtSel_gen->Fill(p->Part.v.Eta() , p->Part.v.Pt());
+      }
     
     
-    int vtxId = getBestVertex(vertex);
-    vector<MyVertex>::iterator goodVtx = vertex->end();
-    for(vector<MyVertex>::iterator it_vtx = vertex->begin();it_vtx != vertex->end();++it_vtx)
-      if(vtxId==it_vtx->id)
-        goodVtx = it_vtx;
+      //skipping events that don't pass our event selection
+      //if(!isEvtGood(E,*L1Trig , *MITEvtSel , vertexToCut)) continue;
+      if( ! ( passL1HLT(E, *L1Trig, *HLTrig , 1,isMC ) &&
+              passVtxQual(*MITEvtSel,E)                &&
+              passVtx(*vertex) )
+         )
+         continue;
+
+      if(isMC){
+        for(vector<MyGenPart>::iterator p=gpcoll.begin() ; p!=gpcoll.end() ; p++ )
+	    nTr_ptVSeta_INEL_evtSel_gen->Fill(p->Part.v.Eta() , p->Part.v.Pt()); 
+      }
     
-    vector<MyTracks> trcoll;
-    if(iTracking==0) trcoll = getPrimaryTracks(*tracks,vertex,0.05,2.4,0);
-    if(iTracking==1) trcoll = getPrimaryTracks(*tracks,vertex,bs,0.05,2.4,0);
-    for(vector<MyTracks>::iterator it_tr = trcoll.begin() ; it_tr != trcoll.end() ; ++it_tr){
-      nTr_ptVSeta_NSD_evtSel_reco->Fill(it_tr->Part.v.Eta() , it_tr->Part.v.Pt());
-      if(it_tr->nhit>4)
-        nTr_ptVSeta_NSD_evtSel_reco_gt4hit->Fill(it_tr->Part.v.Eta() , it_tr->Part.v.Pt());
-    }
+      for(vector<MyTracks>::iterator it_tr = trcoll.begin() ; it_tr != trcoll.end() ; ++it_tr){
+        nTr_ptVSeta_INEL_evtSel_reco->Fill(it_tr->Part.v.Eta() , it_tr->Part.v.Pt());
+        if(it_tr->nhit>4)
+          nTr_ptVSeta_INEL_evtSel_reco_gt4hit->Fill(it_tr->Part.v.Eta() , it_tr->Part.v.Pt());
+      }
     
-    vector<MyGenPart>* gpcoll = new vector<MyGenPart>();
-    if(isMC){
-      for(vector<MyGenPart>::iterator p=genPart->begin() ; p!=genPart->end() ; p++ )
-        if ( isGenPartGood(*p) && isInAcceptance(p->Part,0.05,2.4,0) )
-	  gpcoll->push_back(*p);
+      if(isMC){
 	  
-      //cout << "gp size : " << gpcoll->size() << endl;
-    
-      vector< pair<MyGenPart* , MyTracks*> > match;
-      vector<MyTracks*>                      fakes;
-      vector<MyGenPart*>                     gp_notMatched;
+        vector<MyGenPart> gpcoll_largeAcc = *genPart;
+	getPrimaryGenPart(gpcoll_largeAcc , pt_cut - 0.1 , eta_cut + 0.5);
+	//cout << "gp size : " << gpcoll->size() << endl;
+        
+        vector< pair<MyGenPart* , MyTracks*> > match;
+        vector<MyTracks*>                      fakes;
+        vector<MyGenPart*>                     gp_notMatched;
 
-      GetMatch2(gpcoll , &trcoll , &match , &fakes , &gp_notMatched , 0.4);
+        GetMatch2(&gpcoll_largeAcc , &trcoll , &match , &fakes , &gp_notMatched , 0.4);
 
-      for(vector< pair<MyGenPart* , MyTracks*> >::iterator mpair = match.begin() ; mpair != match.end() ; ++mpair)
-        nTr_ptVSeta_NSD_evtSel_matched_reco->Fill(mpair->second->Part.v.Eta() , mpair->second->Part.v.Pt());
+        //fill with pt & eta of gen to correct for acceptancy
+        for(vector< pair<MyGenPart* , MyTracks*> >::iterator mpair = match.begin() ; mpair != match.end() ; ++mpair)
+          nTr_ptVSeta_INEL_evtSel_matched_reco->Fill(mpair->first->Part.v.Eta() , mpair->first->Part.v.Pt());
     
-      for(vector<MyTracks*>::iterator it_fake = fakes.begin() ; it_fake != fakes.end() ; ++it_fake)
-        nTr_ptVSeta_NSD_evtSel_fakes_reco->Fill((*it_fake)->Part.v.Eta() , (*it_fake)->Part.v.Pt());
+        for(vector<MyTracks*>::iterator it_fake = fakes.begin() ; it_fake != fakes.end() ; ++it_fake)
+          nTr_ptVSeta_INEL_evtSel_fakes_reco->Fill((*it_fake)->Part.v.Eta() , (*it_fake)->Part.v.Pt());
     
-    }
+      }
     
     
-  }//end of loop over events
+    }//end of loop over events
   
-  
+    //Closing current files
+    file->Close();
+
+  }//end of loop over files
+
   //output file
   ostringstream strout("FBtest");
-  strout<<"NCHtest2_type"<<type<<"_"<<E<<"TeV_";
+  strout<<"NCHtest4_type"<<type<<"_"<<E<<"TeV_";
   if(iTracking==0)
     strout<<"gTr";
   if(iTracking==1)
@@ -208,28 +229,28 @@ void NCHmc2Deff(int type = 31 , double E = 7. , int iTracking = 1 , int nevt_max
   TFile* output = new TFile(strout.str().c_str(),"RECREATE");
   output->cd();
         
-  nTr_ptVSeta_NSD_evtSel_reco ->Write();
-  nTr_ptVSeta_NSD_evtSel_reco_gt4hit->Write();
-  nTr_ptVSeta_NSD_evtSel_gen  ->Write();
-  nTr_ptVSeta_NSD_noEvtSel_gen->Write();
+  nTr_ptVSeta_INEL_evtSel_reco ->Write();
+  nTr_ptVSeta_INEL_evtSel_reco_gt4hit->Write();
+  nTr_ptVSeta_INEL_evtSel_gen  ->Write();
+  nTr_ptVSeta_INEL_noEvtSel_gen->Write();
   
-  nTr_ptVSeta_NSD_evtSel_matched_reco->Write();
-  nTr_ptVSeta_NSD_evtSel_fakes_reco->Write();
+  nTr_ptVSeta_INEL_evtSel_matched_reco->Write();
+  nTr_ptVSeta_INEL_evtSel_fakes_reco->Write();
   
-  TH2F* eff_ptVSeta_NSD_evtSel_matched = (TH2F*) nTr_ptVSeta_NSD_evtSel_matched_reco ->Clone("eff_ptVSeta_NSD_evtSel_matched");
-  TH2F* eff_ptVSeta_NSD_evtSel_fakes   = (TH2F*) nTr_ptVSeta_NSD_evtSel_fakes_reco   ->Clone("eff_ptVSeta_NSD_evtSel_fakes");
-  TH2F* eff_ptVSeta_NSD_evtSel         = (TH2F*) nTr_ptVSeta_NSD_evtSel_reco         ->Clone("eff_ptVSeta_NSD_evtSel");
-  TH2F* eff_ptVSeta_NSD_evtSel_gt4hit  = (TH2F*) nTr_ptVSeta_NSD_evtSel_reco_gt4hit  ->Clone("eff_ptVSeta_NSD_evtSel_gt4hit");
+  TH2F* eff_ptVSeta_INEL_evtSel_matched = (TH2F*) nTr_ptVSeta_INEL_evtSel_matched_reco ->Clone("eff_ptVSeta_INEL_evtSel_matched");
+  TH2F* eff_ptVSeta_INEL_evtSel_fakes   = (TH2F*) nTr_ptVSeta_INEL_evtSel_fakes_reco   ->Clone("eff_ptVSeta_INEL_evtSel_fakes");
+  TH2F* eff_ptVSeta_INEL_evtSel         = (TH2F*) nTr_ptVSeta_INEL_evtSel_reco         ->Clone("eff_ptVSeta_INEL_evtSel");
+  TH2F* eff_ptVSeta_INEL_evtSel_gt4hit  = (TH2F*) nTr_ptVSeta_INEL_evtSel_reco_gt4hit  ->Clone("eff_ptVSeta_INEL_evtSel_gt4hit");
   
-  eff_ptVSeta_NSD_evtSel_matched->Divide(nTr_ptVSeta_NSD_evtSel_gen);
-  eff_ptVSeta_NSD_evtSel_fakes  ->Divide(nTr_ptVSeta_NSD_evtSel_gen);
-  eff_ptVSeta_NSD_evtSel        ->Divide(nTr_ptVSeta_NSD_evtSel_gen);
-  eff_ptVSeta_NSD_evtSel_gt4hit ->Divide(nTr_ptVSeta_NSD_evtSel_gen);
+  eff_ptVSeta_INEL_evtSel_matched->Divide(nTr_ptVSeta_INEL_evtSel_gen);
+  eff_ptVSeta_INEL_evtSel_fakes  ->Divide(nTr_ptVSeta_INEL_evtSel_gen);
+  eff_ptVSeta_INEL_evtSel        ->Divide(nTr_ptVSeta_INEL_evtSel_gen);
+  eff_ptVSeta_INEL_evtSel_gt4hit ->Divide(nTr_ptVSeta_INEL_evtSel_gen);
 
-  eff_ptVSeta_NSD_evtSel_matched->Write();
-  eff_ptVSeta_NSD_evtSel_fakes  ->Write();
-  eff_ptVSeta_NSD_evtSel        ->Write();
-  eff_ptVSeta_NSD_evtSel_gt4hit ->Write();
+  eff_ptVSeta_INEL_evtSel_matched->Write();
+  eff_ptVSeta_INEL_evtSel_fakes  ->Write();
+  eff_ptVSeta_INEL_evtSel        ->Write();
+  eff_ptVSeta_INEL_evtSel_gt4hit ->Write();
 
 
   output->Close();
