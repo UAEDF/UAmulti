@@ -52,6 +52,7 @@ void templateTreeAna(int type = 0 , double E = 0.9 , int iTracking = 1 , int nev
   if(type==0) isMC = false;
   TString MCtype = "pythia";
   if(type == 20) MCtype = "phojet";
+  if(type == 60 || type==101) MCtype = "pythia8";
 
   //Declaration of my th1s
   TH1F* pt_gen  = new TH1F("pt_gen" , "pt_gen;pt;nTracks" , 120 , 0 , 6);
@@ -61,7 +62,7 @@ void templateTreeAna(int type = 0 , double E = 0.9 , int iTracking = 1 , int nev
   vector<TString>* vfiles = getListOfFiles(fileManager(0,type,E));
   
   //Declaration of tree and its branches variables
-  TTree* tree = new TChain("evt","");
+  TTree* tree = new TTree("evt","");
   MyEvtId*           evtId        = NULL ;
   vector<MyGenPart>* genPart      = NULL;
   MyGenKin*          genKin       = NULL;
