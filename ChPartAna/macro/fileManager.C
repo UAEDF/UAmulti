@@ -9,6 +9,7 @@
 //#             3 : unfolding
 //#
 //# iDataType = 0  : Data
+//#             5  : Data ZeroBias
 //#             10 : MC - PYTHIA D6T 
 //#             11 : MC - PYTHIA DW
 //#             12 : MC - PYTHIA P0 
@@ -19,6 +20,8 @@
 //#             51 : MC - PYTHIA X1
 //#             52 : MC - PYTHIA X2
 //#             60 : MC - PYTHIA 8
+//#             60 : MC - PYTHIA 8 2C  --> GenParts Only
+//#             60 : MC - PYTHIA 8 4C  --> GenParts Only
 //#
 //#             100 : DATA TEST
 //#             101 : MC   TEST
@@ -63,16 +66,22 @@ TString fileManager ( int     iFileType  = 0
   if ( Energy == 2.36 && iDataType == 1  ) CMSSW       = "CMSSW_3_5_6";
   if ( Energy == 2.36 && iDataType == 40 ) CMSSW       = "CMSSW_3_5_6";
 
-  TString BaseDirTree = "/user/xjanssen/data/" ;
+  TString BaseDirTree = "dcap:///pnfs/iihe/cms/store/user/xjanssen/data/" ;
   if(Energy == 7.0 && (iDataType == 51 || iDataType == 52))
     BaseDirTree = "/user/rougny/data/" ;
   
   //******NEW
-  if( (Energy == 0.9 || Energy == 7.0) && (iDataType == 0 || iDataType == 10 || iDataType == 15 || iDataType == 60) ){
+  if( (Energy == 0.9 || Energy == 7.0) && (iDataType < 10 || iDataType == 10 || iDataType == 15 || iDataType == 60)  ){
     BaseDirTree = "dcap:///pnfs/iihe/cms/store/user/rougny/data/" ;
     CMSSW       = "CMSSW_3_6_2";
   }
-  if(iDataType == 100 || iDataType == 101){
+  
+  if( (Energy == 0.9 || Energy == 7.0) && (iDataType == 61 || iDataType == 62) ){
+    BaseDirTree = "dcap:///pnfs/iihe/cms/store/user/rougny/data/" ;
+    CMSSW       = "CMSSW_3_11_2";
+  }
+  
+  if(iDataType == 100 || iDataType == 101 || iDataType == 5){
     BaseDirTree = "/user/rougny/data/";
     CMSSW       = "CMSSW_3_6_2";
     if(iDataType == 100 ) iDataType = 0 ;
@@ -143,6 +152,14 @@ TString fileManager ( int     iFileType  = 0
         TreeBase = "ChPartTree_36x_mcv2";
         DataSet  = "__MinBias_900GeV-pythia8__Summer10-START36_V10A-v1__GEN-SIM-RECO";
       }
+      else if ( iDataType == 61 ) {
+        TreeBase = "ChPartTree_311x_mc_genOnly";
+        DataSet  = "__MinBias_Pythia8_Tune2c_900GeV__lucaroni-MinBias_Pythia8_Tune2c_900GeV-67756f77883499276cd347c56b952136__USER";
+      }
+      else if ( iDataType == 62 ) {
+        TreeBase = "ChPartTree_311x_mc_genOnly";
+        DataSet  = "__MinBias_Pythia8_Tune4c_900GeV__lucaroni-MinBias_Pythia8_Tune4c_900GeV-4c407344ef47bd807bc0c171afd57a01__USER";
+      }
 
 
       else {
@@ -199,10 +216,14 @@ TString fileManager ( int     iFileType  = 0
 	TreeBase = "ChPartTree_36x_d7000v3";
         DataSet  = "__MinimumBias__Commissioning10-Jun14thReReco_v1__RECO";
       }
-      /*else if ( iDataType == 5  ) {
-        TreeBase = "ChPartTree_v005b_d7000";
-        DataSet  = "__ZeroBias__Commissioning10-Apr1ReReco-v2__RECO";
-      }*/
+      else if ( iDataType == 5  ) {
+        //TreeBase = "ChPartTree_v005b_d7000";
+        //DataSet  = "__ZeroBias__Commissioning10-Apr1ReReco-v2__RECO";
+	//cout << "[fileManager] WARNING !! Those files are old 356 files ... To use with caution :)" << endl;
+	
+	TreeBase = "ChPartTree_36x_d7000v3";
+        DataSet  = "__ZeroBias__Commissioning10-Jun14thReReco_v1__RECO/HADD";
+      }
       else if ( iDataType == 10 ) {
         //TreeBase = "ChPartTree_v005_mc7000";
         //DataSet  = "__MinBias__Spring10-START3X_V26A_356ReReco-v1__GEN-SIM-RECO";
@@ -221,11 +242,11 @@ TString fileManager ( int     iFileType  = 0
       else if ( iDataType == 30 ) {
         TreeBase = "ChPartTree_v005c_mc7000_v25b";
         DataSet  = "__MinBiasD6T_SIM_0334__yilmaz-MinBiasD6T_RECO_0334_v1-309b694e9ccf1df48e24b126fab6958b__USER";
-      }
+      }*/
       else if ( iDataType == 31 ) {
         TreeBase = "ChPartTree_v005c_mc7000_v25b";
         DataSet  = "__MinBiasATLAS_SIM_0332__yilmaz-MinBiasATLAS_RECO_0332_v1-a68e153adb2dbe2ae110cdf8cea4b2da__USER";
-      }
+      }/*
       else if ( iDataType == 51 ) {
         TreeBase = "ChPartTree_v005_mc7000_v26_FS";
         DataSet  = "__MinBias_TuneX1_7TeV-pythia6__Spring10-START3X_V26_FastSim-v1__GEN-SIM-DIGI-RECO";
@@ -237,6 +258,14 @@ TString fileManager ( int     iFileType  = 0
       else if ( iDataType == 60 ) {
         TreeBase = "ChPartTree_36x_mcv4";
         DataSet  = "__MinBias_7TeV-pythia8__Summer10-START36_V10_SP10-v1__GEN-SIM-RECODEBUG";
+      }
+      else if ( iDataType == 61 ) {
+        TreeBase = "ChPartTree_311x_mc_genOnly";
+        DataSet  = "__MinBias_Pythia8_Tune2c__lucaroni-MinBias_Pythia8_Tune2c-bf353181d671fe026eb74236c5090cda__USER";
+      }
+      else if ( iDataType == 62 ) {
+        TreeBase = "ChPartTree_311x_mc_genOnly";
+        DataSet  = "__MinBias_Pythia8_Tune4c_7TeV__lucaroni-MinBias_Pythia8_Tune4c_7TeV-1900885b4ddb1084e6f514b058c3f4b1__USER";
       }
 
       else {
@@ -261,6 +290,8 @@ TString fileManager ( int     iFileType  = 0
 
     FileName =   BaseDirTree + TreeBase + "/" + DataSet + "/" 
                + TreeBase + "__" + CMSSW + DataSet + "_*.root/evt" ;
+    if(DataSet.Contains("HADD"))
+      FileName =   BaseDirTree + TreeBase + "/" + DataSet + "/" + "concatenatedfile_*.root/evt";
 
   //---------------------- collectionPlotter Files --------------------------
   } else if ( iFileType == 1 || iFileType == 2 || iFileType == 3 || iFileType == 4 || iFileType == 5) {
@@ -290,7 +321,9 @@ TString fileManager ( int     iFileType  = 0
     if ( iDataType == 40) DataSet = "_MC_D6T_35X" ; 
     if ( iDataType == 51) DataSet = "_MC_D6T_X1" ; 
     if ( iDataType == 52) DataSet = "_MC_D6T_X2" ;
-    if ( iDataType == 52) DataSet = "_MC_Pythia8" ;
+    if ( iDataType == 60) DataSet = "_MC_Pythia8" ;
+    if ( iDataType == 61) DataSet = "_MC_Pythia8_2C" ;
+    if ( iDataType == 62) DataSet = "_MC_Pythia8_4C" ;
     
     if ( Energy == 0.9  ) SEnergy = "_0.9TeV"  ;
     if ( Energy == 2.36 ) SEnergy = "_2.36TeV" ;
