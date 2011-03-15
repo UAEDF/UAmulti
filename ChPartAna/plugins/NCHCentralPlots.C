@@ -23,30 +23,36 @@ NCHCentralPlots::~NCHCentralPlots(){
     if(!switchMBUEWGonly) {
         delete hfp_ALICE;
         delete hfp_ATLAS1;
+        delete hfp_ATLAS2;
         delete hfp_ATLAS6;
     }
 }
 
 //_____________________________________________________________________________
-bool NCHCentralPlots::passMBUEWGreco=0;
-bool NCHCentralPlots::passMBUEWGpart=0;
-bool NCHCentralPlots::passALICEpart=0;
-bool NCHCentralPlots::passALICEreco=0;
-bool NCHCentralPlots::passATLAS1part=0;
-bool NCHCentralPlots::passATLAS1reco=0;
-bool NCHCentralPlots::passATLAS6part=0;
-bool NCHCentralPlots::passATLAS6reco=0;
+bool NCHCentralPlots::passMBUEWGGen=0;
+bool NCHCentralPlots::passALICEGen=0;
+bool NCHCentralPlots::passATLAS1Gen=0;
+bool NCHCentralPlots::passATLAS2Gen=0;
+bool NCHCentralPlots::passATLAS6Gen=0;
 
-bool NCHCentralPlots::switchMBUEWGonly=1;  
+bool NCHCentralPlots::switchMBUEWGonly=1; 
+
+bool NCHCentralPlots::passMBUEWGRECO=0;
+bool NCHCentralPlots::passALICERECO=0;
+bool NCHCentralPlots::passATLAS1RECO=0;
+bool NCHCentralPlots::passATLAS2RECO=0;
+bool NCHCentralPlots::passATLAS6RECO=0;
+ 
 
 //_____________________________________________________________________________
 void NCHCentralPlots::init(){
  
-  hfp_nocut                 = new NCHHFPlots("nocut_" +centralcoll);
-  hfp_MBUEWG                = new NCHHFPlots("MBUEWG_"+centralcoll);
+  hfp_nocut                    = new NCHHFPlots("nocut_" +centralcoll);
+  hfp_MBUEWG                   = new NCHHFPlots("MBUEWG_"+centralcoll);
   if(!switchMBUEWGonly){
      hfp_ALICE                 = new NCHHFPlots("ALICE_" +centralcoll);
      hfp_ATLAS1                = new NCHHFPlots("ATLAS1_"+centralcoll);
+     hfp_ATLAS2                = new NCHHFPlots("ATLAS2_"+centralcoll);
      hfp_ATLAS6                = new NCHHFPlots("ATLAS6_"+centralcoll);
   }   
  
@@ -54,21 +60,24 @@ void NCHCentralPlots::init(){
 
 //_____________________________________________________________________________
 void NCHCentralPlots::fill(vector<MyGenPart>& gpcoll, vector<MyTracks>& trcoll, vector<MyVertex>& vtxcoll, vector<MyVertex>::iterator& vtxIter, int vtxId, MyBeamSpot* bs, double weight){
- 
-  hfp_nocut->fill(gpcoll,trcoll,vtxcoll,vtxIter,vtxId,bs,weight);
+   //if(gpcoll.size()==6)cout << "next " << endl;
+  hfp_nocut->fill(gpcoll,trcoll,vtxcoll,vtxIter,vtxId,bs,1, 1,weight);  //1= pass no cut ==always
    
-  if( (passMBUEWGpart && !isRECO ) || (passMBUEWGreco && isRECO) )
-      hfp_MBUEWG->fill(gpcoll,trcoll,vtxcoll,vtxIter,vtxId,bs,weight);
+
+   hfp_MBUEWG->fill(gpcoll,trcoll,vtxcoll,vtxIter,vtxId,bs,passMBUEWGGen, passMBUEWGRECO,weight);
   
   if(!switchMBUEWGonly){           
-    if( (passALICEpart && !isRECO ) || (passALICEreco && isRECO) )
-        hfp_ALICE->fill(gpcoll,trcoll,vtxcoll,vtxIter,vtxId,bs,weight); 
+        hfp_ALICE->fill(gpcoll,trcoll,vtxcoll,vtxIter,vtxId,bs,passALICEGen, passALICERECO,weight); 
          
-    if( (passATLAS1part && !isRECO ) || (passATLAS1reco && isRECO) )
-        hfp_ATLAS1->fill(gpcoll,trcoll,vtxcoll,vtxIter,vtxId,bs,weight);
+
+        hfp_ATLAS1->fill(gpcoll,trcoll,vtxcoll,vtxIter,vtxId,bs,passATLAS1Gen, passATLAS1RECO,weight);
+
+        
+        hfp_ATLAS2->fill(gpcoll,trcoll,vtxcoll,vtxIter,vtxId,bs,passATLAS2Gen, passATLAS2RECO,weight);
+   
+
+        hfp_ATLAS6->fill(gpcoll,trcoll,vtxcoll,vtxIter,vtxId,bs,passATLAS6Gen, passATLAS6RECO,weight);
       
-    if( (passATLAS6part && !isRECO ) || (passATLAS6reco && isRECO) )
-        hfp_ATLAS6->fill(gpcoll,trcoll,vtxcoll,vtxIter,vtxId,bs,weight);
   }
   
 }
@@ -83,7 +92,8 @@ void NCHCentralPlots::write(){
   
   if(!switchMBUEWGonly){
     hfp_ALICE->write();
-    hfp_ATLAS1->write();  
+    hfp_ATLAS1->write();
+    hfp_ATLAS2->write();  
     hfp_ATLAS6->write();
   }  
  

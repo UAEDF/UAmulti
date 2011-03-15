@@ -50,6 +50,10 @@ bool passCentral(vector<T>& coll, const TString evtsel, const double pt_cut = 0.
   else if (evtsel =="ATLAS1"){
     nch_cut=1;
     eta_cut=2.4;
+  }  
+  else if (evtsel =="ATLAS2"){
+    nch_cut=2;
+    eta_cut=2.4;
   }
   else if (evtsel =="ATLAS6"){
     nch_cut=6;
