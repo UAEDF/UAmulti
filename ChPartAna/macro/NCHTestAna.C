@@ -7,6 +7,7 @@
 #include <TTree.h>
 #include <TFile.h>
 #include <TChain.h>
+#include <TChainElement.h>
 #include <TDirectory.h>
 #include <iostream>
 #include <iomanip>
@@ -45,17 +46,13 @@ bool debug=false;
 
 #include "NCHacceptanceMap.C"
 
- /////////////////////////
-  //TODO LIST             //
-  ///////////////////////// 
-  //1) bit 124 or 63 for single pixel single track ?   
-  //2) rule 227 passsCentral only use PT_RECO HERE?????
-  //3) fix diffraction numbers
   ////////////////////////
   //run and close
-  //   nohup root BuildLibDico.C+ NCHTestAna.C+"(60,7,1,1000000)" -q   > logMC60.txt & 
-  //   nohup root BuildLibDico.C+ NCHTestAna.C+"(15,7,1,1000000)" -q   > logMC15.txt &
-  //   nohup root BuildLibDico.C+ NCHTestAna.C+"(0,7,1,-1)" -q   > logData.txt & 
+  //   nohup root -l BuildLibDico.C+ NCHTestAna.C+"(10,7,1,2000000)" -q   > logMC10v5b_2M.txt &
+  //   nohup root -l BuildLibDico.C+ NCHTestAna.C+"(60,7,1,2000000)" -q   > logMC60v5b_2M.txt & 
+  //   nohup root -l BuildLibDico.C+ NCHTestAna.C+"(31,7,1,2000000)" -q   > logMC31v5b_2M.txt & 
+  //   nohup root -l BuildLibDico.C+ NCHTestAna.C+"(15,7,1,2000000)" -q   > logMC15v5b_2M.txt &
+  //   nohup root -l BuildLibDico.C+ NCHTestAna.C+"(0,7,1, -1)"      -q   > logData12Mv5b.txt & 
   //   tail -f logData.txt
   /////////////////////////
  
@@ -74,18 +71,20 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
   //SWTICH for most of the intermediate plots:
   NCHCentralPlots::switchMBUEWGonly=0;        // 0 = only nocut and MBUEWG 
   NCHHFPlots::switchAllHF=0;                  // 0 = only HF0 and HF1
-  NCHEvtSelPlots::switchIntermedPlots=1;      // 0 = only noSel and FullSel
+  NCHEvtSelPlots::switchIntermedPlots=0;      // 0 = only noSel and FullSel
+  //if type=31, program will launch old code
   ////////////////////////////////////////////
-  
+ 
+
   //EVENT SELECTION TYPE, see NCHEvtSel.C for more information 
   bool isMC = true; 
-  if(type==0 || type==100) isMC = false; //100 is a fast testfile which is not on dcap
+  if(type==0 ) isMC = false; 
   NCHDiffPlots::isMC=isMC;
   
   TString MCtype = "pythia";
   if(type == 20) MCtype = "phojet";
   //if(type == 15) MCtype = "z2";
-  if(type == 60 || type==101) MCtype = "pythia8";
+  if(type == 60) MCtype = "pythia8";
   if(  !(iTracking==1 || iTracking==0))  {
      cout <<"WRONG TRACKING NUMBER !!!!"<<endl; 
      return;
@@ -95,13 +94,14 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
   
   // BUILDING CHAIN
   //adding files to the tree chain
-  TH1::AddDirectory(0); 
+  TH1::AddDirectory(0); //Detach histograms from rootfiles (they are no closed if the file is closed.)
   cout << "FILE: " << fileManager(0,type,E) << endl;
-  TChain* tree = new TChain("evt","");
-  tree->Add(fileManager(0,type,E));
+  //getting the list of files
+  vector<TString>* vfiles = getListOfFiles(fileManager(0,type,E));
+  if(!isMC && E==7) vfiles = getListOfFiles("list_filesRun132440.txt"); 
   
-  
-  //adding branches to the tree 
+  //Declaration of tree and its branches variables
+  TTree* tree = new TTree("evt","");
   MyEvtId*           evtId     = NULL;
   MyL1Trig*          L1Trig    = NULL;
   MyHLTrig*          HLTrig    = NULL;
@@ -109,60 +109,20 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
   MyBeamSpot*        bs        = NULL;
   MyGenKin*          genKin    = NULL;
   vector<MyGenPart>* genPart   = NULL;
-  vector<MyTracks>*  tracks  = NULL;
-  vector<MyVertex>*  vertex  = NULL;
+  vector<MyTracks>*  tracks    = NULL;
+  vector<MyVertex>*  vertex    = NULL;
   int                bestVertexId = 0;
-  vector<MyVertex>::iterator goodVtx;
+  vector<MyVertex>::iterator  goodVtx;
   //vector<MyVertex>*  vertexToCut  = NULL;
   vector<MyTracks>   goodtracks;
   vector<MyGenPart>  goodgenpart;
-    
-  tree->SetBranchAddress("EvtId",&evtId);
-  tree->SetBranchAddress("L1Trig",&L1Trig);
-  tree->SetBranchAddress("HLTrig",&HLTrig);
-  tree->SetBranchAddress("MITEvtSel",&MITEvtSel);
-  tree->SetBranchAddress("beamSpot",&bs);   
-  if(isMC) {
-    tree->SetBranchAddress("GenPart",&genPart);
-    tree->SetBranchAddress("GenKin",&genKin);
-  }  
-  if(iTracking==0){
-    tree->SetBranchAddress("generalTracks",&tracks); 
-    tree->SetBranchAddress("primaryVertex",&vertex);
-  }
-  else if(iTracking==1){
-    tree->SetBranchAddress("minbiasTracks",&tracks); 
-    tree->SetBranchAddress("ferencVtxFerTrk",&vertex);
-  }
-  //tree->SetBranchAddress("ferencVtxFerTrk",&vertexToCut);
-  //tree->SetBranchAddress("pixel3Vertex",&vertexToCut);
-
- 
-  // GET NUMBER OF EVENTS
-  int nev = int(tree->GetEntries());   
-  int Nrun=min(nev,nevt_max);  
-  if (nevt_max==-1) Nrun=nev;  //if -1 --> run on all
+  double weight =1.;
   
-  //get names and print
-  stringstream mctype("");     mctype << type ;
-  stringstream energy("");     energy << "_E_" << E ;
-  stringstream nEvts("");      nEvts << "_" << Nrun ;
-  TString dat="";          isMC ? dat="_MC"+mctype.str() : dat="_data";
-  cout <<"-------------------------------------"<<endl;
-  cout <<"Number of Entries: "<< nev << endl;  
-  cout <<"Running on: " << Nrun     << " events"   << endl;
-  cout <<"E:             " << E        << " TeV"      << endl;
-  cout <<"Tracking:      " << tracking << " number: " <<  iTracking << endl;
-  cout <<"Data:          " << dat      << "      isMC: "   <<  isMC      << endl;
-  cout <<"MBUEWGonly:    " << NCHCentralPlots::switchMBUEWGonly << endl;
-  cout <<"AllHF:         " << NCHHFPlots::switchAllHF << endl;
-  cout <<"IntermedPlots: " << NCHEvtSelPlots::switchIntermedPlots <<endl;
-  
-    
-  //Initialize AcceptanceMap
+  //Initialize AcceptanceMap___________________________________________________________
   InitializeAcceptanceMap();
-  cout << "acceptanceMap: " << accMap->size() <<" loaded "  <<endl; 
   cout <<"-------------------------------------"<<endl;
+  cout << "acceptanceMap: " << accMap->size() <<" loaded "  <<endl; 
+  
   
   //Initialising Plots tree
   if (debug) cout << "Initialising all Plots" <<endl;   
@@ -170,116 +130,199 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
   //temp, before dynamical binning, see above
   BasePlots*       baseplot    = new BasePlots("BasePlots");  
   for(int acc = 0 ; acc < (int)accMap->size() ; ++acc){
-    //BINING 
-    //vector< vector<double> > binning;
-    //binning = getBins(1,0,1);//nch,pt,eta
-    //binning = getBins(acc,Ebinning);//nch,pt,eta
-    //BasePlots initialisation needed to get binning_array of MultiPlots right for nch etc
-    //baseplot->setBinning(binning);     
-    nchDiffPlots.at(acc)  = new NCHDiffPlots(st("",acc));
+      //BINING 
+      //vector< vector<double> > binning;
+      //binning = getBins(1,0,1);//nch,pt,eta
+      //binning = getBins(acc,Ebinning);//nch,pt,eta
+      //BasePlots initialisation needed to get binning_array of MultiPlots right for nch etc
+      //baseplot->setBinning(binning);     
+      nchDiffPlots.at(acc)  = new NCHDiffPlots(st("",acc));
   }    
   
+    //get names and print
+    stringstream mctype("");     mctype << type ;
+    stringstream energy("");     energy << "_E_" << E ;
+    TString dat="";          isMC ? dat="_MC"+mctype.str() : dat="_data";
+    cout <<"-------------------------------------"<<endl;
+    cout <<"Running on max: " << nevt_max     << " events"   << endl;
+    cout <<"E:              " << E        << " TeV"      << endl;
+    cout <<"Tracking:       " << tracking << " number: " <<  iTracking << endl;
+    cout <<"Data:           " << dat      << "      isMC: "   <<  isMC      << endl;
+    cout <<"MBUEWGonly:     " << NCHCentralPlots::switchMBUEWGonly << endl;
+    cout <<"AllHF:          " << NCHHFPlots::switchAllHF << endl;
+    cout <<"IntermedPlots:  " << NCHEvtSelPlots::switchIntermedPlots <<endl;
   
-  ////////////////////////////
-  /////    LOOP     //////////
-  ////////////////////////////  
-  if (debug) cout << "Starting the loop over the events" <<endl;
-  for(int i = 0; i < nev; i++){     
-    if( ((i+1) % 10000) == 0) cout <<int(double(i+1)/double(Nrun)*100.)<<" % done"<<endl;    
-    if(i==Nrun) break;
-    //vertexToCut=&vertex;
-    tree->GetEntry(i);
-    
-    
-    /* Test to compare with old FileManager
-    if(evtId->Run!=132440     ||
-       evtId->LumiSect < 158  ||
-       evtId->LumiSect > 374  ) 
-    { 
-        continue;
-    }
-    */
- 
-    //get good Vertex
-    bestVertexId = getBestVertex(vertex);
-    goodVtx = vertex->end();
-    for(vector<MyVertex>::iterator it_vtx = vertex->begin();it_vtx != vertex->end();++it_vtx) {
-        if(bestVertexId==it_vtx->id)
-            goodVtx = it_vtx;
-    } 
+   if (nevt_max == -1) nevt_max=100000000;
+   int i_tot = 0 , nevt_tot = 0;
+   //starting Loop over files, stops at end of list of files or when reached nevt_max
+   for(vector<TString>::iterator itfiles = vfiles->begin() ; itfiles != vfiles->end() && i_tot < nevt_max ; ++itfiles){
 
-    //Looping AcceptanceMap
-    for(int acc = 0 ; acc < (int) accMap->size() ; ++acc){
+    TFile* file = TFile::Open(*itfiles,"READ");
+    //getting the tree form the current file
+    tree = (TTree*) file->Get("evt");
+
+    //adding branches to the tree ----------------------------------------------------------------------
+    tree->SetBranchAddress("EvtId",&evtId);
+    tree->SetBranchAddress("L1Trig",&L1Trig);
+    if(type!=31) 
+        tree->SetBranchAddress("HLTrig",&HLTrig);
+    tree->SetBranchAddress("MITEvtSel",&MITEvtSel);
+    tree->SetBranchAddress("beamSpot",&bs);   
+    if(isMC) {
+        tree->SetBranchAddress("GenPart",&genPart);
+        tree->SetBranchAddress("GenKin",&genKin);
+    }  
+    if(iTracking==0){
+        tree->SetBranchAddress("generalTracks",&tracks); 
+        tree->SetBranchAddress("primaryVertex",&vertex);
+    }
+    else if(iTracking==1){
+        tree->SetBranchAddress("minbiasTracks",&tracks); 
+        tree->SetBranchAddress("ferencVtxFerTrk",&vertex);
+    }
+    //tree->SetBranchAddress("ferencVtxFerTrk",&vertexToCut);
+    //tree->SetBranchAddress("pixel3Vertex",&vertexToCut);
+
+ 
+    // GET NUMBER OF EVENTS
+    //Getting number of events
+    int nev = int(tree->GetEntriesFast());
+    nevt_tot += nev;
+    cout <<"The current file has " << nev << " entries : "<< endl << *itfiles << endl;
+
+    
+    ////////////////////////////
+    /////    LOOP     //////////
+    ////////////////////////////
+    //starting loop over events, stops when reached end of file or nevt_max
+    if (debug) cout << "Starting the loop over the events" <<endl;
+    for(int i = 0; i < nev && i_tot < nevt_max; ++i , ++i_tot){      
+        if( ((i+1) % 10000) == 0) cout <<int(double(i_tot+1)/1000)<<" k done"<<endl;    
+
+        //Filling the variables defined setting branches
+        tree->GetEntry(i);
+    
+    if(!isMC)
+        if(132440!=(signed)evtId->Run)
+	  continue;
+    
+        //get good Vertex
+        bestVertexId = getBestVertex(vertex);
+        goodVtx = vertex->end();
+        for(vector<MyVertex>::iterator it_vtx = vertex->begin();it_vtx != vertex->end();++it_vtx) {
+            if(bestVertexId==it_vtx->id)
+                goodVtx = it_vtx;
+        } 
+
+        //Looping AcceptanceMap
+        for(int acc = 0 ; acc < (int) accMap->size() ; ++acc){
         
-        //GET GOOD PARTICLE AND TRACK COLLECTION
-        
-        if(isMC) goodgenpart=getPrimaryGenPart(*genPart,accMap->at(acc).ptGen, accMap->at(acc).etaGenMin, 
+            //GET GOOD PARTICLE AND TRACK COLLECTION        
+            if(isMC) goodgenpart=getPrimaryGenPart(*genPart,accMap->at(acc).ptGen, accMap->at(acc).etaGenMin, 
                                                             accMap->at(acc).etaGenMax,accMap->at(acc).charge);  
-        if(iTracking==0) goodtracks=getPrimaryTracks(*tracks, vertex, accMap->at(acc).ptReco, accMap->at(acc).etaRecoMin, 
+            if(iTracking==0) goodtracks=getPrimaryTracks(*tracks, vertex, accMap->at(acc).ptReco, accMap->at(acc).etaRecoMin, 
                                                             accMap->at(acc).etaRecoMax,accMap->at(acc).charge);     //general Tracks
-        if(iTracking==1) goodtracks=getPrimaryTracks(*tracks, vertex, bs, accMap->at(acc).ptReco, accMap->at(acc).etaRecoMin, 
+            if(iTracking==1) goodtracks=getPrimaryTracks(*tracks, vertex, bs, accMap->at(acc).ptReco, accMap->at(acc).etaRecoMin, 
                                                             accMap->at(acc).etaRecoMax,accMap->at(acc).charge); // ferenc Tracks  
                    
-        //RESETTING EVENT SELECTION  
-        NCHDiffPlots::isSD=0;  NCHDiffPlots::isDD=0;          
-        NCHCentralPlots::passMBUEWGreco=0;   NCHCentralPlots::passMBUEWGpart=0;         
-        NCHCentralPlots::passALICEpart =0;   NCHCentralPlots::passALICEreco =0; 
-        NCHCentralPlots::passATLAS1part=0;   NCHCentralPlots::passATLAS1reco=0;
-        NCHCentralPlots::passATLAS6part=0;   NCHCentralPlots::passATLAS6reco=0;        
-        NCHHFPlots::passHF1=0;     //passHF2=!passHF1
-        NCHHFPlots::passHF3=0;     NCHHFPlots::passHF4=0;
-        NCHHFPlots::passHF5=0;     NCHHFPlots::passHF6=0;                    
-        NCHEvtSelPlots::passL1 =0;    NCHEvtSelPlots::passVtxQual=0;
-        NCHEvtSelPlots::passVtx=0;    NCHEvtSelPlots::passBit40=0;                    
+           //RESETTING EVENT SELECTION  
+           NCHDiffPlots::isSD=0;  NCHDiffPlots::isDD=0;          
+           NCHCentralPlots::passMBUEWGGen=0;       
+           NCHCentralPlots::passALICEGen =0;   
+           NCHCentralPlots::passATLAS1Gen=0;
+           NCHCentralPlots::passATLAS2Gen=0;   
+           NCHCentralPlots::passATLAS6Gen=0;              
+           
+           NCHCentralPlots::passMBUEWGRECO=0;       
+           NCHCentralPlots::passALICERECO =0;   
+           NCHCentralPlots::passATLAS1RECO=0;
+           NCHCentralPlots::passATLAS2RECO=0;   
+           NCHCentralPlots::passATLAS6RECO=0;     
+           NCHHFPlots::passHF1=0;     //passHF2=!passHF1
+           NCHHFPlots::passHF3=0;     NCHHFPlots::passHF4=0;
+           NCHHFPlots::passHF5=0;     NCHHFPlots::passHF6=0;                    
+           NCHEvtSelPlots::passL1 =0;    NCHEvtSelPlots::passVtxQual=0;
+           NCHEvtSelPlots::passVtx=0;    NCHEvtSelPlots::passBit40=0;                    
          
 
-        //SETTING THE CUT BOOLEANS for this event                   
-        if(isMC) {        
-            if(isSD(*genKin,MCtype)) NCHDiffPlots::isSD=1;
-            if(isDD(*genKin,MCtype)) NCHDiffPlots::isDD=1;
-            if(passCentral(goodgenpart,"MBUEWG",accMap->at(acc).ptReco)) NCHCentralPlots::passMBUEWGpart=1;
-            if(passCentral(goodgenpart,"ALICE" ,accMap->at(acc).ptReco)) NCHCentralPlots::passALICEpart =1;   //Not using PT_PART HERE !!!!!!
-            if(passCentral(goodgenpart,"ATLAS1",accMap->at(acc).ptReco)) NCHCentralPlots::passATLAS1part=1;
-            if(passCentral(goodgenpart,"ATLAS6",accMap->at(acc).ptReco)) NCHCentralPlots::passATLAS6part=1;
-        }        
-        if(passCentral(goodtracks,"MBUEWG",accMap->at(acc).ptReco)) NCHCentralPlots::passMBUEWGreco=1;                
-        if(passCentral(goodtracks,"ALICE" ,accMap->at(acc).ptReco)) NCHCentralPlots::passALICEreco =1; 
-        if(passCentral(goodtracks,"ATLAS1",accMap->at(acc).ptReco)) NCHCentralPlots::passATLAS1reco=1; 
-        if(passCentral(goodtracks,"ATLAS6",accMap->at(acc).ptReco)) NCHCentralPlots::passATLAS6reco=1;
-        
-        if(passHF(*MITEvtSel,1)) NCHHFPlots::passHF1=1;
-        //passHF2 = !passHF1;         
-        if(passHF(*MITEvtSel,3)) NCHHFPlots::passHF3=1;
-        if(passHF(*MITEvtSel,4)) NCHHFPlots::passHF4=1;
-        if(passHF(*MITEvtSel,5)) NCHHFPlots::passHF5=1;
-        if(passHF(*MITEvtSel,6)) NCHHFPlots::passHF6=1;
-     
-        //if(passL1(E, *L1Trig, isMC)) NCHEvtSelPlots::passL1=1;      
-        if(passL1HLT(E, *L1Trig, *HLTrig , 1,isMC ))  NCHEvtSelPlots::passL1=1;
-        if(passVtxQual(*MITEvtSel,E)) NCHEvtSelPlots::passVtxQual=1;     
-        if(passVtx(*vertex)) NCHEvtSelPlots::passVtx=1;     
-        if(passBit40(*L1Trig)) NCHEvtSelPlots::passBit40=1;
-     
-        //filling
-        nchDiffPlots.at(acc)->fill(goodgenpart,*genKin,MCtype,goodtracks,*vertex,goodVtx,bestVertexId,bs, 1.);
-        
-    }//end of loop over acceptanceMap
+           //SETTING THE CUT BOOLEANS for this event                   
+           if(isMC) {        
+              if(isSD(*genKin,MCtype)) NCHDiffPlots::isSD=1;
+              if(isDD(*genKin,MCtype)) NCHDiffPlots::isDD=1;
+              if(passCentral(goodgenpart,"MBUEWG",accMap->at(acc).ptReco)) NCHCentralPlots::passMBUEWGGen=1;
+              if(passCentral(goodgenpart,"ALICE" ,accMap->at(acc).ptReco)) NCHCentralPlots::passALICEGen =1;   //Not using PT_PART HERE !!!!!!
+              if(passCentral(goodgenpart,"ATLAS1",accMap->at(acc).ptReco)) NCHCentralPlots::passATLAS1Gen=1;
+              if(passCentral(goodgenpart,"ATLAS2",accMap->at(acc).ptReco)) NCHCentralPlots::passATLAS2Gen=1;
+              if(passCentral(goodgenpart,"ATLAS6",accMap->at(acc).ptReco)) NCHCentralPlots::passATLAS6Gen=1;
+          
+          } 
                  
-  }//end of loop over events
+          if(passCentral(goodtracks ,"MBUEWG",accMap->at(acc).ptReco)) NCHCentralPlots::passMBUEWGRECO=1;                
+          if(passCentral(goodtracks ,"ALICE" ,accMap->at(acc).ptReco)) NCHCentralPlots::passALICERECO =1; 
+          if(passCentral(goodtracks ,"ATLAS1",accMap->at(acc).ptReco)) NCHCentralPlots::passATLAS1RECO=1; 
+          if(passCentral(goodtracks ,"ATLAS2",accMap->at(acc).ptReco)) NCHCentralPlots::passATLAS2RECO=1; 
+          if(passCentral(goodtracks ,"ATLAS6",accMap->at(acc).ptReco)) NCHCentralPlots::passATLAS6RECO=1;
+            
+        
+          if(passHF(*MITEvtSel,1)) NCHHFPlots::passHF1=1;
+          //passHF2 = !passHF1;         
+          if(passHF(*MITEvtSel,3)) NCHHFPlots::passHF3=1;
+          if(passHF(*MITEvtSel,4)) NCHHFPlots::passHF4=1;
+          if(passHF(*MITEvtSel,5)) NCHHFPlots::passHF5=1;
+          if(passHF(*MITEvtSel,6)) NCHHFPlots::passHF6=1;
+     
+          if(type==31) { 
+            if(passL1(E, *L1Trig, isMC)) NCHEvtSelPlots::passL1=1;
+          }        
+          else {
+            if(passL1HLT(E, *L1Trig, *HLTrig , 1,isMC ))  
+                NCHEvtSelPlots::passL1=1;
+          }      
+          if(passVtxQual(*MITEvtSel,E)) NCHEvtSelPlots::passVtxQual=1;     
+          if(passVtx(*vertex)) NCHEvtSelPlots::passVtx=1;     
+          if(passBit40(*L1Trig)) NCHEvtSelPlots::passBit40=1;
+          
+          /*
+          if (goodgenpart.size() > 5 && !(NCHCentralPlots::passATLAS6Gen) ) {
+          cout << " acc " << acc << endl;
+          cout << "i " << i << endl;
+              cout << NCHCentralPlots::passATLAS1Gen<< " " <<NCHCentralPlots::passATLAS6Gen<< " " << goodgenpart.size()
+               << " " << passCentral(goodgenpart,"ATLAS6",accMap->at(acc).ptReco) <<endl;
+               for(vector<MyGenPart>::const_iterator gp = goodgenpart.begin() ; gp != goodgenpart.end() ; ++gp)
+                 cout << fabs(gp->Part.v.Eta()) << "  " << gp->Part.v.Pt() << endl;
+          }
+          if (goodgenpart.size() > 1 && !(NCHCentralPlots::passATLAS2Gen) ) {
+             cout << "i " << i << endl;
+              cout << NCHCentralPlots::passATLAS1Gen<< "  fff " <<NCHCentralPlots::passATLAS2Gen<< " " << goodgenpart.size()<< endl;
+          }
+          */
+     
+          //filling
+          nchDiffPlots.at(acc)->fill(goodgenpart,*genKin,MCtype,goodtracks,*vertex,goodVtx,bestVertexId,bs, weight);
+        
+        }//end of loop over acceptanceMap
+                 
+    }//end of loop over events
    
-  //OUTPUT  
-  TFile* output = new TFile("output"+dat+tracking+energy.str()+nEvts.str()+".root","RECREATE");  
-  output->cd();
-  cout << "Writing to the file: " << endl <<"output"+dat+tracking+energy.str()+nEvts.str()+".root" <<endl;
+    //Closing current files
+    file->Close();
+   }//end of loop over files
+   
+   //OUTPUT  
+   stringstream nEvts("");      nEvts << "_" << i_tot ;
+   TFile* output = new TFile("output"+dat+tracking+energy.str()+nEvts.str()+".root","RECREATE");  
+   output->cd();
+   cout << "Writing to the file: " << endl << "output"+dat+tracking+energy.str()+nEvts.str()+".root" << endl;
   for(int acc = 0 ; acc < (int)accMap->size() ; ++acc){
     nchDiffPlots.at(acc)->write();
     
     delete nchDiffPlots.at(acc);
   }
   delete baseplot;
-     
+  
   output->Close();
   delete output;
-  cout  << "-------------------------------------" <<endl;         
+ 
+  cout  << "-------------------------------------" << endl;         
 }
 
