@@ -31,6 +31,7 @@ class NCHEvtSelPlots : public TObject {
     GenPartPlots* gpp_vtxSel;
     GenPartPlots* gpp_L1_hfSel;
     GenPartPlots* gpp_L1_hf_vtxqualSel;
+    GenPartPlots* gpp_CentralGen;
     //GenPartPlots* gpp_full; 
 
     
@@ -58,10 +59,11 @@ class NCHEvtSelPlots : public TObject {
     
     MultiPlots* mppart_noSel;
     MultiPlots* mppart_full;
+    MultiPlots* mpreco_noSel;
     MultiPlots* mpreco_full;
     
     void init();
-    void fill(vector<MyGenPart>&, vector<MyTracks>&, vector<MyVertex>&, vector<MyVertex>::iterator&, int, MyBeamSpot*,double =1.); //int=vtxId
+    void fill(vector<MyGenPart>&, vector<MyTracks>&, vector<MyVertex>&, vector<MyVertex>::iterator&, int, MyBeamSpot*,bool,bool,double =1.); //int=vtxId
     void write();
     void makeEffPlots();
     

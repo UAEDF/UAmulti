@@ -29,7 +29,8 @@ NCHEvtSelPlots::~NCHEvtSelPlots(){
         //delete gpp_full;                 
         delete mppart_full; 
         delete mppart_noSel;             
-        delete mtx_full;                 
+        delete mtx_full; 
+        delete gpp_CentralGen;              
     }
 
     if(switchIntermedPlots){
@@ -90,7 +91,9 @@ void NCHEvtSelPlots::init(){
     mppart_full                       = new MultiPlots("partfull_"+trackcoll);    
     //matrix
     mtx_full                          = new TResponseMtx("partfull_"+trackcoll, 
-                                vector<Double_t>( mppart_full->nch_array, mppart_full->nch_array+mppart_full->nch_nbin+1) );     
+                                vector<Double_t>( mppart_full->nch_array, mppart_full->nch_array+mppart_full->nch_nbin+1) );  
+                                
+    gpp_CentralGen                    = new GenPartPlots("CentrGen_"+trackcoll);         
   }
   
   //Reconstructed Tracks
@@ -118,90 +121,115 @@ void NCHEvtSelPlots::init(){
   vtxp_noSel                          = new VertexPlots("noSel_"+trackcoll);  
   vtxp_full                           = new VertexPlots("full_"+trackcoll); 
   
+  mpreco_noSel                        = new MultiPlots("noSel_"+trackcoll); 
   mpreco_full                         = new MultiPlots("full_"+trackcoll); 
+  
 
 }
 
 //_____________________________________________________________________________
-void NCHEvtSelPlots::fill(vector<MyGenPart>& gpcoll, vector<MyTracks>& trcoll, vector<MyVertex>& vtxcoll, vector<MyVertex>::iterator& goodVtx, int vtxId, MyBeamSpot* bs,double weight){  
+void NCHEvtSelPlots::fill(vector<MyGenPart>& gpcoll, vector<MyTracks>& trcoll, vector<MyVertex>& vtxcoll, vector<MyVertex>::iterator& goodVtx, 
+                                            int vtxId, MyBeamSpot* bs,bool passCentralGen, bool passCentralRECO, double weight){  
   
-  //no selection
-  trp_noSel->fill(trcoll,goodVtx,vtxId,bs,weight);
-  if(isMC){
-        gpp_noSel->fill(gpcoll,weight);
-        for(vector<MyGenPart>::iterator gp = gpcoll.begin() ; gp != gpcoll.end() ; ++gp){               
-            mppart_noSel->fill(gp->Part,weight);    
-        }
-  }
-  if(goodVtx != vtxcoll.end()) vtxp_noSel->fill(*goodVtx,weight); 
+   if(passCentralRECO) {
+   
+     //no selection
+     trp_noSel->fill(trcoll,goodVtx,vtxId,bs,weight);     //in passCentralRECO, because we use it for data
+     for(vector<MyTracks>::iterator tr = trcoll.begin() ; tr != trcoll.end() ; ++tr){    
+        mpreco_noSel->fill(tr->Part,weight);    
+     }  
+     mpreco_noSel->nextEvent(1,weight);
+
+    if(isMC){
+          gpp_noSel->fill(gpcoll,weight);
+
+          for(vector<MyGenPart>::iterator gp = gpcoll.begin() ; gp != gpcoll.end() ; ++gp){               
+              mppart_noSel->fill(gp->Part,weight);    
+          }
+          //going to next event for the Multiplots
+          mppart_noSel->nextEvent(1,weight);   
+    }
+    if(goodVtx != vtxcoll.end()) vtxp_noSel->fill(*goodVtx,weight); 
   
   
-  if(switchIntermedPlots){  
-    if(passBit40){
-        trp_b40Sel->fill(trcoll,goodVtx,vtxId,bs,weight);
-        if(isMC) gpp_b40Sel->fill(gpcoll,weight);
-        if(goodVtx != vtxcoll.end()) vtxp_b40Sel->fill(*goodVtx,weight);
+    if(switchIntermedPlots){  
+      if(passBit40){
+          trp_b40Sel->fill(trcoll,goodVtx,vtxId,bs,weight);
+          if(isMC) gpp_b40Sel->fill(gpcoll,weight);
+          if(goodVtx != vtxcoll.end()) vtxp_b40Sel->fill(*goodVtx,weight);
+      }
+    
+      if(passL1){
+          trp_L1Sel->fill(trcoll,goodVtx,vtxId,bs,weight);
+          if(isMC) gpp_L1Sel->fill(gpcoll,weight);
+          if(goodVtx != vtxcoll.end()) vtxp_L1Sel->fill(*goodVtx,weight);
+      }
+    
+      if(passHF){
+          trp_hfSel->fill(trcoll,goodVtx,vtxId,bs,weight);
+          if(isMC) gpp_hfSel->fill(gpcoll,weight);
+          if(goodVtx != vtxcoll.end()) vtxp_hfSel->fill(*goodVtx,weight);
+      }
+    
+      if(passVtxQual){
+          trp_vtxqualSel->fill(trcoll,goodVtx,vtxId,bs,weight);
+          if(isMC) gpp_vtxqualSel->fill(gpcoll,weight);
+          if(goodVtx != vtxcoll.end()) vtxp_vtxqualSel->fill(*goodVtx,weight);
+      }
+    
+      if(passVtx){
+          trp_vtxSel->fill(trcoll,goodVtx,vtxId,bs,weight);
+          if(isMC) gpp_vtxSel->fill(gpcoll,weight);
+          if(goodVtx != vtxcoll.end()) vtxp_vtxSel->fill(*goodVtx,weight);
+      }
+    
+      if(passL1 && passHF){
+          trp_L1_hfSel->fill(trcoll,goodVtx,vtxId,bs,weight);
+          if(isMC) gpp_L1_hfSel->fill(gpcoll,weight);
+          if(goodVtx != vtxcoll.end()) vtxp_L1_hfSel->fill(*goodVtx,weight);
+      }  
+    
+      if(passL1 && passHF && passVtxQual){
+          trp_L1_hf_vtxqualSel->fill(trcoll,goodVtx,vtxId,bs,weight);
+          if(isMC) gpp_L1_hf_vtxqualSel->fill(gpcoll,weight);
+          if(goodVtx != vtxcoll.end()) vtxp_L1_hf_vtxqualSel->fill(*goodVtx,weight);
+      }
     }
   
-    if(passL1){
-        trp_L1Sel->fill(trcoll,goodVtx,vtxId,bs,weight);
-        if(isMC) gpp_L1Sel->fill(gpcoll,weight);
-        if(goodVtx != vtxcoll.end()) vtxp_L1Sel->fill(*goodVtx,weight);
-    }
+    // Final selection 
+    if(passL1 && passHF && passVtxQual && passVtx){
+     trp_full->fill(trcoll,goodVtx,vtxId,bs,weight);    
+     if(isMC) {
+         //gpp_full->fill(gpcoll,weight);
+         mtx_full->Fill(gpcoll.size(), trcoll.size(),weight);
+         for(vector<MyGenPart>::iterator gp = gpcoll.begin() ; gp != gpcoll.end() ; ++gp){               
+             mppart_full->fill(gp->Part,weight);    
+         }
+     }
+     if(goodVtx != vtxcoll.end()) vtxp_full->fill(*goodVtx,weight);    
+     for(vector<MyTracks>::iterator tr = trcoll.begin() ; tr != trcoll.end() ; ++tr){    
+        mpreco_full->fill(tr->Part,weight);    
+     }
+    
+        
+     //going to next event for the Multiplots
+     if(isMC)
+        mppart_full->nextEvent(1,weight);  
+     
+            
+      mpreco_full->nextEvent(1,weight);
+    }      
   
-    if(passHF){
-        trp_hfSel->fill(trcoll,goodVtx,vtxId,bs,weight);
-        if(isMC) gpp_hfSel->fill(gpcoll,weight);
-        if(goodVtx != vtxcoll.end()) vtxp_hfSel->fill(*goodVtx,weight);
+  }  
+        
+    //to get the efficiency of the Central cut 
+    if(isMC){
+        if(passCentralGen)
+            gpp_CentralGen->fill(gpcoll,weight);
+        //noSel = gpp_CentralRECO  
+    
     }
-  
-    if(passVtxQual){
-        trp_vtxqualSel->fill(trcoll,goodVtx,vtxId,bs,weight);
-        if(isMC) gpp_vtxqualSel->fill(gpcoll,weight);
-        if(goodVtx != vtxcoll.end()) vtxp_vtxqualSel->fill(*goodVtx,weight);
-    }
-  
-    if(passVtx){
-        trp_vtxSel->fill(trcoll,goodVtx,vtxId,bs,weight);
-        if(isMC) gpp_vtxSel->fill(gpcoll,weight);
-        if(goodVtx != vtxcoll.end()) vtxp_vtxSel->fill(*goodVtx,weight);
-    }
-  
-    if(passL1 && passHF){
-        trp_L1_hfSel->fill(trcoll,goodVtx,vtxId,bs,weight);
-        if(isMC) gpp_L1_hfSel->fill(gpcoll,weight);
-        if(goodVtx != vtxcoll.end()) vtxp_L1_hfSel->fill(*goodVtx,weight);
-    }  
-  
-    if(passL1 && passHF && passVtxQual){
-        trp_L1_hf_vtxqualSel->fill(trcoll,goodVtx,vtxId,bs,weight);
-        if(isMC) gpp_L1_hf_vtxqualSel->fill(gpcoll,weight);
-        if(goodVtx != vtxcoll.end()) vtxp_L1_hf_vtxqualSel->fill(*goodVtx,weight);
-    }
-  }
-  
-  // Final selection 
-  if(passL1 && passHF && passVtxQual && passVtx){
-    trp_full->fill(trcoll,goodVtx,vtxId,bs,weight);    
-    if(isMC) {
-        //gpp_full->fill(gpcoll,weight);
-        mtx_full->Fill(gpcoll.size(), trcoll.size(),weight);
-        for(vector<MyGenPart>::iterator gp = gpcoll.begin() ; gp != gpcoll.end() ; ++gp){               
-            mppart_full->fill(gp->Part,weight);    
-        }
-    }
-    if(goodVtx != vtxcoll.end()) vtxp_full->fill(*goodVtx,weight);    
-    for(vector<MyTracks>::iterator tr = trcoll.begin() ; tr != trcoll.end() ; ++tr){    
-       mpreco_full->fill(tr->Part,weight);    
-    }
-  }      
-  
-  //going to next event for the Multiplots
-  if(isMC) {
-      mppart_noSel->nextEvent(1,weight); 
-      mppart_full->nextEvent(1,weight);
-  }    
-  mpreco_full->nextEvent(1,weight);  
+    
 }  
 
 //_____________________________________________________________________________
@@ -250,11 +278,13 @@ void NCHEvtSelPlots::write(){
   vtxp_noSel->write();
   vtxp_full->write(); 
     
+  mpreco_noSel->write(scale);  
   mpreco_full->write(scale);    
   
   if(isMC){
     mppart_full->write(scale);
     mppart_noSel->write(scale);
+    gpp_CentralGen->write();
     
     //Efficiency Plots (only run for particles, not for tracks)
     if(!trackcoll.Contains("RECO")) makeEffPlots();
@@ -279,5 +309,6 @@ void NCHEvtSelPlots::makeEffPlots(){
    //gpp_full->divide(*gpp_noSel,"full_"+trackcoll); 
 //MultiPlots   
    mppart_full->divide(*mppart_noSel,"partfull_"+trackcoll); 
+   gpp_noSel->divide(*gpp_CentralGen,"CentrEff_"+trackcoll);
 }
   

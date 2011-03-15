@@ -30,7 +30,7 @@ class NCHHFPlots : public TObject {
     NCHEvtSelPlots* evtsel_HF6;
     
     void init();
-    void fill(vector<MyGenPart>&, vector<MyTracks>& , vector<MyVertex>&, vector<MyVertex>::iterator, int, MyBeamSpot*, double =1.);//int=vtxId
+    void fill(vector<MyGenPart>&, vector<MyTracks>& , vector<MyVertex>&, vector<MyVertex>::iterator, int, MyBeamSpot*, bool, bool, double =1.);//int=vtxId
     void write();
     
     //static bool passHF0;  //not needed HF0 means cut off..

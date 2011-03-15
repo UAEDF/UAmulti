@@ -55,23 +55,24 @@ void NCHHFPlots::init(){
 }
 
 //_____________________________________________________________________________
-void NCHHFPlots::fill(vector<MyGenPart>& gpcoll, vector<MyTracks>& trcoll, vector<MyVertex>& vtxcoll, vector<MyVertex>::iterator vtxIter, int vtxId, MyBeamSpot* bs, double weight){
+void NCHHFPlots::fill(vector<MyGenPart>& gpcoll, vector<MyTracks>& trcoll, vector<MyVertex>& vtxcoll, vector<MyVertex>::iterator vtxIter, int vtxId, MyBeamSpot* bs,
+                                                    bool passCentralGen, bool passCentralRECO, double weight){
     
   NCHEvtSelPlots::passHF=1;  //You always pass HF0, it is means cut off..
-      evtsel_HF0->fill(gpcoll,trcoll,vtxcoll,vtxIter,vtxId,bs,weight);        
-  NCHEvtSelPlots::passHF=passHF1; 
-      evtsel_HF1->fill(gpcoll,trcoll,vtxcoll,vtxIter,vtxId,bs,weight);  
+      evtsel_HF0->fill(gpcoll,trcoll,vtxcoll,vtxIter,vtxId,bs,passCentralGen, passCentralRECO, weight);        
+   NCHEvtSelPlots::passHF=passHF1; 
+      evtsel_HF1->fill(gpcoll,trcoll,vtxcoll,vtxIter,vtxId,bs,passCentralGen, passCentralRECO, weight);
   if(switchAllHF){
     NCHEvtSelPlots::passHF=!passHF1;  //inverse of HF1,   the events which don't pass through HF1...
-        evtsel_HF2->fill(gpcoll,trcoll,vtxcoll,vtxIter,vtxId,bs,weight);  
+        evtsel_HF2->fill(gpcoll,trcoll,vtxcoll,vtxIter,vtxId,bs,passCentralGen, passCentralRECO, weight);
     NCHEvtSelPlots::passHF=passHF3;
-        evtsel_HF3->fill(gpcoll,trcoll,vtxcoll,vtxIter,vtxId,bs,weight);
+        evtsel_HF3->fill(gpcoll,trcoll,vtxcoll,vtxIter,vtxId,bs,passCentralGen, passCentralRECO, weight);
     NCHEvtSelPlots::passHF=passHF4;
-        evtsel_HF4->fill(gpcoll,trcoll,vtxcoll,vtxIter,vtxId,bs,weight);
+        evtsel_HF4->fill(gpcoll,trcoll,vtxcoll,vtxIter,vtxId,bs,passCentralGen, passCentralRECO, weight);
     NCHEvtSelPlots::passHF=passHF5;
-        evtsel_HF5->fill(gpcoll,trcoll,vtxcoll,vtxIter,vtxId,bs,weight);
+        evtsel_HF5->fill(gpcoll,trcoll,vtxcoll,vtxIter,vtxId,bs,passCentralGen, passCentralRECO, weight);
     NCHEvtSelPlots::passHF=passHF6;
-        evtsel_HF6->fill(gpcoll,trcoll,vtxcoll,vtxIter,vtxId,bs,weight);
+        evtsel_HF6->fill(gpcoll,trcoll,vtxcoll,vtxIter,vtxId,bs,passCentralGen, passCentralRECO, weight);
   }
   
 }
