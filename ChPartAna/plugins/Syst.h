@@ -72,6 +72,7 @@ class Syst : public TObject {
     TH1F* sys2TH1;
     TGraphAsymmErrors* gsyst;
     TGraphAsymmErrors* rsyst;
+    TGraphAsymmErrors* rstat;
     
 
   private:
@@ -82,6 +83,7 @@ class Syst : public TObject {
     void makegSystFromrSyst();
     void makerSyst();
     void makeSyst();
+    void makerStat();
     
     Bool_t isStatIncluded;
     

@@ -65,6 +65,7 @@ Syst::Syst(TString collname, TH1F* main , TGraphAsymmErrors* input){ //reconstru
 Syst::~Syst(){
   if(gsyst!=0)    delete gsyst; 
   if(rsyst!=0)    delete rsyst;
+  if(rstat!=0)    delete rstat;
   if(mainTH1!=0)  delete mainTH1;
   if(sys1TH1!=0)  delete sys1TH1;
   if(sys2TH1!=0)  delete sys2TH1;	
@@ -75,6 +76,7 @@ Syst::~Syst(){
 void Syst::init(){
   gsyst    = NULL;
   rsyst    = NULL;
+  rstat    = NULL;
   mainTH1  = NULL;
   mainTH1  = NULL;
   sys1TH1  = NULL;
@@ -100,6 +102,7 @@ void Syst::copy(Syst& newSyst) const {
   newSyst.TObject::Copy(*((TObject*)this));
 
   newSyst.syscoll = this->syscoll;
+  
   if(this->mainTH1!=0)
     newSyst.mainTH1 = (TH1F*) this->mainTH1->Clone();
   else
@@ -125,6 +128,11 @@ void Syst::copy(Syst& newSyst) const {
   else
     newSyst.rsyst = NULL;
   
+  if(this->rstat!=0)
+    newSyst.rstat   = (TGraphAsymmErrors*) this->rstat->Clone();
+  else
+    newSyst.rstat = NULL;
+  
   newSyst.isStatIncluded  = this->isStatIncluded;
 }
 
@@ -149,6 +157,7 @@ void Syst::setMain(TH1F* main){
   if(mainTH1 != 0) delete mainTH1;
   mainTH1 = (TH1F*) main->Clone("Main TH1F");
   if(mainTH1->GetSumw2() == 0) mainTH1->Sumw2();
+  this->makerStat();
   
   if(sys1TH1 != 0)    makeSyst();
   else if(gsyst != 0) makerSyst();
@@ -282,8 +291,8 @@ void Syst::addStatToSyst(){
   if(!isStatIncluded){
     //here  go through all points and do   /sqrt(mainError²+gsyst²)=gsyst
     for(int i = 0 ; i < gsyst->GetN() ; ++i){
-      gsyst->SetPointEYlow (i,sqrt( pow(gsyst->GetErrorYlow (i),2) + pow(mainTH1->GetBinError(i),2) ));
-      gsyst->SetPointEYhigh(i,sqrt( pow(gsyst->GetErrorYhigh(i),2) + pow(mainTH1->GetBinError(i),2) ));
+      gsyst->SetPointEYlow (i,sqrt( pow(gsyst->GetErrorYlow (i),2) + pow(mainTH1->GetBinError(i+1),2) ));
+      gsyst->SetPointEYhigh(i,sqrt( pow(gsyst->GetErrorYhigh(i),2) + pow(mainTH1->GetBinError(i+1),2) ));
     }
     
     this->makerSyst();
@@ -480,7 +489,7 @@ void Syst::makerSyst(){  //reconstructs rsyst. Needs gsyst.
   cout << "[Syst::makerSyst] {" << syscoll << "} Making rSyst ..." << endl;	
   
   if(gsyst==0){
-    cout << "[Syst::reconstructRSyst] Error ! gsyst is not present. Can't reconstruct rsyst ..." << endl;
+    cout << "[Syst::makerSyst] Error ! gsyst is not present. Can't reconstruct rsyst ..." << endl;
     return;
   }
   
@@ -512,5 +521,33 @@ void Syst::makeSyst(){
 }    
 
 
+//_____________________________________________________________________________
+void Syst::makerStat(){
 
+  cout << "[Syst::makerStat] {" << syscoll << "} Making rStat ..." << endl;	
+  
+  if(mainTH1==0){
+    cout << "[Syst::makerStat] Error ! mainTH1 is not present. Can't reconstruct rstat ..." << endl;
+    return;
+  }
+  
+  if(rstat != 0) delete rstat;
+  rstat = new TGraphAsymmErrors(mainTH1->GetNbinsX());
+  rstat->SetName("rstat");
+  
+  for(int i = 0 ; i < rstat->GetN() ; ++i){
+    rstat->SetPoint(i,mainTH1->GetBinCenter(i+1),0);
+    rstat->SetPointEXlow (i , mainTH1->GetBinWidth(i+1) / 2. );
+    rstat->SetPointEXhigh(i , mainTH1->GetBinWidth(i+1) / 2. );
+    if(mainTH1->GetBinContent(i+1) != 0){
+      rstat->SetPointEYlow (i, mainTH1->GetBinError(i+1)/ mainTH1->GetBinContent(i+1));
+      rstat->SetPointEYhigh(i, mainTH1->GetBinError(i+1)/ mainTH1->GetBinContent(i+1));
+    }
+    else{
+      rstat->SetPointEYlow (i, 0);
+      rstat->SetPointEYhigh(i, 0);
+    }
+  } 
+
+}
 
