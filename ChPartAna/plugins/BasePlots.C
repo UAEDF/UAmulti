@@ -3,7 +3,7 @@
 
 ClassImp(BasePlots)
 
-  Int_t     BasePlots::nch_nbin  = 201;
+  Int_t     BasePlots::nch_nbin  = 301;
   Double_t  BasePlots::nch_xmin  = -0.5;
   Double_t  BasePlots::nch_xmax  = BasePlots::nch_xmin + BasePlots::nch_nbin;
   Double_t* BasePlots::nch_array;
