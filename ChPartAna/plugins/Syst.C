@@ -90,6 +90,54 @@ void Syst::reset(){
 
 
 
+//--------------------------------------------------------------------------
+//------------------------------      COPY      ---------------------------- 
+//--------------------------------------------------------------------------
+
+
+void Syst::copy(Syst& newSyst) const {
+
+  newSyst.TObject::Copy(*((TObject*)this));
+
+  newSyst.syscoll = this->syscoll;
+  if(this->mainTH1!=0)
+    newSyst.mainTH1 = (TH1F*) this->mainTH1->Clone();
+  else
+    newSyst.mainTH1 = NULL;
+    
+  if(this->sys1TH1!=0)
+    newSyst.sys1TH1 = (TH1F*) this->sys1TH1->Clone();
+  else
+    newSyst.sys1TH1 = NULL;
+  
+  if(this->sys2TH1!=0)
+    newSyst.sys2TH1 = (TH1F*) this->sys2TH1->Clone();
+  else
+    newSyst.sys2TH1 = NULL;
+  
+  if(this->gsyst!=0)
+    newSyst.gsyst   = (TGraphAsymmErrors*) this->gsyst->Clone();
+  else
+    newSyst.gsyst = NULL;
+  
+  if(this->rsyst!=0)
+    newSyst.rsyst   = (TGraphAsymmErrors*) this->rsyst->Clone();
+  else
+    newSyst.rsyst = NULL;
+  
+  newSyst.isStatIncluded  = this->isStatIncluded;
+}
+
+
+Syst::Syst(const Syst& in):TObject(in){
+  in.copy(*this);
+}
+
+Syst& Syst::operator= (const Syst& in){
+  in.copy(*this);
+  return *this;
+}
+
 
 //--------------------------------------------------------------------------
 //----------------------------      SETTERS     ---------------------------- 

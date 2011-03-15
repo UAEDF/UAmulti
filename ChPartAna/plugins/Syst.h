@@ -28,9 +28,14 @@ class Syst : public TObject {
     //Destructor
     virtual ~Syst();
     
-
     void init();		//sets all pointers to NULL
     void reset();		//calls init()
+    
+    
+    //Copy
+    void copy(Syst&) const ;
+    Syst(const Syst&);
+    Syst& operator= (const Syst&);
     
     
     //Setters
