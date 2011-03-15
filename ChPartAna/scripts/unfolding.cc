@@ -53,6 +53,9 @@ TH1F runalgo(TH2F* matrixhist, TH1F* toUnfold, TH1F* hypothesis, int niter = 5, 
     
   
   }*/
+  //protection
+  if(niter < 1 ) niter = 1;
+  
   if(debug_!=0) {
     matrixhist->Draw();
     gPad->WaitPrimitive();
@@ -124,7 +127,7 @@ TH1F runalgo(TH2F* matrixhist, TH1F* toUnfold, TH1F* hypothesis, int niter = 5, 
     vtoUnfold->at(it)->Reset("M");
     //vtoUnfold->at(it)->Sumw2();
     
-    cout << "step further"<<endl;
+    if(debug_) cout << "step further"<<endl;
     tmp = (char*) "toUnfold_scaled_step%d";
     sprintf(name,tmp,it);
     strcat(name,"_nsample%d");
@@ -154,7 +157,7 @@ TH1F runalgo(TH2F* matrixhist, TH1F* toUnfold, TH1F* hypothesis, int niter = 5, 
     //verr_obs->at(it)->Sumw2();
     vhyp_reco->at(it)->Reset("M");
    
-    cout << "after cloning" <<endl;
+    if(debug_) cout << "after cloning" <<endl;
     
     if(it==0)
       unfold(vtoUnfold->at(it),vtoUnfold_scaled->at(it),vhyp_reco->at(it),matrix_normalized,toUnfold,hypothesis,verr_obs->at(it));
@@ -165,8 +168,8 @@ TH1F runalgo(TH2F* matrixhist, TH1F* toUnfold, TH1F* hypothesis, int niter = 5, 
       vtoUnfold->at(it)->Write();
       vhyp_reco->at(it)->Write();
       if(it!=0){
-        cout<<"iter "<<it<<"  chi2 : "<<getChi2(vhyp_reco->at(it) , toUnfold , 1)<<endl;
-        chi2VSniter->SetBinContent(it , getChi2(vhyp_reco->at(it) , toUnfold, 1));
+        cout<<"iter "<<it<<"  chi2 : "<<getChi2(vhyp_reco->at(it) , toUnfold ,1)<<endl;
+        chi2VSniter->SetBinContent(it , getChi2(vhyp_reco->at(it) , toUnfold ,1));
       }
     }
     
@@ -191,6 +194,16 @@ TH1F runalgo(TH2F* matrixhist, TH1F* toUnfold, TH1F* hypothesis, int niter = 5, 
     chi2VSniter->Write();  
     gDirectory->cd("../");
   }
+  
+
+  for(unsigned int jj=vtoUnfold->size()-1; jj==0;jj--){
+       delete vtoUnfold_scaled->at(jj);
+       delete verr_obs->at(jj);
+       delete vhyp_reco->at(jj);    
+  }
+  delete vtoUnfold_scaled;
+  delete verr_obs;
+  delete vhyp_reco;
   
   //cout<<"Finished the unfolding, returning the unfolded histo"<<endl;
   return *(vtoUnfold->at(niter-1));
@@ -320,7 +333,8 @@ if (DEBUG) std::cout<<"cell "<<k<<","<<c<<","<<l<<","<<m<<std::endl;
   for (int i=1;i<=err->GetNbinsX();i++)
     for (int j=1;j<=err->GetNbinsY();j++)
       err->SetBinContent(i,j,matrixV_obs[i][j][i][j]);
-//*/  
+//*/ 
+
 }
 
 bool checkMatrix(double inputMat[][matrixsize],double inputMatNormalized[][matrixsize]){
@@ -364,12 +378,13 @@ double getChi2(TH1F* hist1 , TH1F* hist2 , int errortype){
     if(hist2->GetBinContent(i)!=0){
       ++ndof;
       bin = pow( hist1->GetBinContent(i) - hist2->GetBinContent(i) , 2 );
-      if(errortype==0) error = hist2->GetBinContent(i);
+      if(errortype==0) error = fabs(hist2->GetBinContent(i));
       if(errortype==1) error = pow(hist2->GetBinError(i),2);
-      sumbin += bin / error ;
+      if(error!=0) sumbin += bin / error ;
+      else sumbin+=bin;
     }
   }
-  return sumbin / ndof ;
+  return (ndof!=0) ? sumbin / ndof : -1;
 }
 
 bool isGenLineVoid(double inputMat[][matrixsize],int indx_gen){
