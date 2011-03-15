@@ -91,7 +91,7 @@ using namespace std;
  float    xLegendWidth = 0.35;
  float    yLegendMax[] = { 0.80 , 0.40 , 0.40 , 0.85 , 0.90 , 0.90 , 0.87 , 0.87 , 0.90 , 0.40 , 0.93};
 
- float    standardColor[]  = {kBlack , kRed , kBlue , kMagenta , kOrange , kGreen};
+ float    standardColor[]  = {kBlack , kRed , kBlue , kMagenta , kOrange , kGreen , kCyan};
  float    standardMarker[] = {kOpenCircle , kOpenSquare , kOpenTriangleUp , kOpenStar};
  float    standardStyle[]  = {1 , 2 , 3 , 4 , 5, 6 , 7};
 
@@ -216,6 +216,14 @@ void plotReset()
 
 
 }
+
+void makeCanv(TString name = ""){
+  gROOT->ProcessLine(".x cmsStyleRoot.C");
+  TCanvas* c1 = new TCanvas(name,name,700,700);
+  c1->cd();
+}
+
+
 
 #endif
 
