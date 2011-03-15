@@ -155,7 +155,7 @@ void TrackPlots::fill(vector<MyTracks>& trcoll, vector<MyVertex>::iterator& good
     
     etaVSnhit->Fill(tr->Part.v.Eta() , tr->nhit , weight);
   }
-  nch->Fill(n);
+  nch->Fill(n, weight);
 }
 
 //_____________________________________________________________________________

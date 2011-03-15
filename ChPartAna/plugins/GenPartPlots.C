@@ -50,7 +50,7 @@ void GenPartPlots::fill(vector<MyGenPart>& gpcoll, double weight){
       eta   ->Fill(gp->Part.v.Eta(),weight);
       phi   ->Fill(gp->Part.v.Phi(),weight);
   }  
-  nch->Fill(n);
+  nch->Fill(n,weight);
 }
 
 //_____________________________________________________________________________
