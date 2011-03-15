@@ -18,7 +18,7 @@ void InitializeAcceptanceMap(){
     //-------PT GEN = 0 ---------
     // ptReco =.1
     // ***** 0 *****
-    tmpAcc.ptGen      = 0.;
+    tmpAcc.ptGen      = 0.1;  
     tmpAcc.ptReco     = 0.1;
     tmpAcc.charge     = 0.;
     tmpAcc.etaGenMin  = 0.;
@@ -26,10 +26,22 @@ void InitializeAcceptanceMap(){
     tmpAcc.etaRecoMin = 0.;
     tmpAcc.etaRecoMax = 2.4;
     accMap->push_back( tmpAcc);
-/*
-    // ptReco =.5
+
+
+   // ptReco =.1 corr to 0
     // ***** 1 *****
-    tmpAcc.ptGen      = 0.;
+    tmpAcc.ptGen      = 0.;    //PT correction to 0 !!!
+    tmpAcc.ptReco     = 0.1;
+    tmpAcc.charge     = 0.;
+    tmpAcc.etaGenMin  = 0.;
+    tmpAcc.etaGenMax  = 2.4;
+    tmpAcc.etaRecoMin = 0.;
+    tmpAcc.etaRecoMax = 2.4;
+    accMap->push_back( tmpAcc);
+    
+    // ptReco =.5
+    // ***** 2 *****
+    tmpAcc.ptGen      = 0.5;
     tmpAcc.ptReco     = 0.5;
     tmpAcc.charge     = 0.;
     tmpAcc.etaGenMin  = 0.;
@@ -38,9 +50,9 @@ void InitializeAcceptanceMap(){
     tmpAcc.etaRecoMax = 2.4;
     accMap->push_back( tmpAcc);
 
-    // ptReco =1.0
-    // ***** 2 *****
-    tmpAcc.ptGen      = 0.;
+   // ptReco =1.0
+    // ***** 3 *****
+    tmpAcc.ptGen      = 1.;
     tmpAcc.ptReco     = 1.;
     tmpAcc.charge     = 0.;
     tmpAcc.etaGenMin  = 0.;
@@ -48,12 +60,35 @@ void InitializeAcceptanceMap(){
     tmpAcc.etaRecoMin = 0.;
     tmpAcc.etaRecoMax = 2.4;
     accMap->push_back( tmpAcc);
-
-
+    
+    // ptReco =1.0
+    // ***** 4 *****
+    tmpAcc.ptGen      = 0.1;
+    tmpAcc.ptReco     = 0.1;
+    tmpAcc.charge     = 0.;
+    tmpAcc.etaGenMin  = 0.;
+    tmpAcc.etaGenMax  = 1.0;
+    tmpAcc.etaRecoMin = 0.;
+    tmpAcc.etaRecoMax = 1.0;
+    accMap->push_back( tmpAcc);  
+    
+    // ptReco =1.0
+    // ***** 4 *****
+    tmpAcc.ptGen      = 0.;
+    tmpAcc.ptReco     = 0.1;
+    tmpAcc.charge     = 0.;
+    tmpAcc.etaGenMin  = 0.;
+    tmpAcc.etaGenMax  = 1.0;
+    tmpAcc.etaRecoMin = 0.;
+    tmpAcc.etaRecoMax = 1.0;
+    accMap->push_back( tmpAcc);          
+    
+    
+/*
     //-------Eta .5 steps ---------
     // ptReco =.1
     // ***** 3 *****
-    tmpAcc.ptGen      = 0.;
+    tmpAcc.ptGen      = 0.1;
     tmpAcc.ptReco     = 0.1;
     tmpAcc.charge     = 0.;
     tmpAcc.etaGenMin  = 0.;
@@ -63,7 +98,7 @@ void InitializeAcceptanceMap(){
     accMap->push_back( tmpAcc);
 
     // ***** 4 *****
-    tmpAcc.ptGen      = 0.;
+    tmpAcc.ptGen      = 0.1;
     tmpAcc.ptReco     = 0.1;
     tmpAcc.charge     = 0.;
     tmpAcc.etaGenMin  = 0.5;
@@ -73,7 +108,7 @@ void InitializeAcceptanceMap(){
     accMap->push_back( tmpAcc);
 
     // ***** 5 *****
-    tmpAcc.ptGen      = 0.;
+    tmpAcc.ptGen      = 0.1;
     tmpAcc.ptReco     = 0.1;
     tmpAcc.charge     = 0.;
     tmpAcc.etaGenMin  = 1.;
@@ -83,7 +118,7 @@ void InitializeAcceptanceMap(){
     accMap->push_back( tmpAcc);
 
     // ***** 6 *****
-    tmpAcc.ptGen      = 0.;
+    tmpAcc.ptGen      = 0.1;
     tmpAcc.ptReco     = 0.1;
     tmpAcc.charge     = 0.;
     tmpAcc.etaGenMin  = 1.5;
@@ -93,7 +128,7 @@ void InitializeAcceptanceMap(){
     accMap->push_back( tmpAcc);
 
     // ***** 7 *****
-    tmpAcc.ptGen      = 0.;
+    tmpAcc.ptGen      = 0.1;
     tmpAcc.ptReco     = 0.1;
     tmpAcc.charge     = 0.;
     tmpAcc.etaGenMin  = 2.0;
@@ -104,7 +139,7 @@ void InitializeAcceptanceMap(){
 
     // ptReco =.5
     // ***** 8 *****
-    tmpAcc.ptGen      = 0.;
+    tmpAcc.ptGen      = 0.5;
     tmpAcc.ptReco     = 0.5;
     tmpAcc.charge     = 0.;
     tmpAcc.etaGenMin  = 0.;
@@ -114,7 +149,7 @@ void InitializeAcceptanceMap(){
     accMap->push_back( tmpAcc);
 
     // ***** 9 *****
-    tmpAcc.ptGen      = 0.;
+    tmpAcc.ptGen      = 0.5;
     tmpAcc.ptReco     = 0.5;
     tmpAcc.charge     = 0.;
     tmpAcc.etaGenMin  = 0.5;
@@ -124,7 +159,7 @@ void InitializeAcceptanceMap(){
     accMap->push_back( tmpAcc);
 
     // ***** 10 *****
-    tmpAcc.ptGen      = 0.;
+    tmpAcc.ptGen      = 0.5;
     tmpAcc.ptReco     = 0.5;
     tmpAcc.charge     = 0.;
     tmpAcc.etaGenMin  = 1.;
@@ -134,7 +169,7 @@ void InitializeAcceptanceMap(){
     accMap->push_back( tmpAcc);
 
     // ***** 11 *****
-    tmpAcc.ptGen      = 0.;
+    tmpAcc.ptGen      = 0.5;
     tmpAcc.ptReco     = 0.5;
     tmpAcc.charge     = 0.;
     tmpAcc.etaGenMin  = 1.5;
@@ -144,7 +179,7 @@ void InitializeAcceptanceMap(){
     accMap->push_back( tmpAcc);
 
     // *****12 *****
-    tmpAcc.ptGen      = 0.;
+    tmpAcc.ptGen      = 0.5;
     tmpAcc.ptReco     = 0.5;
     tmpAcc.charge     = 0.;
     tmpAcc.etaGenMin  = 2.;
@@ -155,7 +190,7 @@ void InitializeAcceptanceMap(){
 
     // ptReco =1.0
     // ***** 13 *****
-    tmpAcc.ptGen      = 0.;
+    tmpAcc.ptGen      = 1.0;
     tmpAcc.ptReco     = 1.0;
     tmpAcc.charge     = 0.;
     tmpAcc.etaGenMin  = 0.;
@@ -165,7 +200,7 @@ void InitializeAcceptanceMap(){
     accMap->push_back( tmpAcc);
 
     // ***** 14 *****
-    tmpAcc.ptGen      = 0.;
+    tmpAcc.ptGen      = 1.0;
     tmpAcc.ptReco     = 1.0;
     tmpAcc.charge     = 0.;
     tmpAcc.etaGenMin  = 0.5;
@@ -175,7 +210,7 @@ void InitializeAcceptanceMap(){
     accMap->push_back( tmpAcc);
 
     // ***** 15 *****
-    tmpAcc.ptGen      = 0.;
+    tmpAcc.ptGen      = 1.0;
     tmpAcc.ptReco     = 1.0;
     tmpAcc.charge     = 0.;
     tmpAcc.etaGenMin  = 1.0;
@@ -185,7 +220,7 @@ void InitializeAcceptanceMap(){
     accMap->push_back( tmpAcc);
 
     // ***** 16 *****
-    tmpAcc.ptGen      = 0.;
+    tmpAcc.ptGen      = 1.0;
     tmpAcc.ptReco     = 1.0;
     tmpAcc.charge     = 0.;
     tmpAcc.etaGenMin  = 1.5;
@@ -195,7 +230,7 @@ void InitializeAcceptanceMap(){
     accMap->push_back( tmpAcc);
 
     // ***** 17 *****
-    tmpAcc.ptGen      = 0.;
+    tmpAcc.ptGen      = 1.0;
     tmpAcc.ptReco     = 1.0;
     tmpAcc.charge     = 0.;
     tmpAcc.etaGenMin  = 2.;
