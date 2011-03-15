@@ -78,7 +78,6 @@ void Syst::init(){
   rsyst    = NULL;
   rstat    = NULL;
   mainTH1  = NULL;
-  mainTH1  = NULL;
   sys1TH1  = NULL;
   sys2TH1  = NULL;
   
@@ -444,9 +443,7 @@ void Syst::makegSyst(){
 	}
       }
     }
-       
-    //My part of "Calculate error bars"
-    
+           
         
   }//end of loop over bins  
   
