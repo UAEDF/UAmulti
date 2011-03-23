@@ -4,14 +4,16 @@
 ClassImp(GenPartPlots)
 
 //_____________________________________________________________________________
-GenPartPlots::GenPartPlots(){
+GenPartPlots::GenPartPlots(){  
+   cout << "GenpartPlots const default" <<endl; 
   genpartcoll = "none";
   this->init();
 }
 
 //_____________________________________________________________________________
 GenPartPlots::GenPartPlots(TString collname){
-  genpartcoll = collname;
+  genpartcoll = collname;    
+      
   this->init();
 }
 
@@ -27,10 +29,11 @@ GenPartPlots::~GenPartPlots(){
 //_____________________________________________________________________________
 void GenPartPlots::init(){
   charge    = new TH1F("charge_"+genpartcoll,"charge_"+genpartcoll+";charge;# events",3,-1.5,1.5);
-  nch       = new TH1F("nch_"+genpartcoll,"nch_"+genpartcoll+";n_{CH};# events",301,-0.5,300.5);
-  pt        = new TH1F("pt_"+genpartcoll,"pt_"+genpartcoll+";pt [GeV];# events",100,0.,3.);
-  eta       = new TH1F("eta_"+genpartcoll,"eta_"+genpartcoll+";#eta;# events",40,-3.,3.);
-  phi       = new TH1F("phi_"+genpartcoll,"phi_"+genpartcoll+";#phi;# events",30,-TMath::Pi(),TMath::Pi());
+
+  phi       = new TH1F("phi_"+genpartcoll,"phi_"+genpartcoll+";#phi;# events",30,-TMath::Pi(),TMath::Pi());  
+  nch       = new TH1F("nch_"+genpartcoll,"nch_"+genpartcoll+";n_{CH};# events",nch_nbin,nch_array);
+  pt        = new TH1F("pt_"+genpartcoll,"pt_"+genpartcoll+";pt [GeV];# events",pt_nbin,pt_array);
+  eta       = new TH1F("eta_"+genpartcoll,"eta_"+genpartcoll+";#eta;# events",eta_nbin,eta_array);   
 
   nch->Sumw2();
   pt ->Sumw2();

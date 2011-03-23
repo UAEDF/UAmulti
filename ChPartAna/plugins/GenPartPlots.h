@@ -9,9 +9,10 @@ using namespace std;
 #include "TMath.h"
 #include "TDirectory.h"
 #include "./MyGenPart.h"
+#include "BasePlots.h"
 
 
-class GenPartPlots : public TObject {
+class GenPartPlots : public BasePlots {
 
   public :
     GenPartPlots();

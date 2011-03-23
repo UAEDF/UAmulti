@@ -28,6 +28,9 @@ void MultiPlots::init(){
   moments = new vector<TMean>(nb_moments,TMean());
   nch_mean = new TMean();
   
+  
+
+  
   nch      = new TH1F("nch_"+plotsname,"nch_"+plotsname+";N_{ch};fraction of events",nch_nbin,nch_array);
   kno      = new TH1F(); //TO BE SAFE
   rapidity = new TH1F("rapidity_"+plotsname,"rapidity_"+plotsname+";y;#frac{1}{N} #frac{d#sigma_{ch}}{dy}",eta_nbin,eta_array);

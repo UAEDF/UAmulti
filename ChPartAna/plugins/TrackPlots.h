@@ -11,8 +11,9 @@ using namespace std;
 #include "./MyTracks.h"
 #include "./MyVertex.h"
 #include "./MyBeamSpot.h"
+#include "BasePlots.h"
 
-class TrackPlots : public TObject {
+class TrackPlots : public BasePlots {
 
   public :
     TrackPlots();
