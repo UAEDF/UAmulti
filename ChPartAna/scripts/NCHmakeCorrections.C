@@ -43,7 +43,7 @@ using namespace TMath;
 int debug_ =0;
 
 
-const int matrixsize = 320; //bigger then number of bins of my matrix
+const int matrixsize = 380; //bigger then number of bins of my matrix
 
 TString st(TString input , int cut){
   stringstream out("");
@@ -94,11 +94,11 @@ void makeCorrectionsSten(int typeMC = 60, const TString mcfile ="", const TStrin
 //////////////////////////////////////
 //MAIN PROGRAM
 
-// nohup root -l ../macro/BuildLibDico.C+ ../scripts/NCHmakeCorrections.C+"(\"v8\",60,0,-1,-1,true,0)" -q > logUnf_Data12MwithMC15.txt &
-// nohup root -l ../macro/BuildLibDico.C+ ../scripts/NCHmakeCorrections.C+"(\"v0\",60,0,2000000,-2,true,0,7.0,7.0,100,1)" -q > logUnf_TrackSys.txt &
+// nohup root -l ../macro/BuildLibDico.C+ ../scripts/NCHmakeCorrections.C+"(\"v8\",60,0,-1,-1,true,0,7.0,7.0,0,0,true)" -q > logUnf_Data12MwithMC15.txt &
+// nohup root -l ../macro/BuildLibDico.C+ ../scripts/NCHmakeCorrections.C+"(\"v0\",60,0,2000000,-2,true,0,7.0,7.0,100,1,true)" -q > logUnf_TrackSys.txt &
 //_____________________________________________________________________________
 void NCHmakeCorrections(TString dir_out = "", int typeMC = 60, int hf_int = 0, int Nrunmc = -1, int Nrundata = 4000000, 
-         bool useData =true, int cut_tag = 0, double Emc = 7.0, double Edata = 7.0, int syst = 0, int syst_sign = 0) {
+         bool useData =true, int cut_tag = 0, double Emc = 7.0, double Edata = 7.0, int syst = 0, int syst_sign = 0, bool switch_memory = true) {
     //unfodling is only done for the central cut: centr_tag
     
     if (Nrunmc==-1) {
@@ -121,7 +121,7 @@ void NCHmakeCorrections(TString dir_out = "", int typeMC = 60, int hf_int = 0, i
           
     ////////////////
     // SWITCH
-    TString dir = "../macro/outputs_full/v5b/";
+    TString dir = "../macro/outputs_full/v10/";
     //TString dir_out = "/v5/";
     bool  only1test=false;
     //////////////////
@@ -172,13 +172,16 @@ void NCHmakeCorrections(TString dir_out = "", int typeMC = 60, int hf_int = 0, i
         //diff->push_back("_RECO");
                 
     vector <TString> * centr = new vector <TString>;
-        centr->push_back("_nocut");    
-        centr->push_back("_MBUEWG");
-        centr->push_back("_ALICE");
-        centr->push_back("_ATLAS1");
-        centr->push_back("_ATLAS2");
-        centr->push_back("_ATLAS6");
-           
+        if (switch_memory = true) {
+            centr->push_back("_nocut");    
+            centr->push_back("_MBUEWG");
+            centr->push_back("_ALICE");
+        }    
+        else {
+            centr->push_back("_ATLAS1");
+            centr->push_back("_ATLAS2");
+            centr->push_back("_ATLAS6");
+        }   
     vector <TString> * hf = new vector <TString>;
         for(int ii=0; ii <2 ; ++ ii) {
             if(hf_int !=ii) continue;
@@ -215,6 +218,7 @@ void NCHmakeCorrections(TString dir_out = "", int typeMC = 60, int hf_int = 0, i
     int possibilities=0;
     int goodmc=0;
     int goodmcanddata=0;
+    double nIter= 20;
     
     //to remove the message "Error in <TDirectoryFile::cd>: Unknown directory EvtSel_HF6_ATLAS6_RECO_cut17"
     int backup_gErrorIgnoreLevel= gErrorIgnoreLevel;  //=0 normally
@@ -251,11 +255,31 @@ void NCHmakeCorrections(TString dir_out = "", int typeMC = 60, int hf_int = 0, i
                     lastpartmcnosel="_partnoSel"+ *h + *cen + tempdif    + *ac;
                     lastpartRECO   =    "_full" + *h + *cen + "_RECO" + *ac;
                     
+                    if      (*h =="_HF0" && *cen=="_nocut"  && (*ac=="_cut0" || *ac=="_cut1")) nIter = 4;
+                    else if (*h =="_HF0" && *cen=="_MBUEWG" && (*ac=="_cut0" || *ac=="_cut1")) nIter = 4;
+                    else if (*h =="_HF0" && *cen=="_ALICE"  && (*ac=="_cut0" || *ac=="_cut1")) nIter = 4;                  
+                    else if (*h =="_HF0" && *cen=="_ATLAS1" && (*ac=="_cut0" || *ac=="_cut1")) nIter = 4;                    
+                    else if (*h =="_HF0" && *cen=="_ATLAS2" && (*ac=="_cut0" || *ac=="_cut1")) nIter = 3;                   
+                    else if (*h =="_HF0" && *cen=="_ATLAS6" && (*ac=="_cut0" || *ac=="_cut1")) nIter = 2;
+                    
+                    else if (*h =="_HF0" && *cen=="_nocut"  && *ac=="_cut2") nIter = 3;
+                    else if (*h =="_HF0" && *cen=="_MBUEWG" && *ac=="_cut2") nIter = 3;
+                    else if (*h =="_HF0" && *cen=="_ALICE"  && *ac=="_cut2") nIter = 2;                  
+                    else if (*h =="_HF0" && *cen=="_ATLAS1" && *ac=="_cut2") nIter = 4;                    
+                    else if (*h =="_HF0" && *cen=="_ATLAS2" && *ac=="_cut2") nIter = 3;                   
+                    else if (*h =="_HF0" && *cen=="_ATLAS6" && *ac=="_cut2") nIter = 2;   
+                    
+                    else if (*h =="_HF1") nIter = 5;                                   
+                    else { 
+                        nIter = 20;
+                        cout << "nIter was not set ! It stays: " << nIter <<endl;
+                    }
+                    
                     if(debug_) cout << "usedata beginning main program " << useData << endl;
                     //errors back on for the unfolding code
                     gErrorIgnoreLevel=backup_gErrorIgnoreLevel; 
                     makeCorrectionsSten(60, mcfile, datafile, outputpart, dirmc, dirreco, lastpartmc1, lastpartmc2, 
-                                        lastpartRECO, lastpartmcnosel, useData, 1, 10, syst, syst_sign); //Emc, Edata);                        
+                                        lastpartRECO, lastpartmcnosel, useData, 1, 20, syst, syst_sign); //Emc, Edata);                        
                     if (only1test) break;
                 }
                 if (only1test) break;    
@@ -499,11 +523,37 @@ void makeCorrectionsSten(int typeMC, const TString mcfile, const TString datafil
   
   TH1F* eff_evtSel=0;
   TH1F* eff_centrSel=0;  
-  eff_evtSel   = (TH1F*) mc->Get(dirmc+"Eff"+lastpartmc+"/eff_nch"+lastpartmc);  
-  eff_centrSel = (TH1F*) mc->Get(dirmc+"Eff_CentrEff"+lastpartmc2+"/eff_nch_CentrEff"+lastpartmc2); 
-  if(debug_) cout <<"eff_evtSel  " << dirmc+"Eff"+lastpartmc+"/eff_nch"+lastpartmc << endl;
-  if(debug_) cout <<"eff_centrSel  " << dirmc+"Eff_CentrEff"+lastpartmc2+"/eff_nch_CentrEff"+lastpartmc2 << endl;
-  if(debug_) cout << eff_evtSel->GetNbinsX() << "    "   << eff_centrSel->GetNbinsX();
+  
+  
+  TH1F* up_evtSel= 0; up_evtSel = (TH1F*) mc->FindObjectAny("nch_partfull"+lastpartmc2);
+  TString lastpartmcnoSel = lastpartmc;
+  lastpartmcnoSel.ReplaceAll("partfull","partnoSel");
+  TH1F* down_evtSel= 0; down_evtSel = (TH1F*) mc->FindObjectAny("nch_partnoSel"+lastpartmc2);
+  
+  eff_evtSel = (TH1F*) up_evtSel->Clone("eff_nch"+lastpartmc2);
+  eff_evtSel->Divide(up_evtSel, down_evtSel, 1, 1, "B");
+  eff_evtSel->SetMinimum(0);
+  
+  delete up_evtSel; delete down_evtSel;
+
+  TString lastmcCentrGen = lastpartmc;
+  lastmcCentrGen.ReplaceAll("partfull","noSel");
+  TH1F* up_centrSel= 0; up_centrSel = (TH1F*) mc->FindObjectAny("nch_noSel"+lastpartmc2);
+  TString lastmcnoSel = lastpartmc;
+  lastmcnoSel.ReplaceAll("partfull","CentrGen");
+  TH1F* down_centrSel= 0; down_centrSel = (TH1F*) mc->FindObjectAny("nch_CentrGen"+lastpartmc2);
+  
+  eff_centrSel = (TH1F*) up_centrSel->Clone("eff_nch_CentrEff"+lastpartmc2);
+  eff_centrSel->Divide(up_centrSel, down_centrSel, 1, 1, "B");
+  eff_centrSel->SetMinimum(0);
+  
+  delete up_centrSel; delete down_centrSel; 
+  
+  //eff_evtSel   = (TH1F*) mc->Get(dirmc+"Eff"+lastpartmc+"/eff_nch"+lastpartmc);  
+  //eff_centrSel = (TH1F*) mc->Get(dirmc+"Eff_CentrEff"+lastpartmc2+"/eff_nch_CentrEff"+lastpartmc2); 
+  //if(debug_) cout <<"eff_evtSel  " << dirmc+"Eff"+lastpartmc+"/eff_nch"+lastpartmc << endl;
+  //if(debug_) cout <<"eff_centrSel  " << dirmc+"Eff_CentrEff"+lastpartmc2+"/eff_nch_CentrEff"+lastpartmc2 << endl;
+  if(debug_) cout << "NBins eff_evtSel: " << eff_evtSel->GetNbinsX() << "  NBins eff_centrSel:   "   << eff_centrSel->GetNbinsX();
   
   if(eff_evtSel==0) {
     cout << "eff_evtSelRECO is empty"<<endl;
@@ -583,7 +633,7 @@ void makeCorrectionsSten(int typeMC, const TString mcfile, const TString datafil
   
   gDirectory->mkdir("hist_resampling");
   gDirectory->cd("hist_resampling");
- int niter_resampling = niter;
+ int niter_resampling = 20;
   if(syst!=0) niter_resampling = 0;
   
   cout << "WARNING !! The resampling is done with " << niter_resampling << " iterations ..." << endl;
