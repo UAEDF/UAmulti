@@ -13,9 +13,6 @@
 #include <iomanip>
 #include <sstream>
 using namespace std;
-//#include "TSystem.h"
-//#include "myevent.h"
-//#include "HWWGenPart.h"
 
 #include "../plugins/MyEvtId.h"
 #include "../plugins/MyL1Trig.h"
@@ -31,7 +28,7 @@ using namespace std;
 #include "../plugins/TResponseMtx.h"
 #include "../plugins/BasePlots.h"
 #include "../plugins/MultiPlots.h"
-
+#include "../plugins/GenPartPlots.h"
 
 #include "../plugins/NCHEvtSelPlots.h"
 #include "../plugins/NCHHFPlots.h"
@@ -42,7 +39,7 @@ bool debug=false;
 #include "fileManager.C"
 #include "NCHCuts.C"
 #include "NCHEvtSel.C"
-//#include "binningMap.C"
+#include "NCHbinningMap.C"
 
 #include "NCHacceptanceMap.C"
 
@@ -65,7 +62,7 @@ TString st(string input , int cut){
 
 
 //_____________________________________________________________________________
-void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max = 1000){
+void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max = 1000, bool use_weight = true){
  
   ////////////////////////////////////////////////
   //SWTICH for most of the intermediate plots:
@@ -75,10 +72,10 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
   //if type=31, program will launch old code
   ////////////////////////////////////////////
  
-
   //EVENT SELECTION TYPE, see NCHEvtSel.C for more information 
   bool isMC = true; 
   if(type==0 ) isMC = false; 
+  if(!isMC) use_weight=false;
   NCHDiffPlots::isMC=isMC;
   
   TString MCtype = "pythia";
@@ -97,7 +94,8 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
   TH1::AddDirectory(0); //Detach histograms from rootfiles (they are no closed if the file is closed.)
   cout << "FILE: " << fileManager(0,type,E) << endl;
   //getting the list of files
-  vector<TString>* vfiles = getListOfFiles(fileManager(0,type,E));
+  //vector<TString>* vfiles = getListOfFiles(fileManager(0,type,E));
+  vector<TString>* vfiles = getListOfFiles("../filelist.txt");
   if(!isMC && E==7) vfiles = getListOfFiles("list_filesRun132440.txt"); 
   
   //Declaration of tree and its branches variables
@@ -128,17 +126,23 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
   if (debug) cout << "Initialising all Plots" <<endl;   
   vector<NCHDiffPlots*> nchDiffPlots (accMap->size(),0);  
   //temp, before dynamical binning, see above
-  BasePlots*       baseplot    = new BasePlots("BasePlots");  
-  for(int acc = 0 ; acc < (int)accMap->size() ; ++acc){
-      //BINING 
-      //vector< vector<double> > binning;
-      //binning = getBins(1,0,1);//nch,pt,eta
-      //binning = getBins(acc,Ebinning);//nch,pt,eta
+  BasePlots*       baseplot    = new BasePlots("BasePlots");
+  //MultiPlots*   MultiTest = NULL;
+  //GenPartPlots* GenTest = NULL;
+  //BINING  
+  vector< vector<double> > binning; 
+  cout << "Baseplot init done" <<endl;
+  for(int acc = 0 ; acc < (int)accMap->size() ; ++acc){          
+       cout << "cout acc: " << acc <<endl;
+      //binning = getBins(1,0,0);//nch,pt,eta
+      binning = getBins(acc,E);       
       //BasePlots initialisation needed to get binning_array of MultiPlots right for nch etc
-      //baseplot->setBinning(binning);     
+      baseplot->setBinning(binning);      
+      
       nchDiffPlots.at(acc)  = new NCHDiffPlots(st("",acc));
+      
   }    
-  
+   cout << "full init done" <<endl;
     //get names and print
     stringstream mctype("");     mctype << type ;
     stringstream energy("");     energy << "_E_" << E ;
@@ -151,6 +155,59 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
     cout <<"MBUEWGonly:     " << NCHCentralPlots::switchMBUEWGonly << endl;
     cout <<"AllHF:          " << NCHHFPlots::switchAllHF << endl;
     cout <<"IntermedPlots:  " << NCHEvtSelPlots::switchIntermedPlots <<endl;
+    
+    // REWEIGHT with the Z Vertex --------------------------
+    // get MC and Data vertex out of already runned >1M+ files
+    // normalise then
+    // get efficiency data/MC
+    //weight = eff->GetBinContent(z);    
+    cout  << " ---- Doing The Reweighting with the Z vertex ----" << endl;
+    TString nevt_oldrun_strData="342220";   
+    TString nevt_oldrun_strMC="2000000";
+    if( type == 31 ) nevt_oldrun_strMC = "1886500";
+    TString oldrundir="dcap:///pnfs/iihe/cms/store/user/sluyckx/v5b/";
+    TFile* older_runnedfileData = NULL;
+    TFile* older_runnedfileMC   = NULL;
+    TH1F* Weight_Z_Corr = NULL; 
+    
+    //only on MC 
+    if ( type != 0 && use_weight==true ) {
+        older_runnedfileData = TFile::Open(oldrundir+"/output_data"+tracking+energy.str()+"_"+nevt_oldrun_strData+".root","READ");   
+        older_runnedfileMC   = TFile::Open(oldrundir+"/output"+dat+tracking+energy.str()+"_"+nevt_oldrun_strMC  +".root","READ"); 
+        cout << " Reading the old files from: " <<  oldrundir << endl;
+        cout << "Reading the old files: " << "output_data"+tracking+energy.str()+"_"+nevt_oldrun_strData+".root" << "  ptr: " << older_runnedfileData << endl;
+        cout << "Reading the old files: " << "output"+dat+tracking+energy.str()+"_"+nevt_oldrun_strMC+".root"    << " ptr: " << older_runnedfileMC   << endl;
+        if (older_runnedfileData == 0 || older_runnedfileMC == 0 ) return; 
+        
+        
+        const TString histoName="z_full_HF0_nocut_RECO_cut0";
+        TH1F* CurveZData = NULL; CurveZData = (TH1F*) older_runnedfileData->FindObjectAny(histoName);
+        TH1F* CurveZMC   = NULL; CurveZMC   = (TH1F*) older_runnedfileMC  ->FindObjectAny(histoName);
+        cout << "CurveZData: " << CurveZData   <<  "  CurveZMC: "  << CurveZMC <<endl;
+        if ( CurveZData == 0 || CurveZMC == 0 ) return;         
+        
+        //normalise both
+        CurveZData->Scale(1./CurveZData->Integral());    //NEED TO ADJUST with bin !=1
+        CurveZMC  ->Scale(1./CurveZMC  ->Integral());
+        
+        Weight_Z_Corr = (TH1F*) CurveZData->Clone("weight_Z_Corr");
+        Weight_Z_Corr->Divide(CurveZData, CurveZMC, 1, 1, "B");
+        Weight_Z_Corr->SetBinContent(0, 1.);
+
+        Weight_Z_Corr->SetBinContent(  Weight_Z_Corr->GetNbinsX()+1, 1.);
+        Weight_Z_Corr->SetMinimum(0);
+        
+        delete older_runnedfileData;  delete older_runnedfileMC;
+        delete CurveZData;  delete CurveZMC;
+    }    
+    cout << "succesfull reweighting " <<endl;
+
+ 
+    // REWEIGHTING finished --------------------------------
+    
+    
+    
+    
   
    if (nevt_max == -1) nevt_max=100000000;
    int i_tot = 0 , nevt_tot = 0;
@@ -183,7 +240,7 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
     //tree->SetBranchAddress("ferencVtxFerTrk",&vertexToCut);
     //tree->SetBranchAddress("pixel3Vertex",&vertexToCut);
 
- 
+     
     // GET NUMBER OF EVENTS
     //Getting number of events
     int nev = int(tree->GetEntriesFast());
@@ -201,10 +258,12 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
 
         //Filling the variables defined setting branches
         tree->GetEntry(i);
+        
+        //only run on NONE PILE-UP DATA
+        if(!isMC)
+           if(132440!=(signed)evtId->Run)
+	    continue;
     
-    if(!isMC)
-        if(132440!=(signed)evtId->Run)
-	  continue;
     
         //get good Vertex
         bestVertexId = getBestVertex(vertex);
@@ -224,6 +283,13 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
                                                             accMap->at(acc).etaRecoMax,accMap->at(acc).charge);     //general Tracks
             if(iTracking==1) goodtracks=getPrimaryTracks(*tracks, vertex, bs, accMap->at(acc).ptReco, accMap->at(acc).etaRecoMin, 
                                                             accMap->at(acc).etaRecoMax,accMap->at(acc).charge); // ferenc Tracks  
+           
+            // Z WEIGHTING
+            if(use_weight==1) {
+                weight = Weight_Z_Corr->GetBinContent( Weight_Z_Corr->GetXaxis()->FindFixBin( goodVtx-> z ) ) ;
+                //cout << "i: " << i << "weight: " << weight << endl;
+            }    
+           
                    
            //RESETTING EVENT SELECTION  
            NCHDiffPlots::isSD=0;  NCHDiffPlots::isDD=0;          
@@ -282,20 +348,6 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
           if(passVtx(*vertex)) NCHEvtSelPlots::passVtx=1;     
           if(passBit40(*L1Trig)) NCHEvtSelPlots::passBit40=1;
           
-          /*
-          if (goodgenpart.size() > 5 && !(NCHCentralPlots::passATLAS6Gen) ) {
-          cout << " acc " << acc << endl;
-          cout << "i " << i << endl;
-              cout << NCHCentralPlots::passATLAS1Gen<< " " <<NCHCentralPlots::passATLAS6Gen<< " " << goodgenpart.size()
-               << " " << passCentral(goodgenpart,"ATLAS6",accMap->at(acc).ptReco) <<endl;
-               for(vector<MyGenPart>::const_iterator gp = goodgenpart.begin() ; gp != goodgenpart.end() ; ++gp)
-                 cout << fabs(gp->Part.v.Eta()) << "  " << gp->Part.v.Pt() << endl;
-          }
-          if (goodgenpart.size() > 1 && !(NCHCentralPlots::passATLAS2Gen) ) {
-             cout << "i " << i << endl;
-              cout << NCHCentralPlots::passATLAS1Gen<< "  fff " <<NCHCentralPlots::passATLAS2Gen<< " " << goodgenpart.size()<< endl;
-          }
-          */
      
           //filling
           nchDiffPlots.at(acc)->fill(goodgenpart,*genKin,MCtype,goodtracks,*vertex,goodVtx,bestVertexId,bs, weight);
@@ -310,16 +362,22 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
    
    //OUTPUT  
    stringstream nEvts("");      nEvts << "_" << i_tot ;
-   TFile* output = new TFile("output"+dat+tracking+energy.str()+nEvts.str()+".root","RECREATE");  
+   TString weight_str = "";
+   if (use_weight==false && isMC==true) weight_str = "_noweight";
+   TFile* output = new TFile("output"+dat+tracking+energy.str()+nEvts.str()+weight_str+".root","RECREATE");  
    output->cd();
-   cout << "Writing to the file: " << endl << "output"+dat+tracking+energy.str()+nEvts.str()+".root" << endl;
+   cout << "Writing to the file: " << endl << "output"+dat+tracking+energy.str()+nEvts.str()+weight_str+".root" << endl;
   for(int acc = 0 ; acc < (int)accMap->size() ; ++acc){
     nchDiffPlots.at(acc)->write();
     
     delete nchDiffPlots.at(acc);
   }
   delete baseplot;
-  
+  if ( type!=0 && use_weight == 1 ) { 
+    Weight_Z_Corr->Write();
+    delete Weight_Z_Corr; 
+
+  }  
   output->Close();
   delete output;
  
