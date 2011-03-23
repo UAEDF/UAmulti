@@ -18,6 +18,7 @@ class BasePlots : public TObject {
 
     TString plotsname;
     
+     static Bool_t    is_init;    
      static Int_t     nch_nbin;
      static Double_t  nch_xmin;
      static Double_t  nch_xmax;

@@ -3,9 +3,10 @@
 
 ClassImp(BasePlots)
 
+  Bool_t    BasePlots::is_init = false;
   Int_t     BasePlots::nch_nbin  = 301;
   Double_t  BasePlots::nch_xmin  = -0.5;
-  Double_t  BasePlots::nch_xmax  = BasePlots::nch_xmin + BasePlots::nch_nbin;
+  Double_t  BasePlots::nch_xmax  = 300.5; //BasePlots::nch_xmin + BasePlots::nch_nbin;
   Double_t* BasePlots::nch_array;
   
   Int_t     BasePlots::pt_nbin  = 100;
@@ -33,17 +34,23 @@ ClassImp(BasePlots)
   Double_t  BasePlots::eta_xmax  = 3.;
   Double_t* BasePlots::eta_array;
 
-BasePlots::BasePlots(){  
-  this->makeBins(nch_nbin,nch_xmin,nch_xmax,&nch_array);
-  this->makeBins(pt_nbin,pt_xmin,pt_xmax,&pt_array);
-  this->makeBins(pt2_nbin,pt2_xmin,pt2_xmax,&pt2_array);
-  this->makeBins(mt_nbin,mt_xmin,mt_xmax,&mt_array);
-  this->makeBins(mpt_nbin,mpt_xmin,mpt_xmax,&mpt_array);
-  this->makeBins(eta_nbin,eta_xmin,eta_xmax,&eta_array);
-  plotsname = "none";
+BasePlots::BasePlots(){ 
+
+  if (BasePlots::is_init ==false ) {
+    this->makeBins(nch_nbin,nch_xmin,nch_xmax,&nch_array);
+    this->makeBins(pt_nbin,pt_xmin,pt_xmax,&pt_array);
+    this->makeBins(pt2_nbin,pt2_xmin,pt2_xmax,&pt2_array);
+    this->makeBins(mt_nbin,mt_xmin,mt_xmax,&mt_array);
+    this->makeBins(mpt_nbin,mpt_xmin,mpt_xmax,&mpt_array);
+    this->makeBins(eta_nbin,eta_xmin,eta_xmax,&eta_array);
+    plotsname = "none";
+    BasePlots::is_init =true;
+  }
+
 }
 
-BasePlots::BasePlots(TString collname){
+BasePlots::BasePlots(TString collname){    
+
   this->makeBins(nch_nbin,nch_xmin,nch_xmax,&nch_array);
   this->makeBins(pt_nbin,pt_xmin,pt_xmax,&pt_array);
   this->makeBins(pt2_nbin,pt2_xmin,pt2_xmax,&pt2_array);
@@ -51,6 +58,9 @@ BasePlots::BasePlots(TString collname){
   this->makeBins(mpt_nbin,mpt_xmin,mpt_xmax,&mpt_array);
   this->makeBins(eta_nbin,eta_xmin,eta_xmax,&eta_array);
   plotsname = collname;
+  
+  BasePlots::is_init=true;
+
 }
 
 BasePlots::~BasePlots(){ }
@@ -87,7 +97,9 @@ void BasePlots::setBinning(vector< vector<double> >& array){
   mt_array = new Double_t[array.at(4).size()];
   for(int i = 0 ; (unsigned) i < array.at(4).size() ; ++i)
     mt_array[i] = array.at(4).at(i);
-
+    
+  BasePlots::is_init=true;
+       
 }
 
 
