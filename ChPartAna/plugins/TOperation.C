@@ -6,19 +6,26 @@ TOperation<T>::TOperation(){
 
 
 template <class T>
-TOperation<T>::TOperation(TString n , T& o1 , T& o2):name(n) , obj1(o1) , obj2(o2){
+TOperation<T>::TOperation(T& o1 , T& o2):obj1(o1) , obj2(o2){}
 
-}
+template <class T>
+TOperation<T>::TOperation(TString n , T& o1 , T& o2):TNamed("TOperation_class_"+n,"TOperation_class_"+n) , name(n) , obj1(o1) , obj2(o2){}
 
 
 template <class T>
-TOperation<T>::TOperation(TString n , T& o1 , T& o2 , TString op):name(n) , obj1(o1) , obj2(o2){
+TOperation<T>::TOperation(T& o1 , T& o2 , TString op):obj1(o1) , obj2(o2){
+  this->setOperation(op);
+}
+
+template <class T>
+TOperation<T>::TOperation(TString n , T& o1 , T& o2 , TString op):TNamed("TOperation_class_"+n,"TOperation_class_"+n) , name(n) , obj1(o1) , obj2(o2){
   this->setOperation(op);
 }
 
 template <class T>
 Bool_t TOperation<T>::setOperation(TString op){
   operation=op;
+  result.SetName("result_"+name);
   if(op=="+") result.Add(&obj1,&obj2,1,1);
   else if(op=="-") result.Add(&obj1,&obj2,1,-1);
   else if(op=="*") result.Multiply(&obj1,&obj2,1,1);
@@ -62,9 +69,42 @@ TOperation<T> TOperation<T>::operator+(const TOperation<T>& class2){
 }
 
 template <class T>
+Long64_t TOperation<T>::Merge(TCollection* list){
+  if (!list) return 0;
+  if (list->IsEmpty()) return 0;
+  
+  TList coll1;
+  TList coll2;
+  
+  TIter next(list);
+  while (TObject *o = next()) {
+    TOperation<T>* h = dynamic_cast<TOperation<T>* > (o);
+    this->Add(*h);
+  }
+  next.Reset();
+}
+    
+    
+    
+template <class T>
 void TOperation<T>::write(){
   this->obj1.Write();
   this->obj2.Write();
   this->result.Write();
-  this->Write("TOperation"+operation+"_class_"+name);
+  this->Write("TOperation_class_"+name);
+}
+
+template <class T>
+void TOperation<T>::Draw(Option_t* option){
+
+  cout << "Drawing TOperation " << name << endl;
+  result.Draw(option); 
+}
+
+template <class T>
+void TOperation<T>::Browse(TBrowser *b){
+
+  this->Draw(b ? b->GetDrawOption() : "");
+  gPad->Update();
+
 }
