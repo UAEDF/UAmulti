@@ -26,10 +26,11 @@ template <class T>
 Bool_t TOperation<T>::setOperation(TString op){
   operation=op;
   result.SetName("result_"+name);
-  if(op=="+") result.Add(&obj1,&obj2,1,1);
-  else if(op=="-") result.Add(&obj1,&obj2,1,-1);
-  else if(op=="*") result.Multiply(&obj1,&obj2,1,1);
-  else if(op=="/") result.Divide(&obj1,&obj2,1,1);
+  if(op=="+")        result.Add(&obj1,&obj2,1,1);
+  else if(op=="-")   result.Add(&obj1,&obj2,1,-1);
+  else if(op=="*")   result.Multiply(&obj1,&obj2,1,1);
+  else if(op=="/")   result.Divide(&obj1,&obj2,1,1);
+  else if(op=="eff") result.Divide(&obj1,&obj2,1,1,"B");
   else
     return false;
     
