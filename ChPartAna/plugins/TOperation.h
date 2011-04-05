@@ -5,6 +5,7 @@
 #include "TCollection.h"
 #include "TString.h"
 #include "TBrowser.h"
+#include "TDirectory.h"
 #include "TCanvas.h"
 
 #include <iostream>
@@ -19,7 +20,7 @@ class TOperation : public TNamed{
     TOperation(T& , T& , TString);
     TOperation(TString , T& , T& , TString);
     
-    ~TOperation(){};
+    //~TOperation(){};
     
     Bool_t setOperation(TString);
     
@@ -32,7 +33,7 @@ class TOperation : public TNamed{
     TOperation<T> Add(const TOperation<T>& c2){return *this + c2;};
     Long64_t Merge(TCollection* list);
     
-    void write();
+    void write(Bool_t = 0);
     void Draw(Option_t* = "");
     void Browse(TBrowser *b);
     

@@ -25,7 +25,9 @@ TOperation<T>::TOperation(TString n , T& o1 , T& o2 , TString op):TNamed("TOpera
 template <class T>
 Bool_t TOperation<T>::setOperation(TString op){
   operation=op;
-  result.SetName("result_"+name);
+  result = *( static_cast<T*>(obj1.Clone("result_"+name)));
+  result.Reset();
+  //result.SetName("result_"+name);
   if(op=="+")        result.Add(&obj1,&obj2,1,1);
   else if(op=="-")   result.Add(&obj1,&obj2,1,-1);
   else if(op=="*")   result.Multiply(&obj1,&obj2,1,1);
@@ -88,11 +90,20 @@ Long64_t TOperation<T>::Merge(TCollection* list){
     
     
 template <class T>
-void TOperation<T>::write(){
+void TOperation<T>::write(Bool_t makeDir){
+  if(makeDir){
+    gDirectory->mkdir("TOperation_"+name);
+    gDirectory->cd("TOperation_"+name);
+  }
+  
   this->obj1.Write();
   this->obj2.Write();
   this->result.Write();
   this->Write("TOperation_class_"+name);
+  
+  if(makeDir)
+    gDirectory->cd("../");
+
 }
 
 template <class T>
