@@ -35,6 +35,7 @@ class Syst : public TObject {
     //Copy
     void copy(Syst&) const ;
     Syst(const Syst&);
+    Syst(TString , const Syst&);
     Syst& operator= (const Syst&);
     
     

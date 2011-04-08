@@ -140,6 +140,12 @@ Syst::Syst(const Syst& in):TObject(in){
   in.copy(*this);
 }
 
+Syst::Syst(TString n , const Syst& in):TObject(in){
+  in.copy(*this);
+  syscoll = n;
+}
+
+
 Syst& Syst::operator= (const Syst& in){
   in.copy(*this);
   return *this;
