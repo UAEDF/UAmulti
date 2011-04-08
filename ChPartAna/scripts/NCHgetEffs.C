@@ -177,6 +177,59 @@ void NCHgetEffsRun(TString dir="../macro/outputs_full/v21/", TString filenameMC3
   cout << "NCHgetEffs finished " << endl;
 }
 
+void NCHgetEffsZeroBias(TString dir="../macro/outputs_full/v21/", TString filenameMC31  = "output_zerobias_ferncTr_E_7_482270.root", TString lastpartmc2 ="_HF0_nocut_RECO_cut0") {
+
+ 
+  
+  TString lastpartmc1 ="_zerobias";    
+  TString eff_output=filenameMC31;
+  eff_output.ReplaceAll("output","effs");
+  cout << eff_output <<endl;
+  
+  TString lastpartmc=lastpartmc1+lastpartmc2;
+
+  TFile* mc = TFile::Open(dir+filenameMC31  ,"READ");
+  cout <<" creating file in dir: " << dir+eff_output << endl;  
+  TFile* eff_out= new TFile(dir+eff_output,"RECREATE");  
+  eff_out->cd();
+  
+  TH1F* eff_evtSel=0;
+
+  
+  TH1F* up_evtSel= 0; up_evtSel = (TH1F*) mc->FindObjectAny("nch_full"+lastpartmc2);
+  TString lastpartmcnoSel = lastpartmc;
+  lastpartmcnoSel.ReplaceAll("full","noSel");
+  TH1F* down_evtSel= 0; down_evtSel = (TH1F*) mc->FindObjectAny("nch_noSel"+lastpartmc2);
+  
+ 
+  eff_evtSel = (TH1F*) up_evtSel->Clone("eff_nch"+lastpartmc2);
+  eff_evtSel->Divide(up_evtSel, down_evtSel, 1, 1, "B");
+  eff_evtSel->SetMinimum(0);
+
+  delete up_evtSel; delete down_evtSel;
+
+  //put the eff to 1 after some time
+  for (int i=1;i<=eff_evtSel->GetNbinsX();i++) { 
+    if (i>90 && eff_evtSel->GetBinContent(i)==0 )
+        eff_evtSel->SetBinContent(i,1);    
+  }
+  
+  
+////////////  
+  gDirectory->mkdir(lastpartmc);
+  gDirectory->cd(lastpartmc); 
+
+  eff_evtSel->Write("evtSel"+lastpartmc);
+  
+  gDirectory->cd("../"); 
+  
+  mc->Close();
+  eff_out->Write();
+  delete eff_out;
+  delete mc;
+  
+  cout << "NCHgetEffsZeroBias finished " << endl;
+}
 void NCHgetEffs(TString subdir = "v21" ) {
  TString filenameMC31  = "output_MC31_ferncTr_E_7_5000000_allEff.root";
   
