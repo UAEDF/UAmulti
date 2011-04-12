@@ -18,7 +18,7 @@ TString PlotDirectory = "../figs/";
 
 void NCHPlotting() {
     cout << " UAPlotting compiled "<< endl;
-    PlotDirectory +="v20/";
+    PlotDirectory +="v20b/";
     cout << " Plot directory set to: " << PlotDirectory << endl;
     
     UACurveStyleBase::g_markerStyle = kOpenCircle;
@@ -29,9 +29,10 @@ void NCHPlotting() {
 
 TString Txt(TString in, double E = 7) {
     
-    TString out="";
-    if(E==7)   out="CMS 7 TeV      ";
-    if(E==0.9) out="CMS 900 GeV      ";
+    TString out="CMS ";
+    if(in.Contains("HF1")) out += "NSD ";
+    if(E==7)   out+="7 TeV      ";
+    if(E==0.9) out+="900 GeV      ";
     
     if(in.Contains("nocut"))  out += "(nch>=0)      " ;
     else if(in.Contains("MBUEWG")) out += "(nch>=1  |#eta|<0.8)     " ;
@@ -47,8 +48,6 @@ TString Txt(TString in, double E = 7) {
     else if(in.Contains("cut4")) out += "p_{T}>1.0  |#eta|<1.0 " ;
     else if(in.Contains("cut5")) out += "p_{T}>0  |#eta|<1.0 " ;
     
-    if(in.Contains("HF1")) out += "HFon ";
-        
     return out;
 }
 
@@ -872,10 +871,57 @@ void comp_other_exp(TString file1 , TString histo , TString expdata, TString leg
 }
 
 void finalAll(){
-   TString dir="files/unfold_outputs/v20/";
+  TString dir="files/unfold_outputs/v20/";
 
   comp_other_exp(dir+"unf_MC31_partfull_HF0_ATLAS1_RECO_cut2.root" , "nch_data_corrected" , "../expdata/atlas_dsigdn_inelgt1_7000GeV_eta25_pt500.txt","ATLAS1");
   comp_other_exp(dir+"unf_MC31_partfull_HF0_ATLAS2_RECO_cut0.root" , "nch_data_corrected" , "../expdata/atlas_dsigdn_inelgt2_7000GeV_eta25_pt100.txt","ATLAS2");
   comp_other_exp(dir+"unf_MC31_partfull_HF0_ATLAS6_RECO_cut2.root" , "nch_data_corrected" , "../expdata/atlas_dsigdn_inelgt6_7000GeV_eta25_pt500.txt","ATLAS6");
   comp_other_exp(dir+"unf_MC31_partfull_HF0_ALICE_RECO_cut4.root"  , "nch_data_corrected" , "../expdata/alice_dsigdn_inelgt1_7000GeV_eta10_pt0.txt","ALICE");
+}
+
+
+
+//_______________________Compare NSD With Paper Results _________________________________
+void xcheck_NSD(TString file1 , TString file2 , TString histo ){
+  cmsStyleRoot();
+
+  UACanvas* canvas = new UACanvas();
+  UALegend* legend = new UALegend();
+  UACurve curve1 = UACurve(0,file1,histo);
+  UACurve curve2 = UACurve(0,file2,histo);
+  
+  ((TH1F*) curve1.pCurve())->GetXaxis()->SetRangeUser(0, 120);
+  curve1.markerColor = kRed;
+  curve1.lineColor = kRed;
+  curve1.Norm();
+  //((TH1F*) curve1.pCurve())->GetYaxis()->SetRangeUser(1, ((TH1F*) curve1.pCurve())->GetYaxis()->GetXmax());
+  curve1.Draw("E1"); //no errors visible
+  legend->AddLegend(curve1,"THIS NSD");
+
+  curve2.markerColor = kBlue ;
+  curve2.lineColor = kBlue ;
+  curve2.Norm();
+  curve2.Draw("same");
+  legend->AddLegend(curve2,"PAPER NSD");
+    
+    
+  legend->BuildLegend();
+  canvas->AddText( Txt(file1),.22,.965,.035);
+
+  gPad->Update();
+  gPad->WaitPrimitive();
+  //canvas->Save("comp_other_exp"+legendStr,PlotDirectory);
+  delete canvas ;
+}
+
+void xcheck_NSD_All(){
+  TString dir1="files/unfold_outputs/v20b/";
+  TString dir2="../plots/systv10_18_2/";
+
+  //xcheck_NSD(dir1+"unf_MC31_partfull_HF1_nocut_NSD_cut0.root" , dir2+"unfolding_MC_ATLAS_7.0TeV_mbTr__hyp1_niter0_cut10_DataType0.root" , "nch_data_corrected");
+  xcheck_NSD(dir1+"unf_MC31_partfull_HF1_nocut_NSD_cut1.root" , dir2+"unfolding_MC_ATLAS_7.0TeV_mbTr__hyp1_niter0_cut5_DataType0.root" , "nch_data_corrected");
+  //xcheck_NSD(dir1+"unf_MC31_partfull_HF1_nocut_NSD_cut2.root" , dir2+"unfolding_MC_ATLAS_7.0TeV_mbTr__hyp1_niter0_cut15_DataType0.root" , "nch_data_corrected");
+  //xcheck_NSD(dir1+"unf_MC31_partfull_HF1_nocut_NSD_cut3.root" , dir2+"unfolding_MC_ATLAS_7.0TeV_mbTr__hyp1_niter0_cut20_DataType0.root" , "nch_data_corrected");
+  //xcheck_NSD(dir1+"unf_MC31_partfull_HF1_nocut_NSD_cut4.root" , dir2+"unfolding_MC_ATLAS_7.0TeV_mbTr__hyp1_niter0_cut13_DataType0.root" , "nch_data_corrected");
+  xcheck_NSD(dir1+"unf_MC31_partfull_HF1_nocut_NSD_cut5.root" , dir2+"unfolding_MC_ATLAS_7.0TeV_mbTr__hyp1_niter0_cut8_DataType0.root" , "nch_data_corrected");
 }
