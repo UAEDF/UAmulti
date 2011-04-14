@@ -17,6 +17,8 @@ using namespace std;
 
 #include "../plugins/MyEvtId.h"
 #include "../plugins/MyL1Trig.h"
+#include "../plugins/MyHLTrig.h"
+#include "../plugins/MyFwdGap.h"
 #include "../plugins/MyGenKin.h"
 #include "../plugins/MyPart.h"
 #include "../plugins/MyGenPart.h"
@@ -24,13 +26,6 @@ using namespace std;
 #include "../plugins/MyVertex.h"
 #include "../plugins/MyMITEvtSel.h"
 #include "../plugins/MyBeamSpot.h"
-#include "../plugins/TrackPlots.h"
-#include "../plugins/VertexPlots.h"
-#include "../plugins/EvtSelPlots.h"
-#include "../plugins/BasePlots.h"
-#include "../plugins/MultiPlots.h"
-#include "../plugins/GenMultiPlots.h"
-#include "../plugins/MatrixPlots.h"
 
 bool debug = false;
 
@@ -49,183 +44,270 @@ TString st(string input , int cut){
   return input+"_cut"+out.str();
 }
 
-void ZBTrigEval(int = 10 , double = 0.9 , TString = "test" , int = 0 , int = 0 , int = 0 );
+//nohup root -b -l BuildLibDico.C+ ZBTrigEval.C+"(5,7,1,100000000)" -q > log_zbtrigeval_type5_7TeV.txt &
 
-void ZBTrigEval(int type , double E , TString filename , int nevt_max , int iTracking , int irun)
+void ZBTrigEval(int = 5 , double = 7 , int = 1 , int = 1000000000  );
+
+void ZBTrigEval(int type , double E , int iTracking , int nevt_max )
 {
 
-  #include "acceptanceMap.C" 
-
+  //#include "acceptanceMap.C" 
+  
+  TH1::AddDirectory(0);
+  
   if(type < 10) isMC = false;
-
-  TChain* tree = new TChain("evt","");
-  tree->Add(fileManager(0,type,E));
-  cout <<  fileManager(0,type,E) << endl;
-  if ( type == 5 ) tree->Add(fileManager(0,type,2.36));
-  if ( type == 5 ) tree->Add(fileManager(0,type,7.0));
-
-  MyEvtId* evtId      = NULL ;
-  tree->SetBranchAddress("EvtId",&evtId);
-    
-  vector<MyGenPart>* genPart = NULL;
-  if(isMC) tree->SetBranchAddress("GenPart",&genPart);
-
-  MyGenKin* genKin = NULL;   
-  if(isMC) tree->SetBranchAddress("GenKin",&genKin);
-
-  vector<MyTracks>*  tracks  = NULL;
-  vector<MyVertex>*  vertex  = NULL;
-  if(iTracking==0){
-    tree->SetBranchAddress("generalTracks",&tracks);
-    tree->SetBranchAddress("primaryVertex",&vertex);
-  } 
-  else if(iTracking==1){
-    tree->SetBranchAddress("minbiasTracks",&tracks); 
-    tree->SetBranchAddress("ferencVtxFerTrk",&vertex);
-  } 
-
-  vector<MyVertex>*  vertexToCut  = NULL;
-  MyL1Trig*     L1Trig    = NULL;
-  MyMITEvtSel*  MITEvtSel = NULL;
-  MyBeamSpot*   bs        = NULL;
-  tree->SetBranchAddress("pixel3Vertex",&vertexToCut);
-  tree->SetBranchAddress("L1Trig",&L1Trig);
-  tree->SetBranchAddress("MITEvtSel",&MITEvtSel);
-  tree->SetBranchAddress("beamSpot",&bs);
-    
-  int nev = int(tree->GetEntries());
-  std::cout <<"number of entries is : "<< nev << std::endl;
-  if ( nevt_max == 0 ) nevt_max = nev;
-  cout<<"Running on: "<<min(nev,nevt_max)<<" events"<<endl;
+  TString MCtype = "pythia";
+  if(type == 20) MCtype = "phojet";
+  if(type == 60 || type==101) MCtype = "pythia8";
 
   float nev_tot     = 0;
   float nev_passBX  = 0;
-  float nev_passL1  = 0;
+  float nev_passb0  = 0;
+  float nev_passb4  = 0;
+  float nev_passb8  = 0;
+  float nev_passb9  = 0;
+  float nev_passb10 = 0;
+  float nev_passb34 = 0;
+  float nev_passb40 = 0;
   float nev_passvQ  = 0;
   float nev_passHF  = 0;
   float nev_passVZ  = 0;
 
-  TH1F* nchBase = new TH1F("nchBase","nchBase",50,0,50);   
-  TH1F* nchL134 = new TH1F("nchL134","nchL134",50,0,50);   
-  TH1F* nchL140 = new TH1F("nchL140","nchL140",50,0,50);   
-  TH1F* nchL1VT = new TH1F("nchL1VT","nchL1VT",50,0,50);   
-  TH1F* nchHF   = new TH1F("nchHF"  ,"nchHF"  ,50,0,50);   
-  TH1F* nchL1HF = new TH1F("nchL1HF","nchL1HF",50,0,50);
 
-  nchBase->Sumw2();
-  nchL134->Sumw2();
-  nchL140->Sumw2();
+  int nbin = 70;
+  TH1F* nchb0   = new TH1F("nchb0","nchb0",nbin,-0.5,nbin-1);     
+  TH1F* nchb4   = new TH1F("nchb4","nchb4",nbin,-0.5,nbin-1);     
+  TH1F* nchb8   = new TH1F("nchb8","nchb8",nbin,-0.5,nbin-1);  
+  TH1F* nchb9   = new TH1F("nchb9","nchb9",nbin,-0.5,nbin-1);   
+  TH1F* nchb10  = new TH1F("nchb10","nchb10",nbin,-0.5,nbin-1); 
+  TH1F* nchb34  = new TH1F("nchb34","nchb34",nbin,-0.5,nbin-1);     
+  TH1F* nchb40  = new TH1F("nchb40","nchb40",nbin,-0.5,nbin-1);      
+  TH1F* nchL1VT = new TH1F("nchL1VT","nchL1VT",nbin,-0.5,nbin-1);   
+  TH1F* nchHF   = new TH1F("nchHF"  ,"nchHF"  ,nbin,-0.5,nbin-1);   
+  TH1F* nchL1HF = new TH1F("nchL1HF","nchL1HF",nbin,-0.5,nbin-1);
+
+  nchb0->Sumw2();
+  nchb4->Sumw2();
+  nchb8->Sumw2();
+  nchb9->Sumw2();
+  nchb10->Sumw2();
+  nchb34->Sumw2();
+  nchb40->Sumw2();
   nchL1VT->Sumw2();
   nchHF->Sumw2();
   nchL1HF->Sumw2();
 
-  for(int i = 0; i < min(nev,nevt_max) ; i++){
 
-    if( ((i+1) % 10000) == 0) cout <<int(double(i+1)/double(min(nev,nevt_max))*100.)<<" % done"<<endl;
-    tree->GetEntry(i);
 
-    ++nev_tot;
+  //getting the list of files
+  vector<TString>* vfiles = getListOfFiles(fileManager(0,type,E));
 
-    if( !isMC && !goodBX(evtId->Run,evtId->Bunch)) continue;
-    ++nev_passBX;
+  //Declaration of tree and its branches variables
+  TTree* tree = new TTree("evt","");
+  MyEvtId*           evtId        = NULL ;
+  vector<MyGenPart>* genPart      = NULL;
+  MyGenKin*          genKin       = NULL;
+  vector<MyTracks>*  tracks       = NULL;
+  vector<MyVertex>*  vertex       = NULL;
+  vector<MyVertex>*  vertexToCut  = NULL;
+  MyL1Trig*          L1Trig       = NULL;
+  MyHLTrig*          HLTrig       = NULL;
+  MyMITEvtSel*       MITEvtSel    = NULL;
+  MyBeamSpot*        bs           = NULL;
 
-    if( ! passVtxQual(*MITEvtSel , E) ) continue;
-    ++nev_passvQ;
+  int i_tot = 0 , nevt_tot = 0;
+  //starting Loop over files, stops at end of list of files or when reached nevt_max
+  for(vector<TString>::iterator itfiles = vfiles->begin() ; itfiles != vfiles->end() && i_tot < nevt_max ; ++itfiles){
 
-    //if( ! passVtx(vertexToCut) ) continue;
-    if( ! passVtx(vertex) ) continue;
-    ++nev_passVZ;
+    TFile* file = TFile::Open(*itfiles,"READ");
 
-    if( ! (L1Trig->TechTrigWord[0] || isMC) ) continue; 
-    ++nev_passL1;
+    //getting the tree form the current file
+    tree = (TTree*) file->Get("evt");
 
-    int acc = 5 ;
-    int nch = 0 ;
-    if(iTracking==0) nch = getnPrimaryTracks(tracks,vertex,accMap[acc].at(2),accMap[acc].at(3),accMap[acc].at(4));
-    if(iTracking==1) nch = getnPrimaryTracks(tracks,vertex,bs,accMap[acc].at(2),accMap[acc].at(3),accMap[acc].at(4));  
-
-    nchBase->Fill(nch);
-    
-    if (    !L1Trig->TechTrigWord[36]
-         && !L1Trig->TechTrigWord[37]
-         && !L1Trig->TechTrigWord[38]
-         && !L1Trig->TechTrigWord[39] ) nchL1VT->Fill(nch);
-    if ( E < 7. ) {
-      if ( L1Trig->TechTrigWord[34] ) nchL134->Fill(nch);
-    } else {
-      if (  isMC && L1Trig->TechTrigWord[34] ) nchL134->Fill(nch);
-      if ( !isMC && L1Trig->PhysTrigWord[124]) nchL134->Fill(nch); 
+    //adding branches to the tree ----------------------------------------------------------------------
+    tree->SetBranchAddress("EvtId",&evtId);
+    if(isMC) tree->SetBranchAddress("GenPart",&genPart);
+    if(isMC) tree->SetBranchAddress("GenKin",&genKin);
+    if(iTracking==0){
+      tree->SetBranchAddress("generalTracks",&tracks);
+      tree->SetBranchAddress("primaryVertex",&vertex);
     }
-    if ( L1Trig->TechTrigWord[40] ) nchL140->Fill(nch);
-    if ( passHF(*MITEvtSel)       ) nchHF->Fill(nch);
+    else if(iTracking==1){
+      tree->SetBranchAddress("minbiasTracks",&tracks);
+      tree->SetBranchAddress("ferencVtxFerTrk",&vertex);
+    }
+    //tree->SetBranchAddress("pixel3Vertex",&vertexToCut);
+    tree->SetBranchAddress("L1Trig",&L1Trig);
+    //tree->SetBranchAddress("HLTrig",&HLTrig);
+    tree->SetBranchAddress("MITEvtSel",&MITEvtSel);
+    tree->SetBranchAddress("beamSpot",&bs);
 
 
-    bool b34 = false;
-    if ( E < 7. ) {
-         b34 = L1Trig->TechTrigWord[34] ;
-     } else {
-        if (  isMC ) b34 = L1Trig->TechTrigWord[34] ;
-        if ( !isMC ) b34 = L1Trig->PhysTrigWord[124];  
-     }
+    //Just to put the good collection of vertex in vertexToCut
+    vertexToCut = vertex;
 
-    if (    b34 
-         && !L1Trig->TechTrigWord[36]
-         && !L1Trig->TechTrigWord[37]
-         && !L1Trig->TechTrigWord[38]
-         && !L1Trig->TechTrigWord[39]
-         && passHF(*MITEvtSel)        ) nchL1HF->Fill(nch);   
+    //Getting number of events
+    int nev = int(tree->GetEntriesFast());
+    nevt_tot += nev;
+    cout <<"The current file has " << nev << " entries : "<< endl << *itfiles << endl;
+    //cout<<"Running on: "<<min(nev,nevt_max)<<" events"<<endl;
 
-/*
-    if( ! passL1(E, *L1Trig)) continue;
-    ++nev_passL1;
+    //starting loop over events, stops when reached end of file or nevt_max
+    for(int i = 0; i < nev && i_tot < nevt_max; ++i , ++i_tot){
 
-    if( ! passHF(*MITEvtSel) ) continue;
-    ++nev_passHF;
-*/
+      //printing the % of events done every 10k evts
+      if( ((i_tot+1) % 10000) == 0) cout <<int(double(i_tot+1)/1000)<<"k done"<<endl;
+     
+      tree->GetEntry(i);
+
+      ++nev_tot;
+
+      //if( !isMC && !goodBX(evtId->Run,evtId->Bunch)) continue; NOT NEEDED IF b0 IS USED
+      ++nev_passBX;
+
+      if( ! passVtxQual(*MITEvtSel , E) ) continue;
+      ++nev_passvQ;
+
+      //if( ! passVtx(vertexToCut) ) continue;
+      if( ! passVtx(vertex) ) continue;
+      ++nev_passVZ;
+
+      if( (L1Trig->TechTrigWord[4] && !isMC) ) 
+        ++nev_passb4;
+
+      if( ! (L1Trig->TechTrigWord[0] || isMC) ) continue;
+        ++nev_passb0;
+      
+      
+      int nch = 0 ;
+      if(iTracking==0) nch = getnPrimaryTracks(tracks,vertex);
+      if(iTracking==1) nch = getnPrimaryTracks(tracks,vertex);  
+
+      nchb0->Fill(nch);
+    
+      if (    !L1Trig->TechTrigWord[36]
+           && !L1Trig->TechTrigWord[37]
+           && !L1Trig->TechTrigWord[38]
+           && !L1Trig->TechTrigWord[39] )
+	nchL1VT->Fill(nch);
+      
+      //copy of b0 = BPTX AND
+      if ( L1Trig->TechTrigWord[4]  && !isMC) nchb4->Fill(nch);
+      
+      //BSC OR
+      if ( L1Trig->TechTrigWord[40] )         nchb40->Fill(nch);
+      
+      //HF Combination
+      if ( L1Trig->TechTrigWord[8]  && !isMC) nchb8->Fill(nch);
+      if ( L1Trig->TechTrigWord[9]  && !isMC) nchb9->Fill(nch);
+      if ( L1Trig->TechTrigWord[10] && !isMC) nchb10->Fill(nch);
+      
+      //HF AND
+      if ( passHF(*MITEvtSel)       ) nchHF->Fill(nch);
+
+
+      bool passb34 = false;
+      if ( E < 7. ) {
+           passb34 = L1Trig->TechTrigWord[34] ;
+      }
+      else {
+        if (  isMC ) passb34 = L1Trig->TechTrigWord[34] ;
+        if ( !isMC ) passb34 = L1Trig->PhysTrigWord[124];  
+      }
+      if(passb34) nchb34->Fill(nch);
+      
+      if (    passb34 
+           && !L1Trig->TechTrigWord[36]
+           && !L1Trig->TechTrigWord[37]
+           && !L1Trig->TechTrigWord[38]
+           && !L1Trig->TechTrigWord[39]
+           && passHF(*MITEvtSel)        )
+	 nchL1HF->Fill(nch);   
+
+      /*if( ! passL1(E, *L1Trig)) continue;
+      ++nev_passL1;
+
+      if( ! passHF(*MITEvtSel) ) continue;
+      ++nev_passHF;
+      */
 
 
 
-  } //end of loop over entries from tree
+    }//end of loop over events
 
-  cout << "nev_tot    = " << nev_tot << endl;
-  cout << "nev_passBX = " << nev_passBX << endl;
-  cout << "nev_passvQ = " << nev_passvQ << endl;
-  cout << "nev_passVZ = " << nev_passVZ << endl;
-  cout << "nev_passL1 = " << nev_passL1 << endl;
-  cout << "nev_passHF = " << nev_passHF << endl;
+    //Closing current files
+    file->Close();
 
-  cout << "nev_passBX % " << nev_passBX/nev_tot << endl;
-  cout << "nev_passvQ % " << nev_passvQ/nev_tot << endl;
-  cout << "nev_passVZ % " << nev_passVZ/nev_tot << endl;
-  cout << "nev_passL1 % " << nev_passL1/nev_tot << endl;
-  cout << "nev_passHF % " << nev_passHF/nev_tot << endl;
+  }//end of loop over files
 
-  TH1F* effL134 = (TH1F*) nchL134->Clone("effL134");
-  TH1F* effL140 = (TH1F*) nchL140->Clone("effL140");
+
+  cout << "nev_tot     = " << nev_tot << endl;
+  cout << "nev_passBX  = " << nev_passBX << endl;
+  cout << "nev_passvQ  = " << nev_passvQ << endl;
+  cout << "nev_passVZ  = " << nev_passVZ << endl;
+  cout << "nev_passb0  = " << nev_passb0 << endl;
+  cout << "nev_passb4  = " << nev_passb4 << endl;
+  cout << "nev_passb8  = " << nev_passb8 << endl;
+  cout << "nev_passb9  = " << nev_passb9 << endl;
+  cout << "nev_passb10 = " << nev_passb10 << endl;
+  cout << "nev_passb34 = " << nev_passb34 << endl;
+  cout << "nev_passb40 = " << nev_passb40 << endl;
+  cout << "nev_passHF  = " << nev_passHF << endl;
+
+  cout << "nev_passBX  % " << nev_passBX/nev_tot << endl;
+  cout << "nev_passvQ  % " << nev_passvQ/nev_tot << endl;
+  cout << "nev_passVZ  % " << nev_passVZ/nev_tot << endl;
+  cout << "nev_passb0  % " << nev_passb0/nev_tot << endl;
+  cout << "nev_passb4  % " << nev_passb4/nev_tot << endl;
+  cout << "nev_passb8  % " << nev_passb8/nev_tot << endl;
+  cout << "nev_passb9  % " << nev_passb9/nev_tot << endl;
+  cout << "nev_passb10 % " << nev_passb10/nev_tot << endl;
+  cout << "nev_passb34 % " << nev_passb34/nev_tot << endl;
+  cout << "nev_passb40 % " << nev_passb40/nev_tot << endl;
+  cout << "nev_passHF  % " << nev_passHF/nev_tot << endl;
+
+  TH1F* effb4 = (TH1F*)  nchb4->Clone("effb4");
+  TH1F* effb8 = (TH1F*)  nchb8->Clone("effb8");
+  TH1F* effb9 = (TH1F*)  nchb9->Clone("effb9");
+  TH1F* effb10 = (TH1F*) nchb10->Clone("effb10");
+  TH1F* effb34 = (TH1F*) nchb34->Clone("effb34");
+  TH1F* effb40 = (TH1F*) nchb40->Clone("effb40");
   TH1F* effL1VT = (TH1F*) nchL1VT->Clone("effL1VT");
   TH1F* effHF   = (TH1F*) nchHF->Clone("effHF");
   TH1F* effL1HF = (TH1F*) nchL1HF->Clone("effL1HF");
 
-  effL134->Divide(effL134,nchBase,1,1,"B");
-  effL140->Divide(effL140,nchBase,1,1,"B");
-  effL1VT->Divide(effL1VT,nchBase,1,1,"B");
-  effHF->Divide(effHF,nchBase,1,1,"B");
-  effL1HF->Divide(effL1HF,nchBase,1,1,"B");
+  effb4->Divide(effb4,nchb0,1,1,"B");
+  effb8->Divide(effb8,nchb0,1,1,"B");
+  effb9->Divide(effb9,nchb0,1,1,"B");
+  effb10->Divide(effb10,nchb0,1,1,"B");
+  effb34->Divide(effb34,nchb0,1,1,"B");
+  effb40->Divide(effb40,nchb0,1,1,"B");
+  effL1VT->Divide(effL1VT,nchb0,1,1,"B");
+  effHF->Divide(effHF,nchb0,1,1,"B");
+  effL1HF->Divide(effL1HF,nchb0,1,1,"B");
 
   //TFile* file2=new TFile("ZBfile.root","RECREATE");
-  TFile* file2=new TFile(fileManager(4,type,E,0,0,0),"RECREATE");
+  TFile* file2=new TFile(fileManager(4,type,E,0,1,1),"RECREATE");
   file2->cd();
   gDirectory->mkdir("zbeff");
   gDirectory->cd("zbeff");
 
-  nchBase->Write();
-  nchL134->Write();
-  nchL140->Write();
+  nchb0->Write();
+  nchb4->Write();
+  nchb8->Write();
+  nchb9->Write();
+  nchb10->Write();
+  nchb34->Write();
+  nchb40->Write();
   nchL1VT->Write();
   nchHF->Write();
  
-  effL134->Write();
-  effL140->Write();
+  effb4->Write();
+  effb8->Write();
+  effb9->Write();
+  effb10->Write();
+  effb34->Write();
+  effb40->Write();
   effL1VT->Write();
   effHF->Write();
   effL1HF->Write();
