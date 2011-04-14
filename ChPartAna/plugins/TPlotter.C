@@ -33,4 +33,6 @@ void TPlotter::Init(){
   tf1Show         = g_tf1Show;
   tf1Color        = g_tf1Color;
   tf1Style        = g_tf1Style;
+  dumpTxtName     = g_dumpTxtName;
+  dumpSystNum     = g_dumpSystNum;
 }

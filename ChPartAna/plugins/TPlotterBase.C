@@ -48,6 +48,10 @@ TString  TPlotterBase::g_tf1Formula  = "none";
 Bool_t   TPlotterBase::g_tf1Show     = true;
 Int_t    TPlotterBase::g_tf1Color    = kRed;
 Int_t    TPlotterBase::g_tf1Style    = 1;
+
+TString  TPlotterBase::g_dumpTxtName  = "none";
+Int_t    TPlotterBase::g_dumpSystNum  = -1;
+
   
 TPlotterBase::TPlotterBase(){
 }

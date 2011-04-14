@@ -45,6 +45,10 @@ class TPlotter : public TPlotterBase{
   Bool_t   tf1Show;
   Int_t    tf1Color;
   Int_t    tf1Style;
+
+  TString  dumpTxtName;
+  Int_t    dumpSystNum;
+
   
   private:
   

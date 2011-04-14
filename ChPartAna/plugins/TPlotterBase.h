@@ -5,6 +5,8 @@
 #include "TF1.h"
 #include "TString.h"
 #include "TLatex.h"
+#include <vector>
+using namespace std;
 
 //#include "RootHeaders.h"
 
@@ -61,6 +63,9 @@ class TPlotterBase : public TObject{
   static Int_t    g_tf1Color;
   static Int_t    g_tf1Style;
   
+  static TString  g_dumpTxtName;
+  static Int_t    g_dumpSystNum;
+
   private:
   
   ClassDef(TPlotterBase,2);
