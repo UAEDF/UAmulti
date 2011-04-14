@@ -9,15 +9,15 @@ class FBResults : public TObject{
   public:
   FBResults();
   FBResults(TString);
-  FBResults(TString , vector<FBCorrel>& , Double_t , Double_t);
+  FBResults(TString , vector<FBCorrel*>& , Double_t , Double_t);
 
   void Init();
   ~FBResults(){};
   
-  void MakeAllPlots( vector<FBCorrel>& , Double_t , Double_t );
-  void GetbVSdEta(vector<FBCorrel>& , int , int , TGraph& );
-  void GetbVSdEtaFromFit(vector<FBCorrel>& , int , int , TGraph& );
-  void GetsigCVSeta(vector<FBCorrel>& , int , int , TGraph& );
+  void MakeAllPlots( vector<FBCorrel*>& , Double_t , Double_t );
+  void GetbVSdEta(vector<FBCorrel*>& , int , int , TGraph& );
+  void GetbVSdEtaFromFit(vector<FBCorrel*>& , int , int , TGraph& );
+  void GetsigCVSeta(vector<FBCorrel*>& , int , int , TGraph& );
   void write();
   
   static Bool_t debug;

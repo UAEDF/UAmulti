@@ -6,16 +6,16 @@ Bool_t         FBResults::debug            = 0;
 vector<FBacc>* FBResults::accMap           = 0;
 
 FBResults::FBResults(){
-  if(debug) cout << "+ [DEBUG] FBResults : Starting FBResults() {" << name << "}" << endl;
-  if(debug) cout << "- [DEBUG] FBResults : Finished FBResults() {" << name << "}" << endl;
+  if(FBResults::debug) cout << "+ [DEBUG] FBResults : Starting FBResults() {" << name << "}" << endl;
+  if(FBResults::debug) cout << "- [DEBUG] FBResults : Finished FBResults() {" << name << "}" << endl;
 }
 
 FBResults::FBResults(TString s):name(s){
-  if(debug) cout << "+ [DEBUG] FBResults : Starting FBResults(TString) {" << name << "}" << endl;
-  if(debug) cout << "- [DEBUG] FBResults : Finished FBResults(TString) {" << name << "}" << endl;
+  if(FBResults::debug) cout << "+ [DEBUG] FBResults : Starting FBResults(TString) {" << name << "}" << endl;
+  if(FBResults::debug) cout << "- [DEBUG] FBResults : Finished FBResults(TString) {" << name << "}" << endl;
 }
 
-FBResults::FBResults(TString s , vector<FBCorrel>& vfbc , Double_t accmin , Double_t accmax):name(s){
+FBResults::FBResults(TString s , vector<FBCorrel*>& vfbc , Double_t accmin , Double_t accmax):name(s){
   this->Init();
   this->MakeAllPlots(vfbc , accmin , accmax);
 }
@@ -28,7 +28,13 @@ void FBResults::Init(){
 
 
 
-void FBResults::MakeAllPlots( vector<FBCorrel>& vfbc , Double_t accmin , Double_t accmax ){
+void FBResults::MakeAllPlots( vector<FBCorrel*>& vfbc , Double_t accmin , Double_t accmax ){
+  if(FBResults::debug) cout << "+ [DEBUG] FBResults : Starting MakeAllPlots() {" << name << "}" << endl;
+
+  for(int acc = accmin ; acc <= accmax ; ++acc){
+    vfbc.at(acc)->Fit(1 , int(FBResults::debug) );
+  }
+
   ostringstream str("");
   str << accmin << "to" << accmax;
   dirname = TString(str.str());
@@ -54,24 +60,24 @@ void FBResults::MakeAllPlots( vector<FBCorrel>& vfbc , Double_t accmin , Double_
 
 
 
-void FBResults::GetbVSdEta(vector<FBCorrel>& vfbc , int accmin , int accmax , TGraph& p ){
+void FBResults::GetbVSdEta(vector<FBCorrel*>& vfbc , int accmin , int accmax , TGraph& p ){
 
   for(int acc = accmin , i = 0 ; acc <= accmax ; ++acc , ++i){
     double dEta = accMap->at(acc).etaP - accMap->at(acc).etaM;
-    p.SetPoint(i , dEta , vfbc.at(acc).b );  
+    p.SetPoint(i , dEta , vfbc.at(acc)->b );  
   }
 }
 
-void FBResults::GetbVSdEtaFromFit(vector<FBCorrel>& vfbc , int accmin , int accmax , TGraph& p ){
+void FBResults::GetbVSdEtaFromFit(vector<FBCorrel*>& vfbc , int accmin , int accmax , TGraph& p ){
 
   for(int acc = accmin , i = 0 ; acc <= accmax ; ++acc , ++i){
     double dEta = accMap->at(acc).etaP - accMap->at(acc).etaM;
-    p.SetPoint(i , dEta , vfbc.at(acc).b_fit );  
+    p.SetPoint(i , dEta , vfbc.at(acc)->b_fit );  
   }
 }
 
 
-void FBResults::GetsigCVSeta(vector<FBCorrel>& vfbc , int accmin , int accmax , TGraph& p ){
+void FBResults::GetsigCVSeta(vector<FBCorrel*>& vfbc , int accmin , int accmax , TGraph& p ){
 
   for(int acc = accmin , i = 0 ; acc <= accmax ; ++acc , ++i){
     if(! (accMap->at(acc).etaP == - accMap->at(acc).etaM && accMap->at(acc).widthP == accMap->at(acc).widthM) ){
@@ -80,7 +86,7 @@ void FBResults::GetsigCVSeta(vector<FBCorrel>& vfbc , int accmin , int accmax , 
     }
     
     double eta = accMap->at(acc).etaP + accMap->at(acc).widthP / 2.;
-    p.SetPoint(i , eta , vfbc.at(acc).mC.GetRMS());  
+    p.SetPoint(i , eta , vfbc.at(acc)->mC.GetRMS());  
   }
 }
 
@@ -97,7 +103,7 @@ void FBResults::write(){
   bVSdEta_fromReg.Write();
   bVSdEta_fromFit.Write();
   sigCVSeta.Write();
-  cout << gDirectory->GetName() << "  " << "FBResults_class_"+name+"_"+dirname << endl;
+  //cout << gDirectory->GetName() << "  " << "FBResults_class_"+name+"_"+dirname << endl;
   this->Write("FBResults_class_"+name+"_"+dirname);
 
   gDirectory->cd("../..");
