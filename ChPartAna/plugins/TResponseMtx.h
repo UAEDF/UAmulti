@@ -2,6 +2,8 @@
 #define __TRESPONSEMTX_H__
 
 #include <vector>
+#include <stdlib.h>
+#include <math.h>
 #include <iostream>
 #include "TObject.h"
 #include "TH2F.h"
