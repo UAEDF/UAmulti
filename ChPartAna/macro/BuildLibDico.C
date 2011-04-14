@@ -1,8 +1,11 @@
 {
+  gROOT->ProcessLine(".L ../plugins/MyPart.C+");
+  gROOT->ProcessLine(".L ../plugins/MyBasePart.C+");
   gROOT->ProcessLine(".L ../plugins/MyEvtId.C+");
   gROOT->ProcessLine(".L ../plugins/MyL1Trig.C+");
+  gROOT->ProcessLine(".L ../plugins/MyFwdGap.C+");
+  gROOT->ProcessLine(".L ../plugins/MyHLTrig.h+");
   gROOT->ProcessLine(".L ../plugins/MyGenKin.C+");
-  gROOT->ProcessLine(".L ../plugins/MyPart.C+");
   gROOT->ProcessLine(".L ../plugins/MyGenPart.C+");
   gROOT->ProcessLine(".L ../plugins/MyMITEvtSel.C+");
   gROOT->ProcessLine(".L ../plugins/MyTracks.C+");
@@ -20,8 +23,11 @@
   gROOT->ProcessLine(".L ../plugins/TPlotterBase.C+");
   gROOT->ProcessLine(".L ../plugins/TPlotter.C+");
   gROOT->ProcessLine(".L ../plugins/TTProfile.C+");
-  gROOT->ProcessLine(".L ../plugins/FBCorrel.C+");
   gROOT->ProcessLine(".L ../plugins/TResponseMtx.C+");
+  gROOT->ProcessLine(".L ../plugins/FBCorrel.C+");
+  gROOT->ProcessLine(".L ../plugins/FBCorrelwCorr.C+");
   gROOT->ProcessLine(".L ../plugins/FBResults.C+");
+  gROOT->ProcessLine(".L ../plugins/Syst.C+");
+  gROOT->ProcessLine(".L ../plugins/TOperation.h+");
   gROOT->ProcessLine(".L ../plugins/LinkDef.C+");
 }
