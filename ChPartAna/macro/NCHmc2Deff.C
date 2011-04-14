@@ -51,7 +51,7 @@ TString st(string input , int cut){
   return input+"_cut"+out.str();
 }
 
-//nohup root -b -l BuildLibDico.C+ NCHmc2Deff.C+"(60,7,1,100000000)" -q > log_nchmc2deff_type60_7TeV.txt
+//nohup root -b -l BuildLibDico.C+ NCHmc2Deff.C+"(60,7,1,100000000)" -q > log_nchmc2deff_type60_7TeV.txt &
 
 void NCHmc2Deff(int type = 31 , double E = 7. , int iTracking = 1 , int nevt_max = 900000000){
   
@@ -82,6 +82,13 @@ void NCHmc2Deff(int type = 31 , double E = 7. , int iTracking = 1 , int nevt_max
   nTr_ptVSeta_INEL_evtSel_matched_reco->Sumw2();
   nTr_ptVSeta_INEL_evtSel_fakes_reco ->Sumw2();
   nTr_ptVSeta_INEL_evtSel_matched_gen ->Sumw2();
+   
+  TH2F* nTr_ptVSeta_INEL_evtSel_matched_reco_HP  = new TH2F("nTr_ptVSeta_INEL_evtSel_matched_reco_HP" , "nTr_ptVSeta_INEL_evtSel_matched_reco_HP ;#eta;pt" , binning.at(2).size()-1 , &(binning.at(2).at(0)) ,  binning.at(1).size()-1 , &(binning.at(1).at(0)) );   
+  TH2F* nTr_ptVSeta_INEL_evtSel_fakes_reco_HP    = new TH2F("nTr_ptVSeta_INEL_evtSel_fakes_reco_HP"   , "nTr_ptVSeta_INEL_evtSel_fakes_reco_HP   ;#eta;pt" , binning.at(2).size()-1 , &(binning.at(2).at(0)) ,  binning.at(1).size()-1 , &(binning.at(1).at(0)) );   
+  TH2F* nTr_ptVSeta_INEL_evtSel_matched_gen_HP   = new TH2F("nTr_ptVSeta_INEL_evtSel_matched_gen_HP"  , "nTr_ptVSeta_INEL_evtSel_matched_gen_HP  ;#eta;pt" , binning.at(2).size()-1 , &(binning.at(2).at(0)) ,  binning.at(1).size()-1 , &(binning.at(1).at(0)) );   
+  nTr_ptVSeta_INEL_evtSel_matched_reco_HP->Sumw2();
+  nTr_ptVSeta_INEL_evtSel_fakes_reco_HP ->Sumw2();
+  nTr_ptVSeta_INEL_evtSel_matched_gen_HP ->Sumw2();
   
   cout << "Finished initialization of TH2s " << endl;
   
@@ -199,7 +206,7 @@ void NCHmc2Deff(int type = 31 , double E = 7. , int iTracking = 1 , int nevt_max
         vector<MyTracks*>                      fakes;
         vector<MyGenPart*>                     gp_notMatched;
 
-        GetMatch2(&gpcoll_largeAcc , &trcoll , &match , &fakes , &gp_notMatched , 0.4);
+        GetMatch2(&gpcoll_largeAcc , &trcoll , &match , &fakes , &gp_notMatched , 0.04);
 
         //fill with pt & eta of gen to correct for acceptancy
         for(vector< pair<MyGenPart* , MyTracks*> >::iterator mpair = match.begin() ; mpair != match.end() ; ++mpair)
@@ -207,6 +214,29 @@ void NCHmc2Deff(int type = 31 , double E = 7. , int iTracking = 1 , int nevt_max
     
         for(vector<MyTracks*>::iterator it_fake = fakes.begin() ; it_fake != fakes.end() ; ++it_fake)
           nTr_ptVSeta_INEL_evtSel_fakes_reco->Fill((*it_fake)->Part.v.Eta() , (*it_fake)->Part.v.Pt());
+	  
+	
+	//matching for High Purity Tracks
+	if(iTracking == 0){
+	
+	  vector<MyTracks> trcoll_HP = *tracks;
+          getPrimaryTracks(trcoll_HP,vertex,pt_cut,eta_cut , 0 , 1);
+	
+          vector< pair<MyGenPart* , MyTracks*> > match_HP;
+          vector<MyTracks*>                      fakes_HP;
+          vector<MyGenPart*>                     gp_notMatched_HP;
+
+          GetMatch2(&gpcoll_largeAcc , &trcoll_HP , &match_HP , &fakes_HP , &gp_notMatched_HP , 0.04);
+
+          //fill with pt & eta of gen to correct for acceptancy
+          for(vector< pair<MyGenPart* , MyTracks*> >::iterator mpair = match_HP.begin() ; mpair != match_HP.end() ; ++mpair)
+            nTr_ptVSeta_INEL_evtSel_matched_reco_HP->Fill(mpair->first->Part.v.Eta() , mpair->first->Part.v.Pt());
+    
+          for(vector<MyTracks*>::iterator it_fake = fakes_HP.begin() ; it_fake != fakes_HP.end() ; ++it_fake)
+            nTr_ptVSeta_INEL_evtSel_fakes_reco_HP->Fill((*it_fake)->Part.v.Eta() , (*it_fake)->Part.v.Pt());
+	  
+	}  
+	  
     
       }
     
@@ -220,7 +250,7 @@ void NCHmc2Deff(int type = 31 , double E = 7. , int iTracking = 1 , int nevt_max
 
   //output file
   ostringstream strout("FBtest");
-  strout<<"NCHtest4_type"<<type<<"_"<<E<<"TeV_";
+  strout<<"NCHtest5_type"<<type<<"_"<<E<<"TeV_";
   if(iTracking==0)
     strout<<"gTr";
   if(iTracking==1)
@@ -251,6 +281,24 @@ void NCHmc2Deff(int type = 31 , double E = 7. , int iTracking = 1 , int nevt_max
   eff_ptVSeta_INEL_evtSel_fakes  ->Write();
   eff_ptVSeta_INEL_evtSel        ->Write();
   eff_ptVSeta_INEL_evtSel_gt4hit ->Write();
+  
+  
+  if(iTracking==0){
+  
+    nTr_ptVSeta_INEL_evtSel_matched_reco_HP->Write();
+    nTr_ptVSeta_INEL_evtSel_fakes_reco_HP->Write();
+  
+    TH2F* eff_ptVSeta_INEL_evtSel_matched_HP = (TH2F*) nTr_ptVSeta_INEL_evtSel_matched_reco_HP ->Clone("eff_ptVSeta_INEL_evtSel_matched_HP");
+    TH2F* eff_ptVSeta_INEL_evtSel_fakes_HP   = (TH2F*) nTr_ptVSeta_INEL_evtSel_fakes_reco_HP   ->Clone("eff_ptVSeta_INEL_evtSel_fakes_HP");
+  
+    eff_ptVSeta_INEL_evtSel_matched_HP->Divide(nTr_ptVSeta_INEL_evtSel_gen);
+    eff_ptVSeta_INEL_evtSel_fakes_HP  ->Divide(nTr_ptVSeta_INEL_evtSel_gen);
+
+    eff_ptVSeta_INEL_evtSel_matched_HP->Write();
+    eff_ptVSeta_INEL_evtSel_fakes_HP  ->Write();
+  
+  
+  }
 
 
   output->Close();
