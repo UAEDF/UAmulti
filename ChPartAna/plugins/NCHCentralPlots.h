@@ -17,7 +17,7 @@ class NCHCentralPlots : public TObject {
 
   public :
     NCHCentralPlots();
-    NCHCentralPlots(TString,int = 0);
+    NCHCentralPlots(TString);
     virtual ~NCHCentralPlots();
 
     TString centralcoll;
@@ -48,7 +48,6 @@ class NCHCentralPlots : public TObject {
     static bool passATLAS6RECO;
     
   private:
-    bool isRECO;
     
     ClassDef (NCHCentralPlots,1)
 };

@@ -5,14 +5,12 @@ ClassImp(NCHCentralPlots)
 //_____________________________________________________________________________
 NCHCentralPlots::NCHCentralPlots(){
   centralcoll = "none";
-  isRECO = 0;
   this->init();
 }
 
 //_____________________________________________________________________________
-NCHCentralPlots::NCHCentralPlots(TString collname, int isreco){
+NCHCentralPlots::NCHCentralPlots(TString collname){
   centralcoll = collname;
-  isRECO = isreco;
   this->init();
 }
 
