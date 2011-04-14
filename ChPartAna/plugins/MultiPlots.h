@@ -37,6 +37,8 @@ class MultiPlots : public BasePlots {
   void SetEnergy(Double_t e){energy=e;};
   TH1* get(TString);
   
+  virtual Long64_t Merge(TCollection* list){cout << "merging" << endl;return 0.;};
+  
   TMean* nch_mean;
   TH1F*  nch;
   TH1F*  kno;
