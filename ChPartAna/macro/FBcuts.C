@@ -1,4 +1,4 @@
-double pt_cut   = 0.1;
+double pt_cut   = 0.15;
 double eta_cut  = 2.4;
 double vtxz_cut = 15.;
 double nsigma   = 4.;
@@ -224,8 +224,8 @@ int getnInAcc(vector<T>* v , double pt = pt_cut, double eta = eta_cut, double ch
 
 }
 
-//------------------------------ GET THE PRIMARY TRACK -----------------------------------------
-void getPrimaryTracks(vector<MyTracks>& v_tr , int vtxId , double pt = pt_cut, double eta = eta_cut, double charge = 0){
+//------------------------------ GET THE PRIMARY gTR -----------------------------------------
+void getPrimaryTracks(vector<MyTracks>& v_tr , int vtxId , double pt = pt_cut, double eta = eta_cut, double charge = 0, bool highPurityOnly = false){
 
   if(debug) cout<<" +-+-+ starting getPrimaryTracks"<<endl;
   
@@ -234,19 +234,19 @@ void getPrimaryTracks(vector<MyTracks>& v_tr , int vtxId , double pt = pt_cut, d
   
   
   for(vector<MyTracks>::iterator it_tr = v_tr.end()-1 ; it_tr != v_tr.begin()-1 ; --it_tr)
-    if( ! isTrackPrimary(*it_tr , vtxId) || !isInAcceptance(it_tr->Part,pt,eta,charge))
+    if( ! isTrackPrimary(*it_tr , vtxId) || !isInAcceptance(it_tr->Part,pt,eta,charge) || (highPurityOnly && !it_tr->quality[2]) )
       v_tr.erase(it_tr);
       
   if(debug) cout<<" ** "<<v_tr.size()<<" tracks remaining after primary selection"<<endl;
 }
 
-inline void getPrimaryTracks(vector<MyTracks>& v_tr , vector<MyVertex>* vtxcoll ,  double pt = pt_cut, double eta = eta_cut, double charge = 0){
-  getPrimaryTracks(v_tr , getBestVertex(vtxcoll) , pt , eta , charge );
+inline void getPrimaryTracks(vector<MyTracks>& v_tr , vector<MyVertex>* vtxcoll ,  double pt = pt_cut, double eta = eta_cut, double charge = 0 , bool highPurityOnly = false){
+  getPrimaryTracks(v_tr , getBestVertex(vtxcoll) , pt , eta , charge , highPurityOnly);
 }
 
 
 
-//------------------------------ GET THE PRIMARY TRACK -----------------------------------------
+//------------------------------ GET THE PRIMARY mbTR -----------------------------------------
 void getPrimaryTracks(vector<MyTracks>& v_tr , vector<MyVertex>* vtxcoll, int vtxId, MyBeamSpot* bs, double pt = pt_cut, double eta = eta_cut, double charge = 0){
 
   if(debug) cout<<" +-+-+ starting getPrimaryTracks using Ferenc association"<<endl;
@@ -272,10 +272,10 @@ bool isGenPartGood(const MyGenPart& p){
   if ( fabs(p.Part.charge) <=0 ) return false;
   if ( p.status != 1 )          return false;
 
-  //Count only Stable Hadrons (and not the leptons)
-  if(fabs(p.pdgId) == 11 )  return false;
-  if(fabs(p.pdgId) == 13 )  return false;
-  if(fabs(p.pdgId) == 15 )  return false;
+  //Count only Stable Hadrons (and not the leptons) *** NOT LONGER NEEDED FOR MBUEWG
+  //if(fabs(p.pdgId) == 11 )  return false;
+  //if(fabs(p.pdgId) == 13 )  return false;
+  //if(fabs(p.pdgId) == 15 )  return false;
   
   return true;
 }
@@ -336,13 +336,14 @@ pair<Double_t,Double_t> getnCorrelTrReweight(vector<T>& v_tr , FBacc& cut , TH2F
     trEff_val = trEff.GetBinContent( xbin , ybin );
     trFakes_val =  1. - trFakes.GetBinContent( xbin , ybin );
     if(&trFakes==0) trFakes_val = 1;
-    if(debug){
-      cout << "[getnCorrelTrReweight] trEff_val , trFakes_val : " << trEff_val << "  " << trFakes_val << endl;
-      cout << "[getnCorrelTrReweight] pt , eta                : " << it_tr->Part.v.Pt() << "  " << it_tr->Part.v.Eta() << endl;
-    }
 
     if( xbin<1 || ybin<1 || xbin>trEff.GetNbinsX() || ybin>trEff.GetNbinsY() || trEff_val == 0 ) weight = 1.;
     else					                                                 weight = trFakes_val / trEff_val;
+
+    if(debug && weight > 2){
+      cout << "[getnCorrelTrReweight] trEff_val , trFakes_val , weight : " << trEff_val << "  " << trFakes_val << "  " << weight << endl;
+      cout << "[getnCorrelTrReweight] pt , eta                         : " << it_tr->Part.v.Pt() << "  " << it_tr->Part.v.Eta() << endl;
+    }
 
     if( it_tr->Part.v.Eta() < cut.etaM && it_tr->Part.v.Eta() > cut.etaM - cut.widthM ) nTrM+=weight;
     if( it_tr->Part.v.Eta() > cut.etaP && it_tr->Part.v.Eta() < cut.etaP + cut.widthP ) nTrP+=weight;
