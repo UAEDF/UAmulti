@@ -1,5 +1,8 @@
 #include "TMean.h"
 #include <math.h>
+#include <iostream>
+
+using namespace std;
 
 ClassImp(TMean)
 
@@ -9,26 +12,69 @@ TMean::TMean(){
   _MeanError = _RMSError  = 0.;
   _MeanSystP = _MeanSystM = 0.;
   _RMSSystP  = _RMSSystM  = 0.;
+  nsamples = 0;
+  vsamples = vector<TMean*>();
 }
 
 TMean::~TMean(){
+  for(int i = 0 ; i < nsamples ; ++i)
+    delete vsamples[i];
 }
 
 
 void TMean::Add(Double_t value, Double_t weight){
-_TotalSum+=value*weight;
-_TotalSumSquare+=value*value*weight;
-_TotalNumber+=weight;
+  _TotalSum+=value*weight;
+  _TotalSumSquare+=value*value*weight;
+  _TotalNumber+=weight;
+  
+  if(nsamples > 0){
+    for(int i = 0 ; i < nsamples ; ++i){
+      if(resampling_type.Contains("poiss"))
+        vsamples[i]->Add(gRandom->PoissonD(value));
+      else if(resampling_type.Contains("gauss"))
+        vsamples[i]->Add(gRandom->Gaus(value,value));
+    }
+  }
+  
 }
 
 void TMean::Substract(Double_t value, Double_t weight){
-_TotalSum-=value*weight;
-_TotalSumSquare-=value*value*weight;
-_TotalNumber-=weight;
+  _TotalSum-=value*weight;
+  _TotalSumSquare-=value*value*weight;
+  _TotalNumber-=weight;
+
+  if(nsamples > 0){
+    for(int i = 0 ; i < nsamples ; ++i){
+      if(resampling_type.Contains("poiss"))
+        vsamples[i]->Substract(gRandom->PoissonD(value));
+      else if(resampling_type.Contains("gauss"))
+        vsamples[i]->Substract(gRandom->Gaus(value,value));
+    }
+    cout << "[TMean::Substract] WARNING !! Can't use this to un-add something added previously while resampling is on ..." << endl;
+  }
+}
+
+void TMean::EnableErrorsFromResampling(TString type , int n){
+  nsamples = n;
+  resampling_type = type;
+  vsamples.assign(nsamples,NULL);
+  for(int i = 0 ; i < nsamples ; ++i)
+    vsamples[i] = new TMean();
 }
 
 void TMean::ComputeMean(){
-if(_TotalNumber!=0) _Mean=_TotalSum/_TotalNumber;
+  if(_TotalNumber!=0) _Mean=_TotalSum/_TotalNumber;
+  
+  if(nsamples > 0){
+    TMean sample_mean;
+    TMean sample_RMS;
+    for(int i = 0 ; i < nsamples ; ++i){
+      sample_mean.Add(vsamples[i]->GetMean());
+      sample_RMS.Add(vsamples[i]->GetRMS());
+    }
+    TMean::SetMeanError( sample_mean.GetRMS() );
+    TMean::SetRMSError( sample_RMS.GetRMS() );
+  }
 }
 
 void TMean::ComputeRMS(){
@@ -36,6 +82,7 @@ if(_TotalNumber!=0) _RMS=_TotalSumSquare/_TotalNumber - _Mean*_Mean;
 if(_RMS>=0) _RMS = sqrt(_RMS);
 else _RMS = -1;
 }
+
 
 Double_t TMean::GetMean(){
   ComputeMean();

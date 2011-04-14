@@ -2,8 +2,11 @@
 #define TMEAN_H
 
 #include "TObject.h"
+#include "TRandom.h"
+#include <vector>
+using namespace std;
 
-//#include "RootHeaders.h"
+class TMean;
 
 class TMean : public TObject{
 
@@ -12,6 +15,7 @@ class TMean : public TObject{
   ~TMean();
   void Add(Double_t, Double_t = 1.);
   void Substract(Double_t, Double_t = 1.);
+  void EnableErrorsFromResampling(TString = "poiss" , int = 1000);
   Double_t GetMean();
   Double_t GetMeanError(){return _MeanError;}
   Double_t GetMeanSquare();
@@ -49,6 +53,10 @@ class TMean : public TObject{
   Double_t _TotalNumber;
   Double_t _TotalSum;
   Double_t _TotalSumSquare;
+  
+  Double_t       nsamples;
+  TString        resampling_type;
+  vector<TMean*> vsamples;
   
   ClassDef(TMean,2);
 };
