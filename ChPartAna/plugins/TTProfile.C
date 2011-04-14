@@ -4,10 +4,11 @@ ClassImp(TTProfile)
 
 using namespace std;
 
-Bool_t TTProfile::debug            = false;
-Bool_t TTProfile::switchTH1On      = true;
-Bool_t TTProfile::switchTH2On      = false;
-Bool_t TTProfile::switchTMomentsOn = false;
+Bool_t TTProfile::debug                        = false;
+Bool_t TTProfile::switchTH1On                  = true;
+Bool_t TTProfile::switchTH2On                  = false;
+Bool_t TTProfile::switchTMomentsOn             = false;
+Bool_t TTProfile::switchErrorsFromResamplingOn = false;
 
 /*TTProfile::TTProfile():name("none"){
   cout << "GGGGGGGGG"<<endl;
@@ -16,6 +17,9 @@ Bool_t TTProfile::switchTMomentsOn = false;
 }*/
 TTProfile::TTProfile(){
   if(debug) cout << "+ [DEBUG] TTProfile : Starting TTProfile() {" << name << "}" << endl;
+  isTH1On      = switchTH1On;
+  isTH2On      = switchTH2On;
+  isTMomentsOn = switchTMomentsOn;
   binning = vector<Double_t>();
   nBins = 0;
   name = "";
@@ -66,21 +70,28 @@ TTProfile::TTProfile(TString s, vector<Double_t> v , vector<Double_t> w):name(s)
 
 void TTProfile::Init(){
   if(debug) cout << "+ [DEBUG] TTProfile : Starting Init() {" << name << "}" << endl;
+  isTH1On      = switchTH1On;
+  isTH2On      = switchTH2On;
+  isTMomentsOn = switchTMomentsOn;
   nBins = binning.size() - 1;
   nEvents = 0;
   profileDone = false;
-  if(vbinning.size()==0 && (switchTH1On || switchTH2On) ){
+  if(vbinning.size()==0 && (isTH1On || isTH2On) ){
     vector<Double_t> tmp = this->makeBins(101 , -0.5 , 100.5);
     vbinning = vector< vector<Double_t> >(nBins , tmp);
   }
   
   vmean = vector<TMean>(nBins,TMean());
-  if(switchTMomentsOn) vmom  = vector<TMoments>(nBins,TMoments());
-  if(switchTH2On)      th2   = TH2F(TString("th2_")+name,TString("th2_")+name,nBins,&(binning[0]),vbinning[0].size()-1,&(vbinning[0][0]));
+  if(switchErrorsFromResamplingOn)
+    for(int i = 0 ; i < nBins ; ++i)
+      vmean[i].EnableErrorsFromResampling();
+
+  if(isTMomentsOn) vmom  = vector<TMoments>(nBins,TMoments());
+  if(isTH2On)      th2   = TH2F(TString("th2_")+name,TString("th2_")+name,nBins,&(binning[0]),vbinning[0].size()-1,&(vbinning[0][0]));
   tprofile = TProfile(TString("tprofile_")+name,TString("tprofile_")+name,nBins,&(binning[0]));
   profile  = TH1F(TString("profile_")+name,TString("profile_")+name,nBins,&(binning[0]));
   nEntries = TH1F(TString("nEntries_")+name,TString("nEntries_")+name,nBins,&(binning[0]));
-  if(switchTH1On){
+  if(isTH1On){
     for(int i = 0 ; i < nBins ; ++i){
       ostringstream str("distri_");
       str<<name<<"_bin"<<i;
@@ -91,13 +102,15 @@ void TTProfile::Init(){
 }
 
 void TTProfile::clear(){
-  vth1.clear();
+  if(debug) cout << "+ [DEBUG] TTProfile : Starting clear() {" << name << "}" << endl;
+  /*vth1.clear();
   vmean.clear();
   vmom.clear();
   vth1.clear();
   vbinning.clear();
-  
-  //this->Init();
+  th2.Delete(); 
+  //this->Init();*/
+  if(debug) cout << "- [DEBUG] TTProfile : Finished clear() {" << name << "}" << endl;
 }
 
 vector<double> TTProfile::makeBins(Int_t nbin , Double_t xmin , Double_t xmax){
@@ -114,13 +127,13 @@ void TTProfile::Fill(Double_t xval , Double_t yval , Double_t weight){
   nEvents++;
   nEntries.Fill(xval , weight);
   for(;i<nBins;++i)
-    if(xval>=binning.at(i) && xval<binning.at(i+1)) break;
+    if(xval>=binning[i] && xval<binning[i+1]) break;
   if(i<nBins){
-    if(switchTH1On)      vth1.at(i).Fill(yval,weight);
-    if(switchTH2On)      th2.Fill(xval,yval,weight);
-                         vmean.at(i).Add(yval,weight);
-    if(switchTMomentsOn) vmom.at(i).Add(yval,weight);
-                         tprofile.Fill(xval,yval,weight);
+    if(isTH1On)      vth1[i].Fill(yval,weight);
+    if(isTH2On)      th2.Fill(xval,yval,weight);
+                     vmean[i].Add(yval,weight);
+    if(isTMomentsOn) vmom[i].Add(yval,weight);
+                     tprofile.Fill(xval,yval,weight);
   }
   /*else{
     cout << xval << " is outside the TTProfile range ..." << endl;
@@ -131,16 +144,17 @@ void TTProfile::Fill(Double_t xval , Double_t yval , Double_t weight){
 
 void TTProfile::makeProfile(TString opt){
   for(int i=0 ; i<nBins ; ++i){
-    if(vmean.at(i).GetRMS()<0) continue;
+    if(vmean[i].GetRMS()<0) continue;
 
-    profile.SetBinContent(i+1,vmean.at(i).GetMean());
+    profile.SetBinContent(i+1,vmean[i].GetMean());
     
     if(opt.Contains("RMS"))
-      profile.SetBinError(i+1,vmean.at(i).GetRMS());
-  
+      profile.SetBinError(i+1,vmean[i].GetRMS());
+    if(switchErrorsFromResamplingOn)
+      profile.SetBinError(i+1,vmean[i].GetMeanError());
   }
   
-  if(!profileDone) profileDone = true;
+  profileDone = true;
 }
 
 void TTProfile::write(Bool_t writeAllBins , Bool_t writeClass){
@@ -152,12 +166,13 @@ void TTProfile::write(Bool_t writeAllBins , Bool_t writeClass){
   if(writeAllBins){
     for(int i=0 ; i<nBins ; ++i){
       stringstream str("_bin");str<<i;
-      if(switchTH1On)      vth1.at(i).Write();
-      if(switchTH2On)      th2.Write();
-                           vmean.at(i).Write(TString("mean_")+name+str.str());
-      if(switchTMomentsOn) vmom.at(i).Write(TString("moments_")+name+str.str());
+      if(isTH1On)      vth1[i].Write();
+                       vmean[i].Write(TString("mean_")+name+str.str());
+      if(isTMomentsOn) vmom[i].Write(TString("moments_")+name+str.str());
     }
   }
+
+  if(isTH2On)          th2.Write();
   tprofile.Write();
   profile.Write();
   nEntries.Write();
@@ -170,20 +185,23 @@ void TTProfile::write(Bool_t writeAllBins , Bool_t writeClass){
 
 TTProfile& TTProfile::operator=(const TTProfile& ttp){
   if(debug) cout << "+ [DEBUG] TTProfile : Starting operator=() {" << name << "}" << endl;
-  nBins       = ttp.nBins;
-  nEvents     = ttp.nEvents;
-  name        = ttp.name;
-  profileDone = ttp.profileDone;
+  nBins        = ttp.nBins;
+  nEvents      = ttp.nEvents;
+  name         = ttp.name;
+  profileDone  = ttp.profileDone;
+  isTH1On      = ttp.isTH1On;
+  isTH2On      = ttp.isTH2On;
+  isTMomentsOn = ttp.isTMomentsOn;
   
-  vth1        = ttp.vth1;
-  th2         = ttp.th2;
-  vmean       = ttp.vmean;
-  vmom        = ttp.vmom;
-  tprofile    = ttp.tprofile;
-  profile     = ttp.profile;
-  nEntries    = ttp.nEntries;
-  binning     = ttp.binning;
-  vbinning    = ttp.vbinning;
+  vth1         = ttp.vth1;
+  th2          = ttp.th2;
+  vmean        = ttp.vmean;
+  vmom         = ttp.vmom;
+  tprofile     = ttp.tprofile;
+  profile      = ttp.profile;
+  nEntries     = ttp.nEntries;
+  binning      = ttp.binning;
+  vbinning     = ttp.vbinning;
   if(debug) cout << "- [DEBUG] TTProfile : Finished operator=() {" << name << "}" << endl;
   
   return *this;
@@ -191,20 +209,23 @@ TTProfile& TTProfile::operator=(const TTProfile& ttp){
 
 /*TTProfile::TTProfile(const TTProfile& ttp){
   if(debug) cout << "+ [DEBUG] TTProfile : Starting Copy() {" << name << "}" << endl;
-  nBins       = ttp.nBins;
-  nEvents     = ttp.nEvents;
-  name        = ttp.name;
-  profileDone = ttp.profileDone;
+  nBins        = ttp.nBins;
+  nEvents      = ttp.nEvents;
+  name         = ttp.name;
+  profileDone  = ttp.profileDone;
+  isTH1On      = ttp.isTH1On;
+  isTH2On      = ttp.isTH2On;
+  isTMomentsOn = ttp.isTMomentsOn;
   
-  vth1        = ttp.vth1;
-  th2         = ttp.th2;
-  vmean       = ttp.vmean;
-  vmom        = ttp.vmom;
-  tprofile    = ttp.tprofile;
-  profile     = ttp.profile;
-  nEntries    = ttp.nEntries;
-  binning     = ttp.binning;
-  vbinning    = ttp.vbinning;
+  vth1         = ttp.vth1;
+  th2          = ttp.th2;
+  vmean        = ttp.vmean;
+  vmom         = ttp.vmom;
+  tprofile     = ttp.tprofile;
+  profile      = ttp.profile;
+  nEntries     = ttp.nEntries;
+  binning      = ttp.binning;
+  vbinning     = ttp.vbinning;
   if(debug) cout << "+ [DEBUG] TTProfile : Finished Copy() {" << name << "}" << endl;
   
 }*/

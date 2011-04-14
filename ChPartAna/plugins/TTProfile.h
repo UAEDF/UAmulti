@@ -54,6 +54,11 @@ class TTProfile : public TObject{
   static Bool_t    switchTH1On;
   static Bool_t    switchTH2On;
   static Bool_t    switchTMomentsOn;
+  static Bool_t    switchErrorsFromResamplingOn;
+  
+  Bool_t    isTH1On;
+  Bool_t    isTH2On;
+  Bool_t    isTMomentsOn;
   
   vector<TH1F>     vth1;
   vector<TMean>    vmean;
