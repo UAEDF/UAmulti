@@ -24,10 +24,10 @@ class NCHDiffPlots : public TObject {
     TString diffcoll;
     
     NCHCentralPlots* centralp_SD;               
-    NCHCentralPlots* centralp_DD;              
+    //NCHCentralPlots* centralp_DD;              
     NCHCentralPlots* centralp_RECO;               
     NCHCentralPlots* centralp_NSD;              
-    NCHCentralPlots* centralp_INEL;                
+    //NCHCentralPlots* centralp_INEL;                
  
     
     void init();

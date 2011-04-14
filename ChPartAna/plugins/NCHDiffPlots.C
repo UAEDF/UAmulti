@@ -18,9 +18,9 @@ NCHDiffPlots::NCHDiffPlots(TString collname){
 NCHDiffPlots::~NCHDiffPlots(){ 
     if(isMC){   
         delete centralp_SD;
-        delete centralp_DD;
+        //delete centralp_DD;
         delete centralp_NSD;
-        delete centralp_INEL;
+        //delete centralp_INEL;
     }
     delete centralp_RECO;
 }
@@ -38,12 +38,12 @@ void NCHDiffPlots::init(){
  
   if(isMC) {
      centralp_SD             = new NCHCentralPlots("SD_"+diffcoll);
-     centralp_DD             = new NCHCentralPlots("DD_"+diffcoll);
+     //centralp_DD             = new NCHCentralPlots("DD_"+diffcoll);
      centralp_NSD            = new NCHCentralPlots("NSD_"+diffcoll);
-     centralp_INEL           = new NCHCentralPlots("INEL_"+diffcoll);
+     //centralp_INEL           = new NCHCentralPlots("INEL_"+diffcoll);
    }
 
-   centralp_RECO             = new NCHCentralPlots("RECO_"+diffcoll, 1); //1 means it is not MC, see NCHCentralPlots constructor
+   centralp_RECO             = new NCHCentralPlots("RECO_"+diffcoll); 
  
 }
 
@@ -56,10 +56,10 @@ void NCHDiffPlots::fill(vector<MyGenPart>& gpcoll, MyGenKin& genKin, TString MCt
         centralp_SD->fill(gpcoll,trcoll,vtxcoll,vtxIter,vtxId,bs,weight); 
     else 
         centralp_NSD->fill(gpcoll,trcoll,vtxcoll,vtxIter,vtxId,bs,weight);            
-    if(isDD) 
-        centralp_DD->fill(gpcoll,trcoll,vtxcoll,vtxIter,vtxId,bs,weight);        
+    //if(isDD) 
+        //centralp_DD->fill(gpcoll,trcoll,vtxcoll,vtxIter,vtxId,bs,weight);        
 
-    centralp_INEL->fill(gpcoll,trcoll,vtxcoll,vtxIter,vtxId,bs,weight);            
+    //centralp_INEL->fill(gpcoll,trcoll,vtxcoll,vtxIter,vtxId,bs,weight);            
   }
  
   centralp_RECO->fill(gpcoll,trcoll,vtxcoll,vtxIter,vtxId,bs,weight);
@@ -73,9 +73,9 @@ void NCHDiffPlots::write(){
 
   if(isMC) {    
     centralp_SD->write();
-    centralp_DD->write();
+    //centralp_DD->write();
     centralp_NSD->write();
-    centralp_INEL->write();
+    //centralp_INEL->write();
   }
   centralp_RECO->write();
 
