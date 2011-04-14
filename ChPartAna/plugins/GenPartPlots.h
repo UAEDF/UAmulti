@@ -31,6 +31,8 @@ class GenPartPlots : public BasePlots {
     void fill(vector<MyGenPart>& , double = 1.);
     void divide(GenPartPlots& , const TString);
     template <class T> void makeEff( T*, T*, const TString);
+    void divideByWidth(TH1F*);
+    void divideByWidthAll();
     void write();
     
   private:

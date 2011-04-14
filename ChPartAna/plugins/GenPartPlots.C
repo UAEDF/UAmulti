@@ -93,3 +93,19 @@ void GenPartPlots::makeEff( T* num, T* denom, const TString name){
   eff->SetMinimum(0);
   eff->Write();
 }
+
+//_____________________________________________________________________________
+void GenPartPlots::divideByWidth(TH1F* hist){
+  for(int i=1;i<=hist->GetNbinsX();++i){
+    hist->SetBinContent(i,double(hist->GetBinContent(i))/double(hist->GetBinWidth(i)));
+    hist->SetBinError(i,double(hist->GetBinError(i))/double(hist->GetBinWidth(i)));
+  }
+}
+
+//_____________________________________________________________________________
+void GenPartPlots::divideByWidthAll(){
+  divideByWidth(pt);
+  divideByWidth(nch);
+  divideByWidth(eta);
+  divideByWidth(phi);
+}
