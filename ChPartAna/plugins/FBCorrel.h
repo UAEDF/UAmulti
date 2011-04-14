@@ -2,6 +2,7 @@
 #define FBCORREL_H
 
 #include "TTProfile.h"
+#include "TResponseMtx.h"
 #include "TF1.h"
 
 class FBCorrel : public TObject{
@@ -17,6 +18,8 @@ class FBCorrel : public TObject{
   static Bool_t debug;
   
   void Fill(Double_t, Double_t, Double_t=1);
+  void Fill(Double_t, Double_t, TResponseMtx&);
+  void Fill(Double_t, Double_t, TResponseMtx&, TResponseMtx&);
   void Fit(Bool_t = 1 , Int_t = 0);
   void ComputeB();
   void write();
