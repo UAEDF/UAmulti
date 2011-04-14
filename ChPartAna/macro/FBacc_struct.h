@@ -15,8 +15,8 @@ struct FBacc{
     widthP = 0.25;
     etaM = 0;
     etaP = 0;
-    ptM = 0.1;
-    ptP = 0.1;
+    ptM = 0.15;
+    ptP = 0.15;
   };
 };
 
