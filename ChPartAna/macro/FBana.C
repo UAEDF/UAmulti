@@ -36,7 +36,7 @@ using namespace std;
 #include "../plugins/FBCorrelwCorr.h"
 
 bool isMC  = true;
-bool debug = 0;
+bool debug = 1;
 
 
 #include "FBacc.C"
@@ -53,17 +53,18 @@ TString st(string input , int cut){
 
 //nohup root -b -l BuildLibDico.C+ NCHrunCheck.C+"(0,7,1,100000000)" -q   > log_nchruncheck_type0_7TeV.txt &
 
-void FBana(int type = 60 , double E = 7.0 , int iTracking = 1 , int nevt_max = 10 , int version = 0.1){
+void FBana(int type = 60 , double E = 7.0 , int iTracking = 1 , int nevt_max = 10 , double version = 0.1){
   
   TH1::AddDirectory(0);
 
-  TTProfile::switchTH1On      = 1;
-  TTProfile::switchTH2On      = 1;
-  TTProfile::debug            = debug;
-  FBCorrel::debug             = debug;
-  FBCorrelwCorr::xCorrOn      = 0;
-  FBCorrelwCorr::xyCorrOn     = 1;
-  FBCorrelwCorr::trReweightOn = 1;
+  TTProfile::switchTH1On                  = 1;
+  TTProfile::switchTH2On                  = 1;
+  TTProfile::switchErrorsFromResamplingOn = 0;
+  TTProfile::debug                        = debug;
+  FBCorrel::debug                         = debug;
+  FBCorrelwCorr::xCorrOn                  = 0;
+  FBCorrelwCorr::xyCorrOn                 = 1;
+  FBCorrelwCorr::trReweightOn             = 1;
   
   if(debug) cout << "Getting the acceptance map ... " << endl;
   getAccMap();
@@ -128,6 +129,7 @@ void FBana(int type = 60 , double E = 7.0 , int iTracking = 1 , int nevt_max = 1
 
   //getting the list of files
   vector<TString>* vfiles = getListOfFiles(fileManager(0,type,E));
+ vfiles = getListOfFiles("list_skimmedTree_type0_7TeV_ntrGT100.txt");
 
   //Declaration of tree and its branches variables
   TTree* tree = new TTree("evt","");
