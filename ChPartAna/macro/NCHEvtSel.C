@@ -229,6 +229,20 @@ inline bool passVtx(vector<MyVertex>& vtxcoll){
 }
 
 
+
+//-----------------------------------------------------------------------------
+bool isEvtGood(double Energy , MyL1Trig& L1Trig , MyHLTrig& HLTrig , MyMITEvtSel& MITEvtSel, vector<MyVertex>* vtxcoll){
+  if(  passL1HLT(Energy , L1Trig, HLTrig , 1,isMC )
+    && passHF(MITEvtSel , 1)
+    && passVtxQual(MITEvtSel , Energy)
+    && passVtx(*vtxcoll) )
+          return true;
+	  
+  return false;
+}
+
+
+
 //_____________________________________________________________________________
 inline bool isSD(const MyGenKin& genKin , const TString MCtype){
   if(MCtype == "pythia" && (genKin.MCProcId == 92 || genKin.MCProcId == 93))
