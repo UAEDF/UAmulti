@@ -17,6 +17,7 @@ using namespace std;
 
 #include "../plugins/MyEvtId.h"
 #include "../plugins/MyL1Trig.h"
+#include "../plugins/MyHLTrig.h"
 #include "../plugins/MyGenKin.h"
 #include "../plugins/MyPart.h"
 #include "../plugins/MyGenPart.h"
@@ -38,7 +39,7 @@ bool debug = false;
 
 #include "fileManager.C"
 #include "cuts.C"
-#include "evtSel.C"
+#include "NCHEvtSel.C"
 #include "binningMap.C"
 
 
@@ -53,10 +54,16 @@ void divideByWidth(TH1F*);
 
 void smallCode(int type = 10 , double E = 0.9 , int iTracking = 1 , int nevt_max = 100){
   
+  Bool_t genOnly = true;
+  cout << "genOnly set to : " << genOnly << endl;
+  if(genOnly)
+    cout << "    ==> No Reco level objects will be stored ! " << endl;
   
   if(type==0) isMC = false;
   TString MCtype = "pythia";
   if(type == 20) MCtype = "phojet";
+  if(type == 60) MCtype = "pythia8";
+
 
   
 
@@ -137,143 +144,174 @@ void smallCode(int type = 10 , double E = 0.9 , int iTracking = 1 , int nevt_max
 
   }
 
-  //adding files to the tree chain
-  TChain* tree = new TChain("evt","");
-  tree->Add(fileManager(0,type,E));
-  
-  
-  //adding branches to the tree
+  //getting the list of files
+//  vector<TString>* vfiles = getListOfFiles(fileManager(0,type,E));
+  vector<TString>* vfiles = getListOfFiles("../filelist.txt");
+
+  TTree* tree = new TTree("evt","");
   
   MyEvtId* evtId      = NULL ;
-  tree->SetBranchAddress("EvtId",&evtId);
-  
   vector<MyGenPart>* genPart = NULL;
-  if(isMC) tree->SetBranchAddress("GenPart",&genPart);
-  
   MyGenKin* genKin = NULL;
-  if(isMC) tree->SetBranchAddress("GenKin",&genKin);
-  
+  /*vector<MyTracks>*  generalTracks  = NULL;
+  vector<MyTracks>*  minbiasTracks  = NULL;
+  vector<MyVertex>*  offlinePV  = NULL;
+  vector<MyVertex>*  ferencVtx  = NULL;
+  vector<MyVertex>*  pixel3Vertex  = NULL;*/
   vector<MyTracks>*  tracks  = NULL;
   vector<MyVertex>*  vertex  = NULL;
-  
   vector<MyVertex>*  vertexToCut  = NULL;
   MyL1Trig*     L1Trig    = NULL;
+  MyHLTrig*     HLTrig    = NULL;
   MyMITEvtSel*  MITEvtSel = NULL;
   MyBeamSpot*   bs        = NULL;
-  if(iTracking==0){
-    tree->SetBranchAddress("generalTracks",&tracks); 
-    tree->SetBranchAddress("primaryVertex",&vertex);
-  }
-  else if(iTracking==1){
-    tree->SetBranchAddress("minbiasTracks",&tracks); 
-    tree->SetBranchAddress("ferencVtxFerTrk",&vertex);
-  }
-  // tree->SetBranchAddress("pixel3Vertex",&vertexToCut);
+  
+  
+  int i_tot = 0 , nevt_tot = 0;
+  //starting Loop over files, stops at end of list of files or when reached nevt_max
+  for(vector<TString>::iterator itfiles = vfiles->begin() ; itfiles != vfiles->end() && i_tot < nevt_max ; ++itfiles){
 
-  tree->SetBranchAddress("L1Trig",&L1Trig);
-  tree->SetBranchAddress("MITEvtSel",&MITEvtSel);
-  tree->SetBranchAddress("beamSpot",&bs);
-  
-  //Getting number of events
-  int nev = int(tree->GetEntries());
-  std::cout <<"number of entries is : "<< nev << std::endl;
-  cout<<"Running on: "<<min(nev,nevt_max)<<" events"<<endl;
-  // Event TYPE counting --> Weights
-  
-  //starting loop over events
-  for(int i = 0; i < nev; i++){
-     
-    if( ((i+1) % 10000) == 0) cout <<int(double(i+1)/double(min(nev,nevt_max))*100.)<<" % done"<<endl;
+    TFile* file = TFile::Open(*itfiles,"READ");
+
+    //getting the tree form the current file
+    tree = (TTree*) file->Get("evt");
+
+    if(isMC) tree->SetBranchAddress("GenPart",&genPart);
+    if(isMC) tree->SetBranchAddress("GenKin",&genKin);
     
-    if(i>min(nev,nevt_max)) break;
+    if(!genOnly){
+      tree->SetBranchAddress("EvtId",&evtId);
+      /*tree->SetBranchAddress("generalTracks",&generalTracks); 
+      tree->SetBranchAddress("minbiasTracks",&minbiasTracks);
+      tree->SetBranchAddress("primaryVertex",&offlinePV);
+      //tree->SetBranchAddress("ferencVtxFerTrk",&ferencVtx);*/
+      if(iTracking==0){
+        tree->SetBranchAddress("generalTracks",&tracks); 
+        tree->SetBranchAddress("primaryVertex",&vertex);
+      }
+      else if(iTracking==1){
+        tree->SetBranchAddress("minbiasTracks",&tracks); 
+        tree->SetBranchAddress("ferencVtxFerTrk",&vertex);
+      }
+      
+      tree->SetBranchAddress("pixel3Vertex",&vertexToCut);
+      /*if(iTracking==0) tree->SetBranchAddress("ferencVtxFerTrk",&vertexToCut);
+      else if(iTracking==1) vertexToCut = vertex;*/
+      tree->SetBranchAddress("L1Trig",&L1Trig);
+      tree->SetBranchAddress("HLTrig",&HLTrig);
+      tree->SetBranchAddress("MITEvtSel",&MITEvtSel);
+      tree->SetBranchAddress("beamSpot",&bs);
+    }
+ 
+    //Just to put the good collection of vertex in vertexToCut
+    vertexToCut = vertex;
     
-    tree->GetEntry(i);
-    
-    
-    if(i==0) vertexToCut = vertex;
-    
-    
-    //Skipping the SD events starting from here
-    if(isMC)
-      if(isSD(genKin , MCtype) ) continue;
+    //Getting number of events
+    int nev = int(tree->GetEntriesFast());
+    nevt_tot += nev;
+    cout <<"The current file has " << nev << " entries : "<< endl << *itfiles << endl;
+    //cout<<"Running on: "<<min(nev,nevt_max)<<" events"<<endl;
+
+    //starting loop over events, stops when reached end of file or nevt_max
+    for(int i = 0; i < nev && i_tot < nevt_max; ++i , ++i_tot){
+
+      //printing the % of events done every 10k evts
+      if( ((i_tot+1) % 10000) == 0) cout <<int(double(i_tot+1)/1000)<<"k done"<<endl;
+
+      //if(i>min(nev,nevt_max)) break;
+
+      //Filling the variables defined setting branches
+      tree->GetEntry(i);
+
+      
+      //Skipping the SD events starting from here
+      if(isMC)
+        if(isSD(*genKin , MCtype) ) continue;
    
 /* 
-    int n_gen_allPt = getnPrimaryGenPart(genPart,0,2.4);
-    nch_gen_NSD_noSel->Fill(n_gen_allPt);
-    
-    int n_gen_ptCut = getnPrimaryGenPart(genPart,0.5,2.4);
-    nch_gen_NSD_noSel_ptCut->Fill(n_gen_ptCut);
+      int n_gen_allPt = getnPrimaryGenPart(genPart,0,2.4);
+      nch_gen_NSD_noSel->Fill(n_gen_allPt);
+      
+      int n_gen_ptCut = getnPrimaryGenPart(genPart,0.5,2.4);
+      nch_gen_NSD_noSel_ptCut->Fill(n_gen_ptCut);
 */
   
-    for(int acc = 0 ; acc < (signed)accMap.size() ; ++acc) {
-      nch_gen_NSD_noSel.at(acc)->Fill( getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4)) ); 
+      for(int acc = 0 ; acc < (signed)accMap.size() ; ++acc) {
+        nch_gen_NSD_noSel.at(acc)->Fill( getnPrimaryGenPart(genPart,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4)) ); 
 
-      double mpt_gen_noSel = 0.;
-      double mpt2_gen_noSel = 0.;
-      for(vector<MyGenPart>::iterator it_tr = genPart->begin() ; it_tr != genPart->end() ; ++it_tr)
-        if( isGenPartGood(*it_tr) && isInAcceptance(it_tr->Part,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4)) )
-        { 
-          mpt_gen_noSel  += it_tr->Part.v.Pt();
-          mpt2_gen_noSel += pow(it_tr->Part.v.Pt(),2.) ;
-        }
-      int n_gen_noSel = getnPrimaryGenPart( genPart,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4) );
-      if(n_gen_noSel!=0) { mpt_gen_noSel/=n_gen_noSel;  mpt2_gen_noSel/=n_gen_noSel; }
-      mptVSnchgen_gen.at(acc)->Fill(n_gen_noSel,mpt_gen_noSel);
-      mpt2VSnchgen_gen.at(acc)->Fill(n_gen_noSel,mpt2_gen_noSel);
-    }
-    
-    //skipping events that don't pass our event selection
-    if(!isEvtGood(E,*L1Trig , *MITEvtSel , vertexToCut)) continue;
-    
-    
-    //RECO NCH
-    for(int acc = 0 ; acc < (signed)accMap.size() ; ++acc) {
-
-      vector<MyTracks> trcoll;
-      if(iTracking==0) trcoll = getPrimaryTracks(*tracks,vertex,    accMap[acc].at(2),accMap[acc].at(3),accMap[acc].at(4) );
-      if(iTracking==1) trcoll = getPrimaryTracks(*tracks,vertex,bs, accMap[acc].at(2),accMap[acc].at(3),accMap[acc].at(4) );
-      int n = trcoll.size();
-  
-      double mpt_reco = 0;
-      double mpt2_reco = 0;
-      for(vector<MyTracks>::iterator itr = trcoll.begin() ; itr != trcoll.end() ; ++itr){
-        mpt_reco+=itr->Part.v.Pt();
-        mpt2_reco+= pow(itr->Part.v.Pt(),2.);
-        pt_reco.at(acc)->Fill(itr->Part.v.Pt());
-        pt2_reco.at(acc)->Fill(pow(itr->Part.v.Pt(),2.));
+        double mpt_gen_noSel = 0.;
+        double mpt2_gen_noSel = 0.;
+        for(vector<MyGenPart>::iterator it_tr = genPart->begin() ; it_tr != genPart->end() ; ++it_tr)
+          if( isGenPartGood(*it_tr) && isInAcceptance(it_tr->Part,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4)) )
+          { 
+            mpt_gen_noSel  += it_tr->Part.v.Pt();
+            mpt2_gen_noSel += pow(it_tr->Part.v.Pt(),2.) ;
+          }
+        int n_gen_noSel = getnPrimaryGenPart( genPart,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4) );
+        if(n_gen_noSel!=0) { mpt_gen_noSel/=n_gen_noSel;  mpt2_gen_noSel/=n_gen_noSel; }
+        mptVSnchgen_gen.at(acc)->Fill(n_gen_noSel,mpt_gen_noSel);
+        mpt2VSnchgen_gen.at(acc)->Fill(n_gen_noSel,mpt2_gen_noSel);
       }
-      if(n!=0) { mpt_reco/=n; mpt2_reco/=n; }
-      mptVSnchreco_reco.at(acc)->Fill(n,mpt_reco);
-      mpt2VSnchreco_reco.at(acc)->Fill(n,mpt2_reco);
       
-      double mpt_gen = 0;
-      double mpt2_gen = 0;
-      for(vector<MyGenPart>::iterator it_tr = genPart->begin() ; it_tr != genPart->end() ; ++it_tr){
-        if( isGenPartGood(*it_tr) && isInAcceptance( it_tr->Part,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4) ) ){
-          mpt_gen += it_tr->Part.v.Pt();
-          mpt2_gen += pow(it_tr->Part.v.Pt(),2.);
-          pt_gen.at(acc)->Fill(it_tr->Part.v.Pt());
-          pt2_gen.at(acc)->Fill(pow(it_tr->Part.v.Pt(),2.));
-        }
-      }
-      int n_gen = getnPrimaryGenPart( genPart,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4) );
-      if(n_gen!=0) { mpt_gen/=n_gen; mpt2_gen/=n_gen; }
-      mptVSnchreco_gen.at(acc)->Fill(n,mpt_gen);
-      mpt2VSnchreco_gen.at(acc)->Fill(n,mpt2_gen);
+      if(genOnly) continue;
+      
+      //skipping events that don't pass our event selection
+      if(!isEvtGood(E,*L1Trig , *HLTrig, *MITEvtSel , vertexToCut)) continue;
+      
+      
+      //RECO NCH
+      for(int acc = 0 ; acc < (signed)accMap.size() ; ++acc) {
 
-      mptVSnchgen_reco.at(acc)->Fill(n_gen,mpt_reco);
-      mpt2VSnchgen_reco.at(acc)->Fill(n_gen,mpt2_reco);
-    } 
-      
-    //mptrecoVSgen->Fill(mpt_gen,mpt_reco);
-    
-    
-  }//end of loop over events
+        vector<MyTracks> trcoll;
+        if(iTracking==0) trcoll = getPrimaryTracks(*tracks,vertex,    accMap[acc].at(2),accMap[acc].at(3),accMap[acc].at(4) );
+        if(iTracking==1) trcoll = getPrimaryTracks(*tracks,vertex,bs, accMap[acc].at(2),accMap[acc].at(3),accMap[acc].at(4) );
+        int n = trcoll.size();
   
+        double mpt_reco = 0;
+        double mpt2_reco = 0;
+        for(vector<MyTracks>::iterator itr = trcoll.begin() ; itr != trcoll.end() ; ++itr){
+          mpt_reco+=itr->Part.v.Pt();
+          mpt2_reco+= pow(itr->Part.v.Pt(),2.);
+          pt_reco.at(acc)->Fill(itr->Part.v.Pt());
+          pt2_reco.at(acc)->Fill(pow(itr->Part.v.Pt(),2.));
+        }
+        if(n!=0) { mpt_reco/=n; mpt2_reco/=n; }
+        mptVSnchreco_reco.at(acc)->Fill(n,mpt_reco);
+        mpt2VSnchreco_reco.at(acc)->Fill(n,mpt2_reco);
+        
+        double mpt_gen = 0;
+        double mpt2_gen = 0;
+        for(vector<MyGenPart>::iterator it_tr = genPart->begin() ; it_tr != genPart->end() ; ++it_tr){
+          if( isGenPartGood(*it_tr) && isInAcceptance( it_tr->Part,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4) ) ){
+            mpt_gen += it_tr->Part.v.Pt();
+            mpt2_gen += pow(it_tr->Part.v.Pt(),2.);
+            pt_gen.at(acc)->Fill(it_tr->Part.v.Pt());
+            pt2_gen.at(acc)->Fill(pow(it_tr->Part.v.Pt(),2.));
+          }
+        }
+        int n_gen = getnPrimaryGenPart( genPart,accMap[acc].at(0),accMap[acc].at(1),accMap[acc].at(4) );
+        if(n_gen!=0) { mpt_gen/=n_gen; mpt2_gen/=n_gen; }
+        mptVSnchreco_gen.at(acc)->Fill(n,mpt_gen);
+        mpt2VSnchreco_gen.at(acc)->Fill(n,mpt2_gen);
+
+        mptVSnchgen_reco.at(acc)->Fill(n_gen,mpt_reco);
+        mpt2VSnchgen_reco.at(acc)->Fill(n_gen,mpt2_reco);
+      } 
+        
+      //mptrecoVSgen->Fill(mpt_gen,mpt_reco);
+      
+      
+    }//end of loop over events
+
+    //Closing current files
+    file->Close();
+
+  }//end of loop over files
+
   
   //output file
   ostringstream strout("");
-  strout<<"../plots/smallCode_MCtype"<<type<<"_"<<E<<"TeV.root";
+  strout<<"smallCode_MCtype"<<type<<"_"<<E<<"TeV.root";
   TFile* output = new TFile(strout.str().c_str(),"RECREATE");
   output->cd();
   
@@ -284,16 +322,18 @@ void smallCode(int type = 10 , double E = 0.9 , int iTracking = 1 , int nevt_max
   
     divideByWidth(nch_gen_NSD_noSel.at(acc));
     nch_gen_NSD_noSel.at(acc)->Write();
+    mptVSnchgen_gen.at(acc)->Write();
+    mpt2VSnchgen_gen.at(acc)->Write();
+    
+    if(genOnly) continue;
     
     mptVSnchreco_reco.at(acc)->Write();
     mptVSnchreco_gen.at(acc)->Write();
     mptVSnchgen_reco.at(acc)->Write();
-    mptVSnchgen_gen.at(acc)->Write();
 
     mpt2VSnchreco_reco.at(acc)->Write();
     mpt2VSnchreco_gen.at(acc)->Write();
     mpt2VSnchgen_reco.at(acc)->Write();
-    mpt2VSnchgen_gen.at(acc)->Write();
     
     mptVSnchreco_gen.at(acc)->Divide(mptVSnchreco_gen.at(acc),mptVSnchreco_reco.at(acc),1.,1.,"B");
     mptVSnchreco_gen.at(acc)->Write(st("eff_mtpVSnchreco_genOreco",acc));
