@@ -20,8 +20,8 @@
 //#             51 : MC - PYTHIA X1
 //#             52 : MC - PYTHIA X2
 //#             60 : MC - PYTHIA 8
-//#             60 : MC - PYTHIA 8 2C  --> GenParts Only
-//#             60 : MC - PYTHIA 8 4C  --> GenParts Only
+//#             61 : MC - PYTHIA 8 2C  --> GenParts Only
+//#             62 : MC - PYTHIA 8 4C  --> GenParts Only
 //#
 //#             100 : DATA TEST
 //#             101 : MC   TEST
@@ -381,7 +381,8 @@ vector<TString>* getListOfFiles(TString strfiles){
     ifstream txtfile;
     txtfile.open(strfiles);
     if(!txtfile) {
-      cout<<"Unable to read the txt file where the rootfiles are." << endl << "Aborting ...";
+      cout<<"Unable to read the txt file where the rootfiles are." << endl ;
+      cout << strfiles << " doesn't exist." << endl << "Aborting ...";
       exit(0);
     }
     string filename;
