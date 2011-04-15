@@ -16,9 +16,13 @@ using namespace std;
 
 TString PlotDirectory = "../figs/";
 
+
+//_____________________________________________________________________________
 void NCHPlotting() {
     cout << " UAPlotting compiled "<< endl;
-    PlotDirectory +="v20b/";
+
+    PlotDirectory ="../figs/v21/";
+
     cout << " Plot directory set to: " << PlotDirectory << endl;
     
     UACurveStyleBase::g_markerStyle = kOpenCircle;
@@ -27,12 +31,17 @@ void NCHPlotting() {
     
 }
 
+
+//_____________________________________________________________________________
 TString Txt(TString in, double E = 7) {
     
     TString out="CMS ";
     if(in.Contains("HF1")) out += "NSD ";
-    if(E==7)   out+="7 TeV      ";
-    if(E==0.9) out+="900 GeV      ";
+   
+    if(E==0.9 || in.Contains("0.9") || in.Contains("900") )   out+="900 GeV  ";
+    else   out+="7 TeV  "; 
+    if(in.Contains("genTr")) out+="genTr  ";
+    if(in.Contains("NoWeight")) out+="NoWght  "; 
     
     if(in.Contains("nocut"))  out += "(nch>=0)      " ;
     else if(in.Contains("MBUEWG")) out += "(nch>=1  |#eta|<0.8)     " ;
@@ -49,8 +58,37 @@ TString Txt(TString in, double E = 7) {
     else if(in.Contains("cut5")) out += "p_{T}>0  |#eta|<1.0 " ;
     
     return out;
-}
+} 
 
+
+//_____________________________________________________________________________
+void UAPlotting2_DoubleCompare (TString file1 , TString file2,  TString histoMC, TString legendStr,TString leg1, TString leg2 ) {
+  cmsStyleRoot();
+
+  UACanvas* canvas = new UACanvas();
+  UALegend* legend = new UALegend();
+  UACurve curve1 = UACurve(0,file1,histoMC);
+  UACurve curve2 = UACurve(0,file2,histoMC);
+  
+  curve1.markerColor = kRed;
+  curve1.lineColor = kRed;
+  //((TH1F*) curve1.pCurve())->GetYaxis()->SetRangeUser(1, ((TH1F*) curve1.pCurve())->GetYaxis()->GetXmax());
+  curve1.Draw(""); //no errors visible
+  legend->AddLegend(curve1,leg1);
+  
+  curve2.markerColor = kGreen ;
+  curve2.lineColor = kGreen ;
+  curve2.Draw("sameh");
+  legend->AddLegend(curve2,leg2);
+ 
+ 
+  legend->BuildLegend();
+  canvas->AddText( Txt(legendStr),.22,.965,.035);
+   
+  gPad->WaitPrimitive();
+  //canvas->Save("UnfChiCompare"+legendStr,PlotDirectory);
+  delete canvas ;  
+}
 
 //_____________________________________________________________________________
 void UAPlotting4_UnfChiCompare (TString file1 , TString file2 , TString file3, TString file4, TString histoMC ,TString legendStr ) {
@@ -323,6 +361,73 @@ void UAPlotting5_UnfRawCompare (TString file1 , TString file2 , TString file3, T
   delete canvas ;  
 }
 
+//_____________________________________________________________________________
+void UAPlotting7_UnfRawCompare (TString file1 , TString file2 , TString file3, TString file4, TString file5, TString file6, TString histoData, TString histoMC , TString histoMC2, TString legendStr ) {
+  cmsStyleRoot();
+
+  UACanvas* canvas = new UACanvas();
+  UALegend* legend = new UALegend();
+  UACurve curve1 = UACurve(0,file1,histoData);
+  UACurve curve2 = UACurve(1,file1,histoMC);
+  UACurve curve3 = UACurve(1,file2,histoMC);
+  UACurve curve4 = UACurve(1,file3,histoMC);
+  UACurve curve5 = UACurve(1,file4,histoMC);
+  UACurve curve6 = UACurve(1,file5,histoMC2);
+  UACurve curve7 = UACurve(1,file6,histoMC2);
+  
+  curve1.Draw("");
+  legend->AddLegend(curve1,"Data");
+  ((TH1F*) curve1.pCurve())->GetXaxis()->SetRangeUser(0, 120);
+  ((TH1F*) curve1.pCurve())->GetYaxis()->SetRangeUser(2, 20000);
+  canvas->GetCanvas()->SetLogy();
+  ((TH1F*) curve1.pCurve())->GetYaxis()->SetTitle("# Events"); 
+  
+  curve2.Norm(curve1);
+  curve2.markerColor = kRed ;
+  curve2.lineColor = kRed ;
+  curve2.Draw("same");
+  legend->AddLegend(curve2,"PYTHIA D6T");
+  
+  curve3.Norm(curve1);
+  curve3.markerColor = kGreen ;
+  curve3.lineColor = kGreen ;
+  curve3.Draw("same");
+  legend->AddLegend(curve3,"PYTHIA Z2");
+  
+  curve4.Norm(curve1);
+  curve4.markerColor = kBlue ;
+  curve4.lineColor = kBlue ;
+  curve4.Draw("same"); 
+  legend->AddLegend(curve4,"PYTHIA 8 tune 1");
+  
+  curve6.Norm(curve1);
+  curve6.markerColor = kOrange ;
+  curve6.lineColor = kOrange ;
+  curve6.Draw("same"); 
+  legend->AddLegend(curve6,"PYTHIA 8 2C");
+  
+  curve7.Norm(curve1);
+  curve7.markerColor = kCyan ;
+  curve7.lineColor = kCyan ;
+  curve7.Draw("same"); 
+  legend->AddLegend(curve7,"PYTHIA 8 4C");  
+  
+  curve5.Norm(curve1);
+  curve5.markerColor = kMagenta ;
+  curve5.lineColor = kMagenta ;
+  curve5.Draw("same"); 
+  legend->AddLegend(curve5,"PYTHIA ATLAS");
+
+  curve1.Draw("same");
+  
+  legend->BuildLegend(0.22,0.4);
+  canvas->AddText( Txt(legendStr),.22,.965,.035);
+   
+  gPad->WaitPrimitive();
+  canvas->Save("UnfRawCompare_"+legendStr,PlotDirectory);
+  delete canvas ;  
+}
+
 
 //_____________________________________________________________________________
 void UAPlotting5_RawPlot (TString file1 , TString file2 , TString file3, TString file4, TString file5, TString histo1, TString legendStr ) {
@@ -559,63 +664,121 @@ void UAPlotting4_UnfCompare (TString file1 , TString file2 , TString file3, TStr
 ////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////
 
-
 //_______________________Compare different Central Cuts during Unfolding__________________________________
-void RawPlot(int mctype = 15, int acc = 0, TString hf = "HF0", TString DataOrMC = "v10", TString name ="partfull" ) {
-   //Example: RawPlot(15,0,"HF0","v12")
-   //MC:      RawPlot(15,0,"HF0","v12","MCcorrMC_partfull")
+void DoubleCompare(int mctype = 31, int acc = 0 , TString hf = "HF0", TString subdir = "v21", TString name ="partfull" ) {
+   //Example: DoubleCompare(31,0,"HF0","v21")
 
-   TString Difftype = "RECO";  //before v11  "INEL"
+   TString Difftype = "INEL";  //before v11  "INEL"
    stringstream mctypestr("");     mctypestr << "_MC" << mctype ;
    stringstream cutstr("");        cutstr << "_cut" << acc ;
    //get all root files in the directory
+  TString Energy = "_E_7";
+  if (subdir.Contains("900") ) Energy = "_E_0.9";
 
-   TString filenamenocut  = "unf"+mctypestr.str()+"_"+name+"_"+hf+"_nocut_" +Difftype+cutstr.str()+".root";
-   TString filenameMBUEWG = "unf"+mctypestr.str()+"_"+name+"_"+hf+"_MBUEWG_"+Difftype+cutstr.str()+".root";
-   TString filenameATLAS1 = "unf"+mctypestr.str()+"_"+name+"_"+hf+"_ATLAS1_"+Difftype+cutstr.str()+".root";
-   TString filenameATLAS6 = "unf"+mctypestr.str()+"_"+name+"_"+hf+"_ATLAS6_"+Difftype+cutstr.str()+".root";
-   TString filenameALICE  = "unf"+mctypestr.str()+"_"+name+"_"+hf+"_ALICE_" +Difftype+cutstr.str()+".root";
+  TString filename  = "unf"+mctypestr.str()+"_"+name+"_"+hf+"_nocut_" +Difftype+cutstr.str()+".root"; 
+  TString filename_NoWeight  = "unf"+mctypestr.str()+"_noweight_"+name+"_"+hf+"_nocut_" +Difftype+cutstr.str()+".root"; 
+  TString filename_genTr  = "unf"+mctypestr.str()+"_genTr_"+name+"_"+hf+"_nocut_" +Difftype+cutstr.str()+".root"; 
+  TString dirNoWeight="files/unfold_outputs/"+subdir+"NoWeight/";
+  TString dir="files/unfold_outputs/"+subdir+"/";
+  TString dirgenTr="files/unfold_outputs/"+subdir+"_genTr/";
+  
+  UAPlotting2_DoubleCompare(dirNoWeight+filename_NoWeight, dir+filename, "nch_unfoldedPtr" ,  "nch_data_corrected_" + mctypestr.str()+hf+Difftype+cutstr.str()+Energy+"_NoWght_Wght", "NoWeight", "Weight"  );
+  UAPlotting2_DoubleCompare(dirgenTr+filename_genTr, dir+filename, "nch_unfoldedPtr" ,  "nch_unfoldedPtr" + mctypestr.str()+hf+Difftype+cutstr.str()+Energy+"_gTr_fTr", "genTr", "ferncTr"  ); 
+}
+
+
+//_______________________Compare different Central Cuts during Unfolding__________________________________
+void RawPlot(int mctype = 31, int acc = 0, TString hf = "HF0", TString subdir = "v21", TString name ="partfull" ) {
+   //Example: RawPlot(31,0,"HF0","v21")
+   //MC:      RawPlot(31,0,"HF0","v20b","MCcorrMC_partfull")
+
+   TString Difftype = "INEL";  //before v11  "INEL"
+   stringstream mctypestr("");     mctypestr << "_MC" << mctype ;
+   stringstream cutstr("");        cutstr << "_cut" << acc ;
+   //get all root files in the directory
+   
+   TString Energy = "_E_7";
+   if (subdir.Contains("900") ) Energy = "_E_0.9";
+   TString tr ="_ferncTr";
+   if (subdir.Contains("genTr") ) tr= "_genTr";
+   TString wght ="_Weight";
+   if (subdir.Contains("NoWeight")) wght="_NoWeight";
+   
+   TString extra="";
+   if (subdir.Contains("genTr") )   extra+="_genTr";
+   if (subdir.Contains("NoWeight")) extra+="_noweight";
+   
+   TString filenamenocut  = "unf"+mctypestr.str()+extra+"_"+name+"_"+hf+"_nocut_" +Difftype+cutstr.str()+".root";
+   TString filenameMBUEWG = "unf"+mctypestr.str()+extra+"_"+name+"_"+hf+"_MBUEWG_"+Difftype+cutstr.str()+".root";
+   TString filenameATLAS1 = "unf"+mctypestr.str()+extra+"_"+name+"_"+hf+"_ATLAS1_"+Difftype+cutstr.str()+".root";
+   TString filenameATLAS6 = "unf"+mctypestr.str()+extra+"_"+name+"_"+hf+"_ATLAS6_"+Difftype+cutstr.str()+".root";
+   TString filenameALICE  = "unf"+mctypestr.str()+extra+"_"+name+"_"+hf+"_ALICE_" +Difftype+cutstr.str()+".root";
    //cout << filenamenocut<<endl;
    //cout << "unf_MC15_partfull_HF0_ALICE_INEL_cut0.root" << endl;
   
-  TString dir="files/unfold_outputs/"+DataOrMC+"/";
-  UAPlotting5_RawPlot(dir+filenamenocut, dir+filenameMBUEWG,dir+filenameATLAS1, dir+filenameATLAS6, dir+filenameALICE ,  "nch_data_raw"  ,  "nch_data_raw_" + mctypestr.str()+hf );
-  UAPlotting5_RawPlot(dir+filenamenocut, dir+filenameMBUEWG,dir+filenameATLAS1, dir+filenameATLAS6, dir+filenameALICE ,  "nch_data_corrected" ,  "nch_data_corrected_" + mctypestr.str()+hf  );
-  UAPlotting5_RawPlot(dir+filenamenocut, dir+filenameMBUEWG,dir+filenameATLAS1, dir+filenameATLAS6, dir+filenameALICE ,  "nch_resampled", "nch_resampled_" + mctypestr.str()+hf );
-  UAPlotting5_RawPlot(dir+filenamenocut, dir+filenameMBUEWG,dir+filenameATLAS1, dir+filenameATLAS6, dir+filenameALICE ,  "nch_unfoldedPtr" , "nch_unfoldedPtr_"+ mctypestr.str()+hf );
-  UAPlotting5_RawPlot(dir+filenamenocut, dir+filenameMBUEWG,dir+filenameATLAS1, dir+filenameATLAS6, dir+filenameALICE ,  "nch_corrected_norm","nch_corrected_norm_" + mctypestr.str()+hf   );
-  UAPlotting5_RawPlot(dir+filenamenocut, dir+filenameMBUEWG,dir+filenameATLAS1, dir+filenameATLAS6, dir+filenameALICE ,  "nch_MC_gen_afterUnfolding" ,"nch_MC_gen_afterUnfolding_" + mctypestr.str()+hf  );
-  UAPlotting5_RawPlot(dir+filenamenocut, dir+filenameMBUEWG,dir+filenameATLAS1, dir+filenameATLAS6, dir+filenameALICE ,  "nch_MC_gen_afterEvtSelCorrection" , "nch_MC_gen_afterEvtSelCorrection_" + mctypestr.str()+hf );
+  TString dir="files/unfold_outputs/"+subdir+"/";
+  UAPlotting5_RawPlot(dir+filenamenocut, dir+filenameMBUEWG,dir+filenameATLAS1, dir+filenameATLAS6, dir+filenameALICE ,  "nch_data_raw"  ,  "nch_data_raw_" + mctypestr.str()+hf+Energy+tr+wght );
+  UAPlotting5_RawPlot(dir+filenamenocut, dir+filenameMBUEWG,dir+filenameATLAS1, dir+filenameATLAS6, dir+filenameALICE ,  "nch_data_corrected" ,  "nch_data_corrected_" + mctypestr.str()+hf+Energy+tr+wght  );
+  UAPlotting5_RawPlot(dir+filenamenocut, dir+filenameMBUEWG,dir+filenameATLAS1, dir+filenameATLAS6, dir+filenameALICE ,  "nch_resampled", "nch_resampled_" + mctypestr.str()+hf+Energy+tr+wght );
+  UAPlotting5_RawPlot(dir+filenamenocut, dir+filenameMBUEWG,dir+filenameATLAS1, dir+filenameATLAS6, dir+filenameALICE ,  "nch_unfoldedPtr" , "nch_unfoldedPtr_"+ mctypestr.str()+hf+Energy+tr+wght );
+  UAPlotting5_RawPlot(dir+filenamenocut, dir+filenameMBUEWG,dir+filenameATLAS1, dir+filenameATLAS6, dir+filenameALICE ,  "nch_corrected_norm","nch_corrected_norm_" + mctypestr.str()+hf+Energy+tr+wght   );
+  UAPlotting5_RawPlot(dir+filenamenocut, dir+filenameMBUEWG,dir+filenameATLAS1, dir+filenameATLAS6, dir+filenameALICE ,  "nch_MC_gen_afterUnfolding" ,"nch_MC_gen_afterUnfolding_" + mctypestr.str()+hf+Energy+tr+wght  );
+  UAPlotting5_RawPlot(dir+filenamenocut, dir+filenameMBUEWG,dir+filenameATLAS1, dir+filenameATLAS6, dir+filenameALICE ,  "nch_MC_gen_afterEvtSelCorrection" , "nch_MC_gen_afterEvtSelCorrection_" + mctypestr.str()+hf+Energy+tr+wght );
 }
 
 
 //_______________________Compare different MCs during Unfolding__________________________________
-void UnfRawCompare(TString type = "nocut", int acc = 0, TString hf = "HF0", TString subdir = "v20", TString MCcorrMC_name ="partfull" ) {
-  //Example: UnfRawCompare("nocut",0,"HF0","v20","partfull")
-  //MC:      UnfRawCompare("nocut",0,"HF0","v20","MCcorrMC_partfull")
+void UnfRawCompare(TString type = "nocut", int acc = 0, TString hf = "HF0", TString subdir = "v21", TString MCcorrMC_name ="partfull" ) {
+  //Example: UnfRawCompare("nocut",0,"HF0","v21","partfull")
+  //MC:      UnfRawCompare("nocut",0,"HF0","v21","MCcorrMC_partfull")
 
-  TString Difftype = "RECO";
-  if(hf =="HF1") Difftype = "NSD";
-  type= "_"+type+"_";
+  hf="_"+hf;
+  TString Difftype = "_INEL";
+  if(hf =="_HF1") Difftype = "_NSD";
+  type= "_"+type;
   stringstream cutstr("");	  cutstr    << "_cut" << acc ;
-
-  TString filenameMC10  = "unf_MC10_"+MCcorrMC_name+"_"+hf+type +Difftype+cutstr.str()+".root";
-  TString filenameMC15  = "unf_MC15_"+MCcorrMC_name+"_"+hf+type +Difftype+cutstr.str()+".root";
-  TString filenameMC60  = "unf_MC60_"+MCcorrMC_name+"_"+hf+type +Difftype+cutstr.str()+".root";
-  TString filenameMC31  = "unf_MC31_"+MCcorrMC_name+"_"+hf+type +Difftype+cutstr.str()+".root";
-
-  TString dir="files/unfold_outputs/"+subdir+"/";
-  UAPlotting4_UnfCompare   (dir+filenameMC10, dir+filenameMC15,dir+filenameMC60, dir+filenameMC31,  "nch_data_corrected" ,"nch_diffCorrMC_"+type+cutstr.str()+hf );
-  UAPlotting5_UnfRawCompare(dir+filenameMC10, dir+filenameMC15,dir+filenameMC60, dir+filenameMC31,  "nch_data_raw", "nch_mc_reco_raw" ,"nch_raw_"+type+hf+cutstr.str()   );
-  UAPlotting5_UnfRawCompare(dir+filenameMC10, dir+filenameMC15,dir+filenameMC60, dir+filenameMC31,  "nch_data_corrected", "nch_MC_gen_afterEvtSelCorrection" ,"nch_corrected_"+type+hf+cutstr.str()	);
-  UAPlotting4_UnfChiCompare(dir+filenameMC10, dir+filenameMC15,dir+filenameMC60, dir+filenameMC31, "chi2VSniter" ,"Chi²_"+type+hf+cutstr.str()   );  
-  UAPlotting8_UnfCompare   (dir+filenameMC10, dir+filenameMC15,dir+filenameMC60, dir+filenameMC31,  "nch_unfoldedPtr", "nch_MC_gen_afterUnfolding" ,"nch_afterUnfolding_"+type+cutstr.str()+hf   );
-  UAPlotting8_UnfCompare   (dir+filenameMC10, dir+filenameMC15,dir+filenameMC60, dir+filenameMC31,  "nch_data_corrected", "nch_MC_gen_afterEvtSelCorrection" ,"nch_afterCorrected_"+type+cutstr.str()+hf );
   
-  //UAPlotting4_UnfChiCompare(dir+filenameMC10, dir+filenameMC15,dir+filenameMC60, dir+filenameMC31,  "nch_data_raw" ,"nch_data_raw compare"   );  
+  TString Energy = "_E_7";
+  if (subdir.Contains("900") ) Energy = "_E_0.9";
+  TString NoWght="";
+  if(subdir.Contains("v21") && subdir.Contains("900") ) NoWght="noweight_"; //for old files
+  if(subdir.Contains("NoWeight")) NoWght="noweight_";
+  
+  TString extra="";
+  if (subdir.Contains("genTr") )   extra+="_genTr";
+  if (subdir.Contains("NoWeight")) extra+="_noweight";
+  
+  TString dir="files/unfold_outputs/"+subdir+"/";
+  TString filenameMC10  = "unf_MC10"+extra+"_"+MCcorrMC_name+hf+type +Difftype+cutstr.str()+".root";
+  TString filenameMC15  = "unf_MC15"+extra+"_"+MCcorrMC_name+hf+type +Difftype+cutstr.str()+".root";
+  TString filenameMC60  = "unf_MC60"+extra+"_"+MCcorrMC_name+hf+type +Difftype+cutstr.str()+".root";
+  TString filenameMC31  = "unf_MC31"+extra+"_"+MCcorrMC_name+hf+type +Difftype+cutstr.str()+".root";
+  //TString dir2="files/outputs_full/"+subdir+"/";
+  TString dir2="files/outputs_full/v22";
+  if(subdir.Contains("900") ) dir2+="_900";
+  dir2 +="/";
+  TString filenameMC61  = "output_MC61_GenOnly"+Energy+"_5000000.root";
+  TString filenameMC62  = "output_MC62_GenOnly"+Energy+"_5000000.root";
+  
+   TString tr ="_ferncTr";
+   if (subdir.Contains("genTr") ) tr= "_genTr";
+   TString wght ="_Weight";
+   if (subdir.Contains("NoWeight")) wght="_NoWeight";
+
+  //UAPlotting4_UnfCompare   (dir+filenameMC10, dir+filenameMC15,dir+filenameMC60, dir+filenameMC31,  "nch_data_corrected" ,"nch_diffCorrMC_"+hf+type+cutstr.str()+Energy+tr+wght );
+  //also PYTHIA 8 v2 and v4
+  //UAPlotting5_UnfRawCompare(dir+filenameMC10, dir+filenameMC15,dir+filenameMC60, dir+filenameMC31, "nch_data_raw", "nch_mc_reco_raw" ,"nch_raw_"+hf+type+cutstr.str()+Energy+tr+wght   );
+  UAPlotting7_UnfRawCompare(dir+filenameMC10, dir+filenameMC15,dir+filenameMC60, dir+filenameMC31, dir2+filenameMC61, dir2+filenameMC62,  "nch_data_corrected", "nch_MC_gen_afterEvtSelCorrection" , "nch"+hf+type+cutstr.str() ,"nch_corrected_"+type+hf+cutstr.str()+Energy+tr+wght	);
+  //UAPlotting5_UnfRawCompare(dir+filenameMC10, dir+filenameMC15,dir+filenameMC60, dir+filenameMC31,  "nch_data_raw", "nch_mc_reco_raw" ,"nch_raw_"+hf+type+cutstr.str()+Energy+tr+wght   );
+  //UAPlotting5_UnfRawCompare(dir+filenameMC10, dir+filenameMC15,dir+filenameMC60, dir+filenameMC31,  "nch_data_corrected", "nch_MC_gen_afterEvtSelCorrection" ,"nch_corrected_"+hf+type+cutstr.str()+Energy+tr+wght	);
+  //UAPlotting4_UnfChiCompare(dir+filenameMC10, dir+filenameMC15,dir+filenameMC60, dir+filenameMC31, "chi2VSniter" ,"Chi²_"+hf+type+cutstr.str()+Energy+tr+wght   );  
+  //UAPlotting8_UnfCompare   (dir+filenameMC10, dir+filenameMC15,dir+filenameMC60, dir+filenameMC31,  "nch_unfoldedPtr", "nch_MC_gen_afterUnfolding" ,"nch_afterUnfolding_"+hf+type+cutstr.str()+Energy+tr+wght   );
+  //UAPlotting8_UnfCompare   (dir+filenameMC10, dir+filenameMC15,dir+filenameMC60, dir+filenameMC31,  "nch_data_corrected", "nch_MC_gen_afterEvtSelCorrection" ,"nch_afterCorrected_"+hf+type+cutstr.str()+Energy+tr+wght );
+  
+  //UAPlotting4_UnfChiCompare(dir+filenameMC10, dir+filenameMC15,dir+filenameMC60, dir+filenameMC31,  "nch_data_raw" ,"nch_data_raw compare"+hf+type+cutstr.str()+Energy+tr+wght   );  
   
 }
-void UnfRawCompare_All(TString version = "v20", int cut = 0){
+void UnfRawCompare_All(TString version = "v21", int cut = 0){
 //  UnfRawCompare_All()
 
     UnfRawCompare("nocut" ,cut ,"HF0", version, "partfull");
@@ -637,139 +800,167 @@ void UnfRawCompare_All(TString version = "v20", int cut = 0){
 
 
 //_______________________Compare Unfolding Steps _________________________________
-void UnfoldingPlot(int mctype = 31, int acc = 0, TString central= "MBUEWG", TString hf = "HF0", TString DataOrMC = "v20", TString name ="partfull", TString type="INEL", bool log = false) {
-   //Example:  UnfoldingPlot(31,0,"MBUEWG","HF0","v20","partfull","RECO", false)
-   //MC:       UnfoldingPlot(31,0,"nocut","HF0","v20","MCcorrMC_partfull","RECO", false)
+void UnfoldingPlot(int mctype = 31, int acc = 0, TString central= "MBUEWG", TString hf = "HF0", TString subdir = "v21", TString name ="partfull", TString type="INEL", bool log = false) {
+   //Example:  UnfoldingPlot(31,0,"MBUEWG","HF0","v21","partfull","INEL", false)
+   //MC:       UnfoldingPlot(31,0,"nocut","HF0","v21","MCcorrMC_partfull","INEL", false)
    
-   TString dir="files/unfold_outputs/"+DataOrMC+"/";
+   TString dir="files/unfold_outputs/"+subdir+"/";
    TString Difftype = type;
-   stringstream mctypestr("");        mctypestr << "_MC" << mctype ;
+   stringstream mctypestr("");  mctypestr << "_MC" << mctype ;
    stringstream cutstr("");        cutstr << "_cut" << acc ;
-   //get all root files in the directory
+   TString Energy="_E_7";
+   if (subdir.Contains("900") ) Energy = "_E_0.9";
+   TString tr ="_ferncTr";
+   if (subdir.Contains("genTr") ) tr= "_genTr";
+   TString wght ="_Weight";
+   if (subdir.Contains("NoWeight")) wght="_NoWeight";
 
-   TString filename  = "unf"+mctypestr.str()+"_"+name+"_"+hf+"_"+central+"_" +Difftype+cutstr.str()+".root";
+   TString extra="";
+   if (subdir.Contains("genTr") )   extra+="_genTr";
+   if (subdir.Contains("NoWeight")) extra+="_noweight";
+   TString filename  = "unf"+mctypestr.str()+extra+"_"+name+"_"+hf+"_"+central+"_" +Difftype+cutstr.str()+".root";
    TString logStr = "";
    if(name.Contains("MCcorrMC")) logStr ="_MCcorrMC";
    if (log == true) logStr +="_logy";
   
   UAPlotting5_UnfoldingPlot(dir+filename, "nch_data_raw", "nch_unfoldedPtr", "nch_data_corrected", 
-                     "nch_MC_gen_After_CentrEvtCorr", "nch_mc_reco_raw", hf+"_"+central+cutstr.str()+logStr, log  ); //last field is legend name
+                     "nch_MC_gen_After_CentrEvtCorr", "nch_mc_reco_raw", hf+"_"+central+cutstr.str()+logStr+Energy+tr+wght, log  ); //last field is legend name
+   //with afterUnfolding instead of After_CentrEvtCorr                     
 //  UAPlotting5_UnfoldingPlot(dir+filename, "nch_data_raw", "nch_unfoldedPtr", "nch_data_corrected", 
-//                     "nch_MC_gen_afterUnfolding", "nch_mc_reco_raw", central   ); //last field is legend name
+//                     "nch_MC_gen_afterUnfolding", "nch_mc_reco_raw", hf+"_"+central+cutstr.str()+logStr+Energy+tr+wght   ); 
 }
 
 //__________________________Compare Unfolding Steps __________________________________
-void UnfAll(int mctype = 31, int acc = 0, TString hf = "HF0", TString DataOrMC = "v20", TString name ="partfull",TString type = "RECO",bool log = false) { //type ="NSD"
-   //Example: UnfAll(31,0,"HF0","v20","partfull","RECO",false)
-   //MC:      UnfAll(31,0,"HF0","v20","MCcorrMC_partfull","RECO",false)
+void UnfAll(int mctype = 31, int acc = 0, TString hf = "HF0", TString subdir = "v21", TString name ="partfull",TString type = "INEL",bool log = false) { //type ="NSD"
+   //Example: UnfAll(31,0,"HF0","v21","partfull","INEL",false)
+   //MC:      UnfAll(31,0,"HF0","v21","MCcorrMC_partfull","INEL",false)
    
-   TString dir="files/unfold_outputs/"+DataOrMC+"/";
+   TString dir="files/unfold_outputs/"+subdir+"/";
    stringstream mctypestr("");        mctypestr << "_MC" << mctype ;
    stringstream cutstr("");        cutstr << "_cut" << acc ;
    //get all root files in the directory
    
-   UnfoldingPlot(mctype,acc,"nocut" ,hf,DataOrMC,name,type,log);
-   UnfoldingPlot(mctype,acc,"MBUEWG",hf,DataOrMC,name,type,log);
-   UnfoldingPlot(mctype,acc,"ALICE" ,hf,DataOrMC,name,type,log);
-   UnfoldingPlot(mctype,acc,"ATLAS1",hf,DataOrMC,name,type,log);
-   UnfoldingPlot(mctype,acc,"ATLAS2",hf,DataOrMC,name,type,log);
-   UnfoldingPlot(mctype,acc,"ATLAS6",hf,DataOrMC,name,type,log);
+   UnfoldingPlot(mctype,acc,"nocut" ,hf,subdir,name,type,log);
+   UnfoldingPlot(mctype,acc,"MBUEWG",hf,subdir,name,type,log);
+   UnfoldingPlot(mctype,acc,"ALICE" ,hf,subdir,name,type,log);
+   UnfoldingPlot(mctype,acc,"ATLAS1",hf,subdir,name,type,log);
+   UnfoldingPlot(mctype,acc,"ATLAS2",hf,subdir,name,type,log);
+   UnfoldingPlot(mctype,acc,"ATLAS6",hf,subdir,name,type,log);
 }
 
 
 //______________________COMPARE TrackPlots Data, MC15, MC16____________________________________
-void allPlots(int nevtmc, int nevtdata, int acc = 0, TString subdir = "v20NoWeight", TString hf = "HF0", 
-              TString central = "MBUEWG", TString Difftype = "RECO", bool NoWeight = false) {
+void allPlots(int nevtmc, int nevtdata, int acc = 0, TString subdir = "v21", TString hf = "HF0", TString central = "MBUEWG", TString Difftype = "INEL", bool NoWeight = false) {
    //Example: 
-  //  allPlots(5000000,342220,0,"v20", "HF0","MBUEWG","RECO")
+  //  allPlots(5000000,342220,0,"v21", "HF0","MBUEWG","INEL")
+  //900: allPlots(5000000,2250000,0,"v21_900", "HF0","MBUEWG","INEL")
 
       stringstream nevt_str("");        nevt_str << "" << nevtmc  ;   
       stringstream nevt_dat("");        nevt_dat << "" << nevtdata;    
       stringstream   cutstr("");        cutstr   << "_cut" << acc  ;
   //energy
-    TString Energy="7";    
+    TString Energy="7";
+    if(subdir.Contains("900") ) Energy="0.9";    
     TString noweight="";
     if(NoWeight) noweight="_noweight";
+    TString wght ="_Weight";
+    if (subdir.Contains("NoWeight")) wght="_NoWeight";
+    TString tr ="_ferncTr";
+    if (subdir.Contains("genTr") ) tr= "_genTr";
    
    TString dir="files/outputs_full/"+subdir+"/"; 
-   TString filenameMC10 ="output_MC10_ferncTr_E_"+Energy+"_"+nevt_str.str()+noweight+".root";
-   TString filenameMC15 ="output_MC15_ferncTr_E_"+Energy+"_"+nevt_str.str()+noweight+".root";
-   TString filenameMC60 ="output_MC60_ferncTr_E_"+Energy+"_"+nevt_str.str()+noweight+".root";
-   TString filenameMC31 ="output_MC31_ferncTr_E_"+Energy+"_"+nevt_str.str()+noweight+".root";
-   TString filenameData ="output_data_ferncTr_E_"+Energy+"_"+nevt_dat.str()+".root";            
+   TString filenameMC10 ="output_MC10"+tr+"_E_"+Energy+"_"+nevt_str.str()+noweight+".root";
+   TString filenameMC15 ="output_MC15"+tr+"_E_"+Energy+"_"+nevt_str.str()+noweight+".root";
+   TString filenameMC60 ="output_MC60"+tr+"_E_"+Energy+"_"+nevt_str.str()+noweight+".root";
+   TString filenameMC31 ="output_MC31"+tr+"_E_"+Energy+"_"+nevt_str.str()+noweight+".root";
+   TString filenameData ="output_data"+tr+"_E_"+Energy+"_"+nevt_dat.str()+".root";            
   
    TString plot = "_full_"+hf+"_"+central+"_"+Difftype+cutstr.str();
 
-    UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "nch"  +plot   , "nch"+plot,    "nch"+plot+noweight );
-    UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "nch"  +plot   , "nch"+plot,    "nch"+plot+noweight+"_logy",true );
-    UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "eta"  +plot  , "eta"+plot  ,   "eta"+plot+noweight );    
-    UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "pt"   +plot  , "pt"+plot   ,    "pt"+plot+noweight );
-    UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "pt"   +plot  , "pt"+plot   ,    "pt"+plot+noweight+"_logy",true ,100);
-    UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "phi"  +plot  , "phi"+plot  ,   "phi"+plot+noweight );
-    UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "nhit" +plot  , "nhit"+plot ,  "nhit"+plot+noweight );
-    UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "chi2n"+plot  , "chi2n"+plot, "chi2n"+plot+noweight );
+    UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "nch"  +plot  , "nch"+plot  ,   "nch"+plot+"_E_"+Energy+tr+wght );
+    UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "nch"  +plot  , "nch"+plot  ,   "nch"+plot+"_E_"+Energy+tr+wght+"_logy",true );
+    UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "eta"  +plot  , "eta"+plot  ,   "eta"+plot+"_E_"+Energy+tr+wght );    
+    UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "pt"   +plot  , "pt"+plot   ,    "pt"+plot+"_E_"+Energy+tr+wght );
+    UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "pt"   +plot  , "pt"+plot   ,    "pt"+plot+"_E_"+Energy+tr+wght+"_logy",true ,100);
+    UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "phi"  +plot  , "phi"+plot  ,   "phi"+plot+"_E_"+Energy+tr+wght );
+    UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "nhit" +plot  , "nhit"+plot ,  "nhit"+plot+"_E_"+Energy+tr+wght );
+    UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "chi2n"+plot  , "chi2n"+plot, "chi2n"+plot+"_E_"+Energy+tr+wght );
     
-    //UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "dzOsz"  +plot, "dzOsz"  +plot, "dzOsz"  plot+noweight );
-    //UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "dxyOsxy"+plot, "dxyOsxy"+plot, "dxyOsxy"plot+noweight );  
-    //UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "eptOpt" +plot, "eptOpt" +plot, "eptOpt" plot+noweight ); 
-    //UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "dz"     +plot, "dz"     +plot, "dz"     plot+noweight ); 
-    //UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "d0"     +plot, "d0"     +plot, "d0"     plot+noweight ); 
-    //UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "dxy"    +plot, "dxy"    +plot, "dxy"    plot+noweight ); 
-    //UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "x"      +plot, "x"      +plot, "x"      plot+noweight ); 
-    //UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "y"      +plot, "y"      +plot, "y"      plot+noweight ); 
-    UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "z"      +plot, "z"      +plot, "z"+plot+noweight ); 
-    //UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "ntracks"+plot,"ntracks" +plot, "ntracks"+plot+noweight ); 
-    //UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "nvertex"+plot, "nvertex"+plot, "nvertex"+plot+noweight );
+    //UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "dzOsz"  +plot, "dzOsz"  +plot, "dzOsz"  plot+noweight+"_E_"+Energy+tr+wght );
+    //UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "dxyOsxy"+plot, "dxyOsxy"+plot, "dxyOsxy"plot+noweight+"_E_"+Energy+tr+wght );  
+    //UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "eptOpt" +plot, "eptOpt" +plot, "eptOpt" plot+noweight+"_E_"+Energy+tr+wght ); 
+    //UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "dz"     +plot, "dz"     +plot, "dz"     plot+noweight+"_E_"+Energy+tr+wght ); 
+    //UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "d0"     +plot, "d0"     +plot, "d0"     plot+noweight+"_E_"+Energy+tr+wght ); 
+    //UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "dxy"    +plot, "dxy"    +plot, "dxy"    plot+noweight+"_E_"+Energy+tr+wght ); 
+    //UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "x"      +plot, "x"      +plot, "x"      plot+noweight+"_E_"+Energy+tr+wght ); 
+    //UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "y"      +plot, "y"      +plot, "y"      plot+noweight+"_E_"+Energy+tr+wght ); 
+    UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "z"      +plot, "z"      +plot, "z"+plot+noweight+"_E_"+Energy+tr+wght ); 
+    //UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "ntracks"+plot,"ntracks" +plot, "ntracks"+plot+noweight+"_E_"+Energy+tr+wght ); 
+    //UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "nvertex"+plot, "nvertex"+plot, "nvertex"+plot+noweight+"_E_"+Energy+tr+wght );
    
 }
 
 
 
 //_______________________Compare Unfolding Steps _________________________________
-void allPlots_allTracks(int acc = 0, TString DataOrMC = "v20", TString central="ALICE") {   // ONLY FOR nocut ALICE ATLAS6
-   //Example:  allPlots_allTracks(0,"v20","ALICE")
-   //MC:       allPlots_allTracks(0,"v20","ALICE")
+void allPlots_allTracks(int acc = 0, TString subdir = "v21", TString central="ALICE") {   // ONLY FOR nocut ALICE ATLAS6
+   //Example:  allPlots_allTracks(0,"v21","ALICE")
+   //MC:       allPlots_allTracks(0,"v21","ALICE")
    bool log=true;
    TString nevt="5000000";
-   TString E="7";
+   TString Energy="7";
+   if (subdir.Contains("900")) Energy="0.9";
+   TString wght ="_Weight";
+   if (subdir.Contains("NoWeight")) wght="_NoWeight";
+   TString tr ="_ferncTr";
+   if (subdir.Contains("genTr") ) tr= "_genTr";
+    
    TString hf="_HF0";
-   TString dir="files/outputs_full/"+DataOrMC+"/";
+   TString dir="files/outputs_full/"+subdir+"/";
    stringstream cutstr("");        cutstr << "cut" << acc ;
    //get all root files in the directory
 
-   TString filenameMC10  = "output_MC10_ferncTr_E_"+E+"_"+nevt+".root";
-   TString filenameMC15  = "output_MC15_ferncTr_E_"+E+"_"+nevt+".root";
-   TString filenameMC31  = "output_MC31_ferncTr_E_"+E+"_"+nevt+".root";
-   TString filenameMC60  = "output_MC60_ferncTr_E_"+E+"_"+nevt+".root";
-   TString filenameData= "output_data_ferncTr_E_7_342220.root";
+   TString filenameMC10  = "output_MC10"+tr+"_E_"+Energy+"_"+nevt+".root";
+   TString filenameMC15  = "output_MC15"+tr+"_E_"+Energy+"_"+nevt+".root";
+   TString filenameMC31  = "output_MC31"+tr+"_E_"+Energy+"_"+nevt+".root";
+   TString filenameMC60  = "output_MC60"+tr+"_E_"+Energy+"_"+nevt+".root";
+   
+   TString nevt_str="342220";
+   if(subdir.Contains("900")) nevt_str="2250000";
+   TString filenameData= "output_data"+tr+"_E_"+Energy+"_"+nevt_str+".root";
    
    TString plot = "_"+central+cutstr.str();
    
    TString logStr = "";
    if (log == true) logStr ="_logy";
-   UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "dzOsz"  +plot, "dzOsz"  +plot, "dz0sz_"+hf+plot+logStr ,log,1000);
-   UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "dxyOsxy"+plot, "dxyOsxy"+plot, "dxyOsxy"+hf+plot+logStr,log,1000);
-   UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "eptOpt" +plot, "eptOpt" +plot, "eptOpt"+hf+plot+logStr ,log,10);
+   UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "dzOsz"  +plot, "dzOsz"  +plot, "dz0sz_"+hf+plot+logStr+"_E_"+Energy+tr+wght,log,1000);
+   UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "dxyOsxy"+plot, "dxyOsxy"+plot, "dxyOsxy"+hf+plot+logStr+"_E_"+Energy+tr+wght,log,1000);
+   UAPlotting5_allPlots(dir+filenameData, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "eptOpt" +plot, "eptOpt" +plot, "eptOpt"+hf+plot+logStr+"_E_"+Energy+tr+wght,log,10);
 }
 
 //_______________________Compare Unfolding Steps _________________________________
-void allEffs(int acc = 0, TString DataOrMC = "v20",  TString type="RECO") {
-   //Example:  allEffs(0,"v20","RECO")
-   //MC:       allEffs(0,"v20","RECO")
+void allEffs(int acc = 0, TString subdir = "v20b",  TString type="INEL") {
+   //Example:  allEffs(0,"v21","INEL")
+   //MC:       allEffs(0,"v21","INEL")
    
    TString nevt="5000000";
-   TString E="7";
+   TString Energy="7";
    TString hf="_HF0";
    TString Difftype=type;
+   if (subdir.Contains("900")) Energy="0.9";
+   TString wght ="_Weight";
+   if (subdir.Contains("NoWeight")) wght="_NoWeight";
+   TString tr ="_ferncTr";
+   if (subdir.Contains("genTr") ) tr= "_genTr";
    
-   TString dir="files/outputs_full/"+DataOrMC+"/";
+   TString dir="files/outputs_full/"+subdir+"/";
    stringstream cutstr("");        cutstr << "cut" << acc ;
    //get all root files in the directory
 
-   //TString filenameMC10  = "effs_MC10_ferncTr_E_"+E+"_"+nevt+".root";
-   //TString filenameMC15  = "effs_MC15_ferncTr_E_"+E+"_"+nevt+".root";
-   TString filenameMC31  = "effs_MC31_ferncTr_E_"+E+"_"+nevt+"_allEff.root";
-   //TString filenameMC60  = "effs_MC60_ferncTr_E_"+E+"_"+nevt+".root";
+   //TString filenameMC10  = "effs_MC10"+tr+"_E_"+Energy+"_"+nevt+".root";
+   //TString filenameMC15  = "effs_MC15"+tr+"_E_"+Energy+"_"+nevt+".root";
+   TString filenameMC31  = "effs_MC31"+tr+"_E_"+Energy+"_"+nevt+"_allEff.root";
+   //TString filenameMC60  = "effs_MC60"+tr+"_E_"+Energy+"_"+nevt+".root";
    
    TString plot = hf+"_"+Difftype+"_"+cutstr.str();
    TString plotnocut  = "_partfull"+hf+"_nocut_" +Difftype+"_"+cutstr.str();   
@@ -779,33 +970,38 @@ void allEffs(int acc = 0, TString DataOrMC = "v20",  TString type="RECO") {
    TString plotATLAS2 = "_partfull"+hf+"_ATLAS2_"+Difftype+"_"+cutstr.str();
    TString plotATLAS6 = "_partfull"+hf+"_ATLAS6_"+Difftype+"_"+cutstr.str();
   
-   UAPlotting6_allEffs(dir+filenameMC31, "eff_total"+plotnocut  , "eff_total"+plotMBUEWG , "eff_total"+plotALICE , "eff_total"+plotATLAS1 , "eff_total"+plotATLAS2  ,"eff_total"+plotATLAS6 , "eff_total"+plot);
-   UAPlotting6_allEffs(dir+filenameMC31, "L1Sel"+plotnocut      , "L1Sel"+plotMBUEWG     , "L1Sel"+plotALICE     , "L1Sel"+plotATLAS1     , "L1Sel"+plotATLAS2      ,"L1Sel"+plotATLAS6     , "L1Sel"+plot);
-   UAPlotting6_allEffs(dir+filenameMC31, "hfSel"+plotnocut      , "hfSel"+plotMBUEWG     , "hfSel" +plotALICE    , "hfSel"+plotATLAS1     , "hfSel" +plotATLAS2     ,"hfSel" +plotATLAS6    , "hfSel"+plot);
-   UAPlotting6_allEffs(dir+filenameMC31, "vtxSel"+plotnocut     , "vtxSel"+plotMBUEWG    , "vtxSel"+plotALICE    , "vtxSel"+plotATLAS1    , "vtxSel"+plotATLAS2     ,"vtxSel"+plotATLAS6    , "vtxSel"+plot);
-   UAPlotting6_allEffs(dir+filenameMC31, "vtxqualSel"+plotnocut , "vtxqualSel"+plotMBUEWG, "vtxqualSel"+plotALICE, "vtxqualSel"+plotATLAS1, "vtxqualSel"+plotATLAS2 ,"vtxqualSel"+plotATLAS6, "vtxqualSel"+plot);
-   UAPlotting6_allEffs(dir+filenameMC31, "evtSel"+plotnocut     , "evtSel"+plotMBUEWG    , "evtSel"+plotALICE    , "evtSel"+plotATLAS1    , "evtSel"+plotATLAS2     ,"evtSel"+plotATLAS6    , "evtSel"+plot);
-   UAPlotting6_allEffs(dir+filenameMC31, "centrSel"+plotnocut   , "centrSel"+plotMBUEWG  , "centrSel"+plotALICE  , "centrSel"+plotATLAS1  , "centrSel"+plotATLAS2   ,"centrSel"+plotATLAS6  , "centrSel"+plot); 
-   UAPlotting6_allEffs(dir+filenameMC31, "eff_total"+plotnocut  , "eff_total"+plotMBUEWG , "eff_total"+plotALICE , "eff_total"+plotATLAS1 , "eff_total"+plotATLAS2  ,"eff_total"+plotATLAS6 , "eff_total"+plot);
+   UAPlotting6_allEffs(dir+filenameMC31, "eff_total"+plotnocut  , "eff_total"+plotMBUEWG , "eff_total"+plotALICE , "eff_total"+plotATLAS1 , "eff_total"+plotATLAS2  ,"eff_total"+plotATLAS6 , "eff_total"+plot+"_E_"+Energy+tr+wght);
+   UAPlotting6_allEffs(dir+filenameMC31, "L1Sel"+plotnocut      , "L1Sel"+plotMBUEWG     , "L1Sel"+plotALICE     , "L1Sel"+plotATLAS1     , "L1Sel"+plotATLAS2      ,"L1Sel"+plotATLAS6     , "L1Sel"+plot+"_E_"+Energy+tr+wght);
+   UAPlotting6_allEffs(dir+filenameMC31, "hfSel"+plotnocut      , "hfSel"+plotMBUEWG     , "hfSel" +plotALICE    , "hfSel"+plotATLAS1     , "hfSel" +plotATLAS2     ,"hfSel" +plotATLAS6    , "hfSel"+plot+"_E_"+Energy+tr+wght);
+   UAPlotting6_allEffs(dir+filenameMC31, "vtxSel"+plotnocut     , "vtxSel"+plotMBUEWG    , "vtxSel"+plotALICE    , "vtxSel"+plotATLAS1    , "vtxSel"+plotATLAS2     ,"vtxSel"+plotATLAS6    , "vtxSel"+plot+"_E_"+Energy+tr+wght);
+   UAPlotting6_allEffs(dir+filenameMC31, "vtxqualSel"+plotnocut , "vtxqualSel"+plotMBUEWG, "vtxqualSel"+plotALICE, "vtxqualSel"+plotATLAS1, "vtxqualSel"+plotATLAS2 ,"vtxqualSel"+plotATLAS6, "vtxqualSel"+plot+"_E_"+Energy+tr+wght);
+   UAPlotting6_allEffs(dir+filenameMC31, "evtSel"+plotnocut     , "evtSel"+plotMBUEWG    , "evtSel"+plotALICE    , "evtSel"+plotATLAS1    , "evtSel"+plotATLAS2     ,"evtSel"+plotATLAS6    , "evtSel"+plot+"_E_"+Energy+tr+wght);
+   UAPlotting6_allEffs(dir+filenameMC31, "centrSel"+plotnocut   , "centrSel"+plotMBUEWG  , "centrSel"+plotALICE  , "centrSel"+plotATLAS1  , "centrSel"+plotATLAS2   ,"centrSel"+plotATLAS6  , "centrSel"+plot+"_E_"+Energy+tr+wght); 
+   UAPlotting6_allEffs(dir+filenameMC31, "eff_total"+plotnocut  , "eff_total"+plotMBUEWG , "eff_total"+plotALICE , "eff_total"+plotATLAS1 , "eff_total"+plotATLAS2  ,"eff_total"+plotATLAS6 , "eff_total"+plot+"_E_"+Energy+tr+wght);
 }
 
 //_______________________Compare Unfolding Steps _________________________________
-void oneEff(int acc = 0, TString DataOrMC = "v20",  TString type="RECO", TString hf= "_HF0") {
-   //Example:  oneEff(0,"v20","RECO")
-   //MC:       oneEff(0,"v20","RECO")
+void oneEff(int acc = 0, TString subdir = "v21",  TString type="INEL", TString hf= "_HF0") {
+   //Example:  oneEff(0,"v21","INEL")
+   //MC:       oneEff(0,"v21","INEL")
    
    TString nevt="5000000";
-   TString E="7";
+   TString Energy="7";
+   if (subdir.Contains("900")) Energy="0.9";
+   TString wght ="_Weight";
+   if (subdir.Contains("NoWeight")) wght="_NoWeight";
+   TString tr ="_ferncTr";
+   if (subdir.Contains("genTr") ) tr= "_genTr";
    TString Difftype=type;
    
-   TString dir="files/outputs_full/"+DataOrMC+"/";
+   TString dir="files/outputs_full/"+subdir+"/";
    stringstream cutstr("");        cutstr << "cut" << acc ;
    //get all root files in the directory
 
-   //TString filenameMC10  = "effs_MC10_ferncTr_E_"+E+"_"+nevt+".root";
-   //TString filenameMC15  = "effs_MC15_ferncTr_E_"+E+"_"+nevt+".root";
-   TString filenameMC31  = "effs_MC31_ferncTr_E_"+E+"_"+nevt+"_allEff.root";
-   //TString filenameMC60  = "effs_MC60_ferncTr_E_"+E+"_"+nevt+".root";
+   //TString filenameMC10  = "effs_MC10"+tr+"_E_"+Energy+"_"+nevt+".root";
+   //TString filenameMC15  = "effs_MC15"+tr+"_E_"+Energy+"_"+nevt+".root";
+   TString filenameMC31  = "effs_MC31"+tr+"_E_"+Energy+"_"+nevt+"_allEff.root";
+   //TString filenameMC60  = "effs_MC60"+tr+"_E_"+Energy+"_"+nevt+".root";
    
    TString plot = hf+"_"+Difftype+"_"+cutstr.str();
    TString plotnocut  = "_partfull"+hf+"_nocut_" +Difftype+"_"+cutstr.str();   
@@ -815,12 +1011,12 @@ void oneEff(int acc = 0, TString DataOrMC = "v20",  TString type="RECO", TString
    TString plotATLAS2 = "_partfull"+hf+"_ATLAS2_"+Difftype+"_"+cutstr.str();
    TString plotATLAS6 = "_partfull"+hf+"_ATLAS6_"+Difftype+"_"+cutstr.str();
   
-   UAPlotting6_oneEff(dir+filenameMC31, "L1Sel"  +plotnocut,  "vtxSel"  +plotnocut,"vtxqualSel"   +plotnocut,"evtSel"   +plotnocut,"centrSel"   +plotnocut,  "eff_total"  +plotnocut  , plotnocut);
-   UAPlotting6_oneEff(dir+filenameMC31, "L1Sel"  +plotMBUEWG, "vtxSel"  +plotMBUEWG,"vtxqualSel"  +plotMBUEWG,"evtSel"  +plotMBUEWG,"centrSel"  +plotMBUEWG, "eff_total"  +plotMBUEWG ,plotMBUEWG);
-   UAPlotting6_oneEff(dir+filenameMC31, "L1Sel"  +plotALICE,  "vtxSel"  +plotALICE,"vtxqualSel"   +plotALICE,"evtSel"   +plotALICE,"centrSel"   +plotALICE,  "eff_total"  +plotALICE  , plotALICE);
-   UAPlotting6_oneEff(dir+filenameMC31, "L1Sel"  +plotATLAS1, "vtxSel"  +plotATLAS1,"vtxqualSel"  +plotATLAS1,"evtSel"  +plotATLAS1,"centrSel"  +plotATLAS1, "eff_total"  +plotATLAS1 ,plotATLAS1);
-   UAPlotting6_oneEff(dir+filenameMC31, "L1Sel"  +plotATLAS2, "vtxSel"  +plotATLAS2,"vtxqualSel"  +plotATLAS2,"evtSel"  +plotATLAS2,"centrSel"  +plotATLAS2, "eff_total"  +plotATLAS2 ,plotATLAS2);
-   UAPlotting6_oneEff(dir+filenameMC31, "L1Sel"  +plotATLAS6, "vtxSel"  +plotATLAS6,"vtxqualSel"  +plotATLAS6,"evtSel"  +plotATLAS6,"centrSel"  +plotATLAS6, "eff_total"  +plotATLAS6 ,plotATLAS6);
+   UAPlotting6_oneEff(dir+filenameMC31, "L1Sel"  +plotnocut,  "vtxSel"  +plotnocut,"vtxqualSel"   +plotnocut,"evtSel"   +plotnocut,"centrSel"   +plotnocut,  "eff_total"  +plotnocut  , plotnocut+"_E_"+Energy+tr+wght);
+   UAPlotting6_oneEff(dir+filenameMC31, "L1Sel"  +plotMBUEWG, "vtxSel"  +plotMBUEWG,"vtxqualSel"  +plotMBUEWG,"evtSel"  +plotMBUEWG,"centrSel"  +plotMBUEWG, "eff_total"  +plotMBUEWG ,plotMBUEWG+"_E_"+Energy+tr+wght);
+   UAPlotting6_oneEff(dir+filenameMC31, "L1Sel"  +plotALICE,  "vtxSel"  +plotALICE,"vtxqualSel"   +plotALICE,"evtSel"   +plotALICE,"centrSel"   +plotALICE,  "eff_total"  +plotALICE  , plotALICE+"_E_"+Energy+tr+wght);
+   UAPlotting6_oneEff(dir+filenameMC31, "L1Sel"  +plotATLAS1, "vtxSel"  +plotATLAS1,"vtxqualSel"  +plotATLAS1,"evtSel"  +plotATLAS1,"centrSel"  +plotATLAS1, "eff_total"  +plotATLAS1 ,plotATLAS1+"_E_"+Energy+tr+wght);
+   UAPlotting6_oneEff(dir+filenameMC31, "L1Sel"  +plotATLAS2, "vtxSel"  +plotATLAS2,"vtxqualSel"  +plotATLAS2,"evtSel"  +plotATLAS2,"centrSel"  +plotATLAS2, "eff_total"  +plotATLAS2 ,plotATLAS2+"_E_"+Energy+tr+wght);
+   UAPlotting6_oneEff(dir+filenameMC31, "L1Sel"  +plotATLAS6, "vtxSel"  +plotATLAS6,"vtxqualSel"  +plotATLAS6,"evtSel"  +plotATLAS6,"centrSel"  +plotATLAS6, "eff_total"  +plotATLAS6 ,plotATLAS6+"_E_"+Energy+tr+wght);
 }
 
 
@@ -862,7 +1058,10 @@ void comp_other_exp(TString file1 , TString histo , TString expdata, TString leg
   curve1_sys.Draw("zsame");
 
   legend->BuildLegend();
-  canvas->AddText( Txt(file1),.22,.965,.035);
+  
+  double energy = 7;
+  if(expdata.Contains("900GeV") ) energy=0.9;
+  canvas->AddText( Txt(file1,energy),.22,.965,.035);
 
   gPad->Update();
   gPad->WaitPrimitive();
@@ -870,19 +1069,39 @@ void comp_other_exp(TString file1 , TString histo , TString expdata, TString leg
   delete canvas ;
 }
 
-void finalAll(){
-  TString dir="files/unfold_outputs/v20/";
+void finalAll(TString subdir ="v21"){ // 
+   TString dir="files/unfold_outputs/"+subdir+"/";
+   
+   TString wght ="_Weight";
+   if (dir.Contains("NoWeight")) wght="_NoWeight";
+   TString tr ="_ferncTr";
+   if (dir.Contains("genTr") ) tr= "_genTr";
 
-  comp_other_exp(dir+"unf_MC31_partfull_HF0_ATLAS1_RECO_cut2.root" , "nch_data_corrected" , "../expdata/atlas_dsigdn_inelgt1_7000GeV_eta25_pt500.txt","ATLAS1");
-  comp_other_exp(dir+"unf_MC31_partfull_HF0_ATLAS2_RECO_cut0.root" , "nch_data_corrected" , "../expdata/atlas_dsigdn_inelgt2_7000GeV_eta25_pt100.txt","ATLAS2");
-  comp_other_exp(dir+"unf_MC31_partfull_HF0_ATLAS6_RECO_cut2.root" , "nch_data_corrected" , "../expdata/atlas_dsigdn_inelgt6_7000GeV_eta25_pt500.txt","ATLAS6");
-  comp_other_exp(dir+"unf_MC31_partfull_HF0_ALICE_RECO_cut4.root"  , "nch_data_corrected" , "../expdata/alice_dsigdn_inelgt1_7000GeV_eta10_pt0.txt","ALICE");
+  //comp_other_exp(dir+"unf_MC31_partfull_HF0_ATLAS1_INEL_cut2.root" , "nch_data_corrected" , "../expdata/atlas_dsigdn_inelgt1_7000GeV_eta25_pt500.txt","_ATLAS1_E_7"+tr+wght);
+  comp_other_exp(dir+"unf_MC31_partfull_HF0_ATLAS2_INEL_cut0.root" , "nch_data_corrected" , "../expdata/atlas_dsigdn_inelgt2_7000GeV_eta25_pt100.txt","_ATLAS2_E_7"+tr+wght);
+  comp_other_exp(dir+"unf_MC31_partfull_HF0_ATLAS6_INEL_cut2.root" , "nch_data_corrected" , "../expdata/atlas_dsigdn_inelgt6_7000GeV_eta25_pt500.txt","_ATLAS6_E_7"+tr+wght);
+  comp_other_exp(dir+"unf_MC31_partfull_HF0_ALICE_INEL_cut4.root"  , "nch_data_corrected" , "../expdata/alice_dsigdn_inelgt1_7000GeV_eta10_pt0.txt","_ALICE_E_7"+tr+wght);  
+  
+  dir="files/unfold_outputs/"+subdir+"_900/";
+     
+  wght ="_Weight";
+  if (dir.Contains("NoWeight")) wght="_NoWeight";
+  tr ="_ferncTr";
+  if (dir.Contains("genTr") ) tr= "_genTr";
+  
+  //to make it compatible to everything before v21
+  TString oldnoweight="";
+  if(dir.Contains("v21")) oldnoweight="_noweight";
+     
+  comp_other_exp(dir+"unf_MC60"+oldnoweight+"_partfull_HF0_ATLAS1_INEL_cut2.root" , "nch_data_corrected" , "../expdata/atlas_dsigdn_inelgt1_900GeV_eta25_pt500.txt","_ATLAS1_E_0.9"+tr+wght);
+  comp_other_exp(dir+"unf_MC60"+oldnoweight+"_partfull_HF0_ATLAS2_INEL_cut0.root" , "nch_data_corrected" , "../expdata/atlas_dsigdn_inelgt2_900GeV_eta25_pt100.txt","_ATLAS2_E_0.9"+tr+wght);
+  comp_other_exp(dir+"unf_MC60"+oldnoweight+"_partfull_HF0_ATLAS6_INEL_cut2.root" , "nch_data_corrected" , "../expdata/atlas_dsigdn_inelgt6_900GeV_eta25_pt500.txt","_ATLAS6_E_0.9"+tr+wght);
 }
 
 
 
 //_______________________Compare NSD With Paper Results _________________________________
-void xcheck_NSD(TString file1 , TString file2 , TString histo ){
+void xcheck_NSD(TString file1 , TString file2 , TString histo, TString legendStr ){
   cmsStyleRoot();
 
   UACanvas* canvas = new UACanvas();
@@ -906,22 +1125,46 @@ void xcheck_NSD(TString file1 , TString file2 , TString histo ){
     
     
   legend->BuildLegend();
-  canvas->AddText( Txt(file1),.22,.965,.035);
+  double energy=7;
+  if(file2.Contains("0.9TeV")) energy=0.9;
+  canvas->AddText( Txt(file1,energy),.22,.965,.035);
 
   gPad->Update();
   gPad->WaitPrimitive();
-  //canvas->Save("comp_other_exp"+legendStr,PlotDirectory);
+  canvas->Save("comp_other_exp"+legendStr,PlotDirectory);
   delete canvas ;
 }
 
-void xcheck_NSD_All(){
-  TString dir1="files/unfold_outputs/v20b/";
-  TString dir2="../plots/systv10_18_2/";
+void xcheck_NSD_All(TString subdir ="v21"){
 
-  //xcheck_NSD(dir1+"unf_MC31_partfull_HF1_nocut_NSD_cut0.root" , dir2+"unfolding_MC_ATLAS_7.0TeV_mbTr__hyp1_niter0_cut10_DataType0.root" , "nch_data_corrected");
-  xcheck_NSD(dir1+"unf_MC31_partfull_HF1_nocut_NSD_cut1.root" , dir2+"unfolding_MC_ATLAS_7.0TeV_mbTr__hyp1_niter0_cut5_DataType0.root" , "nch_data_corrected");
-  //xcheck_NSD(dir1+"unf_MC31_partfull_HF1_nocut_NSD_cut2.root" , dir2+"unfolding_MC_ATLAS_7.0TeV_mbTr__hyp1_niter0_cut15_DataType0.root" , "nch_data_corrected");
-  //xcheck_NSD(dir1+"unf_MC31_partfull_HF1_nocut_NSD_cut3.root" , dir2+"unfolding_MC_ATLAS_7.0TeV_mbTr__hyp1_niter0_cut20_DataType0.root" , "nch_data_corrected");
-  //xcheck_NSD(dir1+"unf_MC31_partfull_HF1_nocut_NSD_cut4.root" , dir2+"unfolding_MC_ATLAS_7.0TeV_mbTr__hyp1_niter0_cut13_DataType0.root" , "nch_data_corrected");
-  xcheck_NSD(dir1+"unf_MC31_partfull_HF1_nocut_NSD_cut5.root" , dir2+"unfolding_MC_ATLAS_7.0TeV_mbTr__hyp1_niter0_cut8_DataType0.root" , "nch_data_corrected");
-}
+  TString dir1="files/unfold_outputs/"+subdir+"_ptcorr/";
+  TString dir2="../plots/systv10_18_2/";
+  TString plotname="nch_data_corrected";
+  
+  TString wght ="_Weight";
+  if (dir1.Contains("NoWeight")) wght="_NoWeight";
+  TString tr ="_ferncTr";
+  if (dir1.Contains("genTr") ) tr= "_genTr";
+
+  //xcheck_NSD(dir1+"unf_MC31_partfull_HF1_nocut_NSD_cut0.root" , dir2+"unfolding_MC_ATLAS_7.0TeV_mbTr__hyp1_niter0_cut10_DataType0.root" , plotname, "xcheck_NSD_E_7"+tr+wght);
+  xcheck_NSD(dir1+"unf_MC31_partfull_HF1_nocut_NSD_cut1.root" , dir2+"unfolding_MC_ATLAS_7.0TeV_mbTr__hyp1_niter0_cut5_DataType0.root" , plotname, "xcheck_NSD_E_7"+tr+wght);
+  //xcheck_NSD(dir1+"unf_MC31_partfull_HF1_nocut_NSD_cut2.root" , dir2+"unfolding_MC_ATLAS_7.0TeV_mbTr__hyp1_niter0_cut15_DataType0.root" , plotname, "xcheck_NSD_E_7"+tr+wght);
+  //xcheck_NSD(dir1+"unf_MC31_partfull_HF1_nocut_NSD_cut3.root" , dir2+"unfolding_MC_ATLAS_7.0TeV_mbTr__hyp1_niter0_cut20_DataType0.root" , plotname, "xcheck_NSD_E_7"+tr+wght);
+  //xcheck_NSD(dir1+"unf_MC31_partfull_HF1_nocut_NSD_cut4.root" , dir2+"unfolding_MC_ATLAS_7.0TeV_mbTr__hyp1_niter0_cut13_DataType0.root" , plotname, "xcheck_NSD_E_7"+tr+wght);
+  xcheck_NSD(dir1+"unf_MC31_partfull_HF1_nocut_NSD_cut5.root" , dir2+"unfolding_MC_ATLAS_7.0TeV_mbTr__hyp1_niter0_cut8_DataType0.root" , plotname, "xcheck_NSD_E_7"+tr+wght);
+   
+  
+  dir1="files/unfold_outputs/"+subdir+"_900_ptcorr/";
+  
+  wght ="_Weight";
+  if (dir1.Contains("NoWeight")) wght="_NoWeight";
+  tr ="_ferncTr";
+  if (dir1.Contains("genTr") ) tr= "_genTr";
+  
+  //xcheck_NSD(dir1+"unf_MC60_partfull_HF1_nocut_NSD_cut0.root" , dir2+"unfolding_MC_D6T_0.9TeV_mbTr__hyp1_niter0_cut10_DataType0.root" , plotname, "xcheck_NSD_E_0.9"+tr+wght);
+  xcheck_NSD(dir1+"unf_MC60_partfull_HF1_nocut_NSD_cut1.root" , dir2+"unfolding_MC_D6T_0.9TeV_mbTr__hyp1_niter0_cut5_DataType0.root" , plotname, "xcheck_NSD_E_0.9"+tr+wght);
+  //xcheck_NSD(dir1+"unf_MC60_partfull_HF1_nocut_NSD_cut2.root" , dir2+"unfolding_MC_D6T_0.9TeV_mbTr__hyp1_niter0_cut15_DataType0.root" , plotname, "xcheck_NSD_E_0.9"+tr+wght);
+  //xcheck_NSD(dir1+"unf_MC60_partfull_HF1_nocut_NSD_cut3.root" , dir2+"unfolding_MC_D6T_0.9TeV_mbTr__hyp1_niter0_cut20_DataType0.root" , plotname, "xcheck_NSD_E_0.9"+tr+wght);
+  //xcheck_NSD(dir1+"unf_MC60_partfull_HF1_nocut_NSD_cut4.root" , dir2+"unfolding_MC_D6T_0.9TeV_mbTr__hyp1_niter0_cut13_DataType0.root" , plotname, "xcheck_NSD_E_0.9"+tr+wght);
+  xcheck_NSD(dir1+"unf_MC60_partfull_HF1_nocut_NSD_cut5.root" , dir2+"unfolding_MC_D6T_0.9TeV_mbTr__hyp1_niter0_cut8_DataType0.root" , plotname, "xcheck_NSD_E_0.9"+tr+wght);
+} 
