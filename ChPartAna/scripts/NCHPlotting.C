@@ -1077,10 +1077,14 @@ void finalAll(TString subdir ="v21"){ //
    TString tr ="_ferncTr";
    if (dir.Contains("genTr") ) tr= "_genTr";
 
-  //comp_other_exp(dir+"unf_MC31_partfull_HF0_ATLAS1_INEL_cut2.root" , "nch_data_corrected" , "../expdata/atlas_dsigdn_inelgt1_7000GeV_eta25_pt500.txt","_ATLAS1_E_7"+tr+wght);
-  comp_other_exp(dir+"unf_MC31_partfull_HF0_ATLAS2_INEL_cut0.root" , "nch_data_corrected" , "../expdata/atlas_dsigdn_inelgt2_7000GeV_eta25_pt100.txt","_ATLAS2_E_7"+tr+wght);
-  comp_other_exp(dir+"unf_MC31_partfull_HF0_ATLAS6_INEL_cut2.root" , "nch_data_corrected" , "../expdata/atlas_dsigdn_inelgt6_7000GeV_eta25_pt500.txt","_ATLAS6_E_7"+tr+wght);
-  comp_other_exp(dir+"unf_MC31_partfull_HF0_ALICE_INEL_cut4.root"  , "nch_data_corrected" , "../expdata/alice_dsigdn_inelgt1_7000GeV_eta10_pt0.txt","_ALICE_E_7"+tr+wght);  
+  TString extra="";
+  if (dir.Contains("genTr") )   extra+="_genTr";
+  if (dir.Contains("NoWeight")) extra+="_noweight";
+  
+  //comp_other_exp(dir+"unf_MC31"+extra+"_partfull_HF0_ATLAS1_INEL_cut2.root" , "nch_data_corrected" , "../expdata/atlas_dsigdn_inelgt1_7000GeV_eta25_pt500.txt","_ATLAS1_E_7"+tr+wght);
+  comp_other_exp(dir+"unf_MC31"+extra+"_partfull_HF0_ATLAS2_INEL_cut0.root" , "nch_data_corrected" , "../expdata/atlas_dsigdn_inelgt2_7000GeV_eta25_pt100.txt","_ATLAS2_E_7"+tr+wght);
+  comp_other_exp(dir+"unf_MC31"+extra+"_partfull_HF0_ATLAS6_INEL_cut2.root" , "nch_data_corrected" , "../expdata/atlas_dsigdn_inelgt6_7000GeV_eta25_pt500.txt","_ATLAS6_E_7"+tr+wght);
+  comp_other_exp(dir+"unf_MC31"+extra+"_partfull_HF0_ALICE_INEL_cut4.root"  , "nch_data_corrected" , "../expdata/alice_dsigdn_inelgt1_7000GeV_eta10_pt0.txt","_ALICE_E_7"+tr+wght);  
   
   dir="files/unfold_outputs/"+subdir+"_900/";
      
@@ -1090,12 +1094,13 @@ void finalAll(TString subdir ="v21"){ //
   if (dir.Contains("genTr") ) tr= "_genTr";
   
   //to make it compatible to everything before v21
-  TString oldnoweight="";
-  if(dir.Contains("v21")) oldnoweight="_noweight";
+  extra="";
+  if(dir.Contains("genTr")) extra+="_genTr";
+  if(dir.Contains("v21") ||dir.Contains("NoWeight")) extra+="_noweight";
      
-  comp_other_exp(dir+"unf_MC60"+oldnoweight+"_partfull_HF0_ATLAS1_INEL_cut2.root" , "nch_data_corrected" , "../expdata/atlas_dsigdn_inelgt1_900GeV_eta25_pt500.txt","_ATLAS1_E_0.9"+tr+wght);
-  comp_other_exp(dir+"unf_MC60"+oldnoweight+"_partfull_HF0_ATLAS2_INEL_cut0.root" , "nch_data_corrected" , "../expdata/atlas_dsigdn_inelgt2_900GeV_eta25_pt100.txt","_ATLAS2_E_0.9"+tr+wght);
-  comp_other_exp(dir+"unf_MC60"+oldnoweight+"_partfull_HF0_ATLAS6_INEL_cut2.root" , "nch_data_corrected" , "../expdata/atlas_dsigdn_inelgt6_900GeV_eta25_pt500.txt","_ATLAS6_E_0.9"+tr+wght);
+  comp_other_exp(dir+"unf_MC60"+extra+"_partfull_HF0_ATLAS1_INEL_cut2.root" , "nch_data_corrected" , "../expdata/atlas_dsigdn_inelgt1_900GeV_eta25_pt500.txt","_ATLAS1_E_0.9"+tr+wght);
+  comp_other_exp(dir+"unf_MC60"+extra+"_partfull_HF0_ATLAS2_INEL_cut0.root" , "nch_data_corrected" , "../expdata/atlas_dsigdn_inelgt2_900GeV_eta25_pt100.txt","_ATLAS2_E_0.9"+tr+wght);
+  comp_other_exp(dir+"unf_MC60"+extra+"_partfull_HF0_ATLAS6_INEL_cut2.root" , "nch_data_corrected" , "../expdata/atlas_dsigdn_inelgt6_900GeV_eta25_pt500.txt","_ATLAS6_E_0.9"+tr+wght);
 }
 
 
@@ -1145,13 +1150,17 @@ void xcheck_NSD_All(TString subdir ="v21"){
   if (dir1.Contains("NoWeight")) wght="_NoWeight";
   TString tr ="_ferncTr";
   if (dir1.Contains("genTr") ) tr= "_genTr";
+  
+  TString extra="";
+  if (dir1.Contains("genTr") )   extra+="_genTr";
+  if (dir1.Contains("NoWeight")) extra+="_noweight";
 
-  //xcheck_NSD(dir1+"unf_MC31_partfull_HF1_nocut_NSD_cut0.root" , dir2+"unfolding_MC_ATLAS_7.0TeV_mbTr__hyp1_niter0_cut10_DataType0.root" , plotname, "xcheck_NSD_E_7"+tr+wght);
-  xcheck_NSD(dir1+"unf_MC31_partfull_HF1_nocut_NSD_cut1.root" , dir2+"unfolding_MC_ATLAS_7.0TeV_mbTr__hyp1_niter0_cut5_DataType0.root" , plotname, "xcheck_NSD_E_7"+tr+wght);
-  //xcheck_NSD(dir1+"unf_MC31_partfull_HF1_nocut_NSD_cut2.root" , dir2+"unfolding_MC_ATLAS_7.0TeV_mbTr__hyp1_niter0_cut15_DataType0.root" , plotname, "xcheck_NSD_E_7"+tr+wght);
-  //xcheck_NSD(dir1+"unf_MC31_partfull_HF1_nocut_NSD_cut3.root" , dir2+"unfolding_MC_ATLAS_7.0TeV_mbTr__hyp1_niter0_cut20_DataType0.root" , plotname, "xcheck_NSD_E_7"+tr+wght);
-  //xcheck_NSD(dir1+"unf_MC31_partfull_HF1_nocut_NSD_cut4.root" , dir2+"unfolding_MC_ATLAS_7.0TeV_mbTr__hyp1_niter0_cut13_DataType0.root" , plotname, "xcheck_NSD_E_7"+tr+wght);
-  xcheck_NSD(dir1+"unf_MC31_partfull_HF1_nocut_NSD_cut5.root" , dir2+"unfolding_MC_ATLAS_7.0TeV_mbTr__hyp1_niter0_cut8_DataType0.root" , plotname, "xcheck_NSD_E_7"+tr+wght);
+  //xcheck_NSD(dir1+"unf_MC31"+extra+"_partfull_HF1_nocut_NSD_cut0.root" , dir2+"unfolding_MC_ATLAS_7.0TeV_mbTr__hyp1_niter0_cut10_DataType0.root" , plotname, "xcheck_NSD_E_7"+tr+wght);
+  xcheck_NSD(dir1+"unf_MC31"+extra+"_partfull_HF1_nocut_NSD_cut1.root" , dir2+"unfolding_MC_ATLAS_7.0TeV_mbTr__hyp1_niter0_cut5_DataType0.root" , plotname, "xcheck_NSD_E_7"+tr+wght);
+  //xcheck_NSD(dir1+"unf_MC31"+extra+"_partfull_HF1_nocut_NSD_cut2.root" , dir2+"unfolding_MC_ATLAS_7.0TeV_mbTr__hyp1_niter0_cut15_DataType0.root" , plotname, "xcheck_NSD_E_7"+tr+wght);
+  //xcheck_NSD(dir1+"unf_MC31"+extra+"_partfull_HF1_nocut_NSD_cut3.root" , dir2+"unfolding_MC_ATLAS_7.0TeV_mbTr__hyp1_niter0_cut20_DataType0.root" , plotname, "xcheck_NSD_E_7"+tr+wght);
+  //xcheck_NSD(dir1+"unf_MC31"+extra+"_partfull_HF1_nocut_NSD_cut4.root" , dir2+"unfolding_MC_ATLAS_7.0TeV_mbTr__hyp1_niter0_cut13_DataType0.root" , plotname, "xcheck_NSD_E_7"+tr+wght);
+  xcheck_NSD(dir1+"unf_MC31"+extra+"_partfull_HF1_nocut_NSD_cut5.root" , dir2+"unfolding_MC_ATLAS_7.0TeV_mbTr__hyp1_niter0_cut8_DataType0.root" , plotname, "xcheck_NSD_E_7"+tr+wght);
    
   
   dir1="files/unfold_outputs/"+subdir+"_900_ptcorr/";
@@ -1161,10 +1170,14 @@ void xcheck_NSD_All(TString subdir ="v21"){
   tr ="_ferncTr";
   if (dir1.Contains("genTr") ) tr= "_genTr";
   
-  //xcheck_NSD(dir1+"unf_MC60_partfull_HF1_nocut_NSD_cut0.root" , dir2+"unfolding_MC_D6T_0.9TeV_mbTr__hyp1_niter0_cut10_DataType0.root" , plotname, "xcheck_NSD_E_0.9"+tr+wght);
-  xcheck_NSD(dir1+"unf_MC60_partfull_HF1_nocut_NSD_cut1.root" , dir2+"unfolding_MC_D6T_0.9TeV_mbTr__hyp1_niter0_cut5_DataType0.root" , plotname, "xcheck_NSD_E_0.9"+tr+wght);
-  //xcheck_NSD(dir1+"unf_MC60_partfull_HF1_nocut_NSD_cut2.root" , dir2+"unfolding_MC_D6T_0.9TeV_mbTr__hyp1_niter0_cut15_DataType0.root" , plotname, "xcheck_NSD_E_0.9"+tr+wght);
-  //xcheck_NSD(dir1+"unf_MC60_partfull_HF1_nocut_NSD_cut3.root" , dir2+"unfolding_MC_D6T_0.9TeV_mbTr__hyp1_niter0_cut20_DataType0.root" , plotname, "xcheck_NSD_E_0.9"+tr+wght);
-  //xcheck_NSD(dir1+"unf_MC60_partfull_HF1_nocut_NSD_cut4.root" , dir2+"unfolding_MC_D6T_0.9TeV_mbTr__hyp1_niter0_cut13_DataType0.root" , plotname, "xcheck_NSD_E_0.9"+tr+wght);
-  xcheck_NSD(dir1+"unf_MC60_partfull_HF1_nocut_NSD_cut5.root" , dir2+"unfolding_MC_D6T_0.9TeV_mbTr__hyp1_niter0_cut8_DataType0.root" , plotname, "xcheck_NSD_E_0.9"+tr+wght);
+  extra="";
+  if (dir1.Contains("genTr") )   extra+="_genTr";
+  if (dir1.Contains("NoWeight")) extra+="_noweight";
+  
+  //xcheck_NSD(dir1+"unf_MC60"+extra+"_partfull_HF1_nocut_NSD_cut0.root" , dir2+"unfolding_MC_D6T_0.9TeV_mbTr__hyp1_niter0_cut10_DataType0.root" , plotname, "xcheck_NSD_E_0.9"+tr+wght);
+  xcheck_NSD(dir1+"unf_MC60"+extra+"_partfull_HF1_nocut_NSD_cut1.root" , dir2+"unfolding_MC_D6T_0.9TeV_mbTr__hyp1_niter0_cut5_DataType0.root" , plotname, "xcheck_NSD_E_0.9"+tr+wght);
+  //xcheck_NSD(dir1+"unf"+extra+"_MC60_partfull_HF1_nocut_NSD_cut2.root" , dir2+"unfolding_MC_D6T_0.9TeV_mbTr__hyp1_niter0_cut15_DataType0.root" , plotname, "xcheck_NSD_E_0.9"+tr+wght);
+  //xcheck_NSD(dir1+"unf"+extra+"_MC60_partfull_HF1_nocut_NSD_cut3.root" , dir2+"unfolding_MC_D6T_0.9TeV_mbTr__hyp1_niter0_cut20_DataType0.root" , plotname, "xcheck_NSD_E_0.9"+tr+wght);
+  //xcheck_NSD(dir1+"unf"+extra+"_MC60_partfull_HF1_nocut_NSD_cut4.root" , dir2+"unfolding_MC_D6T_0.9TeV_mbTr__hyp1_niter0_cut13_DataType0.root" , plotname, "xcheck_NSD_E_0.9"+tr+wght);
+  xcheck_NSD(dir1+"unf"+extra+"_MC60_partfull_HF1_nocut_NSD_cut5.root" , dir2+"unfolding_MC_D6T_0.9TeV_mbTr__hyp1_niter0_cut8_DataType0.root" , plotname, "xcheck_NSD_E_0.9"+tr+wght);
 } 
