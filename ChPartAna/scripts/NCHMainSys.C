@@ -28,9 +28,9 @@ Syst* UNFSys(TString, TString, TString, TString, TH1F* );
 //    rootc NCHMainSys.C+ -q
 
 //________________________________________________________________________________
-void NCHMainSys(TString filepart = "_partfull_HF0_ATLAS6_RECO_cut0") {
+void NCHMainSys(TString filepart = "_partfull_HF0_ATLAS6_INEL_cut0", double energy = 7, TString dirpart="v22") {
 
-  if(filepart.Contains("HF1")) filepart.ReplaceAll("RECO","NSD");
+  if(filepart.Contains("HF1")) filepart.ReplaceAll("INEL","NSD");
 
   //---- Test Code ------
   //TestCode();
@@ -42,10 +42,8 @@ void NCHMainSys(TString filepart = "_partfull_HF0_ATLAS6_RECO_cut0") {
   
 
   // -----INPUTS------------------------------------
-  const TString BaseMC = "MC31";
-  const TString dirpart="v20/";
-  //const TString filepart="_partfull_HF0_ATLAS1_INEL_cut0";
- 
+  TString BaseMC = "MC31";
+  if (energy == 0.9) BaseMC = "MC60";
   //------------------------------------------------
   //detaching cloned TH1's from their original file, so outfile->Close() will not crash the program
   TH1::AddDirectory(kFALSE);
@@ -56,8 +54,8 @@ void NCHMainSys(TString filepart = "_partfull_HF0_ATLAS6_RECO_cut0") {
   Syst* EvtSel_Syst = NULL; 
   Syst* Summed_Syst = NULL;
 
-  const TString filedirunfold = "../macro/unfold_outputs/"+dirpart;
-  const TString filediroutput = "../macro/sys_outputs/"+dirpart;
+  const TString filedirunfold = "../macro/unfold_outputs/"+dirpart+"/";
+  const TString filediroutput = "../macro/sys_outputs/"+dirpart+"/";
   const TString outstr        = "sys_"+BaseMC+filepart+".root";
 
   TFile* fileBase  =NULL; fileBase   = TFile::Open(filedirunfold+"unf_"+BaseMC+filepart+".root" ,"READ");  
@@ -68,12 +66,14 @@ void NCHMainSys(TString filepart = "_partfull_HF0_ATLAS6_RECO_cut0") {
 
   const TString histoName="nch_data_corrected";
   TH1F* CurveBase = (TH1F*) fileBase->FindObjectAny(histoName);
-
+  cout <<  "CurveBase: " << histoName   << " ptr: " <<  CurveBase << endl;
+  if (CurveBase ==0 ) return;
 
   // ---------------  Unfolding SYS  -----------------------
   cout <<"---- Starting Unfolding SYS ----"<<endl;
   // Second MC file to compare it with the BaseMC
   TString TestMC = "MC60";
+  if (energy == 0.9) TestMC = "MC15"; 
   Unf_Syst = UNFSys(TestMC, filepart, filedirunfold, histoName, CurveBase );
   cout <<"Created Unf_syst : " << TestMC << "  ptr: " << Unf_Syst << endl;
   if(Unf_Syst==0) return;
@@ -97,6 +97,30 @@ void NCHMainSys(TString filepart = "_partfull_HF0_ATLAS6_RECO_cut0") {
   cout <<"Created Track_syst : " << TrackSys << "  ptr: " << Track_Syst << endl;
   if(Track_Syst==0) return;
 
+/*
+   // ---------------  Compare the BaseMC nch curve with for example the NoWeight - SYS  -----------------------
+  cout <<"---- Starting Compare NW/W SYS ----"<<endl;
+  TString extra = "_noweight";
+  TString Testfilepart = extra+filepart;
+  TString Testfiledir = "../"+dirpart+"NoWeight/";
+  Syst*    NWW_Syst = NULL; 
+  NWW_Syst = UNFSys(BaseMC, Testfilepart, filedirunfold+Testfiledir, histoName, CurveBase );
+  cout <<"Created NW/W_syst : " << extra << "  ptr: " << NWW_Syst << endl;
+  if(NWW_Syst==0) return;
+*/
+  if(energy==7) {  
+    // ---------------  Compare the BaseMC nch curve with genTr/ferTr - SYS  -----------------------
+    cout <<"---- Starting Compare fer/gen SYS ----"<<endl;
+
+    TString extrag = "_genTr";
+    TString Testfilepartg = extrag+filepart;
+     TString Testfiledirg = "../"+dirpart+"_genTr/";
+    Syst*    gf_Syst = NULL; 
+    gf_Syst = UNFSys(BaseMC, Testfilepartg, filedirunfold+Testfiledirg, histoName, CurveBase );
+    cout <<"Created gen/fernc_syst : " << extrag << "  ptr: " << gf_Syst << endl;
+    if(gf_Syst==0) return;
+  }  
+    
   
   // -------------   EvtSel SYS    ---------------------
   
@@ -203,74 +227,105 @@ Syst* MPSys(TString Sys, TString BaseMC, TString filepart, TString filedirunf, T
   return Sys_test;
 }
 
+//________________________________________________________________________________
+void NCHCut01(TString dir = "v22", double energy = 7) {
+
+    NCHMainSys("_partfull_HF0_ATLAS1_INEL_cut0",energy,dir);
+    NCHMainSys("_partfull_HF1_ATLAS1_NSD_cut0",energy,dir);
+    NCHMainSys("_partfull_HF0_ATLAS2_INEL_cut0",energy,dir);
+    NCHMainSys("_partfull_HF1_ATLAS2_NSD_cut0",energy,dir);
+    NCHMainSys("_partfull_HF0_ATLAS6_INEL_cut0",energy,dir);
+    NCHMainSys("_partfull_HF1_ATLAS6_NSD_cut0",energy,dir);
+    NCHMainSys("_partfull_HF0_ALICE_INEL_cut0",energy,dir);
+    NCHMainSys("_partfull_HF1_ALICE_NSD_cut0",energy,dir);
+    NCHMainSys("_partfull_HF0_MBUEWG_INEL_cut0",energy,dir);
+    NCHMainSys("_partfull_HF1_MBUEWG_NSD_cut0",energy,dir);   
+    NCHMainSys("_partfull_HF0_nocut_INEL_cut0",energy,dir);
+    NCHMainSys("_partfull_HF1_nocut_NSD_cut0",energy,dir);
+
+    NCHMainSys("_partfull_HF0_ATLAS1_INEL_cut1",energy,dir);
+    NCHMainSys("_partfull_HF1_ATLAS1_NSD_cut1",energy,dir);
+    NCHMainSys("_partfull_HF0_ATLAS2_INEL_cut1",energy,dir);
+    NCHMainSys("_partfull_HF1_ATLAS2_NSD_cut1",energy,dir);
+    NCHMainSys("_partfull_HF0_ATLAS6_INEL_cut1",energy,dir);
+    NCHMainSys("_partfull_HF1_ATLAS6_NSD_cut1",energy,dir);
+    NCHMainSys("_partfull_HF0_ALICE_INEL_cut1",energy,dir);
+    NCHMainSys("_partfull_HF1_ALICE_NSD_cut1",energy,dir);
+    NCHMainSys("_partfull_HF0_MBUEWG_INEL_cut1",energy,dir);
+    NCHMainSys("_partfull_HF1_MBUEWG_NSD_cut1",energy,dir);   
+    NCHMainSys("_partfull_HF0_nocut_INEL_cut1",energy,dir);
+    NCHMainSys("_partfull_HF1_nocut_NSD_cut1",energy,dir);
+}
+
 
 //________________________________________________________________________________
-void NCHAll() {
+void NCHCut23(TString dir = "v22", double energy = 7) {
 
-    NCHMainSys("_partfull_HF0_ATLAS1_RECO_cut0");
-    NCHMainSys("_partfull_HF1_ATLAS1_RECO_cut0");
-    NCHMainSys("_partfull_HF0_ATLAS2_RECO_cut0");
-    NCHMainSys("_partfull_HF1_ATLAS2_RECO_cut0");
-    NCHMainSys("_partfull_HF0_ATLAS6_RECO_cut0");
-    NCHMainSys("_partfull_HF1_ATLAS6_RECO_cut0");
-    NCHMainSys("_partfull_HF0_ALICE_RECO_cut0");
-    NCHMainSys("_partfull_HF1_ALICE_RECO_cut0");
-    NCHMainSys("_partfull_HF0_MBUEWG_RECO_cut0");
-    NCHMainSys("_partfull_HF1_MBUEWG_RECO_cut0");   
-    NCHMainSys("_partfull_HF0_nocut_RECO_cut0");
-    NCHMainSys("_partfull_HF1_nocut_RECO_cut0");
+    NCHMainSys("_partfull_HF0_ATLAS1_INEL_cut2",energy,dir);
+    NCHMainSys("_partfull_HF1_ATLAS1_NSD_cut2",energy,dir);
+    NCHMainSys("_partfull_HF0_ATLAS2_INEL_cut2",energy,dir);
+    NCHMainSys("_partfull_HF1_ATLAS2_NSD_cut2",energy,dir);
+    NCHMainSys("_partfull_HF0_ATLAS6_INEL_cut2",energy,dir);
+    NCHMainSys("_partfull_HF1_ATLAS6_NSD_cut2",energy,dir);
+    NCHMainSys("_partfull_HF0_ALICE_INEL_cut2",energy,dir);
+    NCHMainSys("_partfull_HF1_ALICE_NSD_cut2",energy,dir);
+    NCHMainSys("_partfull_HF0_MBUEWG_INEL_cut2",energy,dir);
+    NCHMainSys("_partfull_HF1_MBUEWG_NSD_cut2",energy,dir);   
+    NCHMainSys("_partfull_HF0_nocut_INEL_cut2",energy,dir);
+    NCHMainSys("_partfull_HF1_nocut_NSD_cut2",energy,dir);
 
-    NCHMainSys("_partfull_HF0_ATLAS1_RECO_cut1");
-    NCHMainSys("_partfull_HF1_ATLAS1_RECO_cut1");
-    NCHMainSys("_partfull_HF0_ATLAS2_RECO_cut1");
-    NCHMainSys("_partfull_HF1_ATLAS2_RECO_cut1");
-    NCHMainSys("_partfull_HF0_ATLAS6_RECO_cut1");
-    NCHMainSys("_partfull_HF1_ATLAS6_RECO_cut1");
-    NCHMainSys("_partfull_HF0_ALICE_RECO_cut1");
-    NCHMainSys("_partfull_HF1_ALICE_RECO_cut1");
-    NCHMainSys("_partfull_HF0_MBUEWG_RECO_cut1");
-    NCHMainSys("_partfull_HF1_MBUEWG_RECO_cut1");   
-    NCHMainSys("_partfull_HF0_nocut_RECO_cut1");
-    NCHMainSys("_partfull_HF1_nocut_RECO_cut1");
+    NCHMainSys("_partfull_HF0_ATLAS1_INEL_cut3",energy,dir);
+    NCHMainSys("_partfull_HF1_ATLAS1_NSD_cut3",energy,dir);
+    NCHMainSys("_partfull_HF0_ATLAS2_INEL_cut3",energy,dir);
+    NCHMainSys("_partfull_HF1_ATLAS2_NSD_cut3",energy,dir);
+    NCHMainSys("_partfull_HF0_ATLAS6_INEL_cut3",energy,dir);
+    NCHMainSys("_partfull_HF1_ATLAS6_NSD_cut3",energy,dir);
+    NCHMainSys("_partfull_HF0_ALICE_INEL_cut3",energy,dir);
+    NCHMainSys("_partfull_HF1_ALICE_NSD_cut3",energy,dir);
+    NCHMainSys("_partfull_HF0_MBUEWG_INEL_cut3",energy,dir);
+    NCHMainSys("_partfull_HF1_MBUEWG_NSD_cut3",energy,dir);   
+    NCHMainSys("_partfull_HF0_nocut_INEL_cut3",energy,dir);
+    NCHMainSys("_partfull_HF1_nocut_NSD_cut3",energy,dir);
+}
 
-    NCHMainSys("_partfull_HF0_ATLAS1_RECO_cut2");
-    NCHMainSys("_partfull_HF1_ATLAS1_RECO_cut2");
-    NCHMainSys("_partfull_HF0_ATLAS2_RECO_cut2");
-    NCHMainSys("_partfull_HF1_ATLAS2_RECO_cut2");
-    NCHMainSys("_partfull_HF0_ATLAS6_RECO_cut2");
-    NCHMainSys("_partfull_HF1_ATLAS6_RECO_cut2");
-    NCHMainSys("_partfull_HF0_ALICE_RECO_cut2");
-    NCHMainSys("_partfull_HF1_ALICE_RECO_cut2");
-    NCHMainSys("_partfull_HF0_MBUEWG_RECO_cut2");
-    NCHMainSys("_partfull_HF1_MBUEWG_RECO_cut2");   
-    NCHMainSys("_partfull_HF0_nocut_RECO_cut2");
-    NCHMainSys("_partfull_HF1_nocut_RECO_cut2");
+//________________________________________________________________________________
+void NCHCut45(TString dir = "v22", double energy = 7) {
 
-    NCHMainSys("_partfull_HF0_ATLAS1_RECO_cut3");
-    NCHMainSys("_partfull_HF1_ATLAS1_RECO_cut3");
-    NCHMainSys("_partfull_HF0_ATLAS2_RECO_cut3");
-    NCHMainSys("_partfull_HF1_ATLAS2_RECO_cut3");
-    NCHMainSys("_partfull_HF0_ATLAS6_RECO_cut3");
-    NCHMainSys("_partfull_HF1_ATLAS6_RECO_cut3");
-    NCHMainSys("_partfull_HF0_ALICE_RECO_cut3");
-    NCHMainSys("_partfull_HF1_ALICE_RECO_cut3");
-    NCHMainSys("_partfull_HF0_MBUEWG_RECO_cut3");
-    NCHMainSys("_partfull_HF1_MBUEWG_RECO_cut3");   
-    NCHMainSys("_partfull_HF0_nocut_RECO_cut3");
-    NCHMainSys("_partfull_HF1_nocut_RECO_cut3");
 
-    NCHMainSys("_partfull_HF0_ATLAS1_RECO_cut4");
-    NCHMainSys("_partfull_HF1_ATLAS1_RECO_cut4");
-    NCHMainSys("_partfull_HF0_ATLAS2_RECO_cut4");
-    NCHMainSys("_partfull_HF1_ATLAS2_RECO_cut4");
-    NCHMainSys("_partfull_HF0_ATLAS6_RECO_cut4");
-    NCHMainSys("_partfull_HF1_ATLAS6_RECO_cut4");
-    NCHMainSys("_partfull_HF0_ALICE_RECO_cut4");
-    NCHMainSys("_partfull_HF1_ALICE_RECO_cut4");
-    NCHMainSys("_partfull_HF0_MBUEWG_RECO_cut4");
-    NCHMainSys("_partfull_HF1_MBUEWG_RECO_cut4");   
-    NCHMainSys("_partfull_HF0_nocut_RECO_cut4");
-    NCHMainSys("_partfull_HF1_nocut_RECO_cut4");
+    NCHMainSys("_partfull_HF0_ATLAS1_INEL_cut4",energy,dir);
+    NCHMainSys("_partfull_HF1_ATLAS1_NSD_cut4",energy,dir);
+    NCHMainSys("_partfull_HF0_ATLAS2_INEL_cut4",energy,dir);
+    NCHMainSys("_partfull_HF1_ATLAS2_NSD_cut4",energy,dir);
+    NCHMainSys("_partfull_HF0_ATLAS6_INEL_cut4",energy,dir);
+    NCHMainSys("_partfull_HF1_ATLAS6_NSD_cut4",energy,dir);
+    NCHMainSys("_partfull_HF0_ALICE_INEL_cut4",energy,dir);
+    NCHMainSys("_partfull_HF1_ALICE_NSD_cut4",energy,dir);
+    NCHMainSys("_partfull_HF0_MBUEWG_INEL_cut4",energy,dir);
+    NCHMainSys("_partfull_HF1_MBUEWG_NSD_cut4",energy,dir);   
+    NCHMainSys("_partfull_HF0_nocut_INEL_cut4",energy,dir);
+    NCHMainSys("_partfull_HF1_nocut_NSD_cut4",energy,dir);
+    
+    NCHMainSys("_partfull_HF0_ATLAS1_INEL_cut5",energy,dir);
+    NCHMainSys("_partfull_HF1_ATLAS1_NSD_cut5",energy,dir);
+    NCHMainSys("_partfull_HF0_ATLAS2_INEL_cut5",energy,dir);
+    NCHMainSys("_partfull_HF1_ATLAS2_NSD_cut5",energy,dir);
+    NCHMainSys("_partfull_HF0_ATLAS6_INEL_cut5",energy,dir);
+    NCHMainSys("_partfull_HF1_ATLAS6_NSD_cut5",energy,dir);
+    NCHMainSys("_partfull_HF0_ALICE_INEL_cut5",energy,dir);
+    NCHMainSys("_partfull_HF1_ALICE_NSD_cut5",energy,dir);
+    NCHMainSys("_partfull_HF0_MBUEWG_INEL_cut5",energy,dir);
+    NCHMainSys("_partfull_HF1_MBUEWG_NSD_cut5",energy,dir);   
+    NCHMainSys("_partfull_HF0_nocut_INEL_cut5",energy,dir);
+    NCHMainSys("_partfull_HF1_nocut_NSD_cut5",energy,dir);    
+}
+
+
+//________________________________________________________________________________
+void NCHAll(TString dir = "v22", double energy = 7) {
+   
+   NCHCut01(dir, energy);
+   NCHCut23(dir, energy);
+   NCHCut45(dir, energy); 
 }
 
 
