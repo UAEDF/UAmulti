@@ -94,11 +94,11 @@ void makeCorrectionsSten(int typeMC = 60, const TString mcfile ="", const TStrin
 //////////////////////////////////////
 //MAIN PROGRAM
 
-// nohup root -l ../macro/BuildLibDico.C+ ../scripts/NCHmakeCorrections.C+"(\"v8\",60,0,-1,-1,true,0,7.0,7.0,0,0,true)" -q > logUnf_Data12MwithMC15.txt &
-// nohup root -l ../macro/BuildLibDico.C+ ../scripts/NCHmakeCorrections.C+"(\"v0\",60,0,2000000,-2,true,0,7.0,7.0,100,1,true)" -q > logUnf_TrackSys.txt &
+// nohup root -l ../macro/BuildLibDico.C+ ../scripts/NCHmakeCorrections.C+"(\"v8\",60,0,-1,-1,true,0,7.0,7.0,0,0,true,false,false)" -q > logUnf_Data12MwithMC15.txt &
+// nohup root -l ../macro/BuildLibDico.C+ ../scripts/NCHmakeCorrections.C+"(\"v0\",60,0,2000000,-2,true,0,7.0,7.0,100,1,true,false,false)" -q > logUnf_TrackSys.txt &
 //_____________________________________________________________________________
 void NCHmakeCorrections(TString dir_out = "", int typeMC = 60, int hf_int = 0, int Nrunmc = -1, int Nrundata = 4000000, 
-         bool useData =true, int cut_tag = 0, double Emc = 7.0, double Edata = 7.0, int syst = 0, int syst_sign = 0, bool switch_memory = true) {
+         bool useData =true, int cut_tag = 0, double Emc = 7.0, double Edata = 7.0, int syst = 0, int syst_sign = 0, bool switch_memory = true, bool noweight = false, bool genTr = false, int tracking_int = 0) {
     //unfodling is only done for the central cut: centr_tag
     
     if (Nrunmc==-1) {
@@ -106,7 +106,7 @@ void NCHmakeCorrections(TString dir_out = "", int typeMC = 60, int hf_int = 0, i
         if(typeMC==15)  Nrunmc = 10966400;
     }
     if(Nrunmc==-2) {
-        if(typeMC=31) Nrunmc = 1886500;
+        if(typeMC==31) Nrunmc = 1886500;
         else {
             cout << "wrong Nrunmc --> exit" << endl;
             return;
@@ -121,8 +121,7 @@ void NCHmakeCorrections(TString dir_out = "", int typeMC = 60, int hf_int = 0, i
           
     ////////////////
     // SWITCH
-    TString dir = "../macro/outputs_full/v10/";
-    //TString dir_out = "/v5/";
+    TString dir = "../macro/outputs_full/"+dir_out+"/";
     bool  only1test=false;
     //////////////////
     
@@ -137,10 +136,19 @@ void NCHmakeCorrections(TString dir_out = "", int typeMC = 60, int hf_int = 0, i
     TString usedatastr="";
     if(!useData) usedatastr="_MCcorrMC";
     
-    TString mcstr = type.str()+"_ferncTr_E"+energymc.str()+nEvtsmc.str();
+    TString noweight_str = "";
+    if (noweight == true ) noweight_str = "_noweight";
+    TString tracking = "_ferncTr";
+    if (tracking_int == 1) tracking = "_genTr";
+    TString track_out = "";
+    if (genTr == true) {
+        tracking ="_genTr";
+        track_out="_genTr";
+    }    
+    TString mcstr = type.str()+tracking+"_E"+energymc.str()+nEvtsmc.str()+noweight_str;
     TString mcfile      = dir + "output_MC"+mcstr+".root";
-    TString datafile    = dir + "output_data_ferncTr_E"+energydata.str()+nEvtsdata.str()+".root";
-    TString outputpart  = "../macro/unfold_outputs/"+dir_out+"/unf_MC"+type.str()+usedatastr;
+    TString datafile    = dir + "output_data"+tracking+"_E"+energydata.str()+nEvtsdata.str()+".root";
+    TString outputpart  = "../macro/unfold_outputs/"+dir_out+"/unf_MC"+type.str()+usedatastr+noweight_str+track_out;
     
     //clearing output file 
     cout << "MC   input file: " << mcfile     << endl;
@@ -165,19 +173,21 @@ void NCHmakeCorrections(TString dir_out = "", int typeMC = 60, int hf_int = 0, i
         }    
     
     vector <TString> * diff = new vector <TString>;
-        diff->push_back("_INEL");    
+        //diff->push_back("_INEL");     
         //diff->push_back("_DD");
         //diff->push_back("_NSD");
         //diff->push_back("_INEL");
-        //diff->push_back("_RECO");
-                
+        diff->push_back("_RECO");
+    cout << "switch_memory " << switch_memory << endl;          
     vector <TString> * centr = new vector <TString>;
-        if (switch_memory = true) {
+        if (switch_memory == true) {
+            cout << "Entered switch_memory true: " << switch_memory << endl;      
             centr->push_back("_nocut");    
             centr->push_back("_MBUEWG");
             centr->push_back("_ALICE");
         }    
-        else {
+        if (switch_memory == false) {
+            cout << "Entered switch_memory false: " << switch_memory << endl;  
             centr->push_back("_ATLAS1");
             centr->push_back("_ATLAS2");
             centr->push_back("_ATLAS6");
@@ -228,7 +238,7 @@ void NCHmakeCorrections(TString dir_out = "", int typeMC = 60, int hf_int = 0, i
             for(vector<TString>::const_iterator cen = centr->begin() ; cen != centr->end() ; ++cen){
                 for(vector<TString>::const_iterator h = hf->begin() ; h != hf->end() ; ++h){
                     gErrorIgnoreLevel=3001; //to ignore errors
-                    if(*dif=="_RECO") continue; // if MC=RECO, we can not do unfolding, we need SD DD NSD or INEL
+                    //if(*dif=="_RECO") continue; // if MC=RECO, we can not do unfolding, we need SD DD NSD or INEL
                     if(*ac!=cut_unf.str()) continue; //only do the program for 1 central cut  || bad fix to exclude the memory leaks
                     
                     //if(*cen!="_ATLAS6") continue;
@@ -271,15 +281,16 @@ void NCHmakeCorrections(TString dir_out = "", int typeMC = 60, int hf_int = 0, i
                     
                     else if (*h =="_HF1") nIter = 5;                                   
                     else { 
-                        nIter = 20;
+                        nIter = 3;
                         cout << "nIter was not set ! It stays: " << nIter <<endl;
                     }
                     
                     if(debug_) cout << "usedata beginning main program " << useData << endl;
                     //errors back on for the unfolding code
                     gErrorIgnoreLevel=backup_gErrorIgnoreLevel; 
-                    makeCorrectionsSten(60, mcfile, datafile, outputpart, dirmc, dirreco, lastpartmc1, lastpartmc2, 
-                                        lastpartRECO, lastpartmcnosel, useData, 1, 20, syst, syst_sign); //Emc, Edata);                        
+
+                    makeCorrectionsSten(typeMC, mcfile, datafile, outputpart, dirmc, dirreco, lastpartmc1, lastpartmc2, 
+                                        lastpartRECO, lastpartmcnosel, useData, 1, nIter, syst, syst_sign); //Emc, Edata);                        
                     if (only1test) break;
                 }
                 if (only1test) break;    
@@ -300,6 +311,57 @@ void NCHmakeCorrections(TString dir_out = "", int typeMC = 60, int hf_int = 0, i
    cout << "---------------------------" << endl << "END OF NCHmakeCorrections()" << endl << "---------------------------" <<endl;       
 }    /////////////////////////////////////
 
+void RunForEffProblem(){
+    
+    //cut1
+    makeCorrectionsSten( 15,
+    "../macro/outputs_full/v21/output_MC15_ferncTr_E_7_5000000.root",
+    "../macro/outputs_full/v21/output_data_ferncTr_E_7_342220.root",
+    "../macro/unfold_outputs/v21b/TESTunf_MC15",
+    "Difflvl_cut2/Centrlvl_NSD_cut2/HFlvl_ATLAS2_NSD_cut2/EvtSel_HF1_ATLAS2_NSD_cut2/",
+    "Difflvl_cut2/Centrlvl_RECO_cut2/HFlvl_ATLAS2_RECO_cut2/EvtSel_HF1_ATLAS2_RECO_cut2/",
+    "_partfull","_HF1_ATLAS2_NSD_cut2","_full_HF1_ATLAS2_RECO_cut2","_partnoSel_HF1_ATLAS2_NSD_cut2",1,1,4,0,0);
+}
+    
+void RunForPtCorrComparision(){
+    
+    //cut1
+    makeCorrectionsSten( 31,
+    "../macro/outputs_full/v21/output_MC31_ferncTr_E_7_5000000.root",
+    "../macro/outputs_full/v21/output_data_ferncTr_E_7_342220.root",
+    "../macro/unfold_outputs/v21_ptcorr/unf_MC31",
+    "Difflvl_cut1/Centrlvl_NSD_cut1/HFlvl_nocut_NSD_cut1/EvtSel_HF1_nocut_NSD_cut1/",
+    "Difflvl_cut1/Centrlvl_RECO_cut1/HFlvl_nocut_RECO_cut1/EvtSel_HF1_nocut_RECO_cut1/",
+    "_partfull","_HF1_nocut_NSD_cut1","_full_HF1_nocut_RECO_cut1","_partnoSel_HF1_nocut_NSD_cut1",1,1,4,0,0);
+    
+    makeCorrectionsSten( 60,
+    "../macro/outputs_full/v21_900/output_MC60_ferncTr_E_0.9_5000000_noweight.root",
+    "../macro/outputs_full/v21_900/output_data_ferncTr_E_0.9_2250000.root",
+    "../macro/unfold_outputs/v21_900_ptcorr/unf_MC60",
+    "Difflvl_cut1/Centrlvl_NSD_cut1/HFlvl_nocut_NSD_cut1/EvtSel_HF1_nocut_NSD_cut1/",
+    "Difflvl_cut1/Centrlvl_RECO_cut1/HFlvl_nocut_RECO_cut1/EvtSel_HF1_nocut_RECO_cut1/",
+    "_partfull","_HF1_nocut_NSD_cut1","_full_HF1_nocut_RECO_cut1","_partnoSel_HF1_nocut_NSD_cut1",1,1,4,0,0);
+    
+    
+    //cut5
+    makeCorrectionsSten( 31,
+    "../macro/outputs_full/v21/output_MC31_ferncTr_E_7_5000000.root",
+    "../macro/outputs_full/v21/output_data_ferncTr_E_7_342220.root",
+    "../macro/unfold_outputs/v21_ptcorr/unf_MC31",
+    "Difflvl_cut5/Centrlvl_NSD_cut5/HFlvl_nocut_NSD_cut5/EvtSel_HF1_nocut_NSD_cut5/",
+    "Difflvl_cut5/Centrlvl_RECO_cut5/HFlvl_nocut_RECO_cut5/EvtSel_HF1_nocut_RECO_cut5/",
+    "_partfull","_HF1_nocut_NSD_cut5","_full_HF1_nocut_RECO_cut5","_partnoSel_HF1_nocut_NSD_cut5",1,1,4,0,0);
+    
+    makeCorrectionsSten( 60,
+    "../macro/outputs_full/v21_900/output_MC60_ferncTr_E_0.9_5000000_noweight.root",
+    "../macro/outputs_full/v21_900/output_data_ferncTr_E_0.9_2250000.root",
+    "../macro/unfold_outputs/v21_900_ptcorr/unf_MC60",
+    "Difflvl_cut5/Centrlvl_NSD_cut5/HFlvl_nocut_NSD_cut5/EvtSel_HF1_nocut_NSD_cut5/",
+    "Difflvl_cut5/Centrlvl_RECO_cut5/HFlvl_nocut_RECO_cut5/EvtSel_HF1_nocut_RECO_cut5/",
+    "_partfull","_HF1_nocut_NSD_cut5","_full_HF1_nocut_RECO_cut5","_partnoSel_HF1_nocut_NSD_cut5",1,1,4,0,0);
+
+}
+
 
 //_____________________________________________________________________________
 void makeCorrectionsSten(int typeMC, const TString mcfile, const TString datafile, const TString outputpart, 
@@ -307,6 +369,7 @@ void makeCorrectionsSten(int typeMC, const TString mcfile, const TString datafil
                          const TString lastpartRECO, const TString lastpartmc_nosel, bool useData,
                          int hyp, int niter, int syst, int syst_sign) { //double Emc, double Edata ) {
                          //, bool drawcanv, float mu, float sigma ){
+  bool doptcorr=true;
   bool drawcanv=false;
   if(debug_) cout << "usedata beginning " << useData << endl;
   //detaching cloned TH1's from their original file, so outfile->Close() will not crash the program
@@ -329,9 +392,13 @@ void makeCorrectionsSten(int typeMC, const TString mcfile, const TString datafil
     if(syst_sign==1) syst_str = syst_str+"P";
     if(syst_sign==-1) syst_str = syst_str+"M";
   }  
-    
-  cout<<"Output file : " << outputpart+lastpartmc+syst_str+".root" << endl;
-  TFile* out = new TFile(outputpart+lastpartmc+syst_str+".root","RECREATE");
+  
+  TString ptcorr_str="_noPtCorr";
+  if(doptcorr) ptcorr_str="";
+  TString output_str =  outputpart+lastpartmc+syst_str+ptcorr_str+".root"; 
+  cout << "Output file : " << output_str << endl;
+      output_str.ReplaceAll("RECO","INEL");
+  TFile* out = new TFile(output_str,"RECREATE");
   out->cd();  
   
    
@@ -350,22 +417,7 @@ void makeCorrectionsSten(int typeMC, const TString mcfile, const TString datafil
     cout << "Matrixhist is empty. Can't find: "<< dirmc+"TResponseMtx"+lastpartmc+"/mtx"+lastpartmc <<endl;
     return;
   }
-  matrixhist->SetName("nch_matrix");
-  
-/*
-  //0000
-  //fix matrix histogram for ATLAS6
-  int n_cut= -1;
-  if(lastpartmc.Contains("nocut")) n_cut=0;
-  if(lastpartmc.Contains("ATLAS1") || lastpartmc.Contains("MBUEWG")  || lastpartmc.Contains("ALICE") ) n_cut=1;
-  if(lastpartmc.Contains("ATLAS2")) n_cut=2;
-  if(lastpartmc.Contains("ATLAS6")) n_cut=6;
-  
-  for (int i=1;i<=matrixhist->GetNbinsX();i++)
-    for (int j=1;j<=n_cut;j++)
-         matrixhist->SetBinContent(i,j,0);
-*/
-         
+  matrixhist->SetName("nch_matrix");       
 
 
   if(debug_!=0) {
@@ -488,7 +540,7 @@ void makeCorrectionsSten(int typeMC, const TString mcfile, const TString datafil
     pathSD.ReplaceAll("RECO","SD");
     //cout << pathSD << "   lastpartedited  "<< endl;
     TString pathINEL=dirRECO+"MultiPlots"+lastpartRECO+"/nch"+lastpartRECO;
-    pathINEL.ReplaceAll("RECO","INEL");
+    pathINEL.ReplaceAll("RECO","RECO");
     
 
     nch_SD   = (TH1F*) mc->Get(pathSD);
@@ -524,11 +576,11 @@ void makeCorrectionsSten(int typeMC, const TString mcfile, const TString datafil
   TH1F* eff_evtSel=0;
   TH1F* eff_centrSel=0;  
   
-  
-  TH1F* up_evtSel= 0; up_evtSel = (TH1F*) mc->FindObjectAny("nch_partfull"+lastpartmc2);
-  TString lastpartmcnoSel = lastpartmc;
-  lastpartmcnoSel.ReplaceAll("partfull","partnoSel");
-  TH1F* down_evtSel= 0; down_evtSel = (TH1F*) mc->FindObjectAny("nch_partnoSel"+lastpartmc2);
+  //TH1F* up_evtSel= 0; up_evtSel = (TH1F*) mc->FindObjectAny("nch_partfull"+lastpartmc2);
+  TH1F* up_evtSel= 0; up_evtSel = (TH1F*) mc->Get(dirmc+"MultiPlots_partfull"+lastpartmc2 +"/nch_partfull"+lastpartmc2);
+
+  //TH1F* down_evtSel= 0; down_evtSel = (TH1F*) mc->FindObjectAny("nch_partnoSel"+lastpartmc2);
+  TH1F* down_evtSel= 0; down_evtSel = (TH1F*) mc->Get(dirmc+"MultiPlots_partnoSel"+lastpartmc2 +"/nch_partnoSel"+lastpartmc2);
   
   eff_evtSel = (TH1F*) up_evtSel->Clone("eff_nch"+lastpartmc2);
   eff_evtSel->Divide(up_evtSel, down_evtSel, 1, 1, "B");
@@ -536,19 +588,17 @@ void makeCorrectionsSten(int typeMC, const TString mcfile, const TString datafil
   
   delete up_evtSel; delete down_evtSel;
 
-  TString lastmcCentrGen = lastpartmc;
-  lastmcCentrGen.ReplaceAll("partfull","noSel");
-  TH1F* up_centrSel= 0; up_centrSel = (TH1F*) mc->FindObjectAny("nch_noSel"+lastpartmc2);
-  TString lastmcnoSel = lastpartmc;
-  lastmcnoSel.ReplaceAll("partfull","CentrGen");
-  TH1F* down_centrSel= 0; down_centrSel = (TH1F*) mc->FindObjectAny("nch_CentrGen"+lastpartmc2);
+  //TH1F* up_centrSel= 0; up_centrSel = (TH1F*) mc->FindObjectAny("nch_noSel"+lastpartmc2);
+  TH1F* up_centrSel= 0; up_centrSel = (TH1F*) mc->Get(dirmc+"GenPart_noSel"+lastpartmc2 +"/nch_noSel"+lastpartmc2);
+  //TH1F* down_centrSel= 0; down_centrSel = (TH1F*) mc->FindObjectAny("nch_CentrGen"+lastpartmc2);
+  TH1F* down_centrSel= 0; down_centrSel = (TH1F*) mc->Get(dirmc+"GenPart_CentrGen"+lastpartmc2 +"/nch_CentrGen"+lastpartmc2);
   
   eff_centrSel = (TH1F*) up_centrSel->Clone("eff_nch_CentrEff"+lastpartmc2);
   eff_centrSel->Divide(up_centrSel, down_centrSel, 1, 1, "B");
   eff_centrSel->SetMinimum(0);
   
   delete up_centrSel; delete down_centrSel; 
-  
+
   //eff_evtSel   = (TH1F*) mc->Get(dirmc+"Eff"+lastpartmc+"/eff_nch"+lastpartmc);  
   //eff_centrSel = (TH1F*) mc->Get(dirmc+"Eff_CentrEff"+lastpartmc2+"/eff_nch_CentrEff"+lastpartmc2); 
   //if(debug_) cout <<"eff_evtSel  " << dirmc+"Eff"+lastpartmc+"/eff_nch"+lastpartmc << endl;
@@ -565,10 +615,24 @@ void makeCorrectionsSten(int typeMC, const TString mcfile, const TString datafil
   }
   eff_evtSel->SetName("eff_evtSel");
   eff_centrSel->SetName("eff_centrSel");
+
+  //put the eff to 1 after some time
+  int switch_evtSel= 0;
+  int switch_centrSel= 0;
+  
+  for (int i=1;i<=eff_evtSel->GetNbinsX();i++) { 
+    if ( (i>60 && eff_evtSel->GetBinContent(i)==0) || switch_evtSel==1 ) {
+        eff_evtSel->SetBinContent(i,1);
+        switch_evtSel= 1;
+    }    
+    if ( (i>60 && eff_centrSel->GetBinContent(i)==0) || switch_centrSel==1 ) {
+        eff_centrSel->SetBinContent(i,1);
+        switch_centrSel= 1;
+    }    
+  }
   
   TH1F* eff=(TH1F*) eff_evtSel->Clone("eff_total");
   eff->Multiply(eff_centrSel,eff_evtSel,1,1);
-
     
   if(debug_!=0) {
     eff_evtSel->Draw();
@@ -689,6 +753,41 @@ void makeCorrectionsSten(int typeMC, const TString mcfile, const TString datafil
   nch_trueGen_afterUnfolding->Scale(1./nch_trueGen_afterUnfolding->Integral());*/
 
 
+
+
+  //------------------------------------------------------------------------------
+  //--------------------------------- Pt correc ----------------------------------
+  //------------------------------------------------------------------------------
+
+  TH1F* nch_evtSelCorr = (TH1F*) nch_corrected->Clone("nch_data_evtSelCorr");
+  double ptcorr_val=1.0;
+  
+  if(doptcorr){  
+    cout<<" ++++ DOING PT FRAC CORRECTION ++++" <<endl;
+    
+    
+    if(dirmc.Contains("E_0.9")) {
+        if(lastpartmc.Contains("nocut")) {
+            if (lastpartmc.Contains("cut1")) ptcorr_val = 2.3;
+            if (lastpartmc.Contains("cut5")) ptcorr_val = 2.0;
+        }    
+    }
+    if(dirmc.Contains("E_7")) {
+        if(lastpartmc.Contains("nocut")) {
+            if (lastpartmc.Contains("cut1")) ptcorr_val = 2.6;
+            if (lastpartmc.Contains("cut5")) ptcorr_val = 2.3;
+        }    
+    }
+        
+    //if(syst==700)
+    //  ptcorr_val += 1. * syst_sign;
+    
+    increaseNTracks(nch_corrected , +1, ptcorr_val , 1);  //+1 is the sign
+  }
+  
+  cout<<"Mean of multiplicity --------> "<<nch_corrected->GetMean()<<endl;
+  cout<<"RMS of multiplicity  --------> "<<nch_corrected->GetRMS()<<endl;
+
   //------------------------------------------------------------------------------
   //--------------------------   Adding Stat Errors   ----------------------------
   //--------------------------   to the final curve   ----------------------------
@@ -714,7 +813,9 @@ void makeCorrectionsSten(int typeMC, const TString mcfile, const TString datafil
     if (nch_clone1->GetBinContent(i) != 0.) cout <<"Bin content different !" << test3/nch_clone1->GetBinContent(i) << endl;
     if (nch_clone1->GetBinContent(i) != 0.) cout <<"Errors are different !" << test2/nch_clone1->GetBinContent(i) << endl;
   }
-*/  
+*/ 
+
+ 
   //------------------------------------------------------------------------------
   //--------------------------------- Rescaling ----------------------------------
   //------------------------------------------------------------------------------
@@ -722,13 +823,15 @@ void makeCorrectionsSten(int typeMC, const TString mcfile, const TString datafil
   
   divideByWidth(nch_trueGen);
   divideByWidth(nch_trueGen_afterUnfolding);
+  divideByWidth(nch_trueGenAfterEvtSel);
+  divideByWidth(nch_evtSelCorr);
   divideByWidth(nch_REC);
   divideByWidth(nch_unfoldedPtr);
   //if(doPTcorr) divideByWidth(nch_evtSelCorr);
   divideByWidth(nch_corrected);
   divideByWidth(nch_resampledPtr);
   divideByWidth(nch_mtxresampledPtr);
-  
+  divideByWidth(nch_MC_RECO_RAW);
   divideByWidth(matrixhist);
   divideByWidth(hypothesis);
   
@@ -828,6 +931,7 @@ void makeCorrectionsSten(int typeMC, const TString mcfile, const TString datafil
   eff_evtSel->Write();
   eff_centrSel->Write();
   eff->Write();
+  nch_evtSelCorr->Write();
   nch_resampledPtr->Write();
   nch_mtxresampledPtr->Write();
   nch_MC_RECO_RAW->Write("nch_mc_reco_raw");
@@ -843,8 +947,17 @@ void makeCorrectionsSten(int typeMC, const TString mcfile, const TString datafil
   delete hypothesis;
   delete nch_cor_norm;
   delete nch_corrected;
+  delete nch_trueGen;
+  if(lastpartmc.Contains("HF1")) delete nch_SD;
   delete nch_unfoldedPtr;
+  delete nch_REC;
   delete nch_toUnfold;
+  delete eff_evtSel;
+  delete eff_centrSel;
+  delete eff;
+  delete nch_evtSelCorr;
+  delete nch_MC_RECO_RAW;
+  delete matrixhist;
   delete moment;
   delete out;
   
