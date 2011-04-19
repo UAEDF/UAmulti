@@ -252,7 +252,7 @@ void NCHEvtSelPlots::write(){
      }
      gpp_noSel->write();   
      //gpp_full->write();
-     mtx_full->write();
+     mtx_full->write(0);  //0 will not write the class
   }
   
   if(switchIntermedPlots){  
