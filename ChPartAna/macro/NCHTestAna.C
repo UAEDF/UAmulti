@@ -45,12 +45,12 @@ bool debug=false;
 
   ////////////////////////
   //run and close
-  //   nohup root -l BuildLibDico.C+ NCHTestAna.C+"(10,7,1,2000000)" -q   > logMC10v5b_2M.txt &
-  //   nohup root -l BuildLibDico.C+ NCHTestAna.C+"(60,7,1,2000000)" -q   > logMC60v5b_2M.txt & 
-  //   nohup root -l BuildLibDico.C+ NCHTestAna.C+"(31,7,1,2000000)" -q   > logMC31v5b_2M.txt & 
-  //   nohup root -l BuildLibDico.C+ NCHTestAna.C+"(15,7,1,2000000)" -q   > logMC15v5b_2M.txt &
-  //   nohup root -l BuildLibDico.C+ NCHTestAna.C+"(0,7,1,-1)"       -q   > logData12Mv5b.txt & 
-  //   nohup root -l BuildLibDico.C+ NCHTestAna.C+"(5,7,1,-1)"       -q   > logZeroBias1M.txt & 
+  //   nohup root -l BuildLibDico.C+ NCHTestAna.C+"(10,7,1,2000000)" -q   > logMC10_2M.txt &
+  //   nohup root -l BuildLibDico.C+ NCHTestAna.C+"(60,7,1,2000000)" -q   > logMC60_2M.txt & 
+  //   nohup root -l BuildLibDico.C+ NCHTestAna.C+"(31,7,1,2000000)" -q   > logMC31_2M.txt & 
+  //   nohup root -l BuildLibDico.C+ NCHTestAna.C+"(15,7,1,2000000)" -q   > logMC15_2M.txt &
+  //   nohup root -l BuildLibDico.C+ NCHTestAna.C+"(0,7,1,-1)"       -q   > logData12M.txt & 
+  //   nohup root -l BuildLibDico.C+ NCHTestAna.C+"(5,7,1,-1,false,false)"   -q   > logZeroBias1M.txt & 
   //   tail -f logData.txt
   /////////////////////////
  
@@ -176,8 +176,8 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
     if (E == 0.9) nevt_oldrun_strData="2250000";
     TString nevt_oldrun_strMC="5000000";
     //if( type == 31 ) nevt_oldrun_strMC = "1886500";
-    TString oldrundir="dcap:///pnfs/iihe/cms/store/user/sluyckx/v21NoWeight";
-    if( E == 0.9) oldrundir="dcap:///pnfs/iihe/cms/store/user/sluyckx/v21_900NoWeight";
+    TString oldrundir="dcap:///pnfs/iihe/cms/store/user/sluyckx/v22NoWeight";
+    if( E == 0.9) oldrundir="dcap:///pnfs/iihe/cms/store/user/sluyckx/v22_900NoWeight";
     TFile* older_runnedfileData = NULL;
     TFile* older_runnedfileMC   = NULL;
     TH1F* Weight_Z_Corr = NULL; 
@@ -194,7 +194,7 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
         if (older_runnedfileData == 0 || older_runnedfileMC == 0 ) return; 
         
         
-        const TString histoName="z_full_HF0_nocut_RECO_cut0";
+        const TString histoName="z_vtxp_full_HF0_nocut_RECO_cut0";
         TH1F* CurveZData = NULL; CurveZData = (TH1F*) older_runnedfileData->FindObjectAny(histoName);
         TH1F* CurveZMC   = NULL; CurveZMC   = (TH1F*) older_runnedfileMC  ->FindObjectAny(histoName);
         cout << "CurveZData: " << CurveZData   <<  "  CurveZMC: "  << CurveZMC <<endl;
@@ -352,7 +352,7 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
           if(passHF(*MITEvtSel,5)) NCHHFPlots::passHF5=1;
           if(passHF(*MITEvtSel,6)) NCHHFPlots::passHF6=1;
      
-          if(type==31 ) { 
+          if(type==31 || type==5) { 
             if(passL1(E, *L1Trig, isMC)) NCHEvtSelPlots::passL1=1;
           }        
           else {
