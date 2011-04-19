@@ -21,7 +21,7 @@ TString PlotDirectory = "../figs/";
 void NCHPlotting() {
     cout << " UAPlotting compiled "<< endl;
 
-    PlotDirectory ="../figs/v21/";
+    PlotDirectory ="../figs/v22/";
 
     cout << " Plot directory set to: " << PlotDirectory << endl;
     
@@ -361,6 +361,61 @@ void UAPlotting5_UnfRawCompare (TString file1 , TString file2 , TString file3, T
   delete canvas ;  
 }
 
+
+//_____________________________________________________________________________
+void UAPlotting5_ZeroBiasEff (TString file1 , TString file2 , TString file3 ,TString file4 , TString file5, TString histodata, TString histomc, TString legendStr ="") {
+  cmsStyleRoot();
+
+  UACanvas* canvas = new UACanvas();
+  UALegend* legend = new UALegend();
+  UACurve curve1 = UACurve(0,file1,histodata);
+  UACurve curve2 = UACurve(1,file2,histomc);
+  UACurve curve3 = UACurve(1,file3,histomc);
+  UACurve curve4 = UACurve(1,file4,histomc);
+  UACurve curve5 = UACurve(1,file5,histomc); 
+ 
+  curve1.markerColor = kBlack ;
+  curve1.Draw("");
+  legend->AddLegend(curve1,"ZeroBias"); 
+  ((TH1F*) curve1.pCurve())->GetYaxis()->SetRangeUser(0.990, 1.001);
+  ((TH1F*) curve1.pCurve())->GetXaxis()->SetRangeUser(0, 60);
+  
+ 
+  curve2.markerColor = kRed ;
+  //curve2.markerStyle = kDot;
+  curve2.lineColor = kRed ;
+  curve2.Draw("same"); 
+  legend->AddLegend(curve2,"PYTHIA D6T");
+  
+  
+  //curve3.markerStyle = kDot;
+  curve3.markerColor = kGreen ;
+  curve3.lineColor = kGreen ;
+  curve3.Draw("same"); 
+  legend->AddLegend(curve3,"PYTHIA Z2");
+
+ 
+  //curve4.markerStyle = kDot;
+  curve4.markerColor = kBlue ;
+  curve4.lineColor = kBlue ;
+  curve4.Draw("same"); 
+  legend->AddLegend(curve4,"PYTHIA 8");
+  
+
+  //curve5.markerStyle = kDot;
+  curve5.markerColor = kMagenta ;
+  curve5.lineColor = kMagenta ;
+  curve5.Draw("same"); 
+  legend->AddLegend(curve5,"PYTHIA ATLAS");  
+  legend->BuildLegend();
+
+  
+  canvas->AddText( Txt(legendStr),.22,.965,.035);
+  
+  gPad->WaitPrimitive();
+  canvas->Save("allPlots_"+legendStr,PlotDirectory);
+  delete canvas ;  
+}
 //_____________________________________________________________________________
 void UAPlotting7_UnfRawCompare (TString file1 , TString file2 , TString file3, TString file4, TString file5, TString file6, TString histoData, TString histoMC , TString histoMC2, TString legendStr ) {
   cmsStyleRoot();
@@ -636,7 +691,8 @@ void UAPlotting4_UnfCompare (TString file1 , TString file2 , TString file3, TStr
   curve1.Draw("");
   legend->AddLegend(curve1,"Data (PYTHIA D6T)");
   
-  curve2.markerColor = kGreen ;
+  curve2.markerColor =
+ kGreen ;
   curve2.lineColor = kGreen ;
   curve2.Draw("same");
   legend->AddLegend(curve2,"Data (PYTHIA Z2)");
@@ -717,7 +773,8 @@ void RawPlot(int mctype = 31, int acc = 0, TString hf = "HF0", TString subdir = 
    //cout << "unf_MC15_partfull_HF0_ALICE_INEL_cut0.root" << endl;
   
   TString dir="files/unfold_outputs/"+subdir+"/";
-  UAPlotting5_RawPlot(dir+filenamenocut, dir+filenameMBUEWG,dir+filenameATLAS1, dir+filenameATLAS6, dir+filenameALICE ,  "nch_data_raw"  ,  "nch_data_raw_" + mctypestr.str()+hf+Energy+tr+wght );
+  UAPlotting5_RawPlot(
+dir+filenamenocut, dir+filenameMBUEWG,dir+filenameATLAS1, dir+filenameATLAS6, dir+filenameALICE ,  "nch_data_raw"  ,  "nch_data_raw_" + mctypestr.str()+hf+Energy+tr+wght );
   UAPlotting5_RawPlot(dir+filenamenocut, dir+filenameMBUEWG,dir+filenameATLAS1, dir+filenameATLAS6, dir+filenameALICE ,  "nch_data_corrected" ,  "nch_data_corrected_" + mctypestr.str()+hf+Energy+tr+wght  );
   UAPlotting5_RawPlot(dir+filenamenocut, dir+filenameMBUEWG,dir+filenameATLAS1, dir+filenameATLAS6, dir+filenameALICE ,  "nch_resampled", "nch_resampled_" + mctypestr.str()+hf+Energy+tr+wght );
   UAPlotting5_RawPlot(dir+filenamenocut, dir+filenameMBUEWG,dir+filenameATLAS1, dir+filenameATLAS6, dir+filenameALICE ,  "nch_unfoldedPtr" , "nch_unfoldedPtr_"+ mctypestr.str()+hf+Energy+tr+wght );
@@ -854,6 +911,7 @@ void allPlots(int nevtmc, int nevtdata, int acc = 0, TString subdir = "v21", TSt
    //Example: 
   //  allPlots(5000000,342220,0,"v21", "HF0","MBUEWG","INEL")
   //900: allPlots(5000000,2250000,0,"v21_900", "HF0","MBUEWG","INEL")
+
 
       stringstream nevt_str("");        nevt_str << "" << nevtmc  ;   
       stringstream nevt_dat("");        nevt_dat << "" << nevtdata;    
@@ -1020,6 +1078,48 @@ void oneEff(int acc = 0, TString subdir = "v21",  TString type="INEL", TString h
 }
 
 
+//_______________________Compare Unfolding Steps _________________________________
+void ZeroBiasEff(int acc = 0, TString subdir = "v22", TString hfcentral="_HF0_ALICE") {   // ONLY FOR nocut ALICE ATLAS6
+   //Example:  ZeroBiasEff(0,"v22","ALICE")
+   //MC:       ZeroBiasEff(0,"v22","ALICE")
+   TString Energy="7";
+   TString nevt="5000000";
+   
+   TString wght ="_Weight";
+   if (subdir.Contains("NoWeight")) wght="_NoWeight";
+   TString tr ="_ferncTr";
+   if (subdir.Contains("genTr") ) tr= "_genTr";
+    
+
+   TString dir="files/outputs_full/"+subdir+"/";
+   stringstream cutstr("");        cutstr << "cut" << acc ;
+   //get all root files in the directory
+
+   TString filenameMC10    = "effs_MC10"+tr+"_E_"+Energy+"_"+nevt+"_allEffs.root";
+   TString filenameMC15    = "effs_MC15"+tr+"_E_"+Energy+"_"+nevt+"_allEffs.root";
+   TString filenameMC31    = "effs_MC31"+tr+"_E_"+Energy+"_"+nevt+"_allEffs.root";
+   TString filenameMC60    = "effs_MC60"+tr+"_E_"+Energy+"_"+nevt+"_allEffs.root";
+   TString filenameZeroBias= "effs_zerobias"+tr+"_E_"+Energy+"_482270.root";
+   
+   TString plot = hfcentral+"_RECO_"+cutstr.str();
+   
+ 
+   UAPlotting5_ZeroBiasEff(dir+filenameZeroBias, dir+filenameMC10, dir+filenameMC15, dir+filenameMC60, dir+filenameMC31, "eff_evtSel_RECO"  +plot, "eff_evtSel_RECO"  +plot, "eff_evtSel_RECO"+plot+"_E_"+Energy+tr+wght);
+}
+
+
+//_______________________Compare Unfolding Steps _________________________________
+void ZeroBiasEff_All(int acc = 0, TString subdir = "v22") {   // ONLY FOR nocut ALICE ATLAS6
+    
+    ZeroBiasEff(0, "v22", "_HF0_nocut");
+    ZeroBiasEff(0, "v22", "_HF0_MBUEWG");
+    ZeroBiasEff(0, "v22", "_HF0_ALICE");
+    ZeroBiasEff(0, "v22", "_HF0_ATLAS1");
+    ZeroBiasEff(0, "v22", "_HF0_ATLAS2");
+    ZeroBiasEff(0, "v22", "_HF0_ATLAS6");
+    
+}
+
 
 //_______________________Compare Final Data With Other Experiments _________________________________
 
@@ -1135,16 +1235,21 @@ void xcheck_NSD(TString file1 , TString file2 , TString histo, TString legendStr
   canvas->AddText( Txt(file1,energy),.22,.965,.035);
 
   gPad->Update();
-  gPad->WaitPrimitive();
+  gPad->
+WaitPrimitive();
   canvas->Save("comp_other_exp"+legendStr,PlotDirectory);
   delete canvas ;
 }
 
 void xcheck_NSD_All(TString subdir ="v21"){
+//if HF1 then pt_corr is automatically done for versions >=v22
 
-  TString dir1="files/unfold_outputs/"+subdir+"_ptcorr/";
+  TString partold="";
+  if(subdir=="v21") partold="_ptcorr";
+  TString dir1="files/unfold_outputs/"+subdir+partold+"/";  
   TString dir2="../plots/systv10_18_2/";
   TString plotname="nch_data_corrected";
+ // TString plotname="nch_unfoldedPtr";
   
   TString wght ="_Weight";
   if (dir1.Contains("NoWeight")) wght="_NoWeight";
@@ -1163,7 +1268,7 @@ void xcheck_NSD_All(TString subdir ="v21"){
   xcheck_NSD(dir1+"unf_MC31"+extra+"_partfull_HF1_nocut_NSD_cut5.root" , dir2+"unfolding_MC_ATLAS_7.0TeV_mbTr__hyp1_niter0_cut8_DataType0.root" , plotname, "xcheck_NSD_E_7"+tr+wght);
    
   
-  dir1="files/unfold_outputs/"+subdir+"_900_ptcorr/";
+  dir1="files/unfold_outputs/"+subdir+"_900"+partold+"/";
   
   wght ="_Weight";
   if (dir1.Contains("NoWeight")) wght="_NoWeight";
