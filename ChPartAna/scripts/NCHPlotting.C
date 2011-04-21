@@ -60,6 +60,41 @@ TString Txt(TString in, double E = 7) {
     return out;
 } 
 
+//_____________________________________________________________________________
+/*void UAPlotting_vec(vector<UACurve> uacurves , vector<TString> legStr , TString figname ) {
+  cmsStyleRoot();
+
+  UACanvas* canvas = new UACanvas();
+  UALegend* legend = new UALegend();
+  
+  
+  
+  curve1.Draw("");
+  legend->AddLegend(curve1,"Data (PYTHIA D6T)");
+  
+  curve2.markerColor = kGreen ;
+  curve2.lineColor = kGreen ;
+  curve2.Draw("same");
+  legend->AddLegend(curve2,"Data (PYTHIA Z2)");
+  
+  curve3.markerColor = kBlue ;
+  curve3.lineColor = kBlue ;
+  curve3.Draw("same");
+  legend->AddLegend(curve3,"Data (PYTHIA 8)");
+  
+  curve4.markerColor = kMagenta ;
+  curve4.lineColor = kMagenta ;
+  curve4.Draw("same"); 
+  legend->AddLegend(curve4,"Data (PYTHIA ATLAS)");
+  
+  legend->BuildLegend(0.22,0.4);
+  canvas->AddText( Txt(legendStr),.22,.965,.035);
+  canvas->Save("UnfCompareModels_"+legendStr,PlotDirectory);
+  
+  gPad->WaitPrimitive();
+
+  delete canvas ;  
+}*/
 
 //_____________________________________________________________________________
 void UAPlotting2_DoubleCompare (TString file1 , TString file2,  TString histoMC, TString legendStr,TString leg1, TString leg2 ) {
@@ -691,8 +726,7 @@ void UAPlotting4_UnfCompare (TString file1 , TString file2 , TString file3, TStr
   curve1.Draw("");
   legend->AddLegend(curve1,"Data (PYTHIA D6T)");
   
-  curve2.markerColor =
- kGreen ;
+  curve2.markerColor = kGreen ;
   curve2.lineColor = kGreen ;
   curve2.Draw("same");
   legend->AddLegend(curve2,"Data (PYTHIA Z2)");
@@ -1165,7 +1199,7 @@ void comp_other_exp(TString file1 , TString histo , TString expdata, TString leg
 
   gPad->Update();
   gPad->WaitPrimitive();
-  canvas->Save("comp_other_exp"+legendStr,PlotDirectory);
+  //canvas->Save("comp_other_exp"+legendStr,PlotDirectory);
   delete canvas ;
 }
 
@@ -1203,6 +1237,104 @@ void finalAll(TString subdir ="v21"){ //
   comp_other_exp(dir+"unf_MC60"+extra+"_partfull_HF0_ATLAS6_INEL_cut2.root" , "nch_data_corrected" , "../expdata/atlas_dsigdn_inelgt6_900GeV_eta25_pt500.txt","_ATLAS6_E_0.9"+tr+wght);
 }
 
+void test_All(TString subdir ="v22_test"){ // 
+   TString dir="files/unfold_outputs/"+subdir+"/";
+   
+  comp_other_exp(dir+"TESTunf_MC31_partfull_HF0_ATLAS2_INEL_cut0.root" , "nch_data_corrected" , "../expdata/atlas_dsigdn_inelgt2_7000GeV_eta25_pt100.txt","_ATLAS2_E_7");
+  comp_other_exp(dir+"unf_336_132440only_MC31_partfull_HF0_ATLAS2_INEL_cut0.root" , "nch_data_corrected" , "../expdata/atlas_dsigdn_inelgt2_7000GeV_eta25_pt100.txt","_ATLAS2_E_7");
+  comp_other_exp(dir+"unf_362_132440only_MC31_partfull_HF0_ATLAS2_INEL_cut0.root" , "nch_data_corrected" , "../expdata/atlas_dsigdn_inelgt2_7000GeV_eta25_pt100.txt","_ATLAS2_E_7");
+  
+  
+  comp_other_exp(dir+"TESTunf_MC31_partfull_HF0_ATLAS6_INEL_cut2.root" , "nch_data_corrected" , "../expdata/atlas_dsigdn_inelgt6_7000GeV_eta25_pt500.txt","_ATLAS6_E_7");
+  comp_other_exp(dir+"unf_336_132440only_MC31_partfull_HF0_ATLAS6_INEL_cut2.root" , "nch_data_corrected" , "../expdata/atlas_dsigdn_inelgt6_7000GeV_eta25_pt500.txt","_ATLAS6_E_7");
+  comp_other_exp(dir+"unf_362_132440only_MC31_partfull_HF0_ATLAS6_INEL_cut2.root" , "nch_data_corrected" , "../expdata/atlas_dsigdn_inelgt6_7000GeV_eta25_pt500.txt","_ATLAS6_E_7");
+ 
+  comp_other_exp(dir+"TESTunf_MC31_partfull_HF0_ALICE_INEL_cut4.root"  , "nch_data_corrected" , "../expdata/alice_dsigdn_inelgt1_7000GeV_eta10_pt0.txt","_ALICE_E_7");  
+  comp_other_exp(dir+"unf_336_132440only_MC31_partfull_HF0_ALICE_INEL_cut4.root"  , "nch_data_corrected" , "../expdata/alice_dsigdn_inelgt1_7000GeV_eta10_pt0.txt","_ALICE_E_7");  
+  comp_other_exp(dir+"unf_362_132440only_MC31_partfull_HF0_ALICE_INEL_cut4.root"  , "nch_data_corrected" , "../expdata/alice_dsigdn_inelgt1_7000GeV_eta10_pt0.txt","_ALICE_E_7");  
+ 
+ 
+}
+
+void test_diff(TString centrCut , TString cut , TString expdata){
+  cmsStyleRoot();
+
+  UACanvas* canvas = new UACanvas();
+  UALegend* legend = new UALegend();
+  
+  TString h = "nch_data_corrected";
+  /*TString dir="files/unfold_outputs/v22_test/";
+  
+  UACurve curve1 = UACurve(0 , dir+"TESTunf_MC31_partfull_HF0_"+centrCut+"_INEL_cut"+cut+".root" , h );
+  UACurve curve2 = UACurve(0 , dir+"unf_336_132440only_MC31_partfull_HF0_"+centrCut+"_INEL_cut"+cut+".root" , h );
+  UACurve curve3 = UACurve(0 , dir+"unf_362_132440only_MC31_partfull_HF0_"+centrCut+"_INEL_cut"+cut+".root" , h );
+  UACurve curve4 = UACurve(0 , dir+"unf_v21_MC31_partfull_HF0_"+centrCut+"_INEL_cut"+cut+".root" , h );
+  UACurve curve5 = UACurve(1,expdata,0);*/
+  
+  TString dir1="files/unfold_outputs/v22_test/";
+  TString dir2="files/unfold_outputs/v22/";
+  TString dir3="files/unfold_outputs/v21b/";
+  
+  UACurve curve1 = UACurve(0 , dir2+"unf_MC31_partfull_HF0_"+centrCut+"_INEL_cut"+cut+".root" , h );
+  UACurve curve2 = UACurve(0 , dir1+"unf_336_132440only_MC31_partfull_HF0_"+centrCut+"_INEL_cut"+cut+".root" , h );
+  UACurve curve3 = UACurve(0 , dir1+"unf_362_132440only_MC31_partfull_HF0_"+centrCut+"_INEL_cut"+cut+".root" , h );
+  UACurve curve35= UACurve(0 , dir1+"unf_v21_MC31_partfull_HF0_"+centrCut+"_INEL_cut"+cut+".root" , h );
+  UACurve curve4 = UACurve(0 , dir3+"unf_MC31_partfull_HF0_"+centrCut+"_INEL_cut"+cut+".root" , h );
+  UACurve curve5 = UACurve(1,expdata,0);
+  
+  curve1.Norm();
+  curve1.lineColor   = kBlack;
+  curve1.markerColor = kBlack;
+  curve1.Draw();
+  legend->AddLegend(curve1,"v22");
+  
+  curve2.Norm();
+  curve2.lineColor   = kRed;
+  curve2.markerColor = kRed;
+  curve2.Draw("same");
+  legend->AddLegend(curve2,"336");
+  
+  curve3.Norm();
+  curve3.lineColor   = kBlue;
+  curve3.markerColor = kBlue;
+  curve3.Draw("same");
+  legend->AddLegend(curve3,"362");
+  
+  curve35.Norm();
+  curve35.lineColor   = kMagenta;
+  curve35.markerColor = kMagenta;
+  curve35.Draw("same");
+  legend->AddLegend(curve35,"MCv22_datav21");
+  
+  curve4.Norm();
+  curve4.lineColor   = kGreen;
+  curve4.markerColor = kGreen;
+  curve4.Draw("same");
+  legend->AddLegend(curve4,"v21b");
+  
+  curve5.markerColor = kOrange ;
+  curve5.lineColor = kOrange ;
+  curve5.Draw("same");
+  if(expdata.Contains("atlas"))
+    legend->AddLegend(curve5,"ATLAS");
+  else if(expdata.Contains("alice"))
+    legend->AddLegend(curve5,"ALICE");
+  
+  legend->BuildLegend();
+  
+  gPad->Update();
+  gPad->WaitPrimitive();
+  
+  delete canvas;
+
+}
+
+void test_diff_all(){
+  test_diff("ATLAS2","0","../expdata/atlas_dsigdn_inelgt2_7000GeV_eta25_pt100.txt");
+  test_diff("ATLAS6","2","../expdata/atlas_dsigdn_inelgt6_7000GeV_eta25_pt500.txt");
+  test_diff("ALICE" ,"4","../expdata/alice_dsigdn_inelgt1_7000GeV_eta10_pt0.txt");
+}
+
 
 
 //_______________________Compare NSD With Paper Results _________________________________
@@ -1235,8 +1367,7 @@ void xcheck_NSD(TString file1 , TString file2 , TString histo, TString legendStr
   canvas->AddText( Txt(file1,energy),.22,.965,.035);
 
   gPad->Update();
-  gPad->
-WaitPrimitive();
+  gPad->WaitPrimitive();
   canvas->Save("comp_other_exp"+legendStr,PlotDirectory);
   delete canvas ;
 }
