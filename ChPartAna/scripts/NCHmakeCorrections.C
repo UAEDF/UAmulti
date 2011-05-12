@@ -311,6 +311,7 @@ void NCHmakeCorrections(TString dir_out = "", int typeMC = 60, int hf_int = 0, i
    cout << "---------------------------" << endl << "END OF NCHmakeCorrections()" << endl << "---------------------------" <<endl;       
 }    /////////////////////////////////////
 
+//_________________________________________________________________________________________________________________
 void RunForEffProblem(){
     
     //cut1
@@ -322,7 +323,134 @@ void RunForEffProblem(){
     "Difflvl_cut2/Centrlvl_RECO_cut2/HFlvl_ATLAS2_RECO_cut2/EvtSel_HF1_ATLAS2_RECO_cut2/",
     "_partfull","_HF1_ATLAS2_NSD_cut2","_full_HF1_ATLAS2_RECO_cut2","_partnoSel_HF1_ATLAS2_NSD_cut2",1,1,4,0,0);
 }
+
+
+   
+//_________________________________________________________________________________________________________________
+void RunForNCHProblem(){
     
+    // ATLAS 2 cut 0
+   
+   /* makeCorrectionsSten( 31,
+    "../macro/outputs_full/v22/output_MC31_ferncTr_E_7_5000000.root",
+    "../macro/outputs_full/v22/output_data_ferncTr_E_7_342220.root",
+    "../macro/unfold_outputs/v22_test/TESTunf_MC31",
+    "Difflvl_cut0/Centrlvl_RECO_cut0/HFlvl_ATLAS2_RECO_cut0/EvtSel_HF0_ATLAS2_RECO_cut0/",
+    "Difflvl_cut0/Centrlvl_RECO_cut0/HFlvl_ATLAS2_RECO_cut0/EvtSel_HF0_ATLAS2_RECO_cut0/",
+    "_partfull","_HF0_ATLAS2_RECO_cut0","_full_HF0_ATLAS2_RECO_cut0","_partnoSel_HF0_ATLAS2_RECO_cut0",1,1,4,0,0);
+    
+    
+    makeCorrectionsSten( 31,
+    "../macro/outputs_full/v22/output_MC31_ferncTr_E_7_5000000.root",
+    "../outputs_sten/output_data_ferncTr_E_7_342220_NCHCode_362_132440only_0.root",
+    "../macro/unfold_outputs/v22_test/unf_362_132440only_MC31",
+    "Difflvl_cut0/Centrlvl_RECO_cut0/HFlvl_ATLAS2_RECO_cut0/EvtSel_HF0_ATLAS2_RECO_cut0/",
+    "Difflvl_cut0/Centrlvl_RECO_cut0/HFlvl_ATLAS2_RECO_cut0/EvtSel_HF0_ATLAS2_RECO_cut0/",
+    "_partfull","_HF0_ATLAS2_RECO_cut0","_full_HF0_ATLAS2_RECO_cut0","_partnoSel_HF0_ATLAS2_RECO_cut0",1,1,4,0,0);
+    
+    makeCorrectionsSten( 31,
+    "../macro/outputs_full/v22/output_MC31_ferncTr_E_7_5000000.root",
+    "../outputs_sten/output_data_ferncTr_E_7_1063195_NCHCode_336_132440only_0.root",
+    "../macro/unfold_outputs/v22_test/unf_336_132440only_MC31",
+    "Difflvl_cut0/Centrlvl_RECO_cut0/HFlvl_ATLAS2_RECO_cut0/EvtSel_HF0_ATLAS2_RECO_cut0/",
+    "Difflvl_cut0/Centrlvl_RECO_cut0/HFlvl_ATLAS2_RECO_cut0/EvtSel_HF0_ATLAS2_RECO_cut0/",
+    "_partfull","_HF0_ATLAS2_RECO_cut0","_full_HF0_ATLAS2_RECO_cut0","_partnoSel_HF0_ATLAS2_RECO_cut0",1,1,4,0,0);
+    
+    makeCorrectionsSten( 31,
+    "../macro/outputs_full/v22/output_MC31_ferncTr_E_7_5000000.root",
+    "../macro/outputs_full/v21/output_data_ferncTr_E_7_342220.root",
+    "../macro/unfold_outputs/v22_test/unf_v21_MC31",
+    "Difflvl_cut0/Centrlvl_RECO_cut0/HFlvl_ATLAS2_RECO_cut0/EvtSel_HF0_ATLAS2_RECO_cut0/",
+    "Difflvl_cut0/Centrlvl_RECO_cut0/HFlvl_ATLAS2_RECO_cut0/EvtSel_HF0_ATLAS2_RECO_cut0/",
+    "_partfull","_HF0_ATLAS2_RECO_cut0","_full_HF0_ATLAS2_RECO_cut0","_partnoSel_HF0_ATLAS2_RECO_cut0",1,1,4,0,0);
+    
+    // ATLAS 6 cut 2
+    
+    makeCorrectionsSten( 31,
+    "../macro/outputs_full/v22/output_MC31_ferncTr_E_7_5000000.root",
+    "../macro/outputs_full/v22/output_data_ferncTr_E_7_342220.root",
+    "../macro/unfold_outputs/v22_test/TESTunf_MC31",
+    "Difflvl_cut2/Centrlvl_RECO_cut2/HFlvl_ATLAS6_RECO_cut2/EvtSel_HF0_ATLAS6_RECO_cut2/",
+    "Difflvl_cut2/Centrlvl_RECO_cut2/HFlvl_ATLAS6_RECO_cut2/EvtSel_HF0_ATLAS6_RECO_cut2/",
+    "_partfull","_HF0_ATLAS6_RECO_cut2","_full_HF0_ATLAS6_RECO_cut2","_partnoSel_HF0_ATLAS6_RECO_cut2",1,1,4,0,0);
+    
+    
+    makeCorrectionsSten( 31,
+    "../macro/outputs_full/v22/output_MC31_ferncTr_E_7_5000000.root",
+    "../outputs_sten/output_data_ferncTr_E_7_342220_NCHCode_362_132440only_0.root",
+    "../macro/unfold_outputs/v22_test/unf_362_132440only_MC31",
+    "Difflvl_cut2/Centrlvl_RECO_cut2/HFlvl_ATLAS6_RECO_cut2/EvtSel_HF0_ATLAS6_RECO_cut2/",
+    "Difflvl_cut2/Centrlvl_RECO_cut2/HFlvl_ATLAS6_RECO_cut2/EvtSel_HF0_ATLAS6_RECO_cut2/",
+    "_partfull","_HF0_ATLAS6_RECO_cut2","_full_HF0_ATLAS6_RECO_cut2","_partnoSel_HF0_ATLAS6_RECO_cut2",1,1,4,0,0);
+    
+    makeCorrectionsSten( 31,
+    "../macro/outputs_full/v22/output_MC31_ferncTr_E_7_5000000.root",
+    "../outputs_sten/output_data_ferncTr_E_7_1063195_NCHCode_336_132440only_0.root",
+    "../macro/unfold_outputs/v22_test/unf_336_132440only_MC31",
+    "Difflvl_cut2/Centrlvl_RECO_cut2/HFlvl_ATLAS6_RECO_cut2/EvtSel_HF0_ATLAS6_RECO_cut2/",
+    "Difflvl_cut2/Centrlvl_RECO_cut2/HFlvl_ATLAS6_RECO_cut2/EvtSel_HF0_ATLAS6_RECO_cut2/",
+    "_partfull","_HF0_ATLAS6_RECO_cut2","_full_HF0_ATLAS6_RECO_cut2","_partnoSel_HF0_ATLAS6_RECO_cut2",1,1,4,0,0);
+   
+    makeCorrectionsSten( 31,
+    "../macro/outputs_full/v22/output_MC31_ferncTr_E_7_5000000.root",
+    "../macro/outputs_full/v21/output_data_ferncTr_E_7_342220.root",
+    "../macro/unfold_outputs/v22_test/unf_v21_MC31",
+    "Difflvl_cut2/Centrlvl_RECO_cut2/HFlvl_ATLAS6_RECO_cut2/EvtSel_HF0_ATLAS6_RECO_cut2/",
+    "Difflvl_cut2/Centrlvl_RECO_cut2/HFlvl_ATLAS6_RECO_cut2/EvtSel_HF0_ATLAS6_RECO_cut2/",
+    "_partfull","_HF0_ATLAS6_RECO_cut2","_full_HF0_ATLAS6_RECO_cut2","_partnoSel_HF0_ATLAS6_RECO_cut2",1,1,4,0,0);
+    
+    
+   
+    // ALICE cut 4
+    
+    makeCorrectionsSten( 31,
+    "../macro/outputs_full/v22/output_MC31_ferncTr_E_7_5000000.root",
+    "../macro/outputs_full/v22/output_data_ferncTr_E_7_342220.root",
+    "../macro/unfold_outputs/v22_test/TESTunf_MC31",
+    "Difflvl_cut4/Centrlvl_RECO_cut4/HFlvl_ALICE_RECO_cut4/EvtSel_HF0_ALICE_RECO_cut4/",
+    "Difflvl_cut4/Centrlvl_RECO_cut4/HFlvl_ALICE_RECO_cut4/EvtSel_HF0_ALICE_RECO_cut4/",
+    "_partfull","_HF0_ALICE_RECO_cut4","_full_HF0_ALICE_RECO_cut4","_partnoSel_HF0_ALICE_RECO_cut4",1,1,4,0,0);
+    
+    
+    makeCorrectionsSten( 31,
+    "../macro/outputs_full/v22/output_MC31_ferncTr_E_7_5000000.root",
+    "../outputs_sten/output_data_ferncTr_E_7_342220_NCHCode_362_132440only_0.root",
+    "../macro/unfold_outputs/v22_test/unf_362_132440only_MC31",
+    "Difflvl_cut4/Centrlvl_RECO_cut4/HFlvl_ALICE_RECO_cut4/EvtSel_HF0_ALICE_RECO_cut4/",
+    "Difflvl_cut4/Centrlvl_RECO_cut4/HFlvl_ALICE_RECO_cut4/EvtSel_HF0_ALICE_RECO_cut4/",
+    "_partfull","_HF0_ALICE_RECO_cut4","_full_HF0_ALICE_RECO_cut4","_partnoSel_HF0_ALICE_RECO_cut4",1,1,4,0,0);
+    
+    makeCorrectionsSten( 31,
+    "../macro/outputs_full/v22/output_MC31_ferncTr_E_7_5000000.root",
+    "../outputs_sten/output_data_ferncTr_E_7_1063195_NCHCode_336_132440only_0.root",
+    "../macro/unfold_outputs/v22_test/unf_336_132440only_MC31",
+    "Difflvl_cut4/Centrlvl_RECO_cut4/HFlvl_ALICE_RECO_cut4/EvtSel_HF0_ALICE_RECO_cut4/",
+    "Difflvl_cut4/Centrlvl_RECO_cut4/HFlvl_ALICE_RECO_cut4/EvtSel_HF0_ALICE_RECO_cut4/",
+    "_partfull","_HF0_ALICE_RECO_cut4","_full_HF0_ALICE_RECO_cut4","_partnoSel_HF0_ALICE_RECO_cut4",1,1,4,0,0);
+   
+    makeCorrectionsSten( 31,
+    "../macro/outputs_full/v22/output_MC31_ferncTr_E_7_5000000.root",
+    "../macro/outputs_full/v21/output_data_ferncTr_E_7_342220.root",
+    "../macro/unfold_outputs/v22_test/unf_v21_MC31",
+    "Difflvl_cut4/Centrlvl_RECO_cut4/HFlvl_ALICE_RECO_cut4/EvtSel_HF0_ALICE_RECO_cut4/",
+    "Difflvl_cut4/Centrlvl_RECO_cut4/HFlvl_ALICE_RECO_cut4/EvtSel_HF0_ALICE_RECO_cut4/",
+    "_partfull","_HF0_ALICE_RECO_cut4","_full_HF0_ALICE_RECO_cut4","_partnoSel_HF0_ALICE_RECO_cut4",1,1,4,0,0);
+    
+  */
+     makeCorrectionsSten( 31,
+    "../macro/outputs_full/v22NoWeight/output_MC31_ferncTr_E_7_5000000_noweight.root",
+    "../macro/outputs_full/v22NoWeight/output_data_ferncTr_E_7_342220.root",
+    "../macro/unfold_outputs/v22_test/unf_v21_MC31",
+    "Difflvl_cut1/Centrlvl_NSD_cut1/HFlvl_nocut_NSD_cut1/EvtSel_HF1_nocut_NSD_cut1/",
+    "Difflvl_cut1/Centrlvl_RECO_cut1/HFlvl_nocut_RECO_cut1/EvtSel_HF1_nocut_RECO_cut1/",
+    "_partfull","_HF1_nocut_NSD_cut1","_full_HF1_nocut_RECO_cut1","_partnoSel_HF1_nocut_NSD_cut1",0,1,4,0,0);
+    
+    
+    
+}
+
+
+//_________________________________________________________________________________________________________________
 void RunForPtCorrComparision(){
     
     //cut1
@@ -369,8 +497,10 @@ void makeCorrectionsSten(int typeMC, const TString mcfile, const TString datafil
                          const TString lastpartRECO, const TString lastpartmc_nosel, bool useData,
                          int hyp, int niter, int syst, int syst_sign) { //double Emc, double Edata ) {
                          //, bool drawcanv, float mu, float sigma ){
-  bool doptcorr=true;
   bool drawcanv=false;
+              
+  bool doptcorr=true;   //it is only done for (cut1 and cut5) && (E=0.9||7) && nocut 
+  
   if(debug_) cout << "usedata beginning " << useData << endl;
   //detaching cloned TH1's from their original file, so outfile->Close() will not crash the program
   TH1::AddDirectory(kFALSE);
@@ -393,7 +523,7 @@ void makeCorrectionsSten(int typeMC, const TString mcfile, const TString datafil
     if(syst_sign==-1) syst_str = syst_str+"M";
   }  
   
-  TString ptcorr_str="_noPtCorr";
+  TString ptcorr_str="_ptcorroff";
   if(doptcorr) ptcorr_str="";
   TString output_str =  outputpart+lastpartmc+syst_str+ptcorr_str+".root"; 
   cout << "Output file : " << output_str << endl;
@@ -437,9 +567,10 @@ void makeCorrectionsSten(int typeMC, const TString mcfile, const TString datafil
 
   //get the true nch distribution (from MC)
   TH1F* nch_trueGen_afterUnfolding=0;
-  nch_trueGen_afterUnfolding = (TH1F*) mc->Get(dirmc+"MultiPlots"+lastpartmc+"/nch"+lastpartmc);
-  if(debug_) cout << "nch_trueGen_afterUnfolding  " << dirmc+"MultiPlots"+lastpartmc+"/nch"+lastpartmc << endl;
+  nch_trueGen_afterUnfolding = (TH1F*) mc->Get(dirmc+"MultiPlots_mp"+lastpartmc+"/nch_mp"+lastpartmc);
+  if(debug_) cout << "nch_trueGen_afterUnfolding  " << dirmc+"MultiPlots_mp"+lastpartmc+"/nch_mp"+lastpartmc << endl;
   if(nch_trueGen_afterUnfolding==0) {
+    cout << "nch_trueGen_afterUnfolding  " << dirmc+"MultiPlots_mp"+lastpartmc+"/nch_mp"+lastpartmc << endl;
     cout << "nch_MC_gen_afterUnfoldingINEL is empty"<<endl;
     return;
   }
@@ -453,16 +584,16 @@ void makeCorrectionsSten(int typeMC, const TString mcfile, const TString datafil
 
   TH1F* nch_trueGen=0;  
   TH1F* nch_trueGenAfterEvtSel=0;
-  nch_trueGenAfterEvtSel = (TH1F*) mc->Get(dirmc+"MultiPlots"+lastpartmc_nosel+"/nch"+lastpartmc_nosel);
-  if(debug_) cout << " nch_trueGenAfterEvtSel " << dirmc+"MultiPlots"+lastpartmc_nosel+"/nch"+lastpartmc_nosel << endl;
+  nch_trueGenAfterEvtSel = (TH1F*) mc->Get(dirmc+"MultiPlots_mp"+lastpartmc_nosel+"/nch_mp"+lastpartmc_nosel);
+  if(debug_) cout << " nch_trueGenAfterEvtSel " << dirmc+"MultiPlots_mp"+lastpartmc_nosel+"/nch_mp"+lastpartmc_nosel << endl;
   if(nch_trueGenAfterEvtSel==0) {
     cout << "nch_trueGenAfterEvtSel is empty"<<endl;
     return;
   }
   nch_trueGenAfterEvtSel->SetName("nch_MC_gen_afterEvtSelCorrection");
    
-  nch_trueGen = (TH1F*) mc->Get(dirmc+"GenPart_CentrGen"+lastpartmc2+"/nch_CentrGen"+lastpartmc2); 
-  if(debug_) cout << "nch_trueGen " << dirmc+"GenPart_CentrGen"+lastpartmc2+"/nch_CentrGen"+lastpartmc2 << endl;
+  nch_trueGen = (TH1F*) mc->Get(dirmc+"GenPart_gpp_CentrGen"+lastpartmc2+"/nch_gpp_CentrGen"+lastpartmc2); 
+  if(debug_) cout << "nch_trueGen " << dirmc+"GenPart_gpp_CentrGen"+lastpartmc2+"/nch_gpp_CentrGen"+lastpartmc2 << endl;
   if(nch_trueGen==0) {
     cout << "nch_trueGenINEL is empty"<<endl;
     return;
@@ -478,16 +609,16 @@ void makeCorrectionsSten(int typeMC, const TString mcfile, const TString datafil
   TH1F* nch_REC=0;
   if(useData) {
     //the RECO Data tracks    
-    nch_REC = (TH1F*)  data->Get(dirRECO+"MultiPlots"+lastpartRECO+"/nch"+lastpartRECO);
+    nch_REC = (TH1F*)  data->Get(dirRECO+"MultiPlots_mpreco"+lastpartRECO+"/nch_mpreco"+lastpartRECO);
   }  
   else {
   // the RECO MC tracks (to check the unfolding procedure)
-    nch_REC = (TH1F*)  mc->Get(dirRECO+"MultiPlots"+lastpartRECO+"/nch"+lastpartRECO);
+    nch_REC = (TH1F*)  mc->Get(dirRECO+"MultiPlots_mpreco"+lastpartRECO+"/nch_mpreco"+lastpartRECO);
   }
-  if(debug_) cout << "nch_REC  " <<dirRECO+"MultiPlots"+lastpartRECO+"/nch"+lastpartRECO << endl;
+  if(debug_) cout << "nch_REC  " <<dirRECO+"MultiPlots_mpreco"+lastpartRECO+"/nch_mpreco"+lastpartRECO << endl;
    
-  TH1F* nch_MC_RECO_RAW = (TH1F*)  mc->Get(dirRECO+"MultiPlots"+lastpartRECO+"/nch"+lastpartRECO);
-  if(debug_) cout << "nch_MC_RECO_RAW  " << dirRECO+"MultiPlots"+lastpartRECO+"/nch"+lastpartRECO << endl;
+  TH1F* nch_MC_RECO_RAW = (TH1F*)  mc->Get(dirRECO+"MultiPlots_mpreco"+lastpartRECO+"/nch_mpreco"+lastpartRECO);
+  if(debug_) cout << "nch_MC_RECO_RAW  " << dirRECO+"MultiPlots_mpreco"+lastpartRECO+"/nch_mpreco"+lastpartRECO << endl;
   
 /*    //fix bug manually: 
   //if a central cut --> you require at least 1 track --> set zerobin to 0
@@ -535,11 +666,11 @@ void makeCorrectionsSten(int typeMC, const TString mcfile, const TString datafil
   TH1F* nch_SD=0;
   TH1F* nch_INEL=0;  
   if(lastpartmc.Contains("HF1")) {
-    TString pathSD=dirRECO+"MultiPlots"+lastpartRECO+"/nch"+lastpartRECO;
+    TString pathSD=dirRECO+"MultiPlots_mpreco"+lastpartRECO+"/nch_mpreco"+lastpartRECO;
     //cout << pathSD << "   lastpartmc  "<< endl;
     pathSD.ReplaceAll("RECO","SD");
     //cout << pathSD << "   lastpartedited  "<< endl;
-    TString pathINEL=dirRECO+"MultiPlots"+lastpartRECO+"/nch"+lastpartRECO;
+    TString pathINEL=dirRECO+"MultiPlots_mpreco"+lastpartRECO+"/nch_mpreco"+lastpartRECO;
     pathINEL.ReplaceAll("RECO","RECO");
     
 
@@ -577,10 +708,10 @@ void makeCorrectionsSten(int typeMC, const TString mcfile, const TString datafil
   TH1F* eff_centrSel=0;  
   
   //TH1F* up_evtSel= 0; up_evtSel = (TH1F*) mc->FindObjectAny("nch_partfull"+lastpartmc2);
-  TH1F* up_evtSel= 0; up_evtSel = (TH1F*) mc->Get(dirmc+"MultiPlots_partfull"+lastpartmc2 +"/nch_partfull"+lastpartmc2);
+  TH1F* up_evtSel= 0; up_evtSel = (TH1F*) mc->Get(dirmc+"MultiPlots_mp_partfull"+lastpartmc2 +"/nch_mp_partfull"+lastpartmc2);
 
   //TH1F* down_evtSel= 0; down_evtSel = (TH1F*) mc->FindObjectAny("nch_partnoSel"+lastpartmc2);
-  TH1F* down_evtSel= 0; down_evtSel = (TH1F*) mc->Get(dirmc+"MultiPlots_partnoSel"+lastpartmc2 +"/nch_partnoSel"+lastpartmc2);
+  TH1F* down_evtSel= 0; down_evtSel = (TH1F*) mc->Get(dirmc+"MultiPlots_mp_partnoSel"+lastpartmc2 +"/nch_mp_partnoSel"+lastpartmc2);
   
   eff_evtSel = (TH1F*) up_evtSel->Clone("eff_nch"+lastpartmc2);
   eff_evtSel->Divide(up_evtSel, down_evtSel, 1, 1, "B");
@@ -589,9 +720,9 @@ void makeCorrectionsSten(int typeMC, const TString mcfile, const TString datafil
   delete up_evtSel; delete down_evtSel;
 
   //TH1F* up_centrSel= 0; up_centrSel = (TH1F*) mc->FindObjectAny("nch_noSel"+lastpartmc2);
-  TH1F* up_centrSel= 0; up_centrSel = (TH1F*) mc->Get(dirmc+"GenPart_noSel"+lastpartmc2 +"/nch_noSel"+lastpartmc2);
+  TH1F* up_centrSel= 0; up_centrSel = (TH1F*) mc->Get(dirmc+"GenPart_gpp_noSel"+lastpartmc2 +"/nch_gpp_noSel"+lastpartmc2);
   //TH1F* down_centrSel= 0; down_centrSel = (TH1F*) mc->FindObjectAny("nch_CentrGen"+lastpartmc2);
-  TH1F* down_centrSel= 0; down_centrSel = (TH1F*) mc->Get(dirmc+"GenPart_CentrGen"+lastpartmc2 +"/nch_CentrGen"+lastpartmc2);
+  TH1F* down_centrSel= 0; down_centrSel = (TH1F*) mc->Get(dirmc+"GenPart_gpp_CentrGen"+lastpartmc2 +"/nch_gpp_CentrGen"+lastpartmc2);
   
   eff_centrSel = (TH1F*) up_centrSel->Clone("eff_nch_CentrEff"+lastpartmc2);
   eff_centrSel->Divide(up_centrSel, down_centrSel, 1, 1, "B");
@@ -668,6 +799,40 @@ void makeCorrectionsSten(int typeMC, const TString mcfile, const TString datafil
     hypothesis->Draw();
     gPad->WaitPrimitive();
   }        
+  
+  
+  //reweighting of the mtx
+  bool reweightmtx = true;
+  //if(E==7.) reweightmtx = true;
+  //TH1D* projX = new TH1D();
+  TH1D* projY = new TH1D();
+  cout << "Reweighting the matrix : " << reweightmtx << endl;
+  if(reweightmtx){
+
+    matrixhist->Write("nch_matrix_beforeReweighting");
+
+    projY = (TH1D*) (matrixhist->ProjectionY("_py",1,matrixhist->GetNbinsY()));
+    //reweighting the reco side
+    for(int ireco = 1 ; ireco <= matrixhist->GetNbinsY() ; ++ireco){
+      double factor = 0;
+      if(projY->GetBinContent(ireco)!=0)
+        factor =  nch_REC->GetBinContent(ireco) / projY->GetBinContent(ireco);
+
+      double sumb = 0 , suma = 0;
+      for(int igen = 1 ; igen <= matrixhist->GetNbinsX() ; ++igen){
+        sumb += matrixhist->GetBinContent(igen , ireco);
+        matrixhist->SetBinContent(igen , ireco ,  matrixhist->GetBinContent(igen , ireco) * factor );
+        suma += matrixhist->GetBinContent(igen , ireco);
+      }
+
+      //cout << "bin " << ireco << "  before = " << sumb << "( " << projY->GetBinContent(ireco) << " )   after = " << suma << "( " << nch_toUnfold->GetBinContent(ireco) << " )"  << endl;
+
+    }
+  }
+
+  
+  
+  
   //calling the unfolding.cc file
   nch_unfolded = (runalgo(matrixhist,nch_REC,hypothesis,niter));
    
@@ -697,8 +862,11 @@ void makeCorrectionsSten(int typeMC, const TString mcfile, const TString datafil
   
   gDirectory->mkdir("hist_resampling");
   gDirectory->cd("hist_resampling");
- int niter_resampling = 20;
+  
+  int niter_resampling = 50;
   if(syst!=0) niter_resampling = 0;
+  if(mcfile.Contains("_genTr")) niter_resampling = 0;
+  if(mcfile.Contains("_noweight")) niter_resampling = 0;
   
   cout << "WARNING !! The resampling is done with " << niter_resampling << " iterations ..." << endl;
 
@@ -760,9 +928,9 @@ void makeCorrectionsSten(int typeMC, const TString mcfile, const TString datafil
   //------------------------------------------------------------------------------
 
   TH1F* nch_evtSelCorr = (TH1F*) nch_corrected->Clone("nch_data_evtSelCorr");
-  double ptcorr_val=1.0;
-  
-  if(doptcorr){  
+  double ptcorr_val=0;
+  cout<<" ++++ DOING PT FRAC CORRECTION ++++" <<endl;
+  if(doptcorr && ( lastpartmc.Contains("cut1") || lastpartmc.Contains("cut5") ) && ( dirmc.Contains("E_0.9") || dirmc.Contains("E_7") ) ){  
     cout<<" ++++ DOING PT FRAC CORRECTION ++++" <<endl;
     
     
@@ -784,6 +952,7 @@ void makeCorrectionsSten(int typeMC, const TString mcfile, const TString datafil
     
     increaseNTracks(nch_corrected , +1, ptcorr_val , 1);  //+1 is the sign
   }
+  else cout <<" no pt frac correction done" << endl;
   
   cout<<"Mean of multiplicity --------> "<<nch_corrected->GetMean()<<endl;
   cout<<"RMS of multiplicity  --------> "<<nch_corrected->GetRMS()<<endl;
