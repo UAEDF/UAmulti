@@ -1,3 +1,12 @@
+template <class T>
+bool isInAcceptance(const T& p , double pt = ptReco_cut, double etaMin = etaRecoMin_cut, double etaMax = etaRecoMax_cut, double charge = charge_cut){
+  if(p.v.Pt()<pt) return false;
+  if( fabs(p.v.Eta())<=etaMin || fabs(p.v.Eta())>etaMax ) return false;
+  if(charge!=0)  
+    if(charge!=p.charge)return false; 
+  return true;
+}
+
 
 bool isInAcceptance(MyPart& p , double pt , double eta , double charge = 0){
   if(p.v.Pt()<pt) return false;

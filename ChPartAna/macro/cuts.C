@@ -30,13 +30,10 @@ int getBestVertex(vector<MyVertex>* vtxcoll){
     }
   }
   
-  if(ntracks<=0)
-    return -1;
-  
-  return goodVtx->id;
+  return (ntracks<=0 ? -1 : goodVtx->id);
 }
 
-int getVtxposFromId(MyTracks& tr,int goodvtxId){
+inline int getVtxposFromId(const MyTracks& tr,int goodvtxId){
   for(unsigned int i=0;i<tr.vtxid.size();++i)
     if(tr.vtxid.at(i)==goodvtxId)
       return i;
