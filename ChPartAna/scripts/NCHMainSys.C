@@ -19,18 +19,24 @@ using namespace std;
 
 #include "../plugins/TMoments.h"
 #include "../plugins/Syst.h"
-#include "../scripts/syst_funcs.C"
+#include "../scripts_sten2/syst_funcs.C"
+#include "../macro/files_funcs.C"
 
 void TestCode();
 Syst* MPSys( TString, TString, TString, TString, TString, TH1F* );
 Syst* UNFSys(TString, TString, TString, TString, TH1F* );
+TH1F*  makeEffSyst(TString = "v25" , TString = "ATLAS2" , TString = "cut0");
 
 //    rootc NCHMainSys.C+ -q
 
 //________________________________________________________________________________
-void NCHMainSys(TString filepart = "_partfull_HF0_ATLAS6_INEL_cut0", double energy = 7, TString dirpart="v22") {
+void NCHMainSys(TString filepart = "_partfull_HF0_ATLAS2_INEL_cut0", double energy = 7, TString dirpart="v25NoWeight") {
 
   if(filepart.Contains("HF1")) filepart.ReplaceAll("INEL","NSD");
+  
+  Syst::sysType = Syst::half;
+  
+  xmax = 120;
 
   //---- Test Code ------
   //TestCode();
@@ -48,10 +54,15 @@ void NCHMainSys(TString filepart = "_partfull_HF0_ATLAS6_INEL_cut0", double ener
   //detaching cloned TH1's from their original file, so outfile->Close() will not crash the program
   TH1::AddDirectory(kFALSE);
   
+  TString cut = dynamic_cast<TObjString*>(filepart.Tokenize("_")->At(4))->GetString();
+  TString ctr = dynamic_cast<TObjString*>(filepart.Tokenize("_")->At(2))->GetString();
+  cout << "cut : " << cut << "  ctr : " << ctr << endl;
+    
+    
+    
   Syst*    Unf_Syst = NULL;   
   Syst*  NIter_Syst = NULL;   
   Syst*  Track_Syst = NULL;
-  Syst* EvtSel_Syst = NULL; 
   Syst* Summed_Syst = NULL;
 
   const TString filedirunfold = "../macro/unfold_outputs/"+dirpart+"/";
@@ -69,8 +80,8 @@ void NCHMainSys(TString filepart = "_partfull_HF0_ATLAS6_INEL_cut0", double ener
   cout <<  "CurveBase: " << histoName   << " ptr: " <<  CurveBase << endl;
   if (CurveBase ==0 ) return;
 
-  // ---------------  Unfolding SYS  -----------------------
-  cout <<"---- Starting Unfolding SYS ----"<<endl;
+ /* // ---------------  Unfolding SYS  -----------------------
+  cout << endl << "---- Starting Unfolding SYS ----"<<endl;
   // Second MC file to compare it with the BaseMC
   TString TestMC = "MC60";
   if (energy == 0.9) TestMC = "MC15"; 
@@ -80,26 +91,27 @@ void NCHMainSys(TString filepart = "_partfull_HF0_ATLAS6_INEL_cut0", double ener
   
 
   // ---------------  NIter SYS  -----------------------
-  cout <<"---- Starting NIter SYS ----"<<endl;
+  cout << endl << "---- Starting NIter SYS ----"<<endl;
   //changing the number of iterations
   //CurveBase, filepart+NIterSys+filedirunfold+histoName
   TString NIterSys= "302";
   NIter_Syst = MPSys(NIterSys, BaseMC, filepart, filedirunfold, histoName, CurveBase );
   cout <<"Created NIter_syst : " << NIterSys << "  ptr: " << NIter_Syst << endl;
   if(NIter_Syst==0) return;
+  draw_syst(*NIter_Syst , "niter #pm 2" , 1 , BaseMC+filepart);
 
 
   // ---------------  Track SYS  -----------------------
-  cout <<"---- Starting Track SYS ----"<<endl;
+  cout << endl << "---- Starting Track SYS ----"<<endl;
   //changing the number of tracks by 2.53 %
   TString TrackSys= "100";  
   Track_Syst = MPSys(TrackSys, BaseMC, filepart, filedirunfold, histoName, CurveBase );
   cout <<"Created Track_syst : " << TrackSys << "  ptr: " << Track_Syst << endl;
   if(Track_Syst==0) return;
 
-/*
+
    // ---------------  Compare the BaseMC nch curve with for example the NoWeight - SYS  -----------------------
-  cout <<"---- Starting Compare NW/W SYS ----"<<endl;
+  cout << endl << "---- Starting Compare NW/W SYS ----"<<endl;
   TString extra = "_noweight";
   TString Testfilepart = extra+filepart;
   TString Testfiledir = "../"+dirpart+"NoWeight/";
@@ -107,37 +119,61 @@ void NCHMainSys(TString filepart = "_partfull_HF0_ATLAS6_INEL_cut0", double ener
   NWW_Syst = UNFSys(BaseMC, Testfilepart, filedirunfold+Testfiledir, histoName, CurveBase );
   cout <<"Created NW/W_syst : " << extra << "  ptr: " << NWW_Syst << endl;
   if(NWW_Syst==0) return;
+  draw_syst(*NWW_Syst , "no weight" , 1 , BaseMC+filepart);
 */
+  Syst*  gf_Syst = NULL; 
+  Syst* eff_Syst = NULL; 
   if(energy==7) {  
-    // ---------------  Compare the BaseMC nch curve with genTr/ferTr - SYS  -----------------------
-    cout <<"---- Starting Compare fer/gen SYS ----"<<endl;
+  
+  /*  // ---------------  Compare the BaseMC nch curve with genTr/ferTr - SYS  -----------------------
+    cout << endl  <<"---- Starting Compare fer/gen SYS ----"<<endl;
 
     TString extrag = "_genTr";
     TString Testfilepartg = extrag+filepart;
      TString Testfiledirg = "../"+dirpart+"_genTr/";
-    Syst*    gf_Syst = NULL; 
+    
     gf_Syst = UNFSys(BaseMC, Testfilepartg, filedirunfold+Testfiledirg, histoName, CurveBase );
     cout <<"Created gen/fernc_syst : " << extrag << "  ptr: " << gf_Syst << endl;
     if(gf_Syst==0) return;
-  }  
+    draw_syst(*gf_Syst , "general Tr." , 1 , BaseMC+filepart);
+    */
+    
+    // ---------------  Compare the BaseMC nch curve with ept/pt = 0.05 or 0.1 - SYS  -----------------------
+    cout << endl  <<"---- Starting Compare ept SYS ----"<<endl;
+
+    Syst*    ept_Syst = NULL; 
+    ept_Syst = UNFSys(BaseMC, filepart, "../macro/unfold_outputs/v22NoWeight_Romain/", histoName, CurveBase );
+    cout <<"Created ept_syst, ptr: " << ept_Syst << endl;
+    if(ept_Syst==0) return;
+    draw_syst(*ept_Syst , "ept/pt = 0.1" , 1 , BaseMC+filepart);
+    return;
+    
     
   
-  // -------------   EvtSel SYS    ---------------------
-  
+    // -------------   EvtSel SYS    ---------------------
+    cout << endl << endl  <<"---- Starting Compare ept SYS ----"<<endl;
+    eff_Syst = new Syst( BaseMC , CurveBase , makeEffSyst( dirpart , ctr , cut ) , 0);
+    cout <<"Created eff_syst, ptr: " <<  eff_Syst << endl;
+    if(eff_Syst==0) return;
+    draw_syst(*eff_Syst , "eff from 0-bias" , 1 , BaseMC+filepart);
+    
+  }  
+    
   
 
   // ------------   Making Sum SYS   -------------------
   cout <<"-- Starting Summing the SYS --"<<endl;
   vector<Syst>* Vec_Syst = new vector <Syst>;
-  Vec_Syst->push_back(    *Unf_Syst); 
-  Vec_Syst->push_back(  *NIter_Syst);
+  Vec_Syst->push_back(    *Unf_Syst); //  Vec_Syst->push_back(  *NIter_Syst);
   Vec_Syst->push_back(  *Track_Syst);
-//Vec_Syst->push_back( *EvtSel_Syst);
+  if( energy==7 && (cut=="cut2" || cut=="cut3") )
+    Vec_Syst->push_back(  *gf_Syst); //Vec_Syst->push_back( *EvtSel_Syst);
 
   vector<TString> vLeg;
   vLeg.push_back("corr. with PYTHIA 8");
-  vLeg.push_back("niter #pm 2 ");
   vLeg.push_back("Track eff.");
+  if( energy==7 && (cut=="cut2" || cut=="cut3") )
+    vLeg.push_back("general Tr.");
   
   Summed_Syst = new Syst( "Summed" );
   Summed_Syst->setMain(Vec_Syst->at(0).mainTH1);
@@ -164,7 +200,8 @@ void NCHMainSys(TString filepart = "_partfull_HF0_ATLAS6_INEL_cut0", double ener
   if (Unf_Syst!=0)   delete Unf_Syst;
   if (NIter_Syst!=0) delete NIter_Syst;
   if (Track_Syst!=0) delete Track_Syst;
-  if(EvtSel_Syst!=0) delete EvtSel_Syst;
+  //if(eff_Syst!=0) delete EvtSel_Syst;
+  //if(ept_Syst!=0) delete EvtSel_Syst;
   if(Summed_Syst!=0) delete Summed_Syst;
   
   cout <<  "outputfile: " << filediroutput+outstr <<endl;
@@ -228,7 +265,7 @@ Syst* MPSys(TString Sys, TString BaseMC, TString filepart, TString filedirunf, T
 }
 
 //________________________________________________________________________________
-void NCHCut01(TString dir = "v22", double energy = 7) {
+void NCHCut01(TString dir = "v25", double energy = 7) {
 
     NCHMainSys("_partfull_HF0_ATLAS1_INEL_cut0",energy,dir);
     NCHMainSys("_partfull_HF1_ATLAS1_NSD_cut0",energy,dir);
@@ -259,7 +296,7 @@ void NCHCut01(TString dir = "v22", double energy = 7) {
 
 
 //________________________________________________________________________________
-void NCHCut23(TString dir = "v22", double energy = 7) {
+void NCHCut23(TString dir = "v25", double energy = 7) {
 
     NCHMainSys("_partfull_HF0_ATLAS1_INEL_cut2",energy,dir);
     NCHMainSys("_partfull_HF1_ATLAS1_NSD_cut2",energy,dir);
@@ -289,7 +326,7 @@ void NCHCut23(TString dir = "v22", double energy = 7) {
 }
 
 //________________________________________________________________________________
-void NCHCut45(TString dir = "v22", double energy = 7) {
+void NCHCut45(TString dir = "v25", double energy = 7) {
 
 
     NCHMainSys("_partfull_HF0_ATLAS1_INEL_cut4",energy,dir);
@@ -321,12 +358,72 @@ void NCHCut45(TString dir = "v22", double energy = 7) {
 
 
 //________________________________________________________________________________
-void NCHAll(TString dir = "v22", double energy = 7) {
+void NCHAll(TString dir = "v25", double energy = 7) {
    
    NCHCut01(dir, energy);
    NCHCut23(dir, energy);
    NCHCut45(dir, energy); 
 }
+
+
+
+
+
+
+
+
+
+
+
+//________________________________________________________________________________
+TH1F*  makeEffSyst(TString dir , TString ctr , TString acc){
+
+  TFile* f_unf = getFile("files/unfold_outputs/" + dir + "/unf_MC31_partfull_HF0_" + ctr + "_INEL_" + acc + ".root");
+  TH1F* eff_ctr_gen = getHist<TH1F>(*f_unf , "eff_centrSel");
+  TH1F* eff_trg_gen = getHist<TH1F>(*f_unf , "eff_evtSel");
+  TH1F* unfoldedPtr = getHist<TH1F>(*f_unf , "nch_unfoldedPtr");
+  
+  TFile* f_mc = getFile("files/outputs_full/" + dir + "/effs_MC31_ferncTr_E_7_5000000_allEffs.root");
+  TH1F* eff_trg_reco_mc = getHist<TH1F>(*f_mc , "eff_evtSel_RECO_HF0_" + ctr + "_RECO_" + acc);
+  
+  TFile* f_0b = getFile("files/outputs_full/" + dir + "/effs_zerobias_ferncTr_E_7_482270.root");
+  TH1F* eff_trg_reco_0b = getHist<TH1F>(*f_0b , "eff_evtSel_RECO_HF0_" + ctr + "_RECO_" + acc);
+  
+  TH1F* eff_syst = (TH1F*) eff_trg_gen->Clone("eff_syst");
+  
+  for(int i = 1 ; i <= unfoldedPtr->GetNbinsX() ; ++i){
+    Double_t bin = eff_trg_gen->GetBinContent(i)
+                   + eff_trg_reco_0b->GetBinContent(i)
+		   - eff_trg_reco_mc->GetBinContent(i);
+    
+    if(bin>1)      eff_syst->SetBinContent(i,1.);
+    else if(bin<0) eff_syst->SetBinContent(i,0.);
+    else           eff_syst->SetBinContent(i,bin);
+  }
+  
+  TH1F* eff_tot = (TH1F*) eff_trg_gen->Clone("eff_tot");
+  eff_tot->Multiply(eff_ctr_gen,eff_syst,1,1);
+  
+  
+  TH1F* nch_data_corrected = (TH1F*) unfoldedPtr->Clone("nch_data_corrected");
+  nch_data_corrected->Divide(nch_data_corrected , eff_tot , 1 , 1);
+  
+  delete f_unf ;
+  delete eff_ctr_gen ;
+  delete eff_trg_gen ;
+  delete unfoldedPtr ;
+  delete f_mc; 
+  delete eff_trg_reco_mc;
+  delete f_0b;
+  delete eff_trg_reco_0b;
+  delete eff_syst;
+  delete eff_tot;
+  
+  return nch_data_corrected;
+
+}
+
+
 
 
 
