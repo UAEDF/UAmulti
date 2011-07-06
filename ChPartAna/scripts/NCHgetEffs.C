@@ -72,20 +72,20 @@ void NCHgetEffsRun(TString dir="../macro/outputs_full/v21/", TString filenameMC3
   eff_out->cd();
   
   //gen level
-  TH1F* eff_evtSel  = getEff(*mc , "nch_partfull"+lastpartmc2 , "nch_partnoSel"+lastpartmc2 , "eff_evtSel"+lastpartmc);
-  TH1F* eff_centrSel= getEff(*mc , "nch_noSel"+lastpartmc2 , "nch_CentrGen"+lastpartmc2 , "eff_centrSel"+lastpartmc);  
+  TH1F* eff_evtSel  = getEff(*mc , "nch_mp_partfull"+lastpartmc2 , "nch_mp_partnoSel"+lastpartmc2 , "eff_evtSel"+lastpartmc);
+  TH1F* eff_centrSel= getEff(*mc , "nch_gpp_noSel"+lastpartmc2 , "nch_gpp_CentrGen"+lastpartmc2 , "eff_centrSel"+lastpartmc);  
   
   TH1F* eff = (TH1F*) eff_evtSel->Clone("eff_total"+lastpartmc);
   eff->Multiply(eff_centrSel,eff_evtSel,1,1);
   
   //all effs
-  TH1F* eff_L1Sel = getEff(*mc , "nch_L1Sel"+lastpartmc2 , "nch_noSel"+lastpartmc2 , "eff_nch_L1Eff"+lastpartmc2);
-  TH1F* eff_vtxSel = getEff(*mc , "nch_vtxSel"+lastpartmc2 , "nch_noSel"+lastpartmc2 , "eff_nch_vtxEff"+lastpartmc2);
-  TH1F* eff_vtxqualSel = getEff(*mc , "nch_vtxqualSel"+lastpartmc2 , "nch_noSel"+lastpartmc2 , "eff_nch_vtxqualEff"+lastpartmc2);
-  TH1F* eff_hfSel      = getEff(*mc , "nch_hfSel"+lastpartmc2 , "nch_noSel"+lastpartmc2 , "eff_nch_hfEff"+lastpartmc2);
+  TH1F* eff_L1Sel = getEff(*mc , "nch_gpp_L1Sel"+lastpartmc2 , "nch_gpp_noSel"+lastpartmc2 , "eff_nch_L1Eff"+lastpartmc2);
+  TH1F* eff_vtxSel = getEff(*mc , "nch_gpp_vtxSel"+lastpartmc2 , "nch_gpp_noSel"+lastpartmc2 , "eff_nch_vtxEff"+lastpartmc2);
+  TH1F* eff_vtxqualSel = getEff(*mc , "nch_gpp_vtxqualSel"+lastpartmc2 , "nch_gpp_noSel"+lastpartmc2 , "eff_nch_vtxqualEff"+lastpartmc2);
+  TH1F* eff_hfSel      = getEff(*mc , "nch_gpp_hfSel"+lastpartmc2 , "nch_gpp_noSel"+lastpartmc2 , "eff_nch_hfEff"+lastpartmc2);
   
   //reco level
-  TH1F* eff_evtSel_reco = getEff(*mc , "nch_full"+lastpartmc2 , "nch_noSel"+lastpartmc2 , "eff_evtSel_RECO_"+lastpartmc2);
+  TH1F* eff_evtSel_reco = getEff(*mc , "nch_mpreco_full"+lastpartmc2 , "nch_mpreco_noSel"+lastpartmc2 , "eff_evtSel_RECO_"+lastpartmc2);
 
   
   ////////////  
@@ -126,7 +126,7 @@ void NCHgetEffsZeroBias(TString dir="../macro/outputs_full/v21/", TString filena
   TFile* eff_out= new TFile(dir+eff_output,"UPDATE");  
   eff_out->cd();
   
-  TH1F* eff_evtSel = getEff(*mc , "nch_full"+lastpartmc2 , "nch_noSel"+lastpartmc2 , "eff_nch"+lastpartmc2);
+  TH1F* eff_evtSel = getEff(*mc , "nch_mpreco_full"+lastpartmc2 , "nch_mpreco_noSel"+lastpartmc2 , "eff_nch"+lastpartmc2);
 
   
 ////////////  
@@ -169,8 +169,8 @@ void run_all(pFunc func , TString dir , TString file){
 
 //--------------------------------------------------------------
 
-void NCHgetEffs(Int_t type = 0 , TString subdir = "v21" ) {
-  TString dir="../macro_sten/";
+void NCHgetEffs(Int_t type = 0 , TString subdir = "v22" ) {
+  TString dir="../macro/outputs_full/"+subdir+"/";
   TString filename = "";
   
   pFunc func = 0;
