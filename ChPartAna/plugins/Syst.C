@@ -2,6 +2,10 @@
  
 ClassImp(Syst)
 
+
+Int_t Syst::sysType = Syst::half;
+
+
 //--------------------------------------------------------------------------
 //----------------------------   CONSTRUCTORS   ---------------------------- 
 //--------------------------------------------------------------------------
@@ -379,7 +383,7 @@ void Syst::makeMain(){
 }     
 
 
-
+/*
 //_____________________________________________________________________________
 void Syst::makegSyst(){
 
@@ -465,7 +469,74 @@ void Syst::makegSyst(){
   delete eyh;   
 }     
 
+*/
 
+//_____________________________________________________________________________
+void Syst::makegSyst(){
+  
+  cout << "[Syst::makegSyst] {" << syscoll << "} Making gSyst ..." << endl;
+  
+  if(mainTH1==0)
+    cout<<"[Syst::makegSyst] {" << syscoll << "} ERROR !! Please provide a mainTH1."<<endl;
+  if(sys1TH1==0)
+    cout<<"[Syst::makegSyst] {" << syscoll << "} ERROR !! Please provide a sys1TH1."<<endl;
+  if(sys2TH1==0)
+    cout<<"[Syst::makegSyst] {" << syscoll << "} WARNING !! There is no sys2TH1, so sys1 will be mirrored."<<endl;
+  if(mainTH1==0 || sys1TH1==0 )
+    return; 
+        
+  Double_t* x    = new Double_t[mainTH1->GetNbinsX()];
+  Double_t* y    = new Double_t[mainTH1->GetNbinsX()];
+  Double_t* exl  = new Double_t[mainTH1->GetNbinsX()];
+  Double_t* exh  = new Double_t[mainTH1->GetNbinsX()];
+  Double_t* eyl  = new Double_t[mainTH1->GetNbinsX()];
+  Double_t* eyh  = new Double_t[mainTH1->GetNbinsX()];
+  
+  
+  for(int i = 1 ; i <= mainTH1->GetNbinsX() ; ++i){
+    x[i-1] = mainTH1->GetBinCenter(i);
+    y[i-1] = mainTH1->GetBinContent(i);
+    exl[i-1] = mainTH1->GetBinCenter(i) - mainTH1->GetXaxis()->GetBinLowEdge(i);
+    exh[i-1] = mainTH1->GetXaxis()->GetBinUpEdge(i) - mainTH1->GetBinCenter(i);
+    
+    
+    if(sys2TH1!=0){
+      eyl[i-1] = this->getMinSyst(y[i-1] , sys1TH1->GetBinContent(i) , sys2TH1->GetBinContent(i) );
+      eyh[i-1] = this->getMaxSyst(y[i-1] , sys1TH1->GetBinContent(i) , sys2TH1->GetBinContent(i) );
+    }
+    else{
+    
+      //none
+      eyl[i-1] = this->getMinSyst(y[i-1] , sys1TH1->GetBinContent(i) , y[i-1] );
+      eyh[i-1] = this->getMaxSyst(y[i-1] , sys1TH1->GetBinContent(i) , y[i-1] );
+      
+      //mirror
+      if(sysType == Syst::mirror || sysType == Syst::half ){
+        if(eyl[i-1] == 0) eyl[i-1] = eyh[i-1];
+        if(eyh[i-1] == 0) eyh[i-1] = eyl[i-1];
+      }
+      
+      //half
+      if(sysType == Syst::half ){
+        eyl[i-1] /= 2.;
+      	eyh[i-1] /= 2.;
+      }
+    }
+    
+        
+  }//end of loop over bins  
+  
+  if(gsyst!=0) delete gsyst;
+  gsyst = new TGraphAsymmErrors(mainTH1->GetNbinsX(), x, y,  exl, exh,  eyl,  eyh);
+  gsyst->SetName("gsyst");
+
+  delete x;   
+  delete y;  
+  delete exl; 
+  delete exh; 
+  delete eyl; 
+  delete eyh;   
+}     
 
 //_____________________________________________________________________________
 void Syst::makegSystFromrSyst(){  //reconstructs rsyst. Needs gsyst. 

@@ -17,6 +17,10 @@ class Syst : public TObject {
 
   public :
     
+    //type of systematic in case just 1 is present
+    enum sysTypeEnum {none , mirror , half};
+    static Int_t sysType;
+    
     //Constructors
     Syst();
     Syst(TString);
