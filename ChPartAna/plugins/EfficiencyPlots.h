@@ -49,8 +49,9 @@ class EfficiencyPlots : public BasePlots {
     //TH1F* phi_eff;
     //TH2F* pt_eta_eff;
     
-    Double_t deltaR;
-    Double_t deltaPt;
+    Double_t dR_max;
+    Double_t dPt_max;
+    Bool_t   correctAcceptance;
     
     void init();
  
@@ -71,13 +72,21 @@ void EfficiencyPlots::fill(vector<T>* v_gen, vector<U>* v_reco, double weight){
   vector<U*>	          fakes;
   vector<T*>	          gen_notMatched;
 
-  GetMatch2(v_gen , v_reco , &match , &fakes , &gen_notMatched , this->deltaR , this->deltaPt);
+  GetMatch2(v_gen , v_reco , &match , &fakes , &gen_notMatched , this->dR_max , this->dPt_max);
   
   for(typename vector< pair<T* , U*> >::iterator mpair = match.begin() ; mpair != match.end() ; ++mpair){
-    pt_rec_matched->Fill(mpair->first->Pt() , weight);
-    eta_rec_matched->Fill(mpair->first->Eta() , weight);
-    phi_rec_matched->Fill(mpair->first->Phi() , weight);
-    pt_eta_rec_matched->Fill(mpair->first->Pt() , mpair->first->Eta() , weight);
+    if(correctAcceptance){
+      pt_rec_matched->Fill(mpair->first->Pt() , weight);
+      eta_rec_matched->Fill(mpair->first->Eta() , weight);
+      phi_rec_matched->Fill(mpair->first->Phi() , weight);
+      pt_eta_rec_matched->Fill(mpair->first->Pt() , mpair->first->Eta() , weight);
+    }
+    else{
+      pt_rec_matched->Fill(mpair->second->Pt() , weight);
+      eta_rec_matched->Fill(mpair->second->Eta() , weight);
+      phi_rec_matched->Fill(mpair->second->Phi() , weight);
+      pt_eta_rec_matched->Fill(mpair->second->Pt() , mpair->second->Eta() , weight);
+    }
     
     dR->Fill ( deltaR( mpair->first->Eta() , mpair->second->Eta() , mpair->first->Phi() , mpair->second->Phi() ) , weight ); 
     dPt->Fill( mpair->first->Pt() - mpair->second->Pt() , weight ); 
@@ -86,18 +95,20 @@ void EfficiencyPlots::fill(vector<T>* v_gen, vector<U>* v_reco, double weight){
   }
   
   for(typename vector<U*>::iterator it_fake = fakes.begin() ; it_fake != fakes.end() ; ++it_fake){
-    pt_rec_fake->Fill(it_fake->Pt() , weight);
-    eta_rec_fake->Fill(it_fake->Eta() , weight);
-    phi_rec_fake->Fill(it_fake->Phi() , weight);
-    pt_eta_rec_fake->Fill(it_fake->Pt() , it_fake->Eta() , weight);
+    pt_rec_fake->Fill((*it_fake)->Pt() , weight);
+    eta_rec_fake->Fill((*it_fake)->Eta() , weight);
+    phi_rec_fake->Fill((*it_fake)->Phi() , weight);
+    pt_eta_rec_fake->Fill((*it_fake)->Pt() , (*it_fake)->Eta() , weight);
   }
   
-  for(typename vector<U*>::iterator it_gen = v_gen->begin() ; it_gen != v_gen->end() ; ++it_gen){
+  for(typename vector<T>::iterator it_gen = v_gen->begin() ; it_gen != v_gen->end() ; ++it_gen){
     pt_gen->Fill(it_gen->Pt() , weight);
     eta_gen->Fill(it_gen->Eta() , weight);
     phi_gen->Fill(it_gen->Phi() , weight);
     pt_eta_gen->Fill(it_gen->Pt() , it_gen->Eta() , weight);
-  } 
+  }
+  
+  
 
 }
 
@@ -147,7 +158,9 @@ void EfficiencyPlots::init(){
     deta      = new TH1F("deta_"+Recocoll,"deta_"+Recocoll+";Delta eta;#events",50,-0.5,0.5);
     dphi      = new TH1F("dphi_"+Recocoll,"dphi_"+Recocoll+";Delta phi;#events",50,-0.5,0.5);
 
- 
+    dR_max  = 0.04;
+    dPt_max = -1;
+    correctAcceptance = 1;
 }
 
 
@@ -158,7 +171,7 @@ void EfficiencyPlots::write(){
   gDirectory->mkdir("EfficiencyPlots_"+Recocoll);
   gDirectory->cd("EfficiencyPlots_"+Recocoll);
   
-  pt_gen->Write(); 
+  /*pt_gen->Write(); 
   eta_gen->Write(); 
   phi_gen->Write(); 
   pt_eta_gen->Write();
@@ -172,7 +185,7 @@ void EfficiencyPlots::write(){
   eta_rec_fake->Write();
   phi_rec_fake->Write();
   pt_eta_rec_fake->Write();
-
+*/
 
   nMatched->Write();
   dR->Write();
@@ -190,15 +203,15 @@ void EfficiencyPlots::write(){
   TOperation<TH1F> phi_fake("phi_fake_"+Recocoll , *phi_rec_fake , *phi_gen , "eff");
   TOperation<TH2F> pt_eta_fake("pt_eta_fake_" +Recocoll , *pt_eta_rec_fake  , *pt_eta_gen  , "eff");
  
-  pt_eff  .write(1); 
-  eta_eff .write(1); 
-  phi_eff .write(1); 
-  pt_eta_eff.write(1); 
+  pt_eff  .write(0); 
+  eta_eff .write(0); 
+  phi_eff .write(0); 
+  pt_eta_eff.write(0); 
 
-  pt_fake  .write(1);
-  eta_fake .write(1);
-  phi_fake .write(1);
-  pt_eta_fake.write(1);
+  pt_fake  .write(0);
+  eta_fake .write(0);
+  phi_fake .write(0); 
+  pt_eta_fake.write(0);
   
   
   gDirectory->cd("../");
