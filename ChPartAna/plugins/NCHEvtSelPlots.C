@@ -29,7 +29,9 @@ NCHEvtSelPlots::~NCHEvtSelPlots(){
         //delete gpp_full;                 
         delete mppart_full; 
         delete mppart_noSel;             
-        delete mtx_full; 
+        delete mtx_full;            
+        delete mtx_noSel; 
+        delete mtx_vtxSel; 
         delete gpp_CentralGen;              
     }
 
@@ -92,6 +94,10 @@ void NCHEvtSelPlots::init(){
     //matrix
     mtx_full                          = new TResponseMtx("partfull_"+trackcoll, 
                                 vector<Double_t>( mppart_full->nch_array, mppart_full->nch_array+mppart_full->nch_nbin+1) );  
+    mtx_noSel                         = new TResponseMtx("mtx_noSel_"+trackcoll, 
+                                vector<Double_t>( mppart_full->nch_array, mppart_full->nch_array+mppart_full->nch_nbin+1) );    
+    mtx_vtxSel                        = new TResponseMtx("mtx_vtxSel_"+trackcoll, 
+                                vector<Double_t>( mppart_full->nch_array, mppart_full->nch_array+mppart_full->nch_nbin+1) );  
                                 
     gpp_CentralGen                    = new GenPartPlots("gpp_CentrGen_"+trackcoll);         
   }
@@ -131,23 +137,24 @@ void NCHEvtSelPlots::init(){
 void NCHEvtSelPlots::fill(vector<MyGenPart>& gpcoll, vector<MyTracks>& trcoll, vector<MyVertex>& vtxcoll, vector<MyVertex>::iterator& goodVtx, 
                                             int vtxId, MyBeamSpot* bs,bool passCentralGen, bool passCentralRECO, double weight){  
   
-   if(passCentralRECO) {
+  if(passCentralRECO) {
    
-     //no selection
-     trp_noSel->fill(trcoll,goodVtx,vtxId,bs,weight);     //in passCentralRECO, because we use it for data
-     for(vector<MyTracks>::iterator tr = trcoll.begin() ; tr != trcoll.end() ; ++tr){    
-        mpreco_noSel->fill(tr->Part,weight);    
-     }  
-     mpreco_noSel->nextEvent(1,weight);
+    //no selection
+    trp_noSel->fill(trcoll,goodVtx,vtxId,bs,weight);	 //in passCentralRECO, because we use it for data
+    for(vector<MyTracks>::iterator tr = trcoll.begin() ; tr != trcoll.end() ; ++tr){	
+       mpreco_noSel->fill(*(dynamic_cast<MyPart*>(&(*tr))),weight);    
+    }  
+    mpreco_noSel->nextEvent(1,weight);
 
     if(isMC){
-          gpp_noSel->fill(gpcoll,weight);
+      gpp_noSel->fill(gpcoll,weight);
+      mtx_noSel->Fill(gpcoll.size(), trcoll.size(),weight);
 
-          for(vector<MyGenPart>::iterator gp = gpcoll.begin() ; gp != gpcoll.end() ; ++gp){               
-              mppart_noSel->fill(gp->Part,weight);    
-          }
-          //going to next event for the Multiplots
-          mppart_noSel->nextEvent(1,weight);   
+      for(vector<MyGenPart>::iterator gp = gpcoll.begin() ; gp != gpcoll.end() ; ++gp){ 	      
+        mppart_noSel->fill(*(dynamic_cast<MyPart*>(&(*gp))),weight);    
+      }
+      //going to next event for the Multiplots
+      mppart_noSel->nextEvent(1,weight);   
     }
     if(goodVtx != vtxcoll.end()) vtxp_noSel->fill(*goodVtx,weight); 
   
@@ -178,6 +185,7 @@ void NCHEvtSelPlots::fill(vector<MyGenPart>& gpcoll, vector<MyTracks>& trcoll, v
       }
     
       if(passVtx){
+          if(isMC) mtx_vtxSel->Fill(gpcoll.size(), trcoll.size(),weight);
           trp_vtxSel->fill(trcoll,goodVtx,vtxId,bs,weight);
           if(isMC) gpp_vtxSel->fill(gpcoll,weight);
           if(goodVtx != vtxcoll.end()) vtxp_vtxSel->fill(*goodVtx,weight);
@@ -198,38 +206,35 @@ void NCHEvtSelPlots::fill(vector<MyGenPart>& gpcoll, vector<MyTracks>& trcoll, v
   
     // Final selection 
     if(passL1 && passHF && passVtxQual && passVtx){
-     trp_full->fill(trcoll,goodVtx,vtxId,bs,weight);    
-     if(isMC) {
-         //gpp_full->fill(gpcoll,weight);
-         mtx_full->Fill(gpcoll.size(), trcoll.size(),weight);
-         for(vector<MyGenPart>::iterator gp = gpcoll.begin() ; gp != gpcoll.end() ; ++gp){               
-             mppart_full->fill(gp->Part,weight);    
-         }
-     }
-     if(goodVtx != vtxcoll.end()) vtxp_full->fill(*goodVtx,weight);    
-     for(vector<MyTracks>::iterator tr = trcoll.begin() ; tr != trcoll.end() ; ++tr){    
-        mpreco_full->fill(tr->Part,weight);    
-     }
+      trp_full->fill(trcoll,goodVtx,vtxId,bs,weight);    
+      if(isMC) {
+          //gpp_full->fill(gpcoll,weight);
+          mtx_full->Fill(gpcoll.size(), trcoll.size(),weight);
+          for(vector<MyGenPart>::iterator gp = gpcoll.begin() ; gp != gpcoll.end() ; ++gp){               
+              mppart_full->fill(*(dynamic_cast<MyPart*>(&(*gp))),weight);    
+          }
+      }
+      if(goodVtx != vtxcoll.end()) vtxp_full->fill(*goodVtx,weight);    
+      for(vector<MyTracks>::iterator tr = trcoll.begin() ; tr != trcoll.end() ; ++tr){    
+         mpreco_full->fill(*(dynamic_cast<MyPart*>(&(*tr))),weight);    
+      }
     
-        
-     //going to next event for the Multiplots
-     if(isMC)
-        mppart_full->nextEvent(1,weight);  
-     
-            
+         
+      //going to next event for the Multiplots
+      if(isMC) mppart_full->nextEvent(1,weight); 
       mpreco_full->nextEvent(1,weight);
     }      
   
   }  
         
-    //to get the efficiency of the Central cut 
-    if(isMC){
-        if(passCentralGen)
-            gpp_CentralGen->fill(gpcoll,weight);
-        //noSel = gpp_CentralRECO  
-    
-    }
-    
+  //to get the efficiency of the Central cut 
+  if(isMC){
+      if(passCentralGen)
+  	  gpp_CentralGen->fill(gpcoll,weight);
+      //noSel = gpp_CentralRECO  
+  
+  }
+  
 }  
 
 //_____________________________________________________________________________
@@ -253,6 +258,8 @@ void NCHEvtSelPlots::write(){
      gpp_noSel->write();   
      //gpp_full->write();
      mtx_full->write(0);  //0 will not write the class
+     mtx_noSel->write(0);
+     mtx_vtxSel->write(0);
   }
   
   if(switchIntermedPlots){  

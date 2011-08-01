@@ -5,9 +5,9 @@
 #include <iostream>
 #include "TObject.h"
 #include "TDirectory.h"
-#include "./MyTracks.h"
-#include "./MyVertex.h"
-#include "./MyBeamSpot.h"
+#include "../mydir/MyTracks.h"
+#include "../mydir/MyVertex.h"
+#include "../mydir/MyBeamSpot.h"
 #include "./GenPartPlots.h"
 #include "./TrackPlots.h"
 #include "./VertexPlots.h"
@@ -35,7 +35,9 @@ class NCHEvtSelPlots : public TObject {
     //GenPartPlots* gpp_full; 
 
     
-    TResponseMtx* mtx_full;   
+    TResponseMtx* mtx_full;  
+    TResponseMtx* mtx_noSel;  
+    TResponseMtx* mtx_vtxSel;  
     
     TrackPlots* trp_noSel;
     TrackPlots* trp_b40Sel;
