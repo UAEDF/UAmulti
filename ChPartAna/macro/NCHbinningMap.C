@@ -21,13 +21,14 @@ void addBins(const int nbinnew , double step , vector<double>& array){
 
 vector< vector<double> > getBins(int inch , int ipt , int ieta){
   vector< vector<double> > bins;
+  vector<double> tmp;
   
   //---------------- NCH BINNING ---------------
   if(inch==0){
     bins.push_back(makeBins(171,-0.5,170.5));
   }
   else if(inch==1){
-    vector<double> tmp = makeBins(63,-0.5,62.5);
+    tmp = makeBins(63,-0.5,62.5);
     addBins(3,2,tmp);
     addBins(10,5,tmp);
     bins.push_back(tmp);
@@ -48,6 +49,20 @@ vector< vector<double> > getBins(int inch , int ipt , int ieta){
   else if(ieta==2){
     bins.push_back(makeBins(12,-3.,3.));
   }
+  
+  
+  // pt2
+  tmp.clear();
+  tmp = makeBins(200,0.,4.);
+  addBins(80,.1,tmp);
+  bins.push_back(tmp);
+
+  // mt
+  tmp.clear();
+  tmp = makeBins(200,0.,2.);
+  addBins(80,.1,tmp);
+  bins.push_back(tmp);
+  
   
   return bins;
 }
