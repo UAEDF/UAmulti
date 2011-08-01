@@ -82,15 +82,21 @@ Bool_t TOperation<T>::setOperation(TString op){
   operation=op;
   result = *( static_cast<T*>(obj1.Clone("result_"+name)));
   result.Reset();
-  //result.SetName("result_"+name);
+  result.SetName("result_"+name);
   if(op=="+")        result.Add(&obj1,&obj2,1,1);
   else if(op=="-")   result.Add(&obj1,&obj2,1,-1);
   else if(op=="*")   result.Multiply(&obj1,&obj2,1,1);
   else if(op=="/")   result.Divide(&obj1,&obj2,1,1);
   else if(op=="eff") result.Divide(&obj1,&obj2,1,1,"B");
-  else
-    return false;
+  else return false;
     
+  if(op=="+")	     result.SetName("sum_"+name);
+  else if(op=="-")   result.SetName("sub_"+name);
+  else if(op=="*")   result.SetName("mul_"+name);
+  else if(op=="/")   result.SetName("div_"+name);
+  else if(op=="eff") result.SetName("eff_"+name);
+  
+  
   return true;
 
 }
@@ -140,6 +146,8 @@ Long64_t TOperation<T>::Merge(TCollection* list){
     this->Add(*h);
   }
   next.Reset();
+  
+  return 1;
 }
     
     
