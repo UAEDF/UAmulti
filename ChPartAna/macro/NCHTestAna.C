@@ -14,16 +14,16 @@
 #include <sstream>
 using namespace std;
 
-#include "../plugins/MyEvtId.h"
-#include "../plugins/MyL1Trig.h"
-#include "../plugins/MyHLTrig.h"
-#include "../plugins/MyGenKin.h"
-#include "../plugins/MyPart.h"
-#include "../plugins/MyGenPart.h"
-#include "../plugins/MyTracks.h"
-#include "../plugins/MyVertex.h"
-#include "../plugins/MyMITEvtSel.h"
-#include "../plugins/MyBeamSpot.h"
+#include "../mydir/MyEvtId.h"
+#include "../mydir/MyL1Trig.h"
+#include "../mydir/MyHLTrig.h"
+#include "../mydir/MyGenKin.h"
+#include "../mydir/MyPart.h"
+#include "../mydir/MyGenPart.h"
+#include "../mydir/MyTracks.h"
+#include "../mydir/MyVertex.h"
+#include "../mydir/MyMITEvtSel.h"
+#include "../mydir/MyBeamSpot.h"
 
 #include "../plugins/TResponseMtx.h"
 #include "../plugins/BasePlots.h"
@@ -36,6 +36,7 @@ using namespace std;
 #include "../plugins/NCHDiffPlots.h"
 
 bool debug=false;
+#include "files_funcs.C"
 #include "fileManager.C"
 #include "NCHCuts.C"
 #include "NCHEvtSel.C"
@@ -63,7 +64,7 @@ TString st(string input , int cut){
 
 
 //_____________________________________________________________________________
-void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max = 1000, bool use_weight = true, bool allEff = false){
+void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max = 1000, bool use_weight = 0, bool allEff = 1){
  
   ////////////////////////////////////////////////
   //SWTICH for most of the intermediate plots:
@@ -83,7 +84,7 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
   if(type == 20) MCtype = "phojet";
   //if(type == 15) MCtype = "z2";
   if(type == 60) MCtype = "pythia8";
-  if(  !(iTracking==1 || iTracking==0))  {
+  if(  !(iTracking==2 ||iTracking==1 || iTracking==0))  {
      cout <<"WRONG TRACKING NUMBER !!!!"<<endl; 
      return;
   } 
@@ -97,7 +98,6 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
   //getting the list of files
   //vector<TString>* vfiles = getListOfFiles(fileManager(0,type,E));
   vector<TString>* vfiles = getListOfFiles("../filelist.txt");
-  if(type==0 && E==7) vfiles = getListOfFiles("list_filesRun132440.txt"); 
   if(type==5) vfiles = getListOfFiles(fileManager(0,type,E));
   
   //Declaration of tree and its branches variables
@@ -234,24 +234,28 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
     tree = (TTree*) file->Get("evt");
 
     //adding branches to the tree ----------------------------------------------------------------------
-    tree->SetBranchAddress("EvtId",&evtId);
+    tree->SetBranchAddress("evtId",&evtId);
     tree->SetBranchAddress("L1Trig",&L1Trig);
     if(! ( type==31 ) ) 
         tree->SetBranchAddress("HLTrig",&HLTrig);
     tree->SetBranchAddress("MITEvtSel",&MITEvtSel);
-    tree->SetBranchAddress("beamSpot",&bs);   
+    tree->SetBranchAddress("offlineBeamSpot",&bs);   
     if(isMC) {
-        tree->SetBranchAddress("GenPart",&genPart);
-        tree->SetBranchAddress("GenKin",&genKin);
-    }  
+        tree->SetBranchAddress("genPart",&genPart);
+        tree->SetBranchAddress("genKin",&genKin);
+    }
     if(iTracking==0){
-        tree->SetBranchAddress("generalTracks",&tracks); 
-        tree->SetBranchAddress("primaryVertex",&vertex);
+      tree->SetBranchAddress("generalTracks",&tracks);
+      tree->SetBranchAddress("offlinePrimaryVertices",&vertex);
     }
     else if(iTracking==1){
-        tree->SetBranchAddress("minbiasTracks",&tracks); 
-        tree->SetBranchAddress("ferencVtxFerTrk",&vertex);
+      tree->SetBranchAddress("allTracks",&tracks);
+      tree->SetBranchAddress("allVertices",&vertex);
     }
+    else if(iTracking==2){
+      tree->SetBranchAddress("generalPlusMinBiasTracks",&tracks);
+      tree->SetBranchAddress("offlinePrimaryVerticesWithMBTracks",&vertex);
+    }  
     //tree->SetBranchAddress("ferencVtxFerTrk",&vertexToCut);
     //tree->SetBranchAddress("pixel3Vertex",&vertexToCut);
 
@@ -275,11 +279,16 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
         tree->GetEntry(i);
         
         //only run on NONE PILE-UP DATA
-        if(!isMC && E==7 && type ==0)
-           if(132440!=(signed)evtId->Run)
-	    continue;
-    
-    
+        //if(!isMC && E==7 && type ==0)
+        //   if(132440!=(signed)evtId->Run)// && 132471!=(signed)evtId->Run)
+	//    continue;
+	
+	if(i==0 && debug){
+	  L1Trig->Print();
+	  HLTrig->Print();
+	}
+	
+	
         //get good Vertex
         bestVertexId = getBestVertex(vertex);
         goodVtx = vertex->end();

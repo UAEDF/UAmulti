@@ -15,7 +15,7 @@
 //#  
 //#  int                      getBestVertex     (vector<MyVertex>* vtxcoll)
 //#  inline int               getVtxposFromId   (const MyTracks& tr, int goodvtxId)
-//#  inline bool              isInAcceptance    (const MyPart& p, double pt, double etaMin, double etaMax, double charge)
+//#  inline bool              isInAcceptance    (const MyPart* p, double pt, double etaMin, double etaMax, double charge)
 //#  bool                     isTrackPrimary    (const MyTracks& tr, int goodvtxId)
 //#  bool                     isTrackPrimary    (const MyTracks& tr, vector<MyVertex>& vtxcoll, int goodvtxId, const MyBeamSpot* bs)  
 //#  vector<MyTracks>         getPrimaryTracks  (vector<MyTracks> v_tr, vector<MyVertex>* vtxcoll, int vtxId, MyBeamSpot* bs, double pt, double etaMin, double etaMax, double charge)
@@ -55,13 +55,13 @@ int getBestVertex(vector<MyVertex>* vtxcoll){
       if(itvtx->ntracks>ntracks){
         goodVtx  =  itvtx;
 	    ntracks  =  itvtx->ntracks;
-	    chi2n    =  itvtx->chi2n;
+	    chi2n    =  itvtx->chi2n();
         }
       else if(itvtx->ntracks==ntracks){
-        if(chi2n>itvtx->chi2n){
+        if(chi2n>itvtx->chi2n()){
 	      goodVtx  =  itvtx;
 	      ntracks  =  itvtx->ntracks;
-	      chi2n    =  itvtx->chi2n;
+	      chi2n    =  itvtx->chi2n();
 	    }
       }
     }
@@ -82,11 +82,11 @@ inline int getVtxposFromId(const MyTracks& tr, int goodvtxId){
 
 
 //--------------------------- Get the Part in the good acceptance -----------------------------
-inline bool isInAcceptance(const MyPart& p , double pt = ptReco_cut, double etaMin = etaRecoMin_cut, double etaMax = etaRecoMax_cut, double charge = charge_cut){
-  if(p.v.Pt()<pt) return false;
-  if( fabs(p.v.Eta())<=etaMin || fabs(p.v.Eta())>etaMax ) return false;
+inline bool isInAcceptance(const MyPart* p , double pt = ptReco_cut, double etaMin = etaRecoMin_cut, double etaMax = etaRecoMax_cut, double charge = charge_cut){
+  if(p->Pt()<pt) return false;
+  if( fabs(p->Eta())<=etaMin || fabs(p->Eta())>etaMax ) return false;
   if(charge!=0)  
-    if(charge!=p.charge)return false; 
+    if(charge!=p->charge)return false; 
   return true;
 }
 
@@ -106,7 +106,7 @@ bool isTrackPrimary(const MyTracks& tr, int goodvtxId){
   //--------- PV track cut from Luca -----------
   if( fabs(tr.vtxdxy.at(vtxnum)) / tr.ed0 > 5 ) return false;
   if( fabs(tr.vtxdz.at(vtxnum)) / tr.edz > 5 ) return false;
-  if( tr.ept / tr.Part.v.Pt() > 0.1 ) return false;
+  if( tr.ept / tr.Pt() > 0.05 ) return false; //0.1
   
   //To use only with generalTracks, otherwise it's filled to 0 by default
   //if( ! tr.quality[2]) return false;
@@ -135,7 +135,7 @@ bool isTrackPrimary(const MyTracks& tr, vector<MyVertex>& vtxcoll, int goodvtxId
   //Make the cuts:
   //if( tr.Part.v.Pt()<ptReco_cut ) return false;
   //if( fabs(tr.Part.v.Eta())>eta_cut) return false;
-  if( tr.ept / tr.Part.v.Pt() > 0.1 ) return false;
+  if( tr.ept / tr.Pt() > 0.05 ) return false;  //0.1
   
   
   //--------- PV track cut from Ferenc -----------
@@ -147,7 +147,7 @@ bool isTrackPrimary(const MyTracks& tr, vector<MyVertex>& vtxcoll, int goodvtxId
   
   // Longitudinal impact parameter (4*sigma)erator!= not defined for vector<MyGenPart,allocator<MyGenPart> >::iterator NCHCuts.C:223
   double sigma_z = sqrt( pow(tr.edz,2) +
-                    pow(cosh(tr.Part.v.Eta()),2) *
+                    pow(cosh(tr.Eta()),2) *
                     bs->BeamWidthX *
                     bs->BeamWidthY);
   //if( fabs(tr.vtxdz.at(vtxnum)) > 4 * sigma_z ) return false; // FIXME
@@ -176,7 +176,7 @@ vector<MyTracks> getPrimaryTracks(vector<MyTracks> v_tr , vector<MyVertex>* vtxc
   
   //going from the back is faster    Watch the iterators !
   for(vector<MyTracks>::iterator it_tr = v_tr.end()-1 ; it_tr != v_tr.begin()-1 ; --it_tr)
-    if( ! isTrackPrimary(*it_tr , *vtxcoll, vtxId, bs ) || !isInAcceptance(it_tr->Part,pt,etaMin,etaMax,charge) )
+    if( ! isTrackPrimary(*it_tr , *vtxcoll, vtxId, bs ) || !isInAcceptance(&*it_tr,pt,etaMin,etaMax,charge) )
        v_tr.erase(it_tr);
    
    /* OLD Structure
@@ -210,7 +210,7 @@ vector<MyTracks> getPrimaryTracks(vector<MyTracks> v_tr, int vtxId, double pt = 
  
   //going from the back is faster    Watch the iterators !   
   for(vector<MyTracks>::iterator it_tr = v_tr.end()-1 ; it_tr != v_tr.begin()-1 ; --it_tr)
-    if( ! isTrackPrimary(*it_tr , vtxId) || !isInAcceptance(it_tr->Part,pt,etaMin,etaMax,charge))
+    if( ! isTrackPrimary(*it_tr , vtxId) || !isInAcceptance(&*it_tr,pt,etaMin,etaMax,charge))
       v_tr.erase(it_tr);
       
   if(debug) cout << " ** " << v_tr.size() << " tracks remaining after primary selection" << endl;
@@ -231,7 +231,7 @@ vector<MyGenPart> getPrimaryGenPart(vector<MyGenPart> v_tr , double pt = ptGen_c
   if(debug) cout <<"  +-+-+ starting getPrimaryGenPart" << endl;
   
  for(vector<MyGenPart>::iterator it_tr = v_tr.end()-1 ; it_tr != v_tr.begin()-1 ; --it_tr) {
-    if( !isInAcceptance(it_tr->Part,pt,etaMin,etaMax,charge) )
+    if( !isInAcceptance(&*it_tr,pt,etaMin,etaMax,charge) )
       v_tr.erase(it_tr);
  }     
  
