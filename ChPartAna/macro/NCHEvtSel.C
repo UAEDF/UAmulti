@@ -67,7 +67,7 @@ bool passCentral(vector<T>& coll, const TString evtsel, const double pt_cut = 0.
   
   int count=0;
   for(typename vector<T>::const_iterator gp = coll.begin() ; gp != coll.end() ; ++gp){
-          if ( fabs(gp->Part.v.Eta()) < eta_cut && gp->Part.v.Pt() > pt_cut ) {
+          if ( fabs(gp->Eta()) < eta_cut && gp->Pt() > pt_cut ) {
               count++; 
               if(count==nch_cut) return true;
           }         
@@ -77,27 +77,27 @@ bool passCentral(vector<T>& coll, const TString evtsel, const double pt_cut = 0.
 
 
 //-------- L1 TRIGGER CUT ------------------------------------------------------
-inline bool passL1(const double Energy, const MyL1Trig& L1Trig, const bool ismc){
+inline bool passL1(const double Energy, MyL1Trig& L1Trig, const bool ismc){
 
   if ( Energy == 0.9 || Energy == 2.36 ) {
-    if(   !L1Trig.TechTrigWord[36]
-       && !L1Trig.TechTrigWord[37]
-       && !L1Trig.TechTrigWord[38]
-       && !L1Trig.TechTrigWord[39]
-       && L1Trig.TechTrigWord[34]
-       && (L1Trig.TechTrigWord[0] || ismc) )
-  //   && L1Trig.TechTrigWord[40])
+    if(   ! L1Trig.GetTechDecisionBefore(36)
+       && ! L1Trig.GetTechDecisionBefore(37)
+       && !L1Trig.GetTechDecisionBefore(38)
+       && !L1Trig.GetTechDecisionBefore(39)
+       && L1Trig.GetTechDecisionBefore(34)
+       && (L1Trig.GetTechDecisionBefore(0) || ismc) )
+  //   && L1Trig.GetTechDecisionBefore(40))
     {
       return true;
     }
   }
   else if ( Energy == 7.0 ) { 
-    if(   !L1Trig.TechTrigWord[36]
-       && !L1Trig.TechTrigWord[37]
-       && !L1Trig.TechTrigWord[38]
-       && !L1Trig.TechTrigWord[39]
-       && ((L1Trig.PhysTrigWord[124] && !ismc) || (L1Trig.TechTrigWord[34] && ismc))
-       && (L1Trig.TechTrigWord[0] || ismc) )
+    if(   !L1Trig.GetTechDecisionBefore(36)
+       && !L1Trig.GetTechDecisionBefore(37)
+       && !L1Trig.GetTechDecisionBefore(38)
+       && !L1Trig.GetTechDecisionBefore(39)
+       && ((L1Trig.GetPhysDecisionBefore(124) && !ismc) || (L1Trig.GetTechDecisionBefore(34) && ismc))
+       && (L1Trig.GetTechDecisionBefore(0) || ismc) )
     {
       return true;
     }
@@ -107,49 +107,56 @@ inline bool passL1(const double Energy, const MyL1Trig& L1Trig, const bool ismc)
 
 
 //-------- L1+HLT TRIGGER CUT ----------------------------------------------------
-bool passL1HLT(double Energy, MyL1Trig& L1Trig, MyHLTrig& HLTrig , int iTrigCond, const bool ismc){
-// iTrigCond = 1   bit[124]  +  HLT
-//           = 2   bit[63]   +  HLT
+bool passL1HLT(double Energy, MyL1Trig& L1Trig, MyHLTrig& HLTrig , int iTrigCond, const bool isMC){
+// iTrigCond = 1   bit[124)  +  HLT
+//           = 2   bit[63)   +  HLT
 //           = 3   OR(1,2)
 
-   if ( Energy == 0.9 || Energy == 2.36 ) {
-     if(   !L1Trig.TechTrigWord[36]
-        && !L1Trig.TechTrigWord[37]
-        && !L1Trig.TechTrigWord[38]
-        && !L1Trig.TechTrigWord[39]
-        && L1Trig.TechTrigWord[34]
-        && (L1Trig.TechTrigWord[0] || ismc) ) 
-     {
-        return true;
-     }
-   }
-   else if ( Energy == 7.0 ) {
-     if(   !L1Trig.TechTrigWord[36]
-        && !L1Trig.TechTrigWord[37]
-        && !L1Trig.TechTrigWord[38]
-        && !L1Trig.TechTrigWord[39]
-        // && ((L1Trig.PhysTrigWord[124] && !isMC) || (L1Trig.TechTrigWord[34] && isMC))
-        && (L1Trig.TechTrigWord[0] || ismc) )
-     {
-        bool L1HLT_BSC = ( ((L1Trig.PhysTrigWord[124] && !ismc) || (L1Trig.TechTrigWord[34] && ismc))
-                           && HLTrig.HLTmap["HLT_L1_BscMinBiasOR_BptxPlusORMinus"] );
-        bool L1HLT_M70 = (    L1Trig.PhysTrigWord[63] && HLTrig.HLTmap["HLT_PixelTracks_Multiplicity70"] ) ;
-        bool L1HLT_M85 = (    L1Trig.PhysTrigWord[63] && HLTrig.HLTmap["HLT_PixelTracks_Multiplicity85"] ) ;
-        bool L1HLT_M40 = (    L1Trig.PhysTrigWord[63] && HLTrig.HLTmap["HLT_PixelTracks_Multiplicity40"] ) ;
-        //bool L1HLT_ST  = (   L1Trig.PhysTrigWord[124] && HLTrig.HLTmap["HLT_MinBiasPixel_SingleTrack"] ) ;
-        if ( iTrigCond == 1 ) return L1HLT_BSC ;
-        if ( iTrigCond == 2 ) return ( L1HLT_M70 || L1HLT_M85 || L1HLT_M40) ;
-        if ( iTrigCond == 3 ) return ( L1HLT_BSC || L1HLT_M70 || L1HLT_M85 || L1HLT_M40) ;
-        
-     }
-   }
-   return false;
+  bool L1_veto = (      !L1Trig.fTechDecisionBefore[36]
+                     && !L1Trig.fTechDecisionBefore[37]
+                     && !L1Trig.fTechDecisionBefore[38]
+                     && !L1Trig.fTechDecisionBefore[39] );
+		     
+  bool L1_coll = (L1Trig.GetTechDecisionBefore(0) || isMC);
+  
+  bool L1_BSC = 0;
+  if(Energy == 0.9 || Energy == 2.36) L1_BSC = ( L1Trig.fTechDecisionBefore[34] ) ;
+  else if(Energy == 2.76) L1_BSC = ( (L1Trig.fPhysDecisionBefore[126] && !isMC) || (L1Trig.fTechDecisionBefore[34] && isMC) ) ;
+  else if(Energy == 7.0)  L1_BSC = ( (L1Trig.fPhysDecisionBefore[124] && !isMC) || (L1Trig.fTechDecisionBefore[34] && isMC) ) ;
+  
+  bool HLT_BSC = 0;
+  if(Energy == 0.9 || Energy == 2.36) HLT_BSC = 1;
+  else if(Energy == 2.76) HLT_BSC = ( (HLTrig.HLTmap["HLT_L1BscMinBiasORBptxPlusANDMinus_v1"] && !isMC) || isMC ) ;
+  else if(Energy == 7.0)  HLT_BSC = ( (HLTrig.HLTmap["HLT_L1_BscMinBiasOR_BptxPlusORMinus"] && !isMC) || isMC ) ;
+  
+  bool HLT_ZeroBias = ( isMC || HLTrig.HLTmap["HLT_ZeroBias_v1"] );
+  
+  bool HLT_NCH40  = ( HLTrig.HLTmap["HLT_PixelTracks_Multiplicity40"]  );
+  bool HLT_NCH70  = ( HLTrig.HLTmap["HLT_PixelTracks_Multiplicity70"]  );
+  bool HLT_NCH85  = ( HLTrig.HLTmap["HLT_PixelTracks_Multiplicity85"]  );
+  bool HLT_NCH100 = ( HLTrig.HLTmap["HLT_PixelTracks_Multiplicity100"] );
+  
+  bool TRG_MinBias =(L1_coll && L1_veto && L1_BSC && HLT_BSC);
+  bool TRG_ZeroBias=(L1_coll && HLT_ZeroBias);
+  
+  if(iTrigCond == 0)        return TRG_ZeroBias;
+  else if(iTrigCond == 1)   return TRG_MinBias;
+  else if(iTrigCond == 40)  return L1_coll && HLT_NCH40;
+  else if(iTrigCond == 70)  return L1_coll && HLT_NCH70;
+  else if(iTrigCond == 85)  return L1_coll && HLT_NCH85;
+  else if(iTrigCond == 100) return L1_coll && HLT_NCH100;
+  else {
+    cout << "[passL1HLT] Error : iTrigCond " << iTrigCond << " not found !" << endl;
+    return false;
+  }
+  
 }
 
 
+
 //-------- Bit40 TRIGGER CUT -------------------------------------------
-inline bool passBit40(const MyL1Trig& L1Trig){
-  return ((L1Trig.TechTrigWord[40])==1 ? true : false);
+inline bool passBit40(MyL1Trig& L1Trig){
+  return ((L1Trig.GetTechDecisionBefore(40))==1 ? true : false);
 }
 
 
@@ -231,7 +238,7 @@ inline bool passVtx(vector<MyVertex>& vtxcoll){
 
 
 //-----------------------------------------------------------------------------
-bool isEvtGood(double Energy , MyL1Trig& L1Trig , MyHLTrig& HLTrig , MyMITEvtSel& MITEvtSel, vector<MyVertex>* vtxcoll){
+bool isEvtGood(double Energy , MyL1Trig& L1Trig , MyHLTrig& HLTrig , MyMITEvtSel& MITEvtSel, vector<MyVertex>* vtxcoll , bool isMC){
   if(  passL1HLT(Energy , L1Trig, HLTrig , 1,isMC )
     && passHF(MITEvtSel , 1)
     && passVtxQual(MITEvtSel , Energy)
