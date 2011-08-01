@@ -87,6 +87,19 @@ TString fileManager ( int     iFileType  = 0
     if(iDataType == 100 ) iDataType = 0 ;
     if(iDataType == 101 ) iDataType = 60;
   }
+
+
+  cout << "[fileManager] WARNING !! Passing to 39X Production !!" << endl;
+  if(Energy==7.0){
+    BaseDirTree = "dcap:///pnfs/iihe/cms/store/user/rougny/data/" ;
+    CMSSW       = "CMSSW_3_9_7";
+  }
+  
+  if(Energy==2.76){
+    BaseDirTree = "dcap:///pnfs/iihe/cms/store/user/rougny/data/" ;
+    CMSSW       = "CMSSW_4_1_2";
+  }
+
   //******END NEW
   
   TString BaseDirPlot = "../plots/";
@@ -204,7 +217,35 @@ TString fileManager ( int     iFileType  = 0
       }
 
     }
+    
+    
+    
+    
+    
+   // --- 2.76 TeV ---
+    else if ( Energy == 2.76 ){
 
+      if ( iDataType == 0 ) {
+        TreeBase = "UABaseTree_412_data_v5";
+        DataSet  = "__AllPhysics2760__Run2011A-PromptReco-v2__RECO";
+      }
+      else if ( iDataType == 15 ) {
+        TreeBase = "UABaseTree_412_mc_v5";
+        DataSet  = "__MinBias_TuneZ2_2760GeV-pythia6__Spring11-START311_V2A-v2__GEN-SIM-RECODEBUG";
+      }
+      else if ( iDataType == 60 ) {
+        TreeBase = "UABaseTree_412_mc_v5";
+        DataSet  = "__MinBias_2760GeV-pythia8__Spring11-START311_V2A-v1__GEN-SIM-RECO";
+      }
+      else {
+        cout << "[fileManager] Unknown DataType: " << iDataType << endl;
+        return "NONE";
+      }
+
+    }
+    
+    
+    
     // --- 7.00 TeV ---
 
     else if ( Energy == 7.00 ){
@@ -213,27 +254,34 @@ TString fileManager ( int     iFileType  = 0
         //TreeBase = "ChPartTree_v005_d7000";
         //DataSet  = "__MinimumBias__Commissioning10-Apr1ReReco-v2__RECO";
         
-	TreeBase = "ChPartTree_36x_d7000v3";
-        DataSet  = "__MinimumBias__Commissioning10-Jun14thReReco_v1__RECO";
+	//TreeBase = "ChPartTree_36x_d7000v3";
+        //DataSet  = "__MinimumBias__Commissioning10-Jun14thReReco_v1__RECO";
+
+
+	TreeBase = "UABaseTree_39x_data_v2";
+        DataSet  = "__MinimumBias__Commissioning10-398patch2-v1__RECO";
       }
       else if ( iDataType == 5  ) {
         //TreeBase = "ChPartTree_v005b_d7000";
         //DataSet  = "__ZeroBias__Commissioning10-Apr1ReReco-v2__RECO";
 	//cout << "[fileManager] WARNING !! Those files are old 356 files ... To use with caution :)" << endl;
 	
-	TreeBase = "ChPartTree_36x_d7000v3";
-        DataSet  = "__ZeroBias__Commissioning10-Jun14thReReco_v1__RECO/HADD";
+	//TreeBase = "ChPartTree_36x_d7000v3";
+        //DataSet  = "__ZeroBias__Commissioning10-Jun14thReReco_v1__RECO/HADD";
       }
       else if ( iDataType == 10 ) {
         //TreeBase = "ChPartTree_v005_mc7000";
         //DataSet  = "__MinBias__Spring10-START3X_V26A_356ReReco-v1__GEN-SIM-RECO";
 	
-        TreeBase = "ChPartTree_36x_mcv2";
-        DataSet  = "__MinBias_TuneD6T_7TeV-pythia6__Summer10-START36_V10_SP10-v1__GEN-SIM-RECODEBUG";
+        //TreeBase = "ChPartTree_36x_mcv2";
+        //DataSet  = "__MinBias_TuneD6T_7TeV-pythia6__Summer10-START36_V10_SP10-v1__GEN-SIM-RECODEBUG";
       }
       else if ( iDataType == 15 ) {
-        TreeBase = "ChPartTree_36x_mc7000";
-        DataSet  = "__MinBias_TuneZ2_7TeV_pythia6__Summer10-START36_V10-v1__GEN-SIM-RECO";
+        //TreeBase = "ChPartTree_36x_mc7000";
+        //DataSet  = "__MinBias_TuneZ2_7TeV_pythia6__Summer10-START36_V10-v1__GEN-SIM-RECO";
+
+        TreeBase = "UABaseTree_39x_mc_v2";
+        DataSet  = "__MinBias_TuneZ2_7TeV-pythia6__Winter10-START39_V8-v1__GEN-SIM-RECODEBUG";
       }
       /*else if ( iDataType == 20 ) {
         TreeBase = "ChPartTree_v005c_mc7000_v25b";
@@ -244,8 +292,8 @@ TString fileManager ( int     iFileType  = 0
         DataSet  = "__MinBiasD6T_SIM_0334__yilmaz-MinBiasD6T_RECO_0334_v1-309b694e9ccf1df48e24b126fab6958b__USER";
       }*/
       else if ( iDataType == 31 ) {
-        TreeBase = "ChPartTree_v005c_mc7000_v25b";
-        DataSet  = "__MinBiasATLAS_SIM_0332__yilmaz-MinBiasATLAS_RECO_0332_v1-a68e153adb2dbe2ae110cdf8cea4b2da__USER";
+        //TreeBase = "ChPartTree_v005c_mc7000_v25b";
+        //DataSet  = "__MinBiasATLAS_SIM_0332__yilmaz-MinBiasATLAS_RECO_0332_v1-a68e153adb2dbe2ae110cdf8cea4b2da__USER";
       }/*
       else if ( iDataType == 51 ) {
         TreeBase = "ChPartTree_v005_mc7000_v26_FS";
@@ -256,16 +304,26 @@ TString fileManager ( int     iFileType  = 0
         DataSet  = "__MinBias_TuneX2_7TeV-pythia6__Spring10-START3X_V26_FastSim-v1__GEN-SIM-DIGI-RECO";
       }*/
       else if ( iDataType == 60 ) {
-        TreeBase = "ChPartTree_36x_mcv4";
-        DataSet  = "__MinBias_7TeV-pythia8__Summer10-START36_V10_SP10-v1__GEN-SIM-RECODEBUG";
+        //TreeBase = "ChPartTree_36x_mcv4";
+        //DataSet  = "__MinBias_7TeV-pythia8__Summer10-START36_V10_SP10-v1__GEN-SIM-RECODEBUG";
+	
+        TreeBase = "UABaseTree_39x_mc_v2";
+        DataSet  = "__MinBias_7TeV-pythia8__Winter10-START39_V8-v1__GEN-SIM-RECO";
       }
       else if ( iDataType == 61 ) {
-        TreeBase = "ChPartTree_311x_mc_genOnly";
-        DataSet  = "__MinBias_Pythia8_Tune2c__lucaroni-MinBias_Pythia8_Tune2c-bf353181d671fe026eb74236c5090cda__USER";
+        //TreeBase = "ChPartTree_311x_mc_genOnly";
+        //DataSet  = "__MinBias_Pythia8_Tune2c__lucaroni-MinBias_Pythia8_Tune2c-bf353181d671fe026eb74236c5090cda__USER";
       }
       else if ( iDataType == 62 ) {
-        TreeBase = "ChPartTree_311x_mc_genOnly";
-        DataSet  = "__MinBias_Pythia8_Tune4c_7TeV__lucaroni-MinBias_Pythia8_Tune4c_7TeV-1900885b4ddb1084e6f514b058c3f4b1__USER";
+        //TreeBase = "ChPartTree_311x_mc_genOnly";
+        //DataSet  = "__MinBias_Pythia8_Tune4c_7TeV__lucaroni-MinBias_Pythia8_Tune4c_7TeV-1900885b4ddb1084e6f514b058c3f4b1__USER";
+
+        TreeBase = "UABaseTree_39x_mc_v2";
+        DataSet  = "__MinBias_7TeV_389p2_START39_V8_pythia8_tune4C_GEN-SIM-RECO__rougny-MinBias_7TeV_389p2_START39_V8_pythia8_tune4C_GEN-SIM-RECO-570c103240b573ca373cd28bf48e0fad__USER";
+      }
+      else if ( iDataType == 63 ) {
+        TreeBase = "UABaseTree_39x_mc_v2";
+        DataSet  = "__MinBias_nchGT80_7TeV_389p2_START39_V8_pythia8_tune4C_GEN-SIM-RECO__rougny-MinBias_nchGT80_7TeV_389p2_START39_V8_pythia8_tune4C_GEN-SIM-RECO-44b13a49f5fba73035d0446a44540f7c__USER";
       }
 
       else {
@@ -292,6 +350,14 @@ TString fileManager ( int     iFileType  = 0
                + TreeBase + "__" + CMSSW + DataSet + "_*.root/evt" ;
     if(DataSet.Contains("HADD"))
       FileName =   BaseDirTree + TreeBase + "/" + DataSet + "/" + "concatenatedfile_*.root/evt";
+    
+    if(TString(TreeBase + "__" + CMSSW + DataSet + "_*.root/evt").Length()>184)
+      FileName =   BaseDirTree + TreeBase + "/" + DataSet + "/"
+               + TreeBase + "__" + CMSSW + "_*.root/evt" ;
+
+    FileName =   BaseDirTree + TreeBase + "/" + DataSet + "/" + "*.root/evt" ; 
+  
+
 
   //---------------------- collectionPlotter Files --------------------------
   } else if ( iFileType == 1 || iFileType == 2 || iFileType == 3 || iFileType == 4 || iFileType == 5) {
@@ -363,7 +429,7 @@ TString fileManager ( int     iFileType  = 0
 
 }
 
-
+/*
 vector<TString>* getListOfFiles(TString strfiles){
 
   vector<TString>* vfiles = new vector<TString>;
@@ -397,4 +463,4 @@ vector<TString>* getListOfFiles(TString strfiles){
   cout << "[getListOfFiles] Will run on " << vfiles->size() << " files" << endl;
   return vfiles;
 }
-
+*/
