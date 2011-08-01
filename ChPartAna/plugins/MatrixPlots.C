@@ -43,21 +43,21 @@ void MatrixPlots::init(){
 
 void MatrixPlots::fillGen(MyPart& gen , bool accept_reco, double weight_gen ){
   if(accept_reco){
-    eta_gen->Fill(gen.v.Eta() , weight_gen);
-    pt_gen->Fill(gen.v.Pt() , weight_gen);
+    eta_gen->Fill(gen.Eta() , weight_gen);
+    pt_gen->Fill(gen.Pt() , weight_gen);
     ++nch_gen_inEvt;
-    mpt_gen_inEvt+=gen.v.Pt();
+    mpt_gen_inEvt+=gen.Pt();
   }
-  //eta_matrix->Fill(gen.v.Eta() , reco.v.Eta() );
-  //pt_matrix->Fill(gen.v.Pt() , reco.v.Pt() );
+  //eta_matrix->Fill(gen.Eta() , reco.Eta() );
+  //pt_matrix->Fill(gen.Pt() , reco.Pt() );
 }
 
 void MatrixPlots::fillReco(MyPart& reco ,bool accept_gen, double weight_reco ){
   if(accept_gen){
-    eta_reco->Fill(reco.v.Eta() , weight_reco);
-    pt_reco->Fill(reco.v.Pt() , weight_reco);
+    eta_reco->Fill(reco.Eta() , weight_reco);
+    pt_reco->Fill(reco.Pt() , weight_reco);
     ++nch_reco_inEvt;
-    mpt_reco_inEvt+=reco.v.Pt();
+    mpt_reco_inEvt+=reco.Pt();
   }
 }
 

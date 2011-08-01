@@ -6,7 +6,7 @@
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TDirectory.h"
-#include "MyPart.h"
+#include "../mydir/MyPart.h"
 #include "BasePlots.h"
 
 class MatrixPlots : public BasePlots {

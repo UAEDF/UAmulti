@@ -65,7 +65,7 @@ void VertexPlots::fill(MyVertex& vtx , double weight){
   ex     ->Fill(vtx.ex, weight);
   ey     ->Fill(vtx.ey, weight);
   ez     ->Fill(vtx.ez, weight);
-  chi2n  ->Fill(vtx.chi2n, weight);
+  chi2n  ->Fill(vtx.chi2n(), weight);
   ntracks->Fill(vtx.ntracks, weight);
   xy     ->Fill(vtx.x,vtx.y, weight);
   xz     ->Fill(vtx.x,vtx.z, weight);

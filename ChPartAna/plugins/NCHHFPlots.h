@@ -5,10 +5,6 @@
 #include <iostream>
 #include "TObject.h"
 #include "TDirectory.h"
-#include "./MyGenPart.h"
-#include "./MyTracks.h"
-#include "./MyVertex.h"
-#include "./MyBeamSpot.h"
 #include "./NCHEvtSelPlots.h"
 
 class NCHHFPlots : public TObject {

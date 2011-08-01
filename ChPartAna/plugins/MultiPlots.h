@@ -11,8 +11,8 @@
 #include "TString.h"
 #include "TDirectory.h"
 
+#include "../mydir/MyPart.h"
 #include "TMean.h"
-#include "MyPart.h"
 #include "BasePlots.h"
 
 using namespace std;

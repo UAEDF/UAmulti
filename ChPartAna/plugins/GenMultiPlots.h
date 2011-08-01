@@ -7,7 +7,7 @@
 #include "TObject.h"
 
 #include "MultiPlots.h"
-#include "MyGenKin.h"
+#include "../mydir/MyGenKin.h"
 
 using namespace std;
 

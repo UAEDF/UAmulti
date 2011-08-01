@@ -112,56 +112,56 @@ void EvtSelPlots::fill(vector<MyTracks>& trcoll, vector<MyVertex>& vtxcoll, MyBe
       goodVtx = it_vtx;
   
   //nch_noSel->Fill(trcoll.size());
-  trp_noSel->fill(trcoll,vtxcoll,vtxId,bs);
+  trp_noSel->fill(trcoll,goodVtx,vtxId,bs);
   if(goodVtx != vtxcoll.end()) vtxp_noSel->fill(*goodVtx);
   vtxqual_noSel->Fill(npixhits,vtxQual);
   
   
   if(passBit40){
     //nch_b40Sel->Fill(trcoll.size());
-    trp_b40Sel->fill(trcoll,vtxcoll,vtxId,bs);
+    trp_b40Sel->fill(trcoll,goodVtx,vtxId,bs);
     if(goodVtx != vtxcoll.end()) vtxp_b40Sel->fill(*goodVtx);
     vtxqual_b40Sel->Fill(npixhits,vtxQual);
   }
   
   if(passL1){
     //nch_L1Sel->Fill(trcoll.size());
-    trp_L1Sel->fill(trcoll,vtxcoll,vtxId,bs);
+    trp_L1Sel->fill(trcoll,goodVtx,vtxId,bs);
     if(goodVtx != vtxcoll.end()) vtxp_L1Sel->fill(*goodVtx);
     vtxqual_L1Sel->Fill(npixhits,vtxQual);
   }
   
   if(passHF){
     //nch_hfSel->Fill(trcoll.size());
-    trp_hfSel->fill(trcoll,vtxcoll,vtxId,bs);
+    trp_hfSel->fill(trcoll,goodVtx,vtxId,bs);
     if(goodVtx != vtxcoll.end()) vtxp_hfSel->fill(*goodVtx);
     vtxqual_hfSel->Fill(npixhits,vtxQual);
   }
   
   if(passVtxQual){
     //nch_vtxSel->Fill(trcoll.size());
-    trp_vtxqualSel->fill(trcoll,vtxcoll,vtxId,bs);
+    trp_vtxqualSel->fill(trcoll,goodVtx,vtxId,bs);
     if(goodVtx != vtxcoll.end()) vtxp_vtxqualSel->fill(*goodVtx);
     vtxqual_vtxqualSel->Fill(npixhits,vtxQual);
   }
   
   if(passVtx){
     //nch_vtxSel->Fill(trcoll.size());
-    trp_vtxSel->fill(trcoll,vtxcoll,vtxId,bs);
+    trp_vtxSel->fill(trcoll,goodVtx,vtxId,bs);
     if(goodVtx != vtxcoll.end()) vtxp_vtxSel->fill(*goodVtx);
     vtxqual_vtxSel->Fill(npixhits,vtxQual);
   }
   
   if(passL1 && passHF){
     //nch_L1_hfSel->Fill(trcoll.size());
-    trp_L1_hfSel->fill(trcoll,vtxcoll,vtxId,bs);
+    trp_L1_hfSel->fill(trcoll,goodVtx,vtxId,bs);
     if(goodVtx != vtxcoll.end()) vtxp_L1_hfSel->fill(*goodVtx);
     vtxqual_L1_hfSel->Fill(npixhits,vtxQual);
   }  
   
   if(passL1 && passHF && passVtxQual){
     //nch_L1_hf_vtxSel->Fill(trcoll.size());
-    trp_L1_hf_vtxqualSel->fill(trcoll,vtxcoll,vtxId,bs);
+    trp_L1_hf_vtxqualSel->fill(trcoll,goodVtx,vtxId,bs);
     if(goodVtx != vtxcoll.end()) vtxp_L1_hf_vtxqualSel->fill(*goodVtx);
     vtxqual_L1_hf_vtxqualSel->Fill(npixhits,vtxQual);
   }
@@ -169,7 +169,7 @@ void EvtSelPlots::fill(vector<MyTracks>& trcoll, vector<MyVertex>& vtxcoll, MyBe
   // Final selection 
   if(passL1 && passHF && passVtxQual && passVtx){
     //nch_L1_hf_vtxSel->Fill(trcoll.size());
-    trp_L1_hf_vtxqual_vtxSel->fill(trcoll,vtxcoll,vtxId,bs);
+    trp_L1_hf_vtxqual_vtxSel->fill(trcoll,goodVtx,vtxId,bs);
     if(goodVtx != vtxcoll.end()) vtxp_L1_hf_vtxqual_vtxSel->fill(*goodVtx);
     vtxqual_L1_hf_vtxqual_vtxSel->Fill(npixhits,vtxQual);
     nvtx_evtSel->Fill(vtxcoll.size());
@@ -181,28 +181,28 @@ void EvtSelPlots::fill(vector<MyTracks>& trcoll, vector<MyVertex>& vtxcoll, MyBe
       if (vtx->ntracks > 0 ) ++nvtx_ntrneq0;   
     }
     nvtx_ntrneq0_evtSel->Fill(nvtx_ntrneq0);
-    if ( nvtx_ntrneq0 == 1 ) trp_nvtxeq1_evtSel->fill(trcoll,vtxcoll,vtxId,bs);
-    if ( nvtx_ntrneq0 >  1 ) trp_nvtxgt1_evtSel->fill(trcoll,vtxcoll,vtxId,bs);
+    if ( nvtx_ntrneq0 == 1 ) trp_nvtxeq1_evtSel->fill(trcoll,goodVtx,vtxId,bs);
+    if ( nvtx_ntrneq0 >  1 ) trp_nvtxgt1_evtSel->fill(trcoll,goodVtx,vtxId,bs);
 
     if(goodVtx != vtxcoll.end()) {
-      if ( fabs(goodVtx->z) < 1 ) trp_smallzvtx_evtSel->fill(trcoll,vtxcoll,vtxId,bs);
+      if ( fabs(goodVtx->z) < 1 ) trp_smallzvtx_evtSel->fill(trcoll,goodVtx,vtxId,bs);
       if ( fabs(goodVtx->z) < 5 && fabs(goodVtx->z) >=1 )
-                                   trp_mediumzvtx_evtSel->fill(trcoll,vtxcoll,vtxId,bs);
-      if ( fabs(goodVtx->z) >= 5 ) trp_largezvtx_evtSel->fill(trcoll,vtxcoll,vtxId,bs);
+                                   trp_mediumzvtx_evtSel->fill(trcoll,goodVtx,vtxId,bs);
+      if ( fabs(goodVtx->z) >= 5 ) trp_largezvtx_evtSel->fill(trcoll,goodVtx,vtxId,bs);
     }
   }
 
   // Final selection but HF 
   if(passL1 && passVtxQual && passVtx ){
     //nch_L1_b40_vtxSel->Fill(trcoll.size());
-    trp_L1_vtxqual_vtxSel->fill(trcoll,vtxcoll,vtxId,bs);
+    trp_L1_vtxqual_vtxSel->fill(trcoll,goodVtx,vtxId,bs);
     if(goodVtx != vtxcoll.end()) vtxp_L1_vtxqual_vtxSel->fill(*goodVtx);
     // vtxqual_L1_b40_vtxqualSel->Fill(npixhits,vtxQual);
   }
  
   if(passL1 && passBit40 && passVtxQual){
     //nch_L1_b40_vtxSel->Fill(trcoll.size());
-    trp_L1_b40_vtxqualSel->fill(trcoll,vtxcoll,vtxId,bs);
+    trp_L1_b40_vtxqualSel->fill(trcoll,goodVtx,vtxId,bs);
     if(goodVtx != vtxcoll.end()) vtxp_L1_b40_vtxqualSel->fill(*goodVtx);
     vtxqual_L1_b40_vtxqualSel->Fill(npixhits,vtxQual);
   }

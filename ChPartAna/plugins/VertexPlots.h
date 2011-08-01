@@ -7,7 +7,7 @@ using namespace std;
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TDirectory.h"
-#include "./MyVertex.h"
+#include "../mydir/MyVertex.h"
 
 class VertexPlots : public TObject {
 

@@ -71,14 +71,14 @@ void MultiPlots::init(){
 
 void MultiPlots::fill(MyPart& p , double weight){
   ++nch_inEvt;
-  rapidity->Fill( p.v.Rapidity() , weight );
-  eta->Fill( p.v.Eta() , weight );
-  pt->Fill( p.v.Pt() , weight );
-  pt2->Fill( pow(p.v.Pt(),2) , weight );
-  mt->Fill( sqrt(pow(p.v.Pt(),2)+pow(0.1396,2))-0.1396 ); 
+  rapidity->Fill( p.Rapidity() , weight );
+  eta->Fill( p.Eta() , weight );
+  pt->Fill( p.Pt() , weight );
+  pt2->Fill( pow(p.Pt(),2) , weight );
+  mt->Fill( sqrt(pow(p.Pt(),2)+pow(0.1396,2))-0.1396 ); 
  
-  ptm_inEvt->Add( p.v.Pt() , weight );
-  vpt_inEvt.push_back( p.v.Pt() * weight );
+  ptm_inEvt->Add( p.Pt() , weight );
+  vpt_inEvt.push_back( p.Pt() * weight );
 }
 
 void MultiPlots::nextEvent(bool laccept , double weight){

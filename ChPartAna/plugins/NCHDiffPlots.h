@@ -6,11 +6,7 @@
 #include "TObject.h"
 #include "TDirectory.h"
 #include "TString.h"
-#include "./MyGenKin.h"
-#include "./MyGenPart.h"
-#include "./MyTracks.h"
-#include "./MyVertex.h"
-#include "./MyBeamSpot.h"
+#include "../mydir/MyGenKin.h"
 #include "./NCHCentralPlots.h"
 #include "./NCHEvtSelPlots.h"
 

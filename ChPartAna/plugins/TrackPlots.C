@@ -114,15 +114,15 @@ void TrackPlots::fill(vector<MyTracks>& trcoll, vector<MyVertex>::iterator& good
   int n = 0;
   for(vector<MyTracks>::iterator tr = trcoll.begin() ; tr != trcoll.end() ; ++tr){
   
-    //if(! (tr->Part.v.Phi()>2 || tr->Part.v.Phi()<1) ) continue;
+    //if(! (tr->Phi()>2 || tr->Phi()<1) ) continue;
     
     int vtxnum = this->getVtxposFromId(*tr,vtxId);
     //if(vtxnum==-1) vtxnum = 0;
     ++n;
-    charge  ->Fill(tr       ->Part.charge,weight);
-    pt      ->Fill(tr       ->Part.v.Pt(),weight);
-    eta     ->Fill(tr       ->Part.v.Eta(),weight);
-    phi     ->Fill(tr       ->Part.v.Phi(),weight);
+    charge  ->Fill(tr       ->charge,weight);
+    pt      ->Fill(tr       ->Pt(),weight);
+    eta     ->Fill(tr       ->Eta(),weight);
+    phi     ->Fill(tr       ->Phi(),weight);
     nhit    ->Fill(tr       ->nhit,weight);
     chi2n   ->Fill(tr       ->chi2n,weight);
     if(vtxnum!=-1)d0        ->Fill(tr->vtxdxy.at(vtxnum),weight);
@@ -135,8 +135,8 @@ void TrackPlots::fill(vector<MyTracks>& trcoll, vector<MyVertex>::iterator& good
     if(vtxnum!=-1)dxyz      ->Fill(sqrt(tr->vtxdz.at(vtxnum)*tr->vtxdz.at(vtxnum)+tr->vtxdxy.at(vtxnum)*tr->vtxdxy.at(vtxnum)),weight);    
     if(vtxnum!=-1)dxyOsxy   ->Fill( fabs(tr->vtxdxy.at(vtxnum)) / sqrt( pow(tr->ed0,2) + bs->BeamWidthX * bs->BeamWidthY ) ,weight);
     dxybsOsxy->Fill( fabs(tr->vtxdxy.at(0)) / sqrt( pow(tr->ed0,2) + bs->BeamWidthX * bs->BeamWidthY ) ,weight);
-    if(vtxnum!=-1)dzOsz_old ->Fill(fabs(tr->vtxdz.at(vtxnum)) / sqrt( pow(tr->edz,2) + pow(cosh(tr->Part.v.Eta()),2) * bs->BeamWidthX * bs->BeamWidthY ) ,weight);
-    if(vtxId!=-1)dzOsz      ->Fill( fabs(tr->vz - goodVtx->z) /sqrt( pow(tr->edz,2) + pow(cosh(tr->Part.v.Eta()),2) * bs->BeamWidthX * bs->BeamWidthY ) ,weight);
+    if(vtxnum!=-1)dzOsz_old ->Fill(fabs(tr->vtxdz.at(vtxnum)) / sqrt( pow(tr->edz,2) + pow(cosh(tr->Eta()),2) * bs->BeamWidthX * bs->BeamWidthY ) ,weight);
+    if(vtxId!=-1)dzOsz      ->Fill( fabs(tr->vz - goodVtx->z) /sqrt( pow(tr->edz,2) + pow(cosh(tr->Eta()),2) * bs->BeamWidthX * bs->BeamWidthY ) ,weight);
   
     int iQual = 3;
     for ( ; iQual != -1 ; --iQual )
@@ -144,16 +144,16 @@ void TrackPlots::fill(vector<MyTracks>& trcoll, vector<MyVertex>::iterator& good
     quality->Fill(iQual,weight);
  
     if(vtxId!=-1)fdz    ->Fill( tr->vz - goodVtx->z ,weight);
-    if(vtxId!=-1)sz     ->Fill( sqrt( pow(tr->edz,2) + pow(cosh(tr->Part.v.Eta()),2) * bs->BeamWidthX * bs->BeamWidthY ) ,weight);
+    if(vtxId!=-1)sz     ->Fill( sqrt( pow(tr->edz,2) + pow(cosh(tr->Eta()),2) * bs->BeamWidthX * bs->BeamWidthY ) ,weight);
     if(vtxId!=-1)sxy    ->Fill(sqrt( pow(tr->ed0,2) + bs->BeamWidthX * bs->BeamWidthY ),weight);
     
-    if(vtxnum!=-1)dxyOsxyVSphi  ->Fill( fabs(tr->vtxdxy.at(vtxnum)) / sqrt( pow(tr->ed0,2) + bs->BeamWidthX * bs->BeamWidthY ), tr->Part.v.Phi(),weight);
-    if(vtxnum!=-1)dzOszVSphi_old->Fill( fabs(tr->vtxdz.at(vtxnum)) / sqrt( pow(tr->edz,2) + pow(cosh(tr->Part.v.Eta()),2) * bs->BeamWidthX * bs->BeamWidthY ), tr->Part.v.Phi(),weight);
-    if(vtxId!=-1)dzOszVSphi     ->Fill( fabs(tr->vz - goodVtx->z) / sqrt( pow(tr->edz,2) + pow(cosh(tr->Part.v.Eta()),2) * bs->BeamWidthX * bs->BeamWidthY ), tr->Part.v.Phi(),weight);
+    if(vtxnum!=-1)dxyOsxyVSphi  ->Fill( fabs(tr->vtxdxy.at(vtxnum)) / sqrt( pow(tr->ed0,2) + bs->BeamWidthX * bs->BeamWidthY ), tr->Phi(),weight);
+    if(vtxnum!=-1)dzOszVSphi_old->Fill( fabs(tr->vtxdz.at(vtxnum)) / sqrt( pow(tr->edz,2) + pow(cosh(tr->Eta()),2) * bs->BeamWidthX * bs->BeamWidthY ), tr->Phi(),weight);
+    if(vtxId!=-1)dzOszVSphi     ->Fill( fabs(tr->vz - goodVtx->z) / sqrt( pow(tr->edz,2) + pow(cosh(tr->Eta()),2) * bs->BeamWidthX * bs->BeamWidthY ), tr->Phi(),weight);
     
-    eptOpt   ->Fill( tr->ept/ tr->Part.v.Pt() ,weight);
+    eptOpt   ->Fill( tr->ept/ tr->Pt() ,weight);
     
-    etaVSnhit->Fill(tr->Part.v.Eta() , tr->nhit , weight);
+    etaVSnhit->Fill(tr->Eta() , tr->nhit , weight);
   }
   nch->Fill(n, weight);
 }

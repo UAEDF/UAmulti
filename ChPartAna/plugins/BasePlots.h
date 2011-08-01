@@ -2,6 +2,7 @@
 #define __BasePlots_H__
 
 #include <vector>
+#include <math.h>
 #include "TObject.h"
 #include "TString.h"
 #include <iostream>

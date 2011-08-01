@@ -8,7 +8,7 @@ using namespace std;
 #include "TH2F.h"
 #include "TMath.h"
 #include "TDirectory.h"
-#include "./MyGenPart.h"
+#include "../mydir/MyGenPart.h"
 #include "BasePlots.h"
 
 

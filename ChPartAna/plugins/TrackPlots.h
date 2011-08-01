@@ -8,9 +8,9 @@ using namespace std;
 #include "TH2F.h"
 #include "TMath.h"
 #include "TDirectory.h"
-#include "./MyTracks.h"
-#include "./MyVertex.h"
-#include "./MyBeamSpot.h"
+#include "../mydir/MyTracks.h"
+#include "../mydir/MyVertex.h"
+#include "../mydir/MyBeamSpot.h"
 #include "BasePlots.h"
 
 class TrackPlots : public BasePlots {

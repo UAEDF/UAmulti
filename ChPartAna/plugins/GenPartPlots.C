@@ -48,10 +48,10 @@ void GenPartPlots::fill(vector<MyGenPart>& gpcoll, double weight){
   int n = 0;
   for(vector<MyGenPart>::const_iterator gp = gpcoll.begin() ; gp != gpcoll.end() ; ++gp){    
       ++n;
-      charge->Fill(gp->Part.charge,weight);
-      pt    ->Fill(gp->Part.v.Pt(),weight);
-      eta   ->Fill(gp->Part.v.Eta(),weight);
-      phi   ->Fill(gp->Part.v.Phi(),weight);
+      charge->Fill(gp->charge,weight);
+      pt    ->Fill(gp->Pt(),weight);
+      eta   ->Fill(gp->Eta(),weight);
+      phi   ->Fill(gp->Phi(),weight);
   }  
   nch->Fill(n,weight);
 }
