@@ -15,31 +15,25 @@ using namespace std;
 //#include "myevent.h"
 //#include "HWWGenPart.h"
 
-#include "../plugins/MyEvtId.h"
-#include "../plugins/MyL1Trig.h"
-#include "../plugins/MyHLTrig.h"
-#include "../plugins/MyGenKin.h"
-#include "../plugins/MyPart.h"
-#include "../plugins/MyGenPart.h"
-#include "../plugins/MyTracks.h"
-#include "../plugins/MyVertex.h"
-#include "../plugins/MyMITEvtSel.h"
-#include "../plugins/MyBeamSpot.h"
-#include "../plugins/TrackPlots.h"
-#include "../plugins/VertexPlots.h"
-#include "../plugins/EvtSelPlots.h"
-#include "../plugins/BasePlots.h"
-#include "../plugins/MultiPlots.h"
-#include "../plugins/GenMultiPlots.h"
-#include "../plugins/MatrixPlots.h"
+#include "../mydir/MyEvtId.h"
+#include "../mydir/MyL1Trig.h"
+#include "../mydir/MyHLTrig.h"
+#include "../mydir/MyGenKin.h"
+#include "../mydir/MyPart.h"
+#include "../mydir/MyGenPart.h"
+#include "../mydir/MyTracks.h"
+#include "../mydir/MyVertex.h"
+#include "../mydir/MyMITEvtSel.h"
+#include "../mydir/MyBeamSpot.h"
 
-#include "../../../UAHiggs/UAHiggsAna/src/MatchTools.C"
+#include "../plugins/EfficiencyPlots.h"
 
 bool isMC = true;
 bool debug = false;
 
 
 #include "fileManager.C"
+#include "files_funcs.C"
 #include "FBacc.C"
 #include "FBcuts.C"
 #include "NCHEvtSel.C"
@@ -53,7 +47,7 @@ TString st(string input , int cut){
 
 //nohup root -b -l BuildLibDico.C+ NCHmc2Deff.C+"(60,7,1,100000000)" -q > log_nchmc2deff_type60_7TeV.txt &
 
-void NCHmc2Deff(int type = 31 , double E = 7. , int iTracking = 1 , int nevt_max = 900000000){
+void NCHmc2Deff(int type = 62 , double E = 7. , int iTracking = 0 , int nevt_max = 2000000000 , int ver = 8){
   
   
   if(type==0) isMC = false;
@@ -66,29 +60,16 @@ void NCHmc2Deff(int type = 31 , double E = 7. , int iTracking = 1 , int nevt_max
 
   vector< vector<double> > binning;
   binning = getBins(2,1,3);//nch,pt,eta
-    
-  TH2F* nTr_ptVSeta_INEL_evtSel_reco  = new TH2F("nTr_ptVSeta_INEL_evtSel_reco" , "nTr_ptVSeta_INEL_evtSel_reco ;#eta;pt" , binning.at(2).size()-1 , &(binning.at(2).at(0)) ,  binning.at(1).size()-1 , &(binning.at(1).at(0)) );   
-  TH2F* nTr_ptVSeta_INEL_evtSel_reco_gt4hit  = new TH2F("nTr_ptVSeta_INEL_evtSel_reco_gt4hit" , "nTr_ptVSeta_INEL_evtSel_reco_gt4hit ;#eta;pt" , binning.at(2).size()-1 , &(binning.at(2).at(0)) ,  binning.at(1).size()-1 , &(binning.at(1).at(0)) );   
-  TH2F* nTr_ptVSeta_INEL_evtSel_gen   = new TH2F("nTr_ptVSeta_INEL_evtSel_gen"  , "nTr_ptVSeta_INEL_evtSel_gen  ;#eta;pt" , binning.at(2).size()-1 , &(binning.at(2).at(0)) ,  binning.at(1).size()-1 , &(binning.at(1).at(0)) );   
-  TH2F* nTr_ptVSeta_INEL_noEvtSel_gen = new TH2F("nTr_ptVSeta_INEL_noEvtSel_gen", "nTr_ptVSeta_INEL_noEvtSel_gen;#eta;pt" , binning.at(2).size()-1 , &(binning.at(2).at(0)) ,  binning.at(1).size()-1 , &(binning.at(1).at(0)) );   
-  nTr_ptVSeta_INEL_evtSel_reco ->Sumw2();
-  nTr_ptVSeta_INEL_evtSel_reco_gt4hit->Sumw2();
-  nTr_ptVSeta_INEL_evtSel_gen  ->Sumw2();
-  nTr_ptVSeta_INEL_noEvtSel_gen->Sumw2();
   
-  TH2F* nTr_ptVSeta_INEL_evtSel_matched_reco  = new TH2F("nTr_ptVSeta_INEL_evtSel_matched_reco" , "nTr_ptVSeta_INEL_evtSel_matched_reco ;#eta;pt" , binning.at(2).size()-1 , &(binning.at(2).at(0)) ,  binning.at(1).size()-1 , &(binning.at(1).at(0)) );   
-  TH2F* nTr_ptVSeta_INEL_evtSel_fakes_reco    = new TH2F("nTr_ptVSeta_INEL_evtSel_fakes_reco"   , "nTr_ptVSeta_INEL_evtSel_fakes_reco   ;#eta;pt" , binning.at(2).size()-1 , &(binning.at(2).at(0)) ,  binning.at(1).size()-1 , &(binning.at(1).at(0)) );   
-  TH2F* nTr_ptVSeta_INEL_evtSel_matched_gen   = new TH2F("nTr_ptVSeta_INEL_evtSel_matched_gen"  , "nTr_ptVSeta_INEL_evtSel_matched_gen  ;#eta;pt" , binning.at(2).size()-1 , &(binning.at(2).at(0)) ,  binning.at(1).size()-1 , &(binning.at(1).at(0)) );   
-  nTr_ptVSeta_INEL_evtSel_matched_reco->Sumw2();
-  nTr_ptVSeta_INEL_evtSel_fakes_reco ->Sumw2();
-  nTr_ptVSeta_INEL_evtSel_matched_gen ->Sumw2();
-   
-  TH2F* nTr_ptVSeta_INEL_evtSel_matched_reco_HP  = new TH2F("nTr_ptVSeta_INEL_evtSel_matched_reco_HP" , "nTr_ptVSeta_INEL_evtSel_matched_reco_HP ;#eta;pt" , binning.at(2).size()-1 , &(binning.at(2).at(0)) ,  binning.at(1).size()-1 , &(binning.at(1).at(0)) );   
-  TH2F* nTr_ptVSeta_INEL_evtSel_fakes_reco_HP    = new TH2F("nTr_ptVSeta_INEL_evtSel_fakes_reco_HP"   , "nTr_ptVSeta_INEL_evtSel_fakes_reco_HP   ;#eta;pt" , binning.at(2).size()-1 , &(binning.at(2).at(0)) ,  binning.at(1).size()-1 , &(binning.at(1).at(0)) );   
-  TH2F* nTr_ptVSeta_INEL_evtSel_matched_gen_HP   = new TH2F("nTr_ptVSeta_INEL_evtSel_matched_gen_HP"  , "nTr_ptVSeta_INEL_evtSel_matched_gen_HP  ;#eta;pt" , binning.at(2).size()-1 , &(binning.at(2).at(0)) ,  binning.at(1).size()-1 , &(binning.at(1).at(0)) );   
-  nTr_ptVSeta_INEL_evtSel_matched_reco_HP->Sumw2();
-  nTr_ptVSeta_INEL_evtSel_fakes_reco_HP ->Sumw2();
-  nTr_ptVSeta_INEL_evtSel_matched_gen_HP ->Sumw2();
+  
+  BasePlots* baseplot = new BasePlots("BasePlots");
+  baseplot->setBinning(binning);
+  
+  
+  EfficiencyPlots effp_noEvtSel("noEvtSel");
+  EfficiencyPlots effp_evtSel("evtSel");
+  EfficiencyPlots effp_evtSel_HP("evtSel_HP");
+  
   
   cout << "Finished initialization of TH2s " << endl;
   
@@ -118,22 +99,25 @@ void NCHmc2Deff(int type = 31 , double E = 7. , int iTracking = 1 , int nevt_max
     tree = (TTree*) file->Get("evt");
 
     //adding branches to the tree ----------------------------------------------------------------------
-    tree->SetBranchAddress("EvtId",&evtId);
-    if(isMC) tree->SetBranchAddress("GenPart",&genPart);
-    if(isMC) tree->SetBranchAddress("GenKin",&genKin);
+    tree->SetBranchAddress("evtId",&evtId);
+    if(isMC) tree->SetBranchAddress("genPart",&genPart);
+    if(isMC) tree->SetBranchAddress("genKin",&genKin);
     if(iTracking==0){
       tree->SetBranchAddress("generalTracks",&tracks);
-      tree->SetBranchAddress("primaryVertex",&vertex);
+      tree->SetBranchAddress("offlinePrimaryVertices",&vertex);
     }
     else if(iTracking==1){
-      tree->SetBranchAddress("minbiasTracks",&tracks);
-      tree->SetBranchAddress("ferencVtxFerTrk",&vertex);
+      tree->SetBranchAddress("allTracks",&tracks);
+      tree->SetBranchAddress("allVertices",&vertex);
     }
-    tree->SetBranchAddress("pixel3Vertex",&vertexToCut);
+    else if(iTracking==2){
+      tree->SetBranchAddress("generalPlusMinBiasTracks",&tracks);
+      tree->SetBranchAddress("offlinePrimaryVerticesWithMBTracks",&vertex);
+    }
     tree->SetBranchAddress("L1Trig",&L1Trig);
     tree->SetBranchAddress("HLTrig",&HLTrig);
     tree->SetBranchAddress("MITEvtSel",&MITEvtSel);
-    tree->SetBranchAddress("beamSpot",&bs);
+    tree->SetBranchAddress("offlineBeamSpot",&bs);
 
     
     //Just to put the good collection of vertex in vertexToCut
@@ -165,15 +149,16 @@ void NCHmc2Deff(int type = 31 , double E = 7. , int iTracking = 1 , int nevt_max
       vector<MyTracks> trcoll = *tracks;
       if(iTracking==0) getPrimaryTracks(trcoll,vertex,pt_cut,eta_cut);
       if(iTracking==1) getPrimaryTracks(trcoll,vertex,bs,pt_cut,eta_cut);
+      if(iTracking==2) getPrimaryTracks(trcoll,vertex,pt_cut,eta_cut);
     
       //If doesn't pass central requirement, skip event
       //if( ! ( passCentral(trcoll,"ATLAS1",0.5) )) continue;
 
-      vector<MyGenPart> gpcoll = *genPart;
+      vector<MyGenPart> gpcoll_largeAcc = *genPart;
       if(isMC){
-        getPrimaryGenPart(gpcoll);
-        for(vector<MyGenPart>::iterator p=gpcoll.begin() ; p!=gpcoll.end() ; p++ )
-	    nTr_ptVSeta_INEL_noEvtSel_gen->Fill(p->Part.v.Eta() , p->Part.v.Pt());
+        getPrimaryGenPart(gpcoll_largeAcc , pt_cut - 0.1 , eta_cut + 0.5);
+	
+	effp_noEvtSel.fill(&gpcoll_largeAcc , &trcoll);
       }
     
     
@@ -185,36 +170,10 @@ void NCHmc2Deff(int type = 31 , double E = 7. , int iTracking = 1 , int nevt_max
          )
          continue;
 
-      if(isMC){
-        for(vector<MyGenPart>::iterator p=gpcoll.begin() ; p!=gpcoll.end() ; p++ )
-	    nTr_ptVSeta_INEL_evtSel_gen->Fill(p->Part.v.Eta() , p->Part.v.Pt()); 
-      }
-    
-      for(vector<MyTracks>::iterator it_tr = trcoll.begin() ; it_tr != trcoll.end() ; ++it_tr){
-        nTr_ptVSeta_INEL_evtSel_reco->Fill(it_tr->Part.v.Eta() , it_tr->Part.v.Pt());
-        if(it_tr->nhit>4)
-          nTr_ptVSeta_INEL_evtSel_reco_gt4hit->Fill(it_tr->Part.v.Eta() , it_tr->Part.v.Pt());
-      }
-    
-      if(isMC){
-	  
-        vector<MyGenPart> gpcoll_largeAcc = *genPart;
-	getPrimaryGenPart(gpcoll_largeAcc , pt_cut - 0.1 , eta_cut + 0.5);
-	//cout << "gp size : " << gpcoll->size() << endl;
-        
-        vector< pair<MyGenPart* , MyTracks*> > match;
-        vector<MyTracks*>                      fakes;
-        vector<MyGenPart*>                     gp_notMatched;
 
-        GetMatch2(&gpcoll_largeAcc , &trcoll , &match , &fakes , &gp_notMatched , 0.04);
-
-        //fill with pt & eta of gen to correct for acceptancy
-        for(vector< pair<MyGenPart* , MyTracks*> >::iterator mpair = match.begin() ; mpair != match.end() ; ++mpair)
-          nTr_ptVSeta_INEL_evtSel_matched_reco->Fill(mpair->first->Part.v.Eta() , mpair->first->Part.v.Pt());
-    
-        for(vector<MyTracks*>::iterator it_fake = fakes.begin() ; it_fake != fakes.end() ; ++it_fake)
-          nTr_ptVSeta_INEL_evtSel_fakes_reco->Fill((*it_fake)->Part.v.Eta() , (*it_fake)->Part.v.Pt());
-	  
+      if(isMC){
+	
+	effp_evtSel.fill( &gpcoll_largeAcc , &trcoll );
 	
 	//matching for High Purity Tracks
 	if(iTracking == 0){
@@ -222,18 +181,8 @@ void NCHmc2Deff(int type = 31 , double E = 7. , int iTracking = 1 , int nevt_max
 	  vector<MyTracks> trcoll_HP = *tracks;
           getPrimaryTracks(trcoll_HP,vertex,pt_cut,eta_cut , 0 , 1);
 	
-          vector< pair<MyGenPart* , MyTracks*> > match_HP;
-          vector<MyTracks*>                      fakes_HP;
-          vector<MyGenPart*>                     gp_notMatched_HP;
-
-          GetMatch2(&gpcoll_largeAcc , &trcoll_HP , &match_HP , &fakes_HP , &gp_notMatched_HP , 0.04);
-
-          //fill with pt & eta of gen to correct for acceptancy
-          for(vector< pair<MyGenPart* , MyTracks*> >::iterator mpair = match_HP.begin() ; mpair != match_HP.end() ; ++mpair)
-            nTr_ptVSeta_INEL_evtSel_matched_reco_HP->Fill(mpair->first->Part.v.Eta() , mpair->first->Part.v.Pt());
-    
-          for(vector<MyTracks*>::iterator it_fake = fakes_HP.begin() ; it_fake != fakes_HP.end() ; ++it_fake)
-            nTr_ptVSeta_INEL_evtSel_fakes_reco_HP->Fill((*it_fake)->Part.v.Eta() , (*it_fake)->Part.v.Pt());
+	
+	  effp_evtSel_HP.fill(&gpcoll_largeAcc , &trcoll_HP);
 	  
 	}  
 	  
@@ -250,53 +199,25 @@ void NCHmc2Deff(int type = 31 , double E = 7. , int iTracking = 1 , int nevt_max
 
   //output file
   ostringstream strout("FBtest");
-  strout<<"NCHtest5_type"<<type<<"_"<<E<<"TeV_";
+  strout<<"NCHtest" << ver << "_type"<<type<<"_"<<E<<"TeV_";
   if(iTracking==0)
     strout<<"gTr";
   if(iTracking==1)
     strout<<"mbTr";
+  if(iTracking==2)
+    strout<<"mbgtTr";
   strout<<".root";
+  cout << "Output file: " << strout.str() << endl;
   TFile* output = new TFile(strout.str().c_str(),"RECREATE");
   output->cd();
-        
-  nTr_ptVSeta_INEL_evtSel_reco ->Write();
-  nTr_ptVSeta_INEL_evtSel_reco_gt4hit->Write();
-  nTr_ptVSeta_INEL_evtSel_gen  ->Write();
-  nTr_ptVSeta_INEL_noEvtSel_gen->Write();
   
-  nTr_ptVSeta_INEL_evtSel_matched_reco->Write();
-  nTr_ptVSeta_INEL_evtSel_fakes_reco->Write();
   
-  TH2F* eff_ptVSeta_INEL_evtSel_matched = (TH2F*) nTr_ptVSeta_INEL_evtSel_matched_reco ->Clone("eff_ptVSeta_INEL_evtSel_matched");
-  TH2F* eff_ptVSeta_INEL_evtSel_fakes   = (TH2F*) nTr_ptVSeta_INEL_evtSel_fakes_reco   ->Clone("eff_ptVSeta_INEL_evtSel_fakes");
-  TH2F* eff_ptVSeta_INEL_evtSel         = (TH2F*) nTr_ptVSeta_INEL_evtSel_reco         ->Clone("eff_ptVSeta_INEL_evtSel");
-  TH2F* eff_ptVSeta_INEL_evtSel_gt4hit  = (TH2F*) nTr_ptVSeta_INEL_evtSel_reco_gt4hit  ->Clone("eff_ptVSeta_INEL_evtSel_gt4hit");
-  
-  eff_ptVSeta_INEL_evtSel_matched->Divide(nTr_ptVSeta_INEL_evtSel_gen);
-  eff_ptVSeta_INEL_evtSel_fakes  ->Divide(nTr_ptVSeta_INEL_evtSel_gen);
-  eff_ptVSeta_INEL_evtSel        ->Divide(nTr_ptVSeta_INEL_evtSel_gen);
-  eff_ptVSeta_INEL_evtSel_gt4hit ->Divide(nTr_ptVSeta_INEL_evtSel_gen);
-
-  eff_ptVSeta_INEL_evtSel_matched->Write();
-  eff_ptVSeta_INEL_evtSel_fakes  ->Write();
-  eff_ptVSeta_INEL_evtSel        ->Write();
-  eff_ptVSeta_INEL_evtSel_gt4hit ->Write();
-  
+  effp_noEvtSel.write();
+  effp_evtSel.write();
   
   if(iTracking==0){
   
-    nTr_ptVSeta_INEL_evtSel_matched_reco_HP->Write();
-    nTr_ptVSeta_INEL_evtSel_fakes_reco_HP->Write();
-  
-    TH2F* eff_ptVSeta_INEL_evtSel_matched_HP = (TH2F*) nTr_ptVSeta_INEL_evtSel_matched_reco_HP ->Clone("eff_ptVSeta_INEL_evtSel_matched_HP");
-    TH2F* eff_ptVSeta_INEL_evtSel_fakes_HP   = (TH2F*) nTr_ptVSeta_INEL_evtSel_fakes_reco_HP   ->Clone("eff_ptVSeta_INEL_evtSel_fakes_HP");
-  
-    eff_ptVSeta_INEL_evtSel_matched_HP->Divide(nTr_ptVSeta_INEL_evtSel_gen);
-    eff_ptVSeta_INEL_evtSel_fakes_HP  ->Divide(nTr_ptVSeta_INEL_evtSel_gen);
-
-    eff_ptVSeta_INEL_evtSel_matched_HP->Write();
-    eff_ptVSeta_INEL_evtSel_fakes_HP  ->Write();
-  
+    effp_evtSel_HP.write();
   
   }
 
