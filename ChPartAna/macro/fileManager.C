@@ -21,7 +21,9 @@
 //#             52 : MC - PYTHIA X2
 //#             60 : MC - PYTHIA 8
 //#             61 : MC - PYTHIA 8 2C  --> GenParts Only
-//#             62 : MC - PYTHIA 8 4C  --> GenParts Only
+//#             62 : MC - PYTHIA 8 4C
+//#             63 : MC - PYTHIA 8 4C nchGT80
+//#             64 : MC - PYTHIA 8 4C nchGT120
 //#
 //#             100 : DATA TEST
 //#             101 : MC   TEST
@@ -90,7 +92,7 @@ TString fileManager ( int     iFileType  = 0
 
 
   cout << "[fileManager] WARNING !! Passing to 39X Production !!" << endl;
-  if(Energy==7.0){
+  if(Energy==7.0 || Energy==0.9){
     BaseDirTree = "dcap:///pnfs/iihe/cms/store/user/rougny/data/" ;
     CMSSW       = "CMSSW_3_9_7";
   }
@@ -122,14 +124,17 @@ TString fileManager ( int     iFileType  = 0
         //TreeBase = "ChPartTree_v005b_d900"; 
         //DataSet  = "__MinimumBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO";
 	
-        TreeBase = "ChPartTree_36x_d900v3"; 
-        DataSet  = "__MinimumBias__Commissioning10-Jun14thReReco_v1__RECO";
+        //TreeBase = "ChPartTree_36x_d900v3"; 
+        //DataSet  = "__MinimumBias__Commissioning10-Jun14thReReco_v1__RECO";
+	
+        TreeBase = "UABaseTree_39x_data_v2"; 
+        DataSet  = "__MinimumBias__Commissioning10-398patch2_900GeV-v1__RECO";
       }
       /*else if ( iDataType == 5  ) {
         TreeBase = "ChPartTree_v005c_d900";
         DataSet  = "__ZeroBias__BeamCommissioning09-Dec19thReReco_336p3_v2__RECO";
       }*/
-      else if ( iDataType == 10 ) {
+      /*else if ( iDataType == 10 ) {
         //TreeBase = "ChPartTree_v005c_mc900";
         //DataSet  = "__MinBias__Summer09-STARTUP3X_V8K_900GeV-v1__GEN-SIM-RECO";
 	
@@ -139,7 +144,7 @@ TString fileManager ( int     iFileType  = 0
       else if ( iDataType == 15 ) {
         TreeBase = "ChPartTree_36x_mc900";
         DataSet  = "__MinBias_TuneZ2_900GeV-pythia6__Summer10-START36_V10A-v1__GEN-SIM-RECO";
-      } 
+      }*/
       /*else if ( iDataType == 11 ) {
         TreeBase = "ChPartTree_v005c_mc900";
         DataSet  = "__MinBias__Summer09-STARTUP3X_V8K_900GeV_DW-v1__GEN-SIM-RECO";
@@ -161,17 +166,17 @@ TString fileManager ( int     iFileType  = 0
         TreeBase = "ChPartTree_v005c_mc900_V8P";
         DataSet  = "__MinBias__Summer09-STARTUP3X_V8P_900GeV-v1__GEN-SIM-RECO";
       }*/
-      else if ( iDataType == 60 ) {
+      /*else if ( iDataType == 60 ) {
         TreeBase = "ChPartTree_36x_mcv2";
         DataSet  = "__MinBias_900GeV-pythia8__Summer10-START36_V10A-v1__GEN-SIM-RECO";
       }
       else if ( iDataType == 61 ) {
         TreeBase = "ChPartTree_311x_mc_genOnly";
         DataSet  = "__MinBias_Pythia8_Tune2c_900GeV__lucaroni-MinBias_Pythia8_Tune2c_900GeV-67756f77883499276cd347c56b952136__USER";
-      }
+      }*/
       else if ( iDataType == 62 ) {
-        TreeBase = "ChPartTree_311x_mc_genOnly";
-        DataSet  = "__MinBias_Pythia8_Tune4c_900GeV__lucaroni-MinBias_Pythia8_Tune4c_900GeV-4c407344ef47bd807bc0c171afd57a01__USER";
+        TreeBase = "UABaseTree_39x_mc_v2";
+        DataSet  = "__MinBias_900GeV_389p2_START39_V8_pythia8_tune4C_GEN-SIM-RECO__rougny-MinBias_900GeV_389p2_START39_V8_pythia8_tune4C_GEN-SIM-RECO-45cc989906487bd250f2e8b42995d60e__USER";
       }
 
 
@@ -236,6 +241,10 @@ TString fileManager ( int     iFileType  = 0
       else if ( iDataType == 60 ) {
         TreeBase = "UABaseTree_412_mc_v5";
         DataSet  = "__MinBias_2760GeV-pythia8__Spring11-START311_V2A-v1__GEN-SIM-RECO";
+      }
+      else if ( iDataType == 62 ) {
+        TreeBase = "UABaseTree_412_mc_v5";
+        DataSet  = "__MinBias_2.76TeV_412p1_START311_V2A_pythia8_tune4C_GEN-SIM-RECO__rougny-MinBias_2.76TeV_412p1_START311_V2A_pythia8_tune4C_GEN-SIM-RECO-3cb01b1c77d7131ba858fa0db36aaa39__USER";
       }
       else {
         cout << "[fileManager] Unknown DataType: " << iDataType << endl;
@@ -324,6 +333,10 @@ TString fileManager ( int     iFileType  = 0
       else if ( iDataType == 63 ) {
         TreeBase = "UABaseTree_39x_mc_v2";
         DataSet  = "__MinBias_nchGT80_7TeV_389p2_START39_V8_pythia8_tune4C_GEN-SIM-RECO__rougny-MinBias_nchGT80_7TeV_389p2_START39_V8_pythia8_tune4C_GEN-SIM-RECO-44b13a49f5fba73035d0446a44540f7c__USER";
+      }
+      else if ( iDataType == 64 ) {
+        TreeBase = "UABaseTree_39x_mc_v2";
+        DataSet  = "__MinBias_nchGT120_7TeV_389p2_START39_V8_pythia8_tune4C_GEN-SIM-RECO__rougny-MinBias_nchGT120_7TeV_389p2_START39_V8_pythia8_tune4C_GEN-SIM-RECO-44b13a49f5fba73035d0446a44540f7c__USER";
       }
 
       else {
