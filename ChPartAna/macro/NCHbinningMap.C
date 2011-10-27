@@ -132,8 +132,57 @@ if(Ebinning==0.9)
   }
 
 }
-  
-   
+
+
+//--------------------------------------------------
+//-------------      2.76  TeV      -----------------
+//--------------------------------------------------  
+if(Ebinning==2.76)
+{
+  if(icut==0){
+    tmp = makeBins(124,-0.5,123.5);
+    addBins(1,2,tmp);
+    addBins(1,2,tmp);
+    addBins(1,3,tmp);
+    addBins(1,5,tmp);
+    addBins(1,8,tmp);
+    addBins(20,8,tmp);
+  }
+  if(icut==1){
+    tmp = makeBins(124,-0.5,123.5);
+    addBins(1,2,tmp);
+    addBins(1,2,tmp);
+    addBins(1,3,tmp);
+    addBins(1,5,tmp);
+    addBins(1,8,tmp);
+    addBins(20,8,tmp);
+  }
+  if(icut==2){
+    tmp = makeBins(75,-0.5,74.5);
+    addBins(1,2,tmp);
+    addBins(1,3,tmp);
+    addBins(1,5,tmp);
+    addBins(43,5,tmp);
+  }
+  if(icut==3){
+    tmp = makeBins(39,-0.5,38.5);
+    addBins(1,2,tmp);
+    addBins(1,3,tmp);
+    addBins(52,5,tmp);
+  }
+  if(icut==4){
+    tmp = makeBins(65,-0.5,64.5);
+    addBins(1,3,tmp);
+    addBins(1,3,tmp);
+    addBins(46,5,tmp);
+  }
+  if(icut==5){
+    tmp = makeBins(65,-0.5,64.5);
+    addBins(1,3,tmp);
+    addBins(1,3,tmp);
+    addBins(46,5,tmp);
+  }
+}   
   
 //--------------------------------------------------
 //-------------      7.0  TeV      -----------------
