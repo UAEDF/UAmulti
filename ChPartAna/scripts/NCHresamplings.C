@@ -3,9 +3,9 @@
 //---------------------------------------------------------------------------------------------
 
 
-TH1F resample(TH2F* matrixhist, TH1F* nch_INC , TH1F* toUnfold , TH1F* nch_unfoldedPtr, TH1F* hyp, int niter = 5,
-              bool doFit = false, TMoments* moment = NULL, TH1F* eff_evtSel = NULL, bool writeAllBins = false , bool printErrors = false){    // , TH1F* nch_mc_SD = NULL
-
+TH1F resample(TH2F* matrixhist, TH1F* nch_INC, TH1F* toUnfold, TH1F* nch_unfoldedPtr, TH1F* hyp, int niter = 5,
+              bool doFit = false, TMoments* moment = NULL, TH1F* eff_beforeUnf = NULL, TH1F* eff_afterUnf = NULL, bool writeAllBins = false, bool printErrors = false, TH1F* nch_mc_SD = NULL, double pt_corr_val =0 ){ 
+//always pass 2 effs. Then have a switch unfolding a b or c, to know which eff has to applied where....
 
   const int nresampling = (niter==0)? 1 : 1000; 
   ///
@@ -36,8 +36,6 @@ TH1F resample(TH2F* matrixhist, TH1F* nch_INC , TH1F* toUnfold , TH1F* nch_unfol
 							       (int) (nch_INC->GetBinContent(k) + sqrt(nch_INC->GetBinContent(k))));
        
 
-      
-
       name_beforeU.str("");
       name_beforeU << "bin_beforeU_" << k;
 
@@ -47,16 +45,14 @@ TH1F resample(TH2F* matrixhist, TH1F* nch_INC , TH1F* toUnfold , TH1F* nch_unfol
         bins_beforeU[k-1] = TH1F(name_beforeU.str().c_str(),name_beforeU.str().c_str(),(int) 2 * sqrt(nch_INC->GetBinContent(k)),
                                                           (int) (nch_INC->GetBinContent(k) - sqrt(nch_INC->GetBinContent(k))),
                                                           (int) (nch_INC->GetBinContent(k) + sqrt(nch_INC->GetBinContent(k))));
-							
-
-
-       
+						 
     }
   }
   
   
   vector<TMean> pull_INC_bU(nch_INC->GetNbinsX(),TMean());
-  //vector<TMean> pull_NSD_bU(nch_INC->GetNbinsX(),TMean());
+  vector<TMean> pull_NSD_bU; // need to construct it before the if statements
+  if( nch_mc_SD!=0 )  pull_NSD_bU.assign(nch_INC->GetNbinsX(),TMean()); 
   vector<TMean> pull_aU(nch_INC->GetNbinsX(),TMean()); 
   vector< vector<TMean> > mtxpull_aU(nch_INC->GetNbinsX(),vector<TMean>(nch_INC->GetNbinsX(),TMean()));
   
@@ -66,7 +62,7 @@ TH1F resample(TH2F* matrixhist, TH1F* nch_INC , TH1F* toUnfold , TH1F* nch_unfol
   nch_resampled_profile->SetErrorOption("s");
   //nch_resampled_profile->Sumw2(); // useless, already automatic
   
-  TF1*Gauss = new TF1("Gauss","gaus");
+  TF1* Gauss = new TF1("Gauss","gaus");
 
   //TCanvas* c_kno = new TCanvas("c_kno2","c_kno2",200,510,500,500);
   //c_kno->cd();
@@ -91,16 +87,23 @@ TH1F resample(TH2F* matrixhist, TH1F* nch_INC , TH1F* toUnfold , TH1F* nch_unfol
     }
 
     //substract SD with factor derived from resampled nch
-  //  nch_temp->Add(nch_mc_SD,-1);//*(double(nch_temp->Integral())/double(nch_INC->GetEntries())));    
+    if( nch_mc_SD!=0 ) {
+        nch_temp->Add(nch_mc_SD,-1);//*(double(nch_temp->Integral())/double(nch_INC->GetEntries())));    
     
-    //for(int n=1;n<=toUnfold->GetNbinsX();++n)
-    //  pull_NSD_bU.at(n-1).Add(nch_temp->GetBinContent(n));
-    
+        for(int n=1;n<=toUnfold->GetNbinsX();++n)
+            pull_NSD_bU.at(n-1).Add(nch_temp->GetBinContent(n));
+    }
     
     //TCanvas* c_kno = new TCanvas("c_kno","c_kno",200,510,500,500);
     //nch_temp->Draw();
 
     if(hyp==0) cout<<"PROBLEM -----> the hypothesis is void !!"<<endl;
+    
+    
+    // correct before Unf efficiency
+    if(eff_beforeUnf != 0)  nch_temp->Divide(nch_temp,eff_beforeUnf,1,1);
+    
+    
     sample[i] = (runalgo(matrixhist,nch_temp,hyp,niter,i+1));
     delete nch_temp;
     //sample[i].SetLineColor(kRed);
@@ -109,8 +112,14 @@ TH1F resample(TH2F* matrixhist, TH1F* nch_INC , TH1F* toUnfold , TH1F* nch_unfol
     else
       sample[i].Draw("same");*/
     
-    sample[i].Divide(&(sample[i]),eff_evtSel,1,1);
-   // if(doptcorr) increaseNTracks(&(sample[i]) , ptcorr_val);
+    sample[i].Divide(&(sample[i]),eff_afterUnf,1,1);
+    if(pt_corr_val) increaseNTracks(&(sample[i]) , +1, pt_corr_val, 1);  //+1 is the sign
+   
+        
+    //if(syst==700)
+    //  ptcorr_val += 1. * syst_sign;
+    
+  
     
     for(int k=1;k<=toUnfold->GetNbinsX();++k){
       if(writeAllBins)
@@ -128,7 +137,7 @@ TH1F resample(TH2F* matrixhist, TH1F* nch_INC , TH1F* toUnfold , TH1F* nch_unfol
      ////
    //cout << "AFTER FOR LOOP 3 line 114" <<endl;     
     //gPad->Update();
-    //gPad->WaitPrimitive();
+    //gPad->WaitPrimitive();nch_corrected , +1, ptcorr_val , 1);
   
     divideByWidth(&(sample[i]));
     //sample[i].Scale(1./sample[i].Integral());
@@ -144,9 +153,9 @@ TH1F resample(TH2F* matrixhist, TH1F* nch_INC , TH1F* toUnfold , TH1F* nch_unfol
   //TCanvas* c_kno = new TCanvas("c_kno","c_kno",200,510,500,500);
   //TH1F* allpull = new TH1F("allpull","allpull",50,-5,5);
   
-  TH2F* hmtxpull_aU = new TH2F("hmtxpull_aU","hmtxpull_aU;n_{i};n_{j};<P_{i}P_{j}>",toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray(),toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray());
-  TH2F* covmtx      = new TH2F("covmtx"     ,"covmtx;n_{i};n_{j};#sigma^{2}"       ,toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray(),toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray());
-  TH2F* cormtx      = new TH2F("cormtx"     ,"cormtx;n_{i};n_{j};#rho"             ,toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray(),toUnfold->GetNbinsX(),toUnfold->GetXaxis()->GetXbins()->GetArray());
+  TH2F* hmtxpull_aU = new TH2F("hmtxpull_aU","hmtxpull_aU;n_{i};n_{j};<P_{i}P_{j}>", toUnfold->GetNbinsX(), toUnfold->GetXaxis()->GetXbins()->GetArray(), toUnfold->GetNbinsX(), toUnfold->GetXaxis()->GetXbins()->GetArray());
+  TH2F* covmtx      = new TH2F("covmtx"     ,"covmtx;n_{i};n_{j};#sigma^{2}"       , toUnfold->GetNbinsX(), toUnfold->GetXaxis()->GetXbins()->GetArray(), toUnfold->GetNbinsX(), toUnfold->GetXaxis()->GetXbins()->GetArray());
+  TH2F* cormtx      = new TH2F("cormtx"     ,"cormtx;n_{i};n_{j};#rho"             , toUnfold->GetNbinsX(), toUnfold->GetXaxis()->GetXbins()->GetArray(), toUnfold->GetNbinsX(), toUnfold->GetXaxis()->GetXbins()->GetArray());
   
   for(int k=1;k<=toUnfold->GetNbinsX();++k){
     
@@ -212,9 +221,7 @@ TH1F resample(TH2F* matrixhist, TH1F* nch_INC , TH1F* toUnfold , TH1F* nch_unfol
       cormtx->SetBinError  (k , l ,  0 );
     
     }
-    
-    
-  
+      
   }
   
   //allpull->Fit("Gauss","Q");
@@ -277,25 +284,28 @@ TH1F resample(TH2F* matrixhist, TH1F* nch_INC , TH1F* toUnfold , TH1F* nch_unfol
     
     if(printErrors){
     
-    cout<<nch_INC->GetBinContent(i)<<" , "<<nch_INC->GetBinError(i)<<"  |  "
-        <<toUnfold->GetBinContent(i)<<" , "<<toUnfold->GetBinError(i)<<"  |  "
-        <<nch_unfoldedPtr->GetBinContent(i)    <<" , "<<nch_unfoldedPtr->GetBinError(i)
-	<<endl;
+        cout<<nch_INC->GetBinContent(i)<<" , "<<nch_INC->GetBinError(i)<<"  |  "
+            <<toUnfold->GetBinContent(i)<<" , "<<toUnfold->GetBinError(i)<<"  |  "
+            <<nch_unfoldedPtr->GetBinContent(i)    <<" , "<<nch_unfoldedPtr->GetBinError(i)
+	    <<endl;
     
-    cout<<pull_INC_bU.at(i-1).GetMean()<<" , "<<pull_INC_bU.at(i-1).GetRMS()<<"  |  "
-   //     <<pull_NSD_bU.at(i-1).GetMean()<<" , "<<pull_NSD_bU.at(i-1).GetRMS()<<"  |  "
-        <<pull_aU.at(i-1).GetMean()    <<" , "<<pull_aU.at(i-1).GetRMS()
-	<<endl;
+        cout<<pull_INC_bU.at(i-1).GetMean()<<" , "<<pull_INC_bU.at(i-1).GetRMS()<<"  |  "
+            <<pull_aU.at(i-1).GetMean()    <<" , "<<pull_aU.at(i-1).GetRMS()
+	    <<endl;
 	
-    cout<<(pull_INC_bU.at(i-1).GetMean() - nch_INC->GetBinContent(i)) / pull_INC_bU.at(i-1).GetMean() <<" , "<<(pull_INC_bU.at(i-1).GetRMS() - nch_INC->GetBinError(i)) / pull_INC_bU.at(i-1).GetRMS()<<"  |  "
-    //    <<(pull_NSD_bU.at(i-1).GetMean() - toUnfold->GetBinContent(i)) / pull_NSD_bU.at(i-1).GetMean() <<" , "<<(pull_NSD_bU.at(i-1).GetRMS() - toUnfold->GetBinError(i)) / pull_NSD_bU.at(i-1).GetRMS()<<"  |  "
-        <<(pull_aU.at(i-1).GetMean() - nch_unfoldedPtr->GetBinContent(i)) / pull_aU.at(i-1).GetMean()  <<" , "<<(pull_aU.at(i-1).GetRMS() - nch_unfoldedPtr->GetBinError(i)) / pull_aU.at(i-1).GetRMS()
-	<<endl;
+        cout<<(pull_INC_bU.at(i-1).GetMean() - nch_INC->GetBinContent(i)) / pull_INC_bU.at(i-1).GetMean() <<" , "<<(pull_INC_bU.at(i-1).GetRMS() - nch_INC->GetBinError(i)) / pull_INC_bU.at(i-1).GetRMS()<<"  |  "
+            <<(pull_aU.at(i-1).GetMean() - nch_unfoldedPtr->GetBinContent(i)) / pull_aU.at(i-1).GetMean()  <<" , "<<(pull_aU.at(i-1).GetRMS() - nch_unfoldedPtr->GetBinError(i)) / pull_aU.at(i-1).GetRMS()
+	    <<endl;
 	
-    cout<<(pull_INC_bU.at(i-1).GetRMS() / pull_INC_bU.at(i-1).GetMean() - nch_INC->GetBinError(i) / nch_INC->GetBinContent(i)) / (pull_INC_bU.at(i-1).GetRMS() / pull_INC_bU.at(i-1).GetMean())<<"  |  "
-   //     <<(pull_NSD_bU.at(i-1).GetRMS() / pull_NSD_bU.at(i-1).GetMean() - toUnfold->GetBinError(i) / toUnfold->GetBinContent(i)) / (pull_NSD_bU.at(i-1).GetRMS() / pull_NSD_bU.at(i-1).GetMean())<<"  |  "
-        <<(pull_aU.at(i-1).GetRMS() / pull_aU.at(i-1).GetMean() - nch_unfoldedPtr->GetBinError(i) / nch_unfoldedPtr->GetBinContent(i)) / (pull_aU.at(i-1).GetRMS() / pull_aU.at(i-1).GetMean())
-	<<endl;
+        cout<<(pull_INC_bU.at(i-1).GetRMS() / pull_INC_bU.at(i-1).GetMean() - nch_INC->GetBinError(i) / nch_INC->GetBinContent(i)) / (pull_INC_bU.at(i-1).GetRMS() / pull_INC_bU.at(i-1).GetMean())<<"  |  "
+            <<(pull_aU.at(i-1).GetRMS() / pull_aU.at(i-1).GetMean() - nch_unfoldedPtr->GetBinError(i) / nch_unfoldedPtr->GetBinContent(i)) / (pull_aU.at(i-1).GetRMS() / pull_aU.at(i-1).GetMean())
+	    <<endl;
+    
+        if( nch_mc_SD!=0 ) {
+            cout << pull_NSD_bU.at(i-1).GetMean() << " , " << pull_NSD_bU.at(i-1).GetRMS() <<  endl;
+            cout << (pull_NSD_bU.at(i-1).GetMean() - toUnfold->GetBinContent(i)) / pull_NSD_bU.at(i-1).GetMean() << " , " << (pull_NSD_bU.at(i-1).GetRMS() - toUnfold->GetBinError(i)) / pull_NSD_bU.at(i-1).GetRMS() << endl;
+            cout << (pull_NSD_bU.at(i-1).GetRMS() / pull_NSD_bU.at(i-1).GetMean() - toUnfold->GetBinError(i) / toUnfold->GetBinContent(i)) / (pull_NSD_bU.at(i-1).GetRMS() / pull_NSD_bU.at(i-1).GetMean()) << endl;
+        }
 	
     }
 	
@@ -349,7 +359,7 @@ TH1F resample(TH2F* matrixhist, TH1F* nch_INC , TH1F* toUnfold , TH1F* nch_unfol
 
 
 TH1F mtxresample(TH2F* matrixhist , TH1F* toUnfold , TH1F* hyp , int niter = 5,
-              TMoments* moment = NULL , TH1F* eff_evtSel = NULL , bool doFit = false,
+              TMoments* moment = NULL , TH1F* eff_afterUnf = NULL , bool doFit = false,
 	      bool writeAllBins = false , bool printErrors = false){
   
   const int nresampling = (niter==0)? 1 : 1000; 
@@ -406,7 +416,7 @@ TH1F mtxresample(TH2F* matrixhist , TH1F* toUnfold , TH1F* hyp , int niter = 5,
     //  sample[i].Draw();
     //else
     //  sample[i].Draw("same");   
-    sample[i].Divide(&(sample[i]),eff_evtSel,1,1);
+    sample[i].Divide(&(sample[i]),eff_afterUnf,1,1);
   //  if(doptcorr) increaseNTracks(&(sample[i]) , ptcorr_val);   
     for(int k=1;k<=toUnfold->GetNbinsX();++k){
       if(writeAllBins)
