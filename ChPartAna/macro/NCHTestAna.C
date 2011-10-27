@@ -12,6 +12,7 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <fstream>
 using namespace std;
 
 #include "../mydir/MyEvtId.h"
@@ -88,8 +89,9 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
      cout <<"WRONG TRACKING NUMBER !!!!"<<endl; 
      return;
   } 
-  TString tracking="";   iTracking ? tracking="_ferncTr" : tracking="_genTr";
-  
+  TString tracking="_genTr";
+  if (iTracking==1) tracking="_ferncTr";
+  if (iTracking==2) tracking="_mixedTr";
   
   // BUILDING CHAIN
   //adding files to the tree chain
@@ -98,7 +100,6 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
   //getting the list of files
   //vector<TString>* vfiles = getListOfFiles(fileManager(0,type,E));
   vector<TString>* vfiles = getListOfFiles("../filelist.txt");
-  if(type==5) vfiles = getListOfFiles(fileManager(0,type,E));
   
   //Declaration of tree and its branches variables
   TTree* tree = new TTree("evt","");
@@ -144,8 +145,8 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
       binning = getBins(acc,E);       
       //BasePlots initialisation needed to get binning_array of MultiPlots right for nch etc
       baseplot->setBinning(binning);      
-      
-      Track_Full_nocut.at(acc)      = new TrackPlots(st("nocut_",acc));
+            
+      Track_Full_nocut.at(acc)      = new TrackPlots(st("nocut_",acc));           
       Track_Full_ALICE.at(acc)      = new TrackPlots(st("ALICE_",acc));
       Track_Full_ATLAS6.at(acc)     = new TrackPlots(st("ATLAS6_",acc));
       nchDiffPlots.at(acc)  = new NCHDiffPlots(st("",acc));
@@ -173,11 +174,10 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
     //weight = eff->GetBinContent(z);    
     cout  << " ---- Doing The Reweighting with the Z vertex ----" << endl;
     TString nevt_oldrun_strData="342220";
-    if (E == 0.9) nevt_oldrun_strData="2250000";
     TString nevt_oldrun_strMC="5000000";
-    //if( type == 31 ) nevt_oldrun_strMC = "1886500";
-    TString oldrundir="dcap:///pnfs/iihe/cms/store/user/sluyckx/v22NoWeight";
-    if( E == 0.9) oldrundir="dcap:///pnfs/iihe/cms/store/user/sluyckx/v22_900NoWeight";
+    TString oldrundir="dcap:///pnfs/iihe/cms/store/user/sluyckx/v40NoWeight";
+    if( E == 0.9) oldrundir="dcap:///pnfs/iihe/cms/store/user/sluyckx/v40_900NoWeight";
+    if( E == 2.76) oldrundir="dcap:///pnfs/iihe/cms/store/user/sluyckx/v40_276NoWeight";
     TFile* older_runnedfileData = NULL;
     TFile* older_runnedfileMC   = NULL;
     TH1F* Weight_Z_Corr = NULL; 
@@ -185,24 +185,24 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
     //only on MC 
     if ( isMC && use_weight==true) {
         if (iTracking == 0) cout << "genTracking will be used" << endl;
-        else cout << "ferencTracking will be used" << endl;
+        else if (iTracking ==1) cout <<"ferencTracking will be used" << endl;
+        else cout << "mixedTracking will be used" << endl;
         older_runnedfileData = TFile::Open(oldrundir+"/output_data"+tracking+energy.str()+"_"+nevt_oldrun_strData+".root","READ");   
-        older_runnedfileMC   = TFile::Open(oldrundir+"/output"+dat+tracking+energy.str()+"_"+nevt_oldrun_strMC  +"_noweight.root","READ"); 
+        older_runnedfileMC   = TFile::Open(oldrundir+"/output"+dat+tracking+energy.str()+"_"+nevt_oldrun_strMC  +"_noweight_allEffs.root","READ"); 
         cout << "Reading the old files from: " <<  oldrundir << endl;
         cout << "Reading the old files: " << oldrundir+"/output_data"+tracking+energy.str()+"_"+nevt_oldrun_strData+".root"            << " ptr: " << older_runnedfileData << endl;
-        cout << "Reading the old files: " << oldrundir+"/output"+dat+tracking+energy.str()+"_"+nevt_oldrun_strMC  +"_noweight.root"    << " ptr: " << older_runnedfileMC   << endl;
+        cout << "Reading the old files: " << oldrundir+"/output"+dat+tracking+energy.str()+"_"+nevt_oldrun_strMC  +"_noweight_allEffs.root"    << " ptr: " << older_runnedfileMC   << endl;
         if (older_runnedfileData == 0 || older_runnedfileMC == 0 ) return; 
-        
         
         const TString histoName="z_vtxp_full_HF0_nocut_RECO_cut0";
         TH1F* CurveZData = NULL; CurveZData = (TH1F*) older_runnedfileData->FindObjectAny(histoName);
         TH1F* CurveZMC   = NULL; CurveZMC   = (TH1F*) older_runnedfileMC  ->FindObjectAny(histoName);
         cout << "CurveZData: " << CurveZData   <<  "  CurveZMC: "  << CurveZMC <<endl;
-        if ( CurveZData == 0 || CurveZMC == 0 ) return;         
+        if ( CurveZData == 0 || CurveZMC == 0 ) return;  
         
         //normalise both
         CurveZData->Scale(1./CurveZData->Integral());    //NEED TO ADJUST with bin !=1
-        CurveZMC  ->Scale(1./CurveZMC  ->Integral());
+        CurveZMC  ->Scale(1./CurveZMC  ->Integral());        
         
         Weight_Z_Corr = (TH1F*) CurveZData->Clone("weight_Z_Corr");
         Weight_Z_Corr->Divide(CurveZData, CurveZMC, 1, 1, "B");
@@ -221,9 +221,6 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
     // REWEIGHTING finished --------------------------------
     
     
-    
-    
-  
    if (nevt_max == -1) nevt_max=100000000;
    int i_tot = 0 , nevt_tot = 0;
    //starting Loop over files, stops at end of list of files or when reached nevt_max
@@ -232,21 +229,20 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
     TFile* file = TFile::Open(*itfiles,"READ");
     //getting the tree form the current file
     tree = (TTree*) file->Get("evt");
-
     //adding branches to the tree ----------------------------------------------------------------------
     tree->SetBranchAddress("evtId",&evtId);
     tree->SetBranchAddress("L1Trig",&L1Trig);
     if(! ( type==31 ) ) 
         tree->SetBranchAddress("HLTrig",&HLTrig);
     tree->SetBranchAddress("MITEvtSel",&MITEvtSel);
-    tree->SetBranchAddress("offlineBeamSpot",&bs);   
+    if(E != 2.76) tree->SetBranchAddress("offlineBeamSpot",&bs);   //2.76TeV has no beamspot yet
     if(isMC) {
         tree->SetBranchAddress("genPart",&genPart);
         tree->SetBranchAddress("genKin",&genKin);
     }
     if(iTracking==0){
       tree->SetBranchAddress("generalTracks",&tracks);
-      tree->SetBranchAddress("offlinePrimaryVertices",&vertex);
+      tree->SetBranchAddress("offlinePrimaryVertices",&vertex);    
     }
     else if(iTracking==1){
       tree->SetBranchAddress("allTracks",&tracks);
@@ -303,18 +299,17 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
             //GET GOOD PARTICLE AND TRACK COLLECTION        
             if(isMC) goodgenpart=getPrimaryGenPart(*genPart,accMap->at(acc).ptGen, accMap->at(acc).etaGenMin, 
                                                             accMap->at(acc).etaGenMax,accMap->at(acc).charge);  
-            if(iTracking==0) goodtracks=getPrimaryTracks(*tracks, vertex, accMap->at(acc).ptReco, accMap->at(acc).etaRecoMin, 
-                                                            accMap->at(acc).etaRecoMax,accMap->at(acc).charge);     //general Tracks
+            if(iTracking==0 || iTracking==2) goodtracks=getPrimaryTracks(*tracks, vertex, accMap->at(acc).ptReco, accMap->at(acc).etaRecoMin, 
+                                                            accMap->at(acc).etaRecoMax,accMap->at(acc).charge);     //general Tracks or mixed Tracks
             if(iTracking==1) goodtracks=getPrimaryTracks(*tracks, vertex, bs, accMap->at(acc).ptReco, accMap->at(acc).etaRecoMin, 
                                                             accMap->at(acc).etaRecoMax,accMap->at(acc).charge); // ferenc Tracks  
-           
+          
             // Z WEIGHTING
             if(use_weight==1 && isMC) {
                 weight = Weight_Z_Corr->GetBinContent( Weight_Z_Corr->GetXaxis()->FindFixBin( goodVtx-> z ) ) ;
                 //cout << "i: " << i << "weight: " << weight << endl;
             }    
-           
-                   
+                              
            //RESETTING EVENT SELECTION  
            NCHDiffPlots::isSD=0;  NCHDiffPlots::isDD=0;          
            NCHCentralPlots::passMBUEWGGen=0;       
@@ -361,7 +356,7 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
           if(passHF(*MITEvtSel,5)) NCHHFPlots::passHF5=1;
           if(passHF(*MITEvtSel,6)) NCHHFPlots::passHF6=1;
      
-          if(type==31 || type==5) { 
+          if(type==31 ) {
             if(passL1(E, *L1Trig, isMC)) NCHEvtSelPlots::passL1=1;
           }        
           else {
@@ -414,7 +409,7 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
     
   }
   delete baseplot;
-  if ( isMC && use_weight == 1 && E==7 ) { 
+  if ( isMC && use_weight == 1 && ( E==7 || E==2.76)  ) { 
     Weight_Z_Corr->Write();
     delete Weight_Z_Corr; 
 
