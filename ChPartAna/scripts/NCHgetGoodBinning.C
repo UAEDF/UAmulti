@@ -38,7 +38,7 @@ void NCHgetGoodBinning(TString filename){
   //Getting the good dir
   for(int acc = 0 ; acc < (signed)accMap.size() ; ++acc){
 
-    TString histname = "nch_full_HF0_nocut_RECO";
+    TString histname = "nch_mpreco_full_HF0_nocut_RECO";
 
     cout<<"  if(icut=="<<acc<<"){"<<endl;
     
