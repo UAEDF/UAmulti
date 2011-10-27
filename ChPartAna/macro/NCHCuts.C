@@ -85,8 +85,10 @@ inline int getVtxposFromId(const MyTracks& tr, int goodvtxId){
 inline bool isInAcceptance(const MyPart* p , double pt = ptReco_cut, double etaMin = etaRecoMin_cut, double etaMax = etaRecoMax_cut, double charge = charge_cut){
   if(p->Pt()<pt) return false;
   if( fabs(p->Eta())<=etaMin || fabs(p->Eta())>etaMax ) return false;
+  if(0==p->charge) return false;
   if(charge!=0)  
-    if(charge!=p->charge)return false; 
+      if(charge!=p->charge) return false; 
+    
   return true;
 }
 
