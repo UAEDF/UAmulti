@@ -24,7 +24,9 @@ VertexPlots::~VertexPlots(){
     delete ex;
     delete ey;
     delete ez;
+    delete ndof;
     delete chi2n;
+    delete chi2;
     delete ntracks;
     delete nvertex;
     delete xy;
@@ -41,6 +43,8 @@ void VertexPlots::init(){
   ex        = new TH1F("ex_"+vertexcoll,"ex_"+vertexcoll+";ex;# events",100,0.,2.);
   ey        = new TH1F("ey_"+vertexcoll,"ey_"+vertexcoll+";ey;# events",100,0.,2.);
   ez        = new TH1F("ez_"+vertexcoll,"ez_"+vertexcoll+";ez;# events",100,0.,10.);
+  ndof      = new TH1F("ndof_"+vertexcoll,"ndof_"+vertexcoll+";ndof;# events",100,0.,200.);
+  chi2      = new TH1F("chi2_"+vertexcoll,"chi2_"+vertexcoll+";#chi^{2};# events",150,0.,150.);
   chi2n     = new TH1F("chi2n_"+vertexcoll,"chi2n_"+vertexcoll+";#chi^{2}/ndof;# events",80,0.,8.);
   ntracks   = new TH1F("ntracks_"+vertexcoll,"ntracks_"+vertexcoll+";ntracks;# events",31,-0.5,30.5);
   nvertex   = new TH1F("nvertex_"+vertexcoll,"nvertex_"+vertexcoll+";nvertex;# events",11,-0.5,10.5);  
@@ -51,13 +55,14 @@ void VertexPlots::init(){
 
 //_____________________________________________________________________________
 void VertexPlots::fill(vector<MyVertex>& vtxcoll , double weight){
-  nvertex->Fill(vtxcoll.size(),weight);
+  nvertex->Fill((float) vtxcoll.size(),weight);
   for(vector<MyVertex>::iterator vtx = vtxcoll.begin() ; vtx != vtxcoll.end() ; ++vtx)
       this->fill(*vtx,weight);
+      
 }
 
 //_____________________________________________________________________________
-void VertexPlots::fill(MyVertex& vtx , double weight){
+void VertexPlots::fill(MyVertex& vtx , double weight, int nvert){
   x      ->Fill(vtx.x, weight);
   y      ->Fill(vtx.y, weight);
   z      ->Fill(vtx.z, weight);
@@ -65,11 +70,14 @@ void VertexPlots::fill(MyVertex& vtx , double weight){
   ex     ->Fill(vtx.ex, weight);
   ey     ->Fill(vtx.ey, weight);
   ez     ->Fill(vtx.ez, weight);
+  ndof   ->Fill(vtx.ndof, weight);
+  chi2   ->Fill(vtx.chi2, weight);
   chi2n  ->Fill(vtx.chi2n(), weight);
   ntracks->Fill(vtx.ntracks, weight);
   xy     ->Fill(vtx.x,vtx.y, weight);
   xz     ->Fill(vtx.x,vtx.z, weight);
   yz     ->Fill(vtx.y,vtx.z, weight);
+  nvertex->Fill(nvert, weight);
 }
 
 //_____________________________________________________________________________
@@ -86,6 +94,8 @@ void VertexPlots::write(){
   ex     ->Write();
   ey     ->Write();
   ez     ->Write();
+  ndof   ->Write();
+  chi2   ->Write();
   chi2n  ->Write();
   ntracks->Write();
   nvertex->Write();

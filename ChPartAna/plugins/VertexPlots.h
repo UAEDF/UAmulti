@@ -27,7 +27,9 @@ class VertexPlots : public TObject {
     TH1F* ex;
     TH1F* ey;
     TH1F* ez;
+    TH1F* ndof;
     TH1F* chi2n;
+    TH1F* chi2;
     TH1F* ntracks;
     TH1F* nvertex;
     
@@ -37,7 +39,7 @@ class VertexPlots : public TObject {
     
     void init();
     void fill(vector<MyVertex>&, double = 1.);
-    void fill(MyVertex&, double = 1.);
+    void fill(MyVertex&, double = 1., int = 1);
     void write();
     
   private:
