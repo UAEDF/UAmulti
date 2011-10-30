@@ -75,13 +75,11 @@ TH1F* getEff(TFile* , TString , TString , TString );
 #include "unfolding.cc"
 #include "getNIter.C"
 
-//#include "NCHresamplings_b.C"  //_b.C"
 
 //TrackSYS:
 #include "NCHincreaseNTracks.C"
 
-#include "NCHresamplings.C"  //_b.C"
-//NiterSYS:NCHresampling_b.C
+#include "NCHresamplings.C" 
 //is included in the code itself #include "syst_niter.C"
 
 #include "fitting_funcs.C"
@@ -92,7 +90,7 @@ TH1F* getEff(TFile* , TString , TString , TString );
 //_____________________________________________________________________________
 void NCHmakeCorrections(int typeMC, const TString mcfile, const TString datafile, const TString outputpart, 
                          TString acc , TString cen , TString hf ,
-                         bool useData, int hyp, int niter, int syst, int syst_sign, int unfVersion, bool zeroBias =1) { //double Emc, double Edata ) {
+                         bool useData, int hyp, int niter, int syst, int syst_sign, int unfVersion, bool zerobias_bool =1) { //double Emc, double Edata ) {
                          //, bool drawcanv, float mu, float sigma ){
 
 //switch to select the good unfolding order
@@ -140,7 +138,7 @@ TString lastpartRECO     =    "_full_" + hf + "_" + cen + "_RECO_" + acc;
   }
   TString zerobias_str=datafile;
   zerobias_str.ReplaceAll("data","zerobias");
-  if(zeroBias) zerobias = getFile (zerobias_str);
+  if(zerobias_bool) zerobias = getFile (zerobias_str);
    
   
   TString lastpartmc=lastpartmc1+lastpartmc2;
@@ -336,7 +334,7 @@ TString lastpartRECO     =    "_full_" + hf + "_" + cen + "_RECO_" + acc;
                              dirmc+"MultiPlots_mpreco_noSel"+lastpartmc2 +"/nch_mpreco_noSel"+lastpartmc2 , 
 			     "eff_nch_trEvtEff"+lastpartmc2) ;
   TH1F* eff_trTrigSel = NULL;
-  if(zerobias) { 
+  if(zerobias && !lastpartmc2.Contains("NSD") ) { 
      eff_trTrigSel = getEff( zerobias , dirmc+"Track_trp_full"+lastpartmc2 +"/nch_trp_full"+lastpartmc2 ,
                              dirmc+"Track_trp_vtxSel"+lastpartmc2 +"/nch_trp_vtxSel"+lastpartmc2 , 
 			     "eff_nch_trTrigEff"+lastpartmc2) ;
@@ -373,7 +371,7 @@ TString lastpartRECO     =    "_full_" + hf + "_" + cen + "_RECO_" + acc;
   eff_trEvtSel->SetName("eff_trEvtSel");
   eff_trTrigSel->SetName("eff_trTrigSel");
   eff_evtSel->SetName("eff_evtSel");
-  eff_vtxSel->SetName("eff_evtSel");
+  eff_vtxSel->SetName("eff_vtxSel");
   eff_centrSel->SetName("eff_centrSel");
 
   //put the eff to 1 after some time
@@ -499,7 +497,7 @@ TString lastpartRECO     =    "_full_" + hf + "_" + cen + "_RECO_" + acc;
   
   int niter_resampling = 50; //50
   if(syst != 0) niter_resampling = 0;
-  if(mcfile.Contains("_genTr")) niter_resampling = 0;
+  //if(mcfile.Contains("_genTr")) niter_resampling = 0;
   //if(mcfile.Contains("_noweight")) niter_resampling = 0;
   
   cout << "WARNING !! The resampling is done with " << niter_resampling << " iterations ..." << endl;
@@ -612,9 +610,9 @@ TString lastpartRECO     =    "_full_" + hf + "_" + cen + "_RECO_" + acc;
   
   for(int nbin = 1 ; nbin<=nch_corrected->GetNbinsX() ; ++nbin){
     nch_corrected->SetBinError(nbin , sqrt(pow(nch_resampledPtr->GetBinError(nbin),2)+pow(nch_mtxresampledPtr->GetBinError(nbin),2)));
-    cout<<nbin<<"  "<<nch_resampledPtr->GetBinError(nbin)<<"  "<<nch_mtxresampledPtr->GetBinError(nbin)<<endl;
-    cout<<"  "<<sqrt(pow(nch_resampledPtr->GetBinError(nbin),2)+pow(nch_mtxresampledPtr->GetBinError(nbin),2))
-        <<"  "<<nch_unfoldedPtr->GetBinError(nbin)<<"  "<<nch_corrected->GetBinError(nbin) << "  "<< nch_corrected->GetBinContent(nbin) <<endl;
+    //cout<<nbin<<"  "<<nch_resampledPtr->GetBinError(nbin)<<"  "<<nch_mtxresampledPtr->GetBinError(nbin)<<endl;
+    //cout<<"  "<<sqrt(pow(nch_resampledPtr->GetBinError(nbin),2)+pow(nch_mtxresampledPtr->GetBinError(nbin),2))
+    //    <<"  "<<nch_unfoldedPtr->GetBinError(nbin)<<"  "<<nch_corrected->GetBinError(nbin) << "  "<< nch_corrected->GetBinContent(nbin) <<endl;
   } 
   nch_corrected->SetDrawOption("e0");
   /*
