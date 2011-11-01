@@ -23,20 +23,19 @@ syst=0
 syst_sign=0
 
 unfVersion=1
-zeroBias=1
 
 Emc=7
 Edata=7
 
-typeMC=60
-tr="ferncTr"
-noweight="_allEffs"
+typeMC=62
+tr="genTr"
+noweight="_allEffs" #"_noweight_allEffs" || "_allEffs"
 usedata="_"
 track_out=""
 
-inputver="v40_ferncTr"
-outputver="v41"
-
+zeroBias=1 # turn to 0 for v40
+inputver="v40_genTr"
+outputver="v41_genTr" #"v40NoWeight"
 
 ###################################################
 #                   File			  #
@@ -49,7 +48,7 @@ dir="../macro/outputs_full/$inputver/"
 mcstr="${typeMC}_${tr}_E_${Emc}_${nrunmc}${noweight}"
 mcfile="${dir}output_MC${mcstr}.root"
 datafile="${dir}output_data_${tr}_E_${Edata}_${nrundata}.root"
-#datafile="${dir}output_MC60_${tr}_E_${Emc}_${nrunmc}${noweight}.root"   ### line for unf of MC with other MC
+# datafile="${dir}output_MC60_${tr}_E_${Emc}_${nrunmc}${noweight}.root"   ### line for unf of MC with other MC
 output="../macro/unfold_outputs/${outputver}/unf_MC${typeMC}${usedata}${noweight}${track_out}"
 
 
@@ -65,9 +64,9 @@ hf_list="`seq 0 1`"
 for acc in $acc_list;do
   for cen in $cen_list;do
     for hf in $hf_list;do
-      echo run_one $acc $cen $hf
+      run_one $acc $cen $hf
     done
   done
 done
 
-run_one 0 nocut 0
+#run_one 0 nocut 0
