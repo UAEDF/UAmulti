@@ -1,5 +1,10 @@
 #!/bin/bash
-
+#
+#            parameters:      MC NoWght ZeroBias Trackign (Wght=0)
+#
+# bash launchNCHmakeCorrections.x 62 0 1 genTr
+#
+# no tracking parameter==mixedTr
 run_one(){
   acc=$1
   cen=$2
@@ -27,15 +32,29 @@ unfVersion=1
 Emc=7
 Edata=7
 
-typeMC=62
-tr="genTr"
+typeMC=$1 # 62
+useNoWeight=$2
+zeroBias=$3 # turn to 0 for v40
+tr=$4 # "genTr"
+
 noweight="_allEffs" #"_noweight_allEffs" || "_allEffs"
 usedata="_"
 track_out=""
 
-zeroBias=1 # turn to 0 for v40
-inputver="v40_genTr"
-outputver="v41_genTr" #"v40NoWeight"
+inputver="v40"
+outputver="v41" #"v40NoWeight"
+if [ $zeroBias -eq 1 ];then outputver="v40" ; fi
+
+if [ "$tr" == "" ];then tr="mixedTr";
+else 
+  inputver=$inputver"_"${tr}
+  outputver=$outputver"_"${tr}
+fi
+if [ $useNoWeight -eq 1 ];then
+  inputver=$inputver"NoWeight"
+  outputver=$outputver"NoWeight"
+  noweight="_noweight_allEffs"
+fi
 
 ###################################################
 #                   File			  #
