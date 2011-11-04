@@ -498,7 +498,7 @@ TString lastpartRECO     =    "_full_" + hf + "_" + cen + "_RECO_" + acc;
   int niter_resampling = 50; //50
   if(syst != 0) niter_resampling = 0;
   //if(mcfile.Contains("_genTr")) niter_resampling = 0;
-  //if(mcfile.Contains("_noweight")) niter_resampling = 0;
+  if(mcfile.Contains("_noweight")) niter_resampling = 0;
   
   cout << "WARNING !! The resampling is done with " << niter_resampling << " iterations ..." << endl;
   
