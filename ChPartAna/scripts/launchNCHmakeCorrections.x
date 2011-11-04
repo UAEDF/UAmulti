@@ -4,7 +4,7 @@
 #
 # bash launchNCHmakeCorrections.x 62 0 1 genTr
 #
-# no tracking parameter==mixedTr
+
 run_one(){
   acc=$1
   cen=$2
@@ -46,7 +46,7 @@ outputver="v40" #"v40NoWeight"
 
 if [ $zeroBias -eq 1 ];then outputver="v41" ; fi
 tr_str=$tr
-if [ "$tr" != "mixedTr" ];then tr_str=""
+if [ "$tr" != "mixedTr" ];then tr_str="" ; fi
 
 if [ "$Edata" == "0.9" ];then 
     inputver=$inputver"_900"${tr_str}
@@ -98,4 +98,4 @@ for acc in $acc_list;do
   done
 done
 
-#run_one 0 nocut 0
+# run_one 0 nocut 0
