@@ -65,7 +65,7 @@ TString st(string input , int cut){
 
 
 //_____________________________________________________________________________
-void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max = 1000, bool use_weight = 0, bool allEff = 1){
+void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max = 1000, bool use_weight = 0, bool allEff = 1, double E_zerobias =7){
  
   ////////////////////////////////////////////////
   //SWTICH for most of the intermediate plots:
@@ -84,7 +84,7 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
   TString MCtype = "pythia";
   if(type == 20) MCtype = "phojet";
   //if(type == 15) MCtype = "z2";
-  if(type == 60) MCtype = "pythia8";
+  if(type == 60 | type == 62) MCtype = "pythia8";
   if(  !(iTracking==2 ||iTracking==1 || iTracking==0))  {
      cout <<"WRONG TRACKING NUMBER !!!!"<<endl; 
      return;
@@ -140,9 +140,10 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
   vector< vector<double> > binning; 
   cout << "Baseplot init done" <<endl;
   for(int acc = 0 ; acc < (int)accMap->size() ; ++acc){          
-       cout << "init acc: " << acc <<endl;
-      //binning = getBins(1,0,0);//nch,pt,eta
-      binning = getBins(acc,E);       
+      cout << "init acc: " << acc <<endl;
+      //for 7TeV zerobias, the binning can be forced to the 900 GeV or 2.76 TeV binning  
+      if (type ==5) binning = getBins(acc,E_zerobias); 
+      else binning = getBins(acc,E);       
       //BasePlots initialisation needed to get binning_array of MultiPlots right for nch etc
       baseplot->setBinning(binning);      
             
@@ -309,7 +310,7 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
                 weight = Weight_Z_Corr->GetBinContent( Weight_Z_Corr->GetXaxis()->FindFixBin( goodVtx-> z ) ) ;
                 //cout << "i: " << i << "weight: " << weight << endl;
             }    
-                              
+                                        
            //RESETTING EVENT SELECTION  
            NCHDiffPlots::isSD=0;  NCHDiffPlots::isDD=0;          
            NCHCentralPlots::passMBUEWGGen=0;       
@@ -356,7 +357,7 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
           if(passHF(*MITEvtSel,5)) NCHHFPlots::passHF5=1;
           if(passHF(*MITEvtSel,6)) NCHHFPlots::passHF6=1;
      
-          if(type==31 ) {
+          if(type==31 || type ==5) {
             if(passL1(E, *L1Trig, isMC)) NCHEvtSelPlots::passL1=1;
           }        
           else {
@@ -392,6 +393,11 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
    TString weight_str = "";
    if (use_weight==false && isMC==true) weight_str = "_noweight";
    if (allEff ==true ) weight_str +="_allEffs";
+   //for zerobias the filename needs to depend on the binning energy
+   if (type ==5) {
+        energy.str("");  //empty the stringstream
+        energy << "_E_" << E_zerobias ;
+   }     
    TString out_str = "output"+dat+tracking+energy.str()+nEvts.str()+weight_str+".root";
    TFile* output = new TFile(out_str,"RECREATE");  
    output->cd();
