@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#            parameters:      MC NoWght ZeroBias Tracking (Wght=0)
+#            parameters:    E MC NoWght ZeroBias Tracking (Wght=0)
 #
 # bash launchNCHmakeCorrections.x 62 0 1 genTr
 #
@@ -45,8 +45,9 @@ inputver="v40"
 outputver="v40" #"v40NoWeight"
 
 if [ $zeroBias -eq 1 ];then outputver="v41" ; fi
+
 tr_str=$tr
-if [ "$tr" != "mixedTr" ];then tr_str="" ; fi
+if [ "$tr" == "mixedTr" ];then tr_str="" ; fi
 
 if [ "$Edata" == "0.9" ];then 
     inputver=$inputver"_900"${tr_str}
@@ -67,6 +68,8 @@ if [ $useNoWeight -eq 1 ];then
   noweight="_noweight_allEffs"
 fi
 
+# outputver="v41_MC62withMC62"
+
 ###################################################
 #                   File			  #
 ###################################################
@@ -78,7 +81,7 @@ dir="../macro/outputs_full/$inputver/"
 mcstr="${typeMC}_${tr}_E_${Emc}_${nrunmc}${noweight}"
 mcfile="${dir}output_MC${mcstr}.root"
 datafile="${dir}output_data_${tr}_E_${Edata}_${nrundata}.root"
-# datafile="${dir}output_MC60_${tr}_E_${Emc}_${nrunmc}${noweight}.root"   ### line for unf of MC with other MC
+# datafile="${dir}output_MC62_${tr}_E_${Emc}_${nrunmc}${noweight}.root"   ### line for unf of MC with other MC
 output="../macro/unfold_outputs/${outputver}/unf_MC${typeMC}${usedata}${noweight}${track_out}"
 
 
