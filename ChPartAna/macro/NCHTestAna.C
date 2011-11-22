@@ -84,7 +84,7 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
   TString MCtype = "pythia";
   if(type == 20) MCtype = "phojet";
   //if(type == 15) MCtype = "z2";
-  if(type == 60 | type == 62) MCtype = "pythia8";
+  if(type == 60 || type == 62) MCtype = "pythia8";
   if(  !(iTracking==2 ||iTracking==1 || iTracking==0))  {
      cout <<"WRONG TRACKING NUMBER !!!!"<<endl; 
      return;
@@ -309,8 +309,8 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
             if(use_weight==1 && isMC) {
                 weight = Weight_Z_Corr->GetBinContent( Weight_Z_Corr->GetXaxis()->FindFixBin( goodVtx-> z ) ) ;
                 //cout << "i: " << i << "weight: " << weight << endl;
-            }    
-                                        
+            }     
+                          
            //RESETTING EVENT SELECTION  
            NCHDiffPlots::isSD=0;  NCHDiffPlots::isDD=0;          
            NCHCentralPlots::passMBUEWGGen=0;       
