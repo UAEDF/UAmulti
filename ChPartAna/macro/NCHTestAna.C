@@ -65,7 +65,7 @@ TString st(string input , int cut){
 
 
 //_____________________________________________________________________________
-void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max = 1000, bool use_weight = 0, bool allEff = 1, double E_zerobias =7){
+void NCHTestAnaRunNb(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max = 1000, bool use_weight = 0, bool allEff = 1, double E_zerobias =7, int runNumber = -1){
  
   ////////////////////////////////////////////////
   //SWTICH for most of the intermediate plots:
@@ -269,7 +269,7 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
     ////////////////////////////
     //starting loop over events, stops when reached end of file or nevt_max
     if (debug) cout << "Starting the loop over the events" <<endl;
-    for(int i = 0; i < nev && i_tot < nevt_max; ++i , ++i_tot){      
+    for(int i = 0; i < nev && i_tot < nevt_max; ++i){      
         if( ((i+1) % 10000) == 0) cout <<int(double(i_tot+1)/1000)<<" k done"<<endl;    
 
         //Filling the variables defined setting branches
@@ -277,14 +277,15 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
         
         //only run on NONE PILE-UP DATA
         //if(!isMC && E==7 && type ==0)
-        //   if(132440!=(signed)evtId->Run)// && 132471!=(signed)evtId->Run)
-	//    continue;
-	
-	if(i==0 && debug){
-	  L1Trig->Print();
-	  HLTrig->Print();
-	}
-	
+        if(runNumber!=-1)
+            if(runNumber!=(signed)evtId->Run)// used for the PU samples. Here only 1 run needs to be done
+	            continue;
+	    i_tot++; //do it after you check the runNumber
+        
+	    if(i==0 && debug){
+	        L1Trig->Print();
+	        HLTrig->Print();
+	    }	
 	
         //get good Vertex
         bestVertexId = getBestVertex(vertex);
