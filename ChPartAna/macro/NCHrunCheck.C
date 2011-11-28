@@ -71,8 +71,7 @@ void NCHrunCheck(int type = 0 , double E = 7 , int iTracking = 1 , int nevt_max 
   TH1F* nEvts_raw              = new TH1F("nEvts_raw","nEvts_raw",100,0.,100.);
   TH1F* nEvts_b34              = new TH1F("nEvts_b34","nEvts_b34",100,0.,100.);
   TH1F* nEvts_b124             = new TH1F("nEvts_b124","nEvts_b124",100,0.,100.);
-  TH1F* nEvts_b34_b124         = new TH1F("nEvts_b34_b124","nEvts_b34_b124",100,0.,100.);
-  TH1F* nEvts_b34_b124_HLT_MB  = new TH1F("nEvts_b34_b124_HLT_MB","nEvts_b34_b124_HLT_MB",100,0.,100.);
+  TH1F* nEvts_b124_HLT_MB  = new TH1F("nEvts_b124_HLT_MB","nEvts_b124_HLT_MB",100,0.,100.);
   TH1F* nEvts_HLT_MB           = new TH1F("nEvts_HLT_MB","nEvts_HLT_MB",100,0.,100.);
   TH1F* nEvts_HLT_ST           = new TH1F("nEvts_HLT_ST","nEvts_HLT_ST",100,0.,100.);
   TH1F* nEvts_HLT_MB_ST        = new TH1F("nEvts_HLT_MB_ST","nEvts_HLT_MB_ST",100,0.,100.);
@@ -84,20 +83,20 @@ void NCHrunCheck(int type = 0 , double E = 7 , int iTracking = 1 , int nevt_max 
   
   
   TH1F* mnch_raw               = new TH1F("mnch_raw","mnch_raw",100,0.,100.);
-  TH1F* mnch_b34_b124_HLT_MB   = new TH1F("mnch_b34_b124_HLT_MB","mnch_b34_b124_HLT_MB",100,0.,100.);
+  TH1F* mnch_b124_HLT_MB   = new TH1F("mnch_b124_HLT_MB","mnch_b124_HLT_MB",100,0.,100.);
   TH1F* mnch_nEvts_b63_HLT_M40 = new TH1F("mnch_nEvts_b63_HLT_M40","mnch_nEvts_b63_HLT_M40",100,0.,100.);
   TH1F* mnch_nEvts_b63_HLT_M70 = new TH1F("mnch_nEvts_b63_HLT_M70","mnch_nEvts_b63_HLT_M70",100,0.,100.);
   TH1F* mnch_nEvts_b63_HLT_M85 = new TH1F("mnch_nEvts_b63_HLT_M85","mnch_nEvts_b63_HLT_M85",100,0.,100.);
   
   TH1F* mnch_raw_PV               = new TH1F("mnch_raw_PV","mnch_raw_PV",100,0.,100.);
-  TH1F* mnch_b34_b124_HLT_MB_PV   = new TH1F("mnch_b34_b124_HLT_MB_PV","mnch_b34_b124_HLT_MB_PV",100,0.,100.);
+  TH1F* mnch_b124_HLT_MB_PV   = new TH1F("mnch_b124_HLT_MB_PV","mnch_b124_HLT_MB_PV",100,0.,100.);
   TH1F* mnch_nEvts_b63_HLT_M40_PV = new TH1F("mnch_nEvts_b63_HLT_M40_PV","mnch_nEvts_b63_HLT_M40_PV",100,0.,100.);
   TH1F* mnch_nEvts_b63_HLT_M70_PV = new TH1F("mnch_nEvts_b63_HLT_M70_PV","mnch_nEvts_b63_HLT_M70_PV",100,0.,100.);
   TH1F* mnch_nEvts_b63_HLT_M85_PV = new TH1F("mnch_nEvts_b63_HLT_M85_PV","mnch_nEvts_b63_HLT_M85_PV",100,0.,100.);
   
   
   TH1F* mnvtx_raw               = new TH1F("mnvtx_raw","mnvtx_raw",100,0.,100.);
-  TH1F* mnvtx_b34_b124_HLT_MB   = new TH1F("mnvtx_b34_b124_HLT_MB","mnvtx_b34_b124_HLT_MB",100,0.,100.);
+  TH1F* mnvtx_b124_HLT_MB   = new TH1F("mnvtx_b124_HLT_MB","mnvtx_b124_HLT_MB",100,0.,100.);
   TH1F* mnvtx_nEvts_b63_HLT_M40 = new TH1F("mnvtx_nEvts_b63_HLT_M40","mnvtx_nEvts_b63_HLT_M40",100,0.,100.);
   TH1F* mnvtx_nEvts_b63_HLT_M70 = new TH1F("mnvtx_nEvts_b63_HLT_M70","mnvtx_nEvts_b63_HLT_M70",100,0.,100.);
   TH1F* mnvtx_nEvts_b63_HLT_M85 = new TH1F("mnvtx_nEvts_b63_HLT_M85","mnvtx_nEvts_b63_HLT_M85",100,0.,100.);
@@ -111,9 +110,10 @@ void NCHrunCheck(int type = 0 , double E = 7 , int iTracking = 1 , int nevt_max 
   
    cout << "FILE: " << fileManager(0,type,E) << endl;
   //getting the list of files
-  vector<TString>* vfiles = getListOfFiles(fileManager(0,type,E));
+  //vector<TString>* vfiles = getListOfFiles(fileManager(0,type,E));
   //vector<TString>* vfiles = getListOfFiles("list_test.txt");
-
+  vector<TString>* vfiles = getListOfFiles("filelist_PU.txt");
+  
   //Declaration of tree and its branches variables
   TTree* tree = new TChain("evt","");
   MyEvtId*           evtId        = NULL ;
@@ -224,14 +224,11 @@ void NCHrunCheck(int type = 0 , double E = 7 , int iTracking = 1 , int nevt_max 
       if(L1Trig->GetPhysDecisionAfter(124))
         nEvts_b124->Fill(runnumber.str().c_str(),1);
       
-      if(L1Trig->GetTechDecisionAfter(34) && L1Trig->GetPhysDecisionAfter(124))
-        nEvts_b34_b124->Fill(runnumber.str().c_str(),1);
-  
-      if(L1Trig->GetTechDecisionAfter(34) && L1Trig->GetPhysDecisionAfter(124) && HLTrig->HLTmap["HLT_L1_BscMinBiasOR_BptxPlusORMinus"]){
-        nEvts_b34_b124_HLT_MB->Fill(runnumber.str().c_str(),1);
-	mnch_b34_b124_HLT_MB->Fill(runnumber.str().c_str(),tracks->size());
-	mnch_b34_b124_HLT_MB_PV->Fill(runnumber.str().c_str(),trcoll.size());
-	mnvtx_b34_b124_HLT_MB->Fill(runnumber.str().c_str(),vertex->size());
+      if(L1Trig->GetPhysDecisionAfter(124) && HLTrig->HLTmap["HLT_L1_BscMinBiasOR_BptxPlusORMinus"]){
+        nEvts_b124_HLT_MB->Fill(runnumber.str().c_str(),1);
+	    mnch_b124_HLT_MB->Fill(runnumber.str().c_str(),tracks->size());
+	    mnch_b124_HLT_MB_PV->Fill(runnumber.str().c_str(),trcoll.size());
+	    mnvtx_b124_HLT_MB->Fill(runnumber.str().c_str(),vertex->size());
       }
             
       if(HLTrig->HLTmap["HLT_L1_BscMinBiasOR_BptxPlusORMinus"])
@@ -280,9 +277,8 @@ void NCHrunCheck(int type = 0 , double E = 7 , int iTracking = 1 , int nevt_max 
   
     nEvts_raw->Fill(it->first.c_str(),0);                         
     nEvts_b34->Fill(it->first.c_str(),0);                         
-    nEvts_b124->Fill(it->first.c_str(),0);                        
-    nEvts_b34_b124->Fill(it->first.c_str(),0);                
-    nEvts_b34_b124_HLT_MB->Fill(it->first.c_str(),0); 
+    nEvts_b124->Fill(it->first.c_str(),0);               
+    nEvts_b124_HLT_MB->Fill(it->first.c_str(),0); 
     nEvts_HLT_MB->Fill(it->first.c_str(),0);                    
     nEvts_HLT_ST->Fill(it->first.c_str(),0);                    
     nEvts_HLT_MB_ST->Fill(it->first.c_str(),0);            
@@ -294,20 +290,20 @@ void NCHrunCheck(int type = 0 , double E = 7 , int iTracking = 1 , int nevt_max 
     
     
     mnch_raw->Fill(it->first.c_str(),0);                            
-    mnch_b34_b124_HLT_MB->Fill(it->first.c_str(),0);    
+    mnch_b124_HLT_MB->Fill(it->first.c_str(),0);    
     mnch_nEvts_b63_HLT_M40->Fill(it->first.c_str(),0);
     mnch_nEvts_b63_HLT_M70->Fill(it->first.c_str(),0);
     mnch_nEvts_b63_HLT_M85->Fill(it->first.c_str(),0);
     
     mnch_raw_PV->Fill(it->first.c_str(),0);                             
-    mnch_b34_b124_HLT_MB_PV->Fill(it->first.c_str(),0);     
+    mnch_b124_HLT_MB_PV->Fill(it->first.c_str(),0);     
     mnch_nEvts_b63_HLT_M40_PV->Fill(it->first.c_str(),0); 
     mnch_nEvts_b63_HLT_M70_PV->Fill(it->first.c_str(),0); 
     mnch_nEvts_b63_HLT_M85_PV->Fill(it->first.c_str(),0); 
     
     
     mnvtx_raw->Fill(it->first.c_str(),0);                             
-    mnvtx_b34_b124_HLT_MB->Fill(it->first.c_str(),0);     
+    mnvtx_b124_HLT_MB->Fill(it->first.c_str(),0);     
     mnvtx_nEvts_b63_HLT_M40->Fill(it->first.c_str(),0); 
     mnvtx_nEvts_b63_HLT_M70->Fill(it->first.c_str(),0); 
     mnvtx_nEvts_b63_HLT_M85->Fill(it->first.c_str(),0); 
@@ -320,8 +316,8 @@ void NCHrunCheck(int type = 0 , double E = 7 , int iTracking = 1 , int nevt_max 
   nEvts_raw->LabelsDeflate("X");             
   nEvts_b34->LabelsDeflate("X");             
   nEvts_b124->LabelsDeflate("X");            
-  nEvts_b34_b124->LabelsDeflate("X");        
-  nEvts_b34_b124_HLT_MB->LabelsDeflate("X"); 
+  nEvts_b124->LabelsDeflate("X");        
+  nEvts_b124_HLT_MB->LabelsDeflate("X"); 
   nEvts_HLT_MB->LabelsDeflate("X");          
   nEvts_HLT_ST->LabelsDeflate("X");          
   nEvts_HLT_MB_ST->LabelsDeflate("X");      
@@ -333,20 +329,20 @@ void NCHrunCheck(int type = 0 , double E = 7 , int iTracking = 1 , int nevt_max 
   
   
   mnch_raw->LabelsDeflate("X");              
-  mnch_b34_b124_HLT_MB->LabelsDeflate("X");  
+  mnch_b124_HLT_MB->LabelsDeflate("X");  
   mnch_nEvts_b63_HLT_M40->LabelsDeflate("X");
   mnch_nEvts_b63_HLT_M70->LabelsDeflate("X");
   mnch_nEvts_b63_HLT_M85->LabelsDeflate("X");
   
   mnch_raw_PV->LabelsDeflate("X");               
-  mnch_b34_b124_HLT_MB_PV->LabelsDeflate("X");   
+  mnch_b124_HLT_MB_PV->LabelsDeflate("X");   
   mnch_nEvts_b63_HLT_M40_PV->LabelsDeflate("X"); 
   mnch_nEvts_b63_HLT_M70_PV->LabelsDeflate("X"); 
   mnch_nEvts_b63_HLT_M85_PV->LabelsDeflate("X"); 
   
   
   mnvtx_raw->LabelsDeflate("X");               
-  mnvtx_b34_b124_HLT_MB->LabelsDeflate("X");   
+  mnvtx_b124_HLT_MB->LabelsDeflate("X");   
   mnvtx_nEvts_b63_HLT_M40->LabelsDeflate("X"); 
   mnvtx_nEvts_b63_HLT_M70->LabelsDeflate("X"); 
   mnvtx_nEvts_b63_HLT_M85->LabelsDeflate("X"); 
@@ -355,9 +351,8 @@ void NCHrunCheck(int type = 0 , double E = 7 , int iTracking = 1 , int nevt_max 
   
   /*nEvts_raw->LabelsOption("<","X");             
   nEvts_b34->LabelsOption("<","X");             
-  nEvts_b124->LabelsOption("<","X");            
-  nEvts_b34_b124->LabelsOption("<","X");        
-  nEvts_b34_b124_HLT_MB->LabelsOption("<","X"); 
+  nEvts_b124->LabelsOption("<","X");        
+  nEvts_b124_HLT_MB->LabelsOption("<","X"); 
   nEvts_HLT_MB->LabelsOption("<","X");          
   nEvts_HLT_ST->LabelsOption("<","X");          
   nEvts_HLT_MB_ST->LabelsOption("<","X");      
@@ -369,20 +364,20 @@ void NCHrunCheck(int type = 0 , double E = 7 , int iTracking = 1 , int nevt_max 
   
   
   mnch_raw->LabelsOption("<","X");              
-  mnch_b34_b124_HLT_MB->LabelsOption("<","X");  
+  mnch_b124_HLT_MB->LabelsOption("<","X");  
   mnch_nEvts_b63_HLT_M40->LabelsOption("<","X");
   mnch_nEvts_b63_HLT_M70->LabelsOption("<","X");
   mnch_nEvts_b63_HLT_M85->LabelsOption("<","X");
   
   mnch_raw_PV->LabelsOption("<","X");               
-  mnch_b34_b124_HLT_MB_PV->LabelsOption("<","X");   
+  mnch_b124_HLT_MB_PV->LabelsOption("<","X");   
   mnch_nEvts_b63_HLT_M40_PV->LabelsOption("<","X"); 
   mnch_nEvts_b63_HLT_M70_PV->LabelsOption("<","X"); 
   mnch_nEvts_b63_HLT_M85_PV->LabelsOption("<","X"); 
   
   
   mnvtx_raw->LabelsOption("<","X");               
-  mnvtx_b34_b124_HLT_MB->LabelsOption("<","X");   
+  mnvtx_b124_HLT_MB->LabelsOption("<","X");   
   mnvtx_nEvts_b63_HLT_M40->LabelsOption("<","X"); 
   mnvtx_nEvts_b63_HLT_M70->LabelsOption("<","X"); 
   mnvtx_nEvts_b63_HLT_M85->LabelsOption("<","X"); */
@@ -404,28 +399,27 @@ void NCHrunCheck(int type = 0 , double E = 7 , int iTracking = 1 , int nevt_max 
 
 
   mnch_raw->Divide(nEvts_raw);              
-  mnch_b34_b124_HLT_MB->Divide(nEvts_b34_b124_HLT_MB);  
+  mnch_b124_HLT_MB->Divide(nEvts_b124_HLT_MB);  
   mnch_nEvts_b63_HLT_M40->Divide(nEvts_b63_HLT_M40);
   mnch_nEvts_b63_HLT_M70->Divide(nEvts_b63_HLT_M70);
   mnch_nEvts_b63_HLT_M85->Divide(nEvts_b63_HLT_M85);
   
   mnch_raw_PV->Divide(nEvts_raw);              
-  mnch_b34_b124_HLT_MB_PV->Divide(nEvts_b34_b124_HLT_MB);  
+  mnch_b124_HLT_MB_PV->Divide(nEvts_b124_HLT_MB);  
   mnch_nEvts_b63_HLT_M40_PV->Divide(nEvts_b63_HLT_M40);
   mnch_nEvts_b63_HLT_M70_PV->Divide(nEvts_b63_HLT_M70);
   mnch_nEvts_b63_HLT_M85_PV->Divide(nEvts_b63_HLT_M85);
   
   mnvtx_raw->Divide(nEvts_raw);              
-  mnvtx_b34_b124_HLT_MB->Divide(nEvts_b34_b124_HLT_MB);  
+  mnvtx_b124_HLT_MB->Divide(nEvts_b124_HLT_MB);  
   mnvtx_nEvts_b63_HLT_M40->Divide(nEvts_b63_HLT_M40);
   mnvtx_nEvts_b63_HLT_M70->Divide(nEvts_b63_HLT_M70);
   mnvtx_nEvts_b63_HLT_M85->Divide(nEvts_b63_HLT_M85);
 
   nEvts_raw->Write();             
   nEvts_b34->Write();             
-  nEvts_b124->Write();            
-  nEvts_b34_b124->Write();        
-  nEvts_b34_b124_HLT_MB->Write(); 
+  nEvts_b124->Write();       
+  nEvts_b124_HLT_MB->Write(); 
   nEvts_HLT_MB->Write();          
   nEvts_HLT_ST->Write();          
   nEvts_HLT_MB_ST->Write();      
@@ -437,20 +431,20 @@ void NCHrunCheck(int type = 0 , double E = 7 , int iTracking = 1 , int nevt_max 
   
   
   mnch_raw->Write();              
-  mnch_b34_b124_HLT_MB->Write();  
+  mnch_b124_HLT_MB->Write();  
   mnch_nEvts_b63_HLT_M40->Write();
   mnch_nEvts_b63_HLT_M70->Write();
   mnch_nEvts_b63_HLT_M85->Write();
   
   mnch_raw_PV->Write();               
-  mnch_b34_b124_HLT_MB_PV->Write();   
+  mnch_b124_HLT_MB_PV->Write();   
   mnch_nEvts_b63_HLT_M40_PV->Write(); 
   mnch_nEvts_b63_HLT_M70_PV->Write(); 
   mnch_nEvts_b63_HLT_M85_PV->Write(); 
   
   
   mnvtx_raw->Write();               
-  mnvtx_b34_b124_HLT_MB->Write();   
+  mnvtx_b124_HLT_MB->Write();   
   mnvtx_nEvts_b63_HLT_M40->Write(); 
   mnvtx_nEvts_b63_HLT_M70->Write(); 
   mnvtx_nEvts_b63_HLT_M85->Write(); 
@@ -458,9 +452,8 @@ void NCHrunCheck(int type = 0 , double E = 7 , int iTracking = 1 , int nevt_max 
   
                
   TH1F* eff_b34             = (TH1F*) nEvts_b34->Clone("eff_b34");             
-  TH1F* eff_b124            = (TH1F*) nEvts_b124->Clone("eff_b124");            
-  TH1F* eff_b34_b124        = (TH1F*) nEvts_b34_b124->Clone("eff_b34_b124");        
-  TH1F* eff_b34_b124_HLT_MB = (TH1F*) nEvts_b34_b124_HLT_MB->Clone("eff_b34_b124_HLT_MB"); 
+  TH1F* eff_b124            = (TH1F*) nEvts_b124->Clone("eff_b124");       
+  TH1F* eff_b124_HLT_MB = (TH1F*) nEvts_b124_HLT_MB->Clone("eff_b124_HLT_MB"); 
   TH1F* eff_HLT_MB          = (TH1F*) nEvts_HLT_MB->Clone("eff_HLT_MB");          
   TH1F* eff_HLT_ST          = (TH1F*) nEvts_HLT_ST->Clone("eff_HLT_ST");          
   TH1F* eff_HLT_MB_ST       = (TH1F*) nEvts_HLT_MB_ST->Clone("eff_HLT_MB_ST");      
@@ -472,9 +465,8 @@ void NCHrunCheck(int type = 0 , double E = 7 , int iTracking = 1 , int nevt_max 
   
             
   eff_b34->Divide(nEvts_raw);             
-  eff_b124->Divide(nEvts_raw);            
-  eff_b34_b124->Divide(nEvts_raw);        
-  eff_b34_b124_HLT_MB->Divide(nEvts_raw); 
+  eff_b124->Divide(nEvts_raw);        
+  eff_b124_HLT_MB->Divide(nEvts_raw); 
   eff_HLT_MB->Divide(nEvts_raw);          
   eff_HLT_ST->Divide(nEvts_raw);          
   eff_HLT_MB_ST->Divide(nEvts_raw);      
@@ -485,9 +477,8 @@ void NCHrunCheck(int type = 0 , double E = 7 , int iTracking = 1 , int nevt_max 
   eff_b63_HLT_M85->Divide(nEvts_raw);  
   
   eff_b34->Write();             
-  eff_b124->Write();            
-  eff_b34_b124->Write();        
-  eff_b34_b124_HLT_MB->Write(); 
+  eff_b124->Write();       
+  eff_b124_HLT_MB->Write(); 
   eff_HLT_MB->Write();          
   eff_HLT_ST->Write();          
   eff_HLT_MB_ST->Write();      
