@@ -61,7 +61,7 @@ void InitializeAcceptanceMap(){
     tmpAcc.etaRecoMax = 2.4;
     accMap->push_back( tmpAcc);
     
-    // ptReco =1.0
+    // ptReco =0.1
     // ***** 4 *****
     tmpAcc.ptGen      = 0.1;
     tmpAcc.ptReco     = 0.1;
@@ -72,7 +72,7 @@ void InitializeAcceptanceMap(){
     tmpAcc.etaRecoMax = 1.0;
     accMap->push_back( tmpAcc);  
     
-    // ptReco =1.0
+    // ptReco =0.1
     // ***** 5 *****
     tmpAcc.ptGen      = 0.;
     tmpAcc.ptReco     = 0.1;
