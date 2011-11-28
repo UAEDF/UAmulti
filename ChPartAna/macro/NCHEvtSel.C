@@ -85,7 +85,7 @@ inline bool passL1(const double Energy, MyL1Trig& L1Trig, const bool ismc){
        && !L1Trig.GetTechDecisionBefore(38)
        && !L1Trig.GetTechDecisionBefore(39)
        && L1Trig.GetTechDecisionAfter(34)
-       && (L1Trig.GetTechDecisionAfter(0) || ismc) )
+       && (L1Trig.GetTechDecisionBefore(0) || ismc) )
   //   && L1Trig.GetTechDecisionBefore(40))
     {
       return true;
@@ -96,8 +96,8 @@ inline bool passL1(const double Energy, MyL1Trig& L1Trig, const bool ismc){
        && !L1Trig.GetTechDecisionBefore(37)
        && !L1Trig.GetTechDecisionBefore(38)
        && !L1Trig.GetTechDecisionBefore(39)
-       && ((L1Trig.GetPhysDecisionAfter(124) && !ismc) || (L1Trig.GetTechDecisionAfter(34) && ismc))
-       && (L1Trig.GetTechDecisionAfter(0) || ismc) )
+       && ((L1Trig.GetPhysDecisionAfter(124) && !ismc) || (L1Trig.GetTechDecisionBefore(34) && ismc))
+       && (L1Trig.GetTechDecisionBefore(0) || ismc) )
     {
       return true;
     }
@@ -117,12 +117,12 @@ bool passL1HLT(double Energy, MyL1Trig& L1Trig, MyHLTrig& HLTrig , int iTrigCond
                      && !L1Trig.fTechDecisionBefore[38]
                      && !L1Trig.fTechDecisionBefore[39] );
 		     
-  bool L1_coll = (L1Trig.GetTechDecisionAfter(0) || isMC);
+  bool L1_coll = (L1Trig.GetTechDecisionBefore(0) || isMC);
   
   bool L1_BSC = 0;
   if(Energy == 0.9 || Energy == 2.36) L1_BSC = ( L1Trig.fTechDecisionAfter[34] ) ;
-  else if(Energy == 2.76) L1_BSC = ( (L1Trig.fPhysDecisionAfter[126] && !isMC) || (L1Trig.fTechDecisionAfter[34] && isMC) ) ;
-  else if(Energy == 7.0)  L1_BSC = ( (L1Trig.fPhysDecisionAfter[124] && !isMC) || (L1Trig.fTechDecisionAfter[34] && isMC) ) ;
+  else if(Energy == 2.76) L1_BSC = ( (L1Trig.fPhysDecisionAfter[126] && !isMC) || (L1Trig.fTechDecisionBefore[34] && isMC) ) ;
+  else if(Energy == 7.0)  L1_BSC = ( (L1Trig.fPhysDecisionAfter[124] && !isMC) || (L1Trig.fTechDecisionBefore[34] && isMC) ) ;
   
   bool HLT_BSC = 0;
   if(Energy == 0.9 || Energy == 2.36) HLT_BSC = 1;
