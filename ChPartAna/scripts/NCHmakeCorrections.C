@@ -59,6 +59,7 @@ double  getRMS(TH1F*);
 double* Divide( const TArrayD* , double );
 
 void SaturateEfficiencyCurve(TH1F*);
+void FixOneEfficiencyCurve(TH1F*);
 void divideByWidth(TH1F*);
 void divideByWidth(TH1D*);
 void divideByWidth(TH2F*);
@@ -73,11 +74,12 @@ TH1F* getEff(TFile* , TString , TString , TString );
 #include "../macro/fileManager.C"
 
 #include "unfolding.cc"
-#include "getNIter.C"
 
 
 //TrackSYS:
 #include "NCHincreaseNTracks.C"
+//zerobiasSYS:
+#include "NCHincreaseEff.C"
 
 #include "NCHresamplings.C" 
 //is included in the code itself #include "syst_niter.C"
@@ -90,7 +92,7 @@ TH1F* getEff(TFile* , TString , TString , TString );
 //_____________________________________________________________________________
 void NCHmakeCorrections(int typeMC, const TString mcfile, const TString datafile, const TString outputpart, 
                          TString acc , TString cen , TString hf ,
-                         bool useData, int hyp, int niter, int syst, int syst_sign, int unfVersion, bool zerobias_bool =1) { //double Emc, double Edata ) {
+                         bool useData, int hyp, int niter, int syst, int syst_sign, int unfVersion, bool zerobias_bool =1, bool mtx_rewght =0, int niterResamp = 50) { //double Emc, double Edata ) {
                          //, bool drawcanv, float mu, float sigma ){
 
 //switch to select the good unfolding order
@@ -99,10 +101,9 @@ if( unfVersion!=0 && unfVersion!=1 && unfVersion!=2) {
     return;
 }
 cout << "The switch for the unfolding order is chosen as: " << unfVersion << endl;
-
+cout << "----->  Matrix reweighting is set to "<< mtx_rewght <<" (1=on)  <-----" << endl;
 
 #include "NCHniter.C"
-
 
 TString diff="RECO";
 TString diffmc="NSD";
@@ -153,8 +154,9 @@ TString lastpartRECO     =    "_full_" + hf + "_" + cen + "_RECO_" + acc;
   TString ptcorr_str="_ptcorroff";
   if(doptcorr) ptcorr_str="";
 
-  
-  TString output_str =  outputpart+mconmc_str+lastpartmc+syst_str+ptcorr_str+".root"; 
+  stringstream niterRes("");
+  if(niterResamp!=50) niterRes << "_niter_" << niterResamp; 
+  TString output_str =  outputpart+mconmc_str+lastpartmc+syst_str+ptcorr_str+niterRes.str()+".root"; 
       output_str.ReplaceAll("RECO","INEL");
   cout << "Output file : " << output_str << endl;
 
@@ -205,24 +207,21 @@ TString lastpartRECO     =    "_full_" + hf + "_" + cen + "_RECO_" + acc;
 
  
   TH1F* nch_trueGenAfterEvtSel = 0;
-  if(unfVersion==0)  { 
-      nch_trueGenAfterEvtSel = getHist<TH1F> ( *mc , dirmc+"MultiPlots_mp"+lastpartmc_nosel+"/nch_mp"+lastpartmc_nosel );
-      // does not exist for version 1 and 2
-      nch_trueGenAfterEvtSel->SetName("nch_MC_gen_afterEvtSelCorrection");
-  }      
+  nch_trueGenAfterEvtSel = getHist<TH1F> ( *mc , dirmc+"MultiPlots_mp"+lastpartmc_nosel+"/nch_mp"+lastpartmc_nosel );
+  // does not exist for version 1 and 2
+  nch_trueGenAfterEvtSel->SetName("nch_MC_gen_afterEvtSelCorrection");
+     
   if(debug_!=0) {
     cout << "nch_trueGenAfterEvtSel loaded" << endl;
-    if(unfVersion==0)  {
-        nch_trueGenAfterEvtSel->Draw();
-        gPad->WaitPrimitive();
-    }       
+    nch_trueGenAfterEvtSel->Draw();
+    gPad->WaitPrimitive();     
   } 
   
   TH1F* nch_trueGenAfterVtxSel = 0;
   if(unfVersion==1) { 
      nch_trueGenAfterVtxSel = getHist<TH1F> ( *mc , dirmc+"GenPart_gpp_vtxSel"+lastpartmc2+"/nch_gpp_vtxSel"+lastpartmc2 );
      // does not exist for version 0 and 2
-     nch_trueGenAfterVtxSel->SetName("nch_MC_gen_afterVtxSelCorrection"); 
+     nch_trueGenAfterVtxSel->SetName("nch_MC_gen_beforeVtxSelCorrection"); 
   } 
   if(debug_!=0) {
     cout << "nch_trueGenAfterVtxSel loaded" << endl;
@@ -368,18 +367,25 @@ TString lastpartRECO     =    "_full_" + hf + "_" + cen + "_RECO_" + acc;
     cout << "eff_centrSelRECO is empty"<<endl;
     return;
   }
+  //////// SYST zerobiasEff shift in NCHincreaseEff.C
+  if(int(syst/900)==1) {
+    bool print_summary = true;
+    increaseEff(eff_trTrigSel,syst_sign, print_summary);
+  }  
+  ////////
+  
   eff_trEvtSel->SetName("eff_trEvtSel");
   eff_trTrigSel->SetName("eff_trTrigSel");
   eff_evtSel->SetName("eff_evtSel");
   eff_vtxSel->SetName("eff_vtxSel");
   eff_centrSel->SetName("eff_centrSel");
-
+  
   //put the eff to 1 after some time
-  SaturateEfficiencyCurve( eff_evtSel    );
-  SaturateEfficiencyCurve( eff_centrSel  );
-  SaturateEfficiencyCurve( eff_vtxSel    );
-  SaturateEfficiencyCurve( eff_trEvtSel  );
-  SaturateEfficiencyCurve( eff_trTrigSel );
+  SaturateEfficiencyCurve( eff_evtSel    ); FixOneEfficiencyCurve( eff_evtSel    );
+  SaturateEfficiencyCurve( eff_centrSel  ); FixOneEfficiencyCurve( eff_centrSel  );
+  SaturateEfficiencyCurve( eff_vtxSel    ); FixOneEfficiencyCurve( eff_vtxSel    );
+  SaturateEfficiencyCurve( eff_trEvtSel  ); FixOneEfficiencyCurve( eff_trEvtSel  );
+  SaturateEfficiencyCurve( eff_trTrigSel ); FixOneEfficiencyCurve( eff_trTrigSel );
   // only useful for unfVersion 0
   //TH1F* eff = (TH1F*) eff_evtSel->Clone("eff_total");
   //eff->Multiply(eff_centrSel,eff_evtSel,1,1);
@@ -445,7 +451,7 @@ TString lastpartRECO     =    "_full_" + hf + "_" + cen + "_RECO_" + acc;
   
   
   //reweighting of the mtx
-  bool reweightmtx = true;
+  bool reweightmtx = mtx_rewght; //false;
   //if(E==7.) reweightmtx = true;
   //TH1D* projX = new TH1D();
   TH1D* projY = new TH1D();
@@ -495,7 +501,7 @@ TString lastpartRECO     =    "_full_" + hf + "_" + cen + "_RECO_" + acc;
   gDirectory->cd("hist_resampling");
 
   
-  int niter_resampling = 50; //50
+  int niter_resampling = niterResamp; //50
   if(syst != 0) niter_resampling = 0;
   //if(mcfile.Contains("_genTr")) niter_resampling = 0;
   if(mcfile.Contains("_noweight")) niter_resampling = 0;
@@ -648,7 +654,7 @@ TString lastpartRECO     =    "_full_" + hf + "_" + cen + "_RECO_" + acc;
   divideByWidth(nch_trueGen);
   divideByWidth(nch_trueGen_afterUnfolding);
   if(unfVersion==1)  divideByWidth(nch_trueGenAfterVtxSel);
-  if(unfVersion==0)  divideByWidth(nch_trueGenAfterEvtSel);
+  divideByWidth(nch_trueGenAfterEvtSel);
   divideByWidth(nch_evtSelCorr);
   divideByWidth(nch_REC);
   divideByWidth(nch_unfoldedPtr);
@@ -702,7 +708,7 @@ TString lastpartRECO     =    "_full_" + hf + "_" + cen + "_RECO_" + acc;
   hypothesis->Write("hypothesis");
   nch_trueGen->Write();
   if(unfVersion==1)  nch_trueGenAfterVtxSel->Write();
-  if(unfVersion==0)  nch_trueGenAfterEvtSel->Write();
+  nch_trueGenAfterEvtSel->Write();
   nch_trueGen_afterUnfolding->Write();
   nch_REC->Write("nch_data_raw");
   if(lastpartmc.Contains("HF1")) nch_SD->Write("nch_SD_mc");
@@ -735,7 +741,7 @@ TString lastpartRECO     =    "_full_" + hf + "_" + cen + "_RECO_" + acc;
   delete nch_corrected;
   delete nch_trueGen;
   if(unfVersion==1) delete nch_trueGenAfterVtxSel;
-  if(unfVersion==0) delete nch_trueGenAfterEvtSel;
+  delete nch_trueGenAfterEvtSel;
   if(lastpartmc.Contains("HF1")) delete nch_SD;
   delete nch_unfoldedPtr;
   delete nch_REC;
@@ -759,6 +765,20 @@ void SaturateEfficiencyCurve(TH1F* eff_curve){
     if ( (i>60 && eff_curve->GetBinContent(i)==0) || switch_eff==1 ) {
         eff_curve->SetBinContent(i,1);
         switch_eff= 1;
+    }       
+  }
+}
+
+//_____________________________________________________________________________
+void FixOneEfficiencyCurve(TH1F* eff_curve){
+  for (int i=5;i<=eff_curve->GetNbinsX();i++) { 
+    if ( eff_curve->GetBinContent(i-2)==1 && eff_curve->GetBinContent(i-1)==1 ) {
+        eff_curve->SetBinContent(i,1);
+        eff_curve->SetBinError(i,0);
+    }     
+    if ( eff_curve->GetBinContent(i-2)==1 && eff_curve->GetBinContent(i)==1 ) {
+        eff_curve->SetBinContent(i-1,1);
+        eff_curve->SetBinError(i-1,0);
     }       
   }
 }  
@@ -796,7 +816,6 @@ void makeEff(TH1F* eff , TH1F* num , TH1F* denom){
       double keff = n / d;
       double kerr = sqrt(keff*(1-keff)/ d);
       eff->SetBinContent(i,keff);
-      eff->SetBinError(i,kerr);
     }
   }
 }
