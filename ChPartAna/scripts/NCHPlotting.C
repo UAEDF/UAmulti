@@ -4,6 +4,8 @@
 #include <TGaxis.h>
 #include <TMath.h>
 using namespace TMath;
+#include <TFile.h>
+#include <TH1F.h>
 #include <math.h>
 
 #include <iostream>
@@ -24,10 +26,11 @@ TString PlotDirectory = "../figs/";
 void NCHPlotting() {
     cout << " UAPlotting compiled "<< endl;
 
-    PlotDirectory ="../figs/v40/";
+    PlotDirectory ="../figs/v42/";
     cout << " Plot directory set to: " << PlotDirectory << endl;
     //TGaxis::SetMaxDigits(3);
     UACurveStyleBase::g_markerStyle = kOpenCircle;
+    UACurveStyleBase::g_markerSize = 0.8;
     UACurveStyleBase::g_lineWidth = 2;
     UACurveStyleBase::g_lineStyle = 1;   
 }
@@ -43,10 +46,6 @@ TString Txt(TString in, double E = 7) {
     if(E==0.9 || in.Contains("0.9") || in.Contains("900") )   out+="900 GeV  ";
     else if(E==2.76 || in.Contains("2.76") || in.Contains("276") )   out+="2.76 TeV  ";
     else   out+="7 TeV  "; 
-    //if(in.Contains("genTr")) out+="genTr  ";
-    //if(in.Contains("mixedTr")) out+="mixedTr  ";
-    //if(in.Contains("ferncTr")) out+="ferncTr  ";
-    //if(in.Contains("NoWeight")) out+="NoWght  "; 
     
     if(in.Contains("nocut"))       out += "(nch>=0)      " ;
     else if(in.Contains("MBUEWG")) out += "(nch>=1  |#eta|<0.8)     " ;
@@ -88,7 +87,6 @@ Double_t nbdfunc2(Double_t* x, Double_t* par){
 (par[0]*NBD(x[0],par[1],par[2])+(1-par[0])*NBD(x[0],par[3],par[4]));
 }
 
-
 //_____________________________________________________________________________
 TString getFigStr(TString main , TString parse , Double_t e = 0){
   if(e==0){
@@ -118,60 +116,7 @@ TString getFigStr(TString main , TString parse , Double_t e = 0){
   return main;
 }
 
-/*
-// COMPARE EFFICIENCY v40xx vs v41xx 
-void compVersionTwoEff(TString baseDir = "v41_ferncTrNoWeight", TString mc= "MC62", TString filename = "_partfull_HF0_ATLAS1_INEL_cut2.root", TString plotname = "eff_trTrigSel" ){  
-  // compVersionTwoEff("v41","MC62","_partfull_HF0_nocut_INEL_cut2.root","eff_trTrigSel" )
-  cmsStyleRoot();
-  
-  TString filepartStandard = "files/unfold_outputs/";
-  
-  TString nozerobiasDir=baseDir;
-  nozerobiasDir.Replace(1,2,"40");
-  TString extra="";
-  if(baseDir.Contains("NoWeight")) extra="_noweight";
-
-  UACanvas* canvas = new UACanvas();
-  UALegend* legend = new UALegend();
-  UACurve curve1 = UACurve(0,filepartStandard+nozerobiasDir+"/unf_"+mc+"_"+extra+"_allEffs"+filename, plotname);
-  UACurve curve2 = UACurve(0,filepartStandard+baseDir+"/unf_"+mc+"_"+extra+"_allEffs"+filename, plotname);
-  
- 
-  curve1.markerColor = kRed ;
-  //curve1.markerStyle = kDot;
-  //curve1.Norm();
-  curve1.lineColor = kRed ;
-  curve1.Draw(""); 
-  ((TH1F*) curve1.pCurve())->GetXaxis()->SetRangeUser(0, 200);
-  ((TH1F*) curve1.pCurve())->GetYaxis()->SetRangeUser(0.85, 1.01);
-  legend->AddLegend(curve1,nozerobiasDir); 
-  
-  curve2.markerColor = kBlue ;
-  //curve2.markerStyle = kDot;
-  //curve2.Norm();
-  curve2.lineColor = kBlue ;
-  curve2.Draw("same "); 
-  legend->AddLegend(curve2,baseDir);  
- 
-  double energy=7;
-  TString testStr = filepartStandard+baseDir+"/"+filename;
-  if(testStr.Contains("276"))        energy = 2.76;
-  if(testStr.Contains("900"))        energy = 0.9;
-  canvas->AddText( Txt(baseDir+filename+mc,energy),.22,.965,.035);
-  
-
-  legend->BuildLegend();
-   
-  gPad->Update();
-  gPad->WaitPrimitive();
-  canvas->Save("compVersionTwoEff_"+plotname+"_"+mc+filename,PlotDirectory);
-  
-  
-  delete canvas ;
-
-}
-*/
-
+//_____________________________________________________________________________
 void unfSteps(TString baseDir = "v41", TString MC="MC62", TString filename = "_partfull_HF0_MBUEWG_INEL_cut0.root", bool log = true ){
   // unfSteps("v41","MC62","_partfull_HF0_MBUEWG_INEL_cut0.root",true )
   cmsStyleRoot();
@@ -179,51 +124,63 @@ void unfSteps(TString baseDir = "v41", TString MC="MC62", TString filename = "_p
   TString filepartStandard = "files/unfold_outputs/";
   TString extra="";
   if(baseDir.Contains("NoWeight")) extra="_noweight";
-
+  
+  TString dat_str="";
+  if(baseDir.Contains("with")) {
+    TString tempMC=baseDir;
+    tempMC.Replace(0,12,"");
+    //overwrite MC !!!
+    MC=tempMC;
+    
+    TString tempDat=baseDir;
+    tempDat.Replace(9,16,"");
+    dat_str="="+getMC(tempDat.Replace(0,3,""));
+  }  
+  
   UACanvas* canvas = new UACanvas();
   UALegend* legend = new UALegend();
   
-  UACurve curve1 = UACurve(1,filepartStandard+baseDir+"/unf_"+MC+"_"+extra+"_allEffs"+filename,"nch_data_raw");
-  UACurve curve2 = UACurve(1,filepartStandard+baseDir+"/unf_"+MC+"_"+extra+"_allEffs"+filename,"nch_unfoldedPtr");
-  UACurve curve3 = UACurve(0,filepartStandard+baseDir+"/unf_"+MC+"_"+extra+"_allEffs"+filename,"nch_data_corrected");
-  UACurve curve4 = UACurve(0,filepartStandard+baseDir+"/unf_"+MC+"_"+extra+"_allEffs"+filename,"nch_MC_gen_After_CentrEvtCorr");
-  UACurve curve5 = UACurve(0,filepartStandard+baseDir+"/unf_"+MC+"_"+extra+"_allEffs"+filename,"nch_mc_reco_raw");
-  
-  curve1.Norm(curve3);
+  UACurve curve1 = UACurve(1,filepartStandard+baseDir+"/unf_"+MC+"_"+extra+"_allEffs"+filename,"nch_mc_reco_raw");
+  UACurve curve2 = UACurve(1,filepartStandard+baseDir+"/unf_"+MC+"_"+extra+"_allEffs"+filename,"nch_MC_gen_After_CentrEvtCorr");
+  UACurve curve3 = UACurve(0,filepartStandard+baseDir+"/unf_"+MC+"_"+extra+"_allEffs"+filename,"nch_data_raw");
+  UACurve curve4 = UACurve(0,filepartStandard+baseDir+"/unf_"+MC+"_"+extra+"_allEffs"+filename,"nch_unfoldedPtr","",1);
+  UACurve curve5 = UACurve(0,filepartStandard+baseDir+"/unf_"+MC+"_"+extra+"_allEffs"+filename,"nch_data_corrected");
+    
+  //curve1.Norm(curve3);
   curve1.markerColor = kBlack ;
   curve1.lineColor   = kBlack ;
   curve1.Draw("");
-  legend->AddLegend(curve1,"raw (MC)");  
+  legend->AddLegend(curve1,"raw (MC "+getMC(MC)+")");  
 
   ((TH1F*) curve1.pCurve())->GetYaxis()->SetRangeUser(0, (((TH1F*) curve3.pCurve())->GetMaximum() )*1.1);
   if(log==true) ((TH1F*) curve1.pCurve())->GetYaxis()->SetRangeUser(1, (((TH1F*) curve1.pCurve())->GetMaximum() )*1.1); 
   ((TH1F*) curve1.pCurve())->GetYaxis()->SetTitle("# Events"); 
   ((TH1F*) curve1.pCurve())->GetXaxis()->SetRangeUser(0, 130);
 
-  curve2.Norm(curve5); 
+  //curve2.Norm(curve5); 
   curve2.markerColor = kRed ;
   curve2.lineColor = kRed ;
   curve2.Draw("same");
-  legend->AddLegend(curve2,"fully corrected (MC) ");  
+  legend->AddLegend(curve2,"fully corrected (MC "+getMC(MC)+") ");  
   
-  curve3.Norm(curve1); 
+  //curve3.Norm(curve1); 
   curve3.markerColor = kBlack ;
   curve3.lineColor = kBlack ;
   curve3.Draw("same"); 
-  legend->AddLegend(curve3,"raw (Data)");
+  legend->AddLegend(curve3,"raw (Data"+ dat_str+")");
   
   //curve4.Norm(curve3); //norm to after EvtSel corr
   curve4.markerColor = kBlue ;
   //curve4.markerStyle = kFullCircle ;
   curve4.lineColor = kBlue ;
   curve4.Draw("same"); 
-  legend->AddLegend(curve4,"after unfolding (Data)");
-  
+  legend->AddLegend(curve4,"after unfolding (Data"+ dat_str+")");
+
   //curve5.Norm(curve1);
   curve5.markerColor = kRed ;
-  curve5.lineColor = kRed ;
+  curve5.lineColor = kRed ; 
   curve5.Draw("same"); 
-  legend->AddLegend(curve5,"fully corrected (Data)");
+  legend->AddLegend(curve5,"fully corrected (Data"+ dat_str+")");
   
   legend->BuildLegend(0.22,0.45);
   canvas->AddText( Txt(baseDir+filename+MC),.22,.965,.035);
@@ -235,7 +192,7 @@ void unfSteps(TString baseDir = "v41", TString MC="MC62", TString filename = "_p
   delete canvas ;  
 }
                      
-                     
+//_____________________________________________________________________________                    
 //COMAPRE THE UNFOLDED FILES: thesis + v40 +v41
 void compVersionResult(TString baseDir = "v41_ferncTrNoWeight", TString mc= "MC62", TString mcold="MC60", TString filename = "_partfull_HF0_ATLAS1_INEL_cut2.root", TString plotname = "nch_data_corrected", 
                                                                         TString expdata ="../expdata/atlas_dsigdn_inelgt1_7000GeV_eta25_pt500.txt", TString legendStr ="_ATLAS1_E_7"){
@@ -313,6 +270,7 @@ void compVersionResult(TString baseDir = "v41_ferncTrNoWeight", TString mc= "MC6
 
 }
 
+//_____________________________________________________________________________         
 //COMAPRE THE UNFOLDED FILES: thesis + v40 +v41
 void final_compVersionResult(TString dir ="v41", TString mc = "MC62", TString mcold = "MC60"){ 
 // final_compVersionResult("v41","MC62","MC60")
@@ -338,6 +296,7 @@ void final_compVersionResult(TString dir ="v41", TString mc = "MC62", TString mc
 
 ////////////////////////////////////////////////////////////////////////////
 
+//_____________________________________________________________________________         
 //COMAPRE THE UNFOLDED FILES: thesis +v4x + MC's
 void compMCResult(TString baseDir = "v41_ferncTrNoWeight", TString mcold="MC60", TString filename = "_partfull_HF0_ATLAS1_INEL_cut2.root", TString plotname = "nch_data_corrected", 
                                                                         TString expdata ="../expdata/atlas_dsigdn_inelgt1_7000GeV_eta25_pt500.txt", TString legendStr ="_ATLAS1_E_7"){
@@ -357,13 +316,13 @@ void compMCResult(TString baseDir = "v41_ferncTrNoWeight", TString mcold="MC60",
   UACanvas* canvas = new UACanvas();
   UALegend* legend = new UALegend();
   
-  
+  //thesis
+  UACurve curve1 = UACurve(0,filepartStandard+thesisDir+"/unf_"+mcold+extra+tr_oldextra+filename, plotname);
   //MC's
   UACurve curve2 = UACurve(0,filepartStandard+baseDir+"/unf_MC15_"+extra+"_allEffs"+filename, plotname);
   UACurve curve3 = UACurve(0,filepartStandard+baseDir+"/unf_MC60_"+extra+"_allEffs"+filename, plotname);
   UACurve curve4 = UACurve(0,filepartStandard+baseDir+"/unf_MC62_"+extra+"_allEffs"+filename, plotname);
-  //thesis
-  UACurve curve1 = UACurve(0,filepartStandard+thesisDir+"/unf_"+mcold+extra+tr_oldextra+filename, plotname);
+  
   //expdata
   UACurve curve7 = UACurve(0,expdata,0);
 
@@ -423,7 +382,7 @@ if( !plotname.Contains("eff"))  {
    
   gPad->Update();
   gPad->WaitPrimitive();
-  //canvas->Save("compMCResult_"+plotname+"_"+legendStr+"_"+baseDir,PlotDirectory);
+  canvas->Save("compMCResult_"+plotname+"_"+legendStr+"_"+baseDir,PlotDirectory);
   
   
   delete canvas ;
@@ -433,6 +392,8 @@ if( !plotname.Contains("eff"))  {
 // compMCResult("v40","MC60","_partfull_HF0_nocut_INEL_cut2.root","eff_trTrigSel","","_nocut_E_7" )
 // compMCResult("v41","MC60","_partfull_HF0_nocut_INEL_cut2.root","eff_trTrigSel","","_nocut_E_7" )
 
+
+//_____________________________________________________________________________         
 //COMAPRE THE UNFOLDED FILES: thesis + v40 +v41
 void final_compMCResult(TString dir ="v41", TString mcold = "MC60"){ 
 // final_compMCResult("v41","MC60")
@@ -440,15 +401,15 @@ void final_compMCResult(TString dir ="v41", TString mcold = "MC60"){
   TString plotname = "nch_data_corrected"; //"nch_unfoldedPtr";
   
   if ( !dir.Contains("900") ){
-    compMCResult(dir, mcold, "_partfull_HF1_ATLAS1_NSD_cut2.root", plotname, "../expdata/atlas_dsigdn_inelgt1_7000GeV_eta25_pt500.txt", "_ATLAS1_E_7");
-    compMCResult(dir, mcold, "_partfull_HF1_ATLAS2_NSD_cut0.root", plotname, "../expdata/atlas_dsigdn_inelgt2_7000GeV_eta25_pt100.txt", "_ATLAS2_E_7");
-    compMCResult(dir, mcold, "_partfull_HF1_ATLAS6_NSD_cut2.root", plotname, "../expdata/atlas_dsigdn_inelgt6_7000GeV_eta25_pt500.txt", "_ATLAS6_E_7");
-    compMCResult(dir, mcold, "_partfull_HF1_ALICE_NSD_cut4.root" , plotname, "../expdata/alice_dsigdn_inelgt1_7000GeV_eta10_pt0.txt"  , "_ALICE_E_7" );  
+    compMCResult(dir, mcold, "_partfull_HF0_ATLAS1_INEL_cut2.root", plotname, "../expdata/atlas_dsigdn_inelgt1_7000GeV_eta25_pt500.txt", "_ATLAS1_E_7");
+    compMCResult(dir, mcold, "_partfull_HF0_ATLAS2_INEL_cut0.root", plotname, "../expdata/atlas_dsigdn_inelgt2_7000GeV_eta25_pt100.txt", "_ATLAS2_E_7");
+    compMCResult(dir, mcold, "_partfull_HF0_ATLAS6_INEL_cut2.root", plotname, "../expdata/atlas_dsigdn_inelgt6_7000GeV_eta25_pt500.txt", "_ATLAS6_E_7");
+    compMCResult(dir, mcold, "_partfull_HF0_ALICE_INEL_cut4.root" , plotname, "../expdata/alice_dsigdn_inelgt1_7000GeV_eta10_pt0.txt"  , "_ALICE_E_7" );  
   }
   else{  
-    compMCResult(dir, mcold, "_partfull_HF1_ATLAS1_NSD_cut2.root", plotname, "../expdata/atlas_dsigdn_inelgt1_900GeV_eta25_pt500.txt", "_ATLAS1_E_0.9");
-    compMCResult(dir, mcold, "_partfull_HF1_ATLAS2_NSD_cut0.root", plotname, "../expdata/atlas_dsigdn_inelgt2_900GeV_eta25_pt100.txt", "_ATLAS2_E_0.9");
-    compMCResult(dir, mcold, "_partfull_HF1_ATLAS6_NSD_cut2.root", plotname, "../expdata/atlas_dsigdn_inelgt6_900GeV_eta25_pt500.txt", "_ATLAS6_E_0.9");
+    compMCResult(dir, mcold, "_partfull_HF0_ATLAS1_INEL_cut2.root", plotname, "../expdata/atlas_dsigdn_inelgt1_900GeV_eta25_pt500.txt", "_ATLAS1_E_0.9");
+    compMCResult(dir, mcold, "_partfull_HF0_ATLAS2_INEL_cut0.root", plotname, "../expdata/atlas_dsigdn_inelgt2_900GeV_eta25_pt100.txt", "_ATLAS2_E_0.9");
+    compMCResult(dir, mcold, "_partfull_HF0_ATLAS6_INEL_cut2.root", plotname, "../expdata/atlas_dsigdn_inelgt6_900GeV_eta25_pt500.txt", "_ATLAS6_E_0.9");
     
   }
 }
@@ -458,6 +419,7 @@ void final_compMCResult(TString dir ="v41", TString mcold = "MC60"){
 
 ////////////////////////////////////////////////////////////////////////////
 
+//_____________________________________________________________________________         
 //COMAPRE THE UNFOLDED FILES: thesis + v4x + trackings
 void compTrackResult(TString baseDir = "v41", TString Wght="", TString mc="MC62", TString mcold="MC60", TString filename = "_partfull_HF0_ATLAS1_INEL_cut2.root", TString plotname = "nch_data_corrected", 
                                                                         TString expdata ="../expdata/atlas_dsigdn_inelgt1_7000GeV_eta25_pt500.txt", TString legendStr ="_ATLAS1_E_7"){
@@ -543,13 +505,15 @@ if( !plotname.Contains("eff"))  {
    
   gPad->Update();
   gPad->WaitPrimitive();
-  //canvas->Save("compMCResult_"+plotname+"_"+legendStr+"_"+baseDir,PlotDirectory);
+  canvas->Save("compTrackResult_"+plotname+"_"+legendStr+"_"+baseDir,PlotDirectory);
   
   
   delete canvas ;
 
 }
 
+
+//_____________________________________________________________________________         
 //COMAPRE THE UNFOLDED FILES: thesis + v40 +v41
 void final_compTrackResult(TString dir ="v41", TString wght="", TString mc = "MC62", TString mcold = "MC60"){ 
 // final_compTrackResult("v41","", "MC62","MC60")
@@ -579,6 +543,7 @@ void final_compTrackResult(TString dir ="v41", TString wght="", TString mc = "MC
 
 ////////////////////////////////////////////////////////////////////////////
 
+//_____________________________________________________________________________       
 void compMCOutput(TString baseDir = "v41_ferncTrNoWeight", TString plotname = "nch_gpp_noSel_HF0_nocut_RECO_cut0" ){ 
   // compMCOutput("v41_ferncTr","nch_trp_noSel_HF0_nocut_RECO_cut0"   )
   // compMCOutput("v41_ferncTr","nch_trp_full_HF0_nocut_RECO_cut0"    )  
@@ -669,7 +634,7 @@ void compMCOutput(TString baseDir = "v41_ferncTrNoWeight", TString plotname = "n
   delete canvas ;
 }
 
-
+//_____________________________________________________________________________       
 //call all the controlplots
 void final_compMCOutput(TString baseDir = "v41_ferncTrNoWeight", TString part="trp_full_HF0_nocut_RECO_cut0") {
    // final_compMCOutput("v41_ferncTrNoWeight", "trp_full_HF0_nocut_RECO_cut0")
