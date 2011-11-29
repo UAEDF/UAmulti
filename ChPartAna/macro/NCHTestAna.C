@@ -65,7 +65,7 @@ TString st(string input , int cut){
 
 
 //_____________________________________________________________________________
-void NCHTestAnaRunNb(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max = 1000, bool use_weight = 0, bool allEff = 1, double E_zerobias =7, int runNumber = -1){
+void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max = 1000, bool use_weight = 0, bool allEff = 1, double E_zerobias =7, int runNumber = -1){
  
   ////////////////////////////////////////////////
   //SWTICH for most of the intermediate plots:
