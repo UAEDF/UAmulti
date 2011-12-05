@@ -51,7 +51,9 @@
   gROOT->ProcessLine(".L ../plugins/NCHEvtSelPlots.C+");
   gROOT->ProcessLine(".L ../plugins/NCHHFPlots.C+");
   gROOT->ProcessLine(".L ../plugins/NCHCentralPlots.C+");
-  gROOT->ProcessLine(".L ../plugins/NCHDiffPlots.C+"); 
+  gROOT->ProcessLine(".L ../plugins/NCHDiffPlots.C+");   
+  
+  gROOT->ProcessLine(".L ../plugins/NCHptvsnchPlots.C+"); 
 
   gROOT->ProcessLine(".L ../plugins/Syst.C+");
   gROOT->ProcessLine(".L ../plugins/EfficiencyPlots.h+");

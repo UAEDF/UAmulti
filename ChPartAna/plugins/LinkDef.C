@@ -1,6 +1,6 @@
 #include <vector>
 #include <utility>
-
+#include <map>
 #include "./TMean.h"
 #include "./TMoments.h"
 
@@ -18,6 +18,8 @@
 #include "./NCHHFPlots.h"
 #include "./NCHCentralPlots.h"
 #include "./NCHDiffPlots.h"
+
+#include "./NCHptvsnchPlots.h"
 
 #include "./Syst.h"
 //#include "./TOperation.h"
@@ -61,6 +63,7 @@
 #pragma link C++ class NCHHFPlots+;
 #pragma link C++ class NCHCentralPlots+;
 #pragma link C++ class NCHDiffPlots+;
+#pragma link C++ class NCHptvsnchPlots+;
 
 #pragma link C++ class Syst+;
 
@@ -77,11 +80,13 @@
 
 #pragma link C++ class TTProfile+;
 #pragma link C++ class vector<TTProfile>+;
+//#pragma link c++ class vector<NCHptvsnchPlots>+;
 #pragma link C++ class FBCorrel+;
 #pragma link C++ class vector<FBCorrel>+;
 #pragma link C++ class FBCorrelwCorr+;
 #pragma link C++ class vector<FBCorrelwCorr>+;
 #pragma link C++ class FBResults+;
 #pragma link C++ class vector<FBResults>+;
-
+#pragma link C++ class map<string,TrackPlots*>;
+#pragma link C++ class map<string,VertexPlots*>;
 #endif
