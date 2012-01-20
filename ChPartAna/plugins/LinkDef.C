@@ -35,6 +35,10 @@
 #include "./FBCorrelwCorr.h"
 #include "./FBResults.h"
 
+#include "./UEPlots.h"
+#include "./UEFactors.h"
+#include "./UECorrection.h"
+
 #ifdef __MAKECINT__
 #pragma link off all globals;
 #pragma link off all classes;
@@ -87,6 +91,12 @@
 #pragma link C++ class vector<FBCorrelwCorr>+;
 #pragma link C++ class FBResults+;
 #pragma link C++ class vector<FBResults>+;
+
+#pragma link C++ class UEPlots+;
+#pragma link C++ class UEFactors+;
+#pragma link C++ class UECorrection+;
+
 #pragma link C++ class map<string,TrackPlots*>;
 #pragma link C++ class map<string,VertexPlots*>;
+
 #endif
