@@ -99,7 +99,8 @@ TString fileManager ( int     iFileType  = 0
   
   if(Energy==2.76){
     BaseDirTree = "dcap:///pnfs/iihe/cms/store/user/rougny/data/" ;
-    CMSSW       = "CMSSW_4_1_2";
+    CMSSW       = "CMSSW_4_1_5";
+    //if(iDataType == 63) CMSSW = "CMSSW_4_1_5";
   }
 
   //******END NEW
@@ -231,19 +232,20 @@ TString fileManager ( int     iFileType  = 0
     else if ( Energy == 2.76 ){
 
       if ( iDataType == 0 ) {
-        TreeBase = "UABaseTree_412_data_v5";
+        TreeBase = "UABaseTree_412_data_v7";
         DataSet  = "__AllPhysics2760__Run2011A-PromptReco-v2__RECO";
       }
       else if ( iDataType == 15 ) {
-        TreeBase = "UABaseTree_412_mc_v5";
-        DataSet  = "__MinBias_TuneZ2_2760GeV-pythia6__Spring11-START311_V2A-v2__GEN-SIM-RECODEBUG";
+        TreeBase = "UABaseTree_412_mc_v7";
+        //DataSet  = "__MinBias_TuneZ2_2760GeV-pythia6__Spring11-START311_V2A-v2__GEN-SIM-RECODEBUG";
+        DataSet  = "__MinBias_TuneZ2_2760GeV-pythia6__Spring11-START311_V2A-v1__GEN-SIM-RECO/";
       }
-      else if ( iDataType == 60 ) {
-        TreeBase = "UABaseTree_412_mc_v5";
-        DataSet  = "__MinBias_2760GeV-pythia8__Spring11-START311_V2A-v1__GEN-SIM-RECO";
-      }
+      //else if ( iDataType == 60 ) {
+      //  TreeBase = "UABaseTree_412_mc_v5";
+      //  DataSet  = "__MinBias_2760GeV-pythia8__Spring11-START311_V2A-v1__GEN-SIM-RECO";
+      //}
       else if ( iDataType == 62 ) {
-        TreeBase = "UABaseTree_412_mc_v5";
+        TreeBase = "UABaseTree_412_mc_v7";
         DataSet  = "__MinBias_2.76TeV_412p1_START311_V2A_pythia8_tune4C_GEN-SIM-RECO__rougny-MinBias_2.76TeV_412p1_START311_V2A_pythia8_tune4C_GEN-SIM-RECO-3cb01b1c77d7131ba858fa0db36aaa39__USER";
       }
       else {
