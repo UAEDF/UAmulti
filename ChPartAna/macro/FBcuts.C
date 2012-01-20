@@ -30,7 +30,7 @@ int getBestVertex(vector<MyVertex>* vtxcoll){
   return (ntracks<=0 ? -1 : goodVtx->id);
 }
 
-MyVertex* GetBestVertex(vector<MyVertex>* vtxcoll){
+MyVertex* GetBestVertex(vector<MyVertex>* vtxcoll , bool return_null = 1){
 
   vector<MyVertex>::iterator goodVtx;
   int ntracks = -1;
@@ -53,8 +53,9 @@ MyVertex* GetBestVertex(vector<MyVertex>* vtxcoll){
     }
   }
 
-  if(ntracks<=0) return 0;
-  else           return &(*goodVtx);
+  if(ntracks<=0 && return_null) return 0;
+  else if(ntracks<=0)		return new MyVertex();
+  else          		return &(*goodVtx);
 }
 
 
@@ -349,10 +350,58 @@ void getPrimaryGenPart(vector<MyGenPart>& v_tr , double pt = pt_cut, double eta 
 }
 
 
+//---------------------- GET THE PRIMARY Jets --------------
+void getPrimaryJets(vector<MyBaseJet>& v_jet, double pt = pt_cut, double eta = eta_cut, double charge = 0){
+
+     for(vector<MyBaseJet>::iterator it_jet = v_jet.end()-1; it_jet != v_jet.begin()-1; --it_jet)
+        if(!isInAcceptance(*it_jet, pt, eta, charge))
+           v_jet.erase(it_jet);
+
+     if(debug) cout<< " ** " << v_jet.size() << " Jets remaining after primary selection" << endl;
+
+}
 
 
+template<class T>
+vector<T> getLeading(vector<T> coll)
+{
+    if (coll.size() == 0) return coll;
 
+    double pt_max = 0;
+    int pt_max_pointer = 0;
+    int pt_max_pointer_temp = 0;
 
+    for(typename vector<T>::iterator it_coll = coll.begin() ; it_coll != coll.end() ; ++it_coll, ++pt_max_pointer_temp)
+    {
+        if (it_coll->Pt() >= pt_max)
+        {
+           pt_max = it_coll->Pt();
+           pt_max_pointer = pt_max_pointer_temp;
+        }
+        //if (coll.size() > 1) cout<< it_coll->Pt() << " ";
+    }
+    //if (coll.size() > 1) cout<< endl << coll.at(pt_max_pointer).Pt() << " "; 
+    vector<T> coll_lead;
+    coll_lead.push_back(coll.at(pt_max_pointer));    
+    //if (coll.size() > 1) cout<< coll_lead.at(0).Pt() << endl;
+    return coll_lead;
+}
+
+template<class T>
+bool isLeadingMatched(vector<T> coll_base, vector<T> coll_assoc, double dR_cut)
+{
+    if ((coll_base.size() == 0) || (coll_assoc.size() == 0)) return false;
+
+    vector<T> coll_base_lead = getLeading(coll_base);
+    vector<T> coll_assoc_lead = getLeading(coll_assoc);
+
+    double deta = coll_base_lead.at(0).Eta() - coll_assoc_lead.at(0).Eta();
+    double dphi = coll_base_lead.at(0).Phi() - coll_assoc_lead.at(0).Phi();
+    double dR = sqrt(deta*deta + dphi*dphi);
+
+    if (dR <= dR_cut) return true;
+    else return false;
+}
 
 
 template <class T>
