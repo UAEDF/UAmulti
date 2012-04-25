@@ -66,5 +66,10 @@
   gROOT->ProcessLine(".L ../plugins/FBCorrelwCorr.C+");
   gROOT->ProcessLine(".L ../plugins/FBResults.C+");
   
+  gROOT->ProcessLine(".L ../plugins/UEPlots.C+");
+  gROOT->ProcessLine(".L ../plugins/UEFactors.C+");
+  gROOT->ProcessLine(".L ../plugins/UECorrection.C+");
+  
+
   gROOT->ProcessLine(".L ../plugins/LinkDef.C+");
 }
