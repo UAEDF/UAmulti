@@ -65,7 +65,8 @@ TString st(string input , int cut){
 
 
 //_____________________________________________________________________________
-void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max = 1000, bool use_weight = 0, bool allEff = 1, double E_zerobias =7, int runNumber = -1){
+void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max = 1000, bool use_weight = 0, bool allEff = 1, double E_zerobias =7, 
+                int runNumber = -1 , int vtxChoiceType = 0){
  
   ////////////////////////////////////////////////
   //SWTICH for most of the intermediate plots:
@@ -89,18 +90,20 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
      cout <<"WRONG TRACKING NUMBER !!!!"<<endl; 
      return;
   } 
-  TString tracking="_genTr";
-  if (iTracking==1) tracking="_ferncTr";
-  if (iTracking==2) tracking="_mixedTr";
+  TString           tracking = "_genTr";
+  if (iTracking==1) tracking = "_ferncTr";
+  if (iTracking==2) tracking = "_mixedTr";
   
   // BUILDING CHAIN
   //adding files to the tree chain
   TH1::AddDirectory(0); //Detach histograms from rootfiles (they are no closed if the file is closed.)
   cout << "FILE: " << fileManager(0,type,E) << endl;
-  //getting the list of files
-  //vector<TString>* vfiles = getListOfFiles(fileManager(0,type,E));
-  vector<TString>* vfiles = getListOfFiles("../filelist.txt");
-  
+  vector<TString>* vfiles;
+  if(nevt_max != -1) vfiles = getListOfFiles(fileManager(0,type,E));  //--> TEST ==> put nevt_max to small values
+  else               vfiles = getListOfFiles("../filelist.txt");      //Assumes that for none tests, nevt_max = -1 !!
+
+
+ 
   //Declaration of tree and its branches variables
   TTree* tree = new TTree("evt","");
   MyEvtId*           evtId     = NULL;
@@ -117,7 +120,7 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
   //vector<MyVertex>*  vertexToCut  = NULL;
   vector<MyTracks>   goodtracks;
   vector<MyGenPart>  goodgenpart;
-  double weight =1.;
+  double weight = 1.;
   
   //Initialize AcceptanceMap___________________________________________________________
   InitializeAcceptanceMap();
@@ -280,12 +283,16 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
         if(runNumber!=-1)
             if(runNumber!=(signed)evtId->Run)// used for the PU samples. Here only 1 run needs to be done
 	            continue;
-	    i_tot++; //do it after you check the runNumber
+	++i_tot; //do it after you check the runNumber
         
-	    if(i==0 && debug){
-	        L1Trig->Print();
-	        HLTrig->Print();
-	    }	
+        if(i==0 && debug){
+          L1Trig->Print();
+          HLTrig->Print();
+        }	
+
+        // Skipping events which are not 0-bias if type=5 is asked.
+        //Only for 2.76 TeV since 0b is mixed with mb
+        if( type == 5 && E == 2.76 && !(passL1HLT(E, *L1Trig, *HLTrig , 0 , isMC ) ) ) continue;
 	
         //get good Vertex
         bestVertexId = getBestVertex(vertex);
@@ -358,13 +365,16 @@ void NCHTestAna(int type = 60 , double E = 7. , int iTracking = 1, int nevt_max 
           if(passHF(*MITEvtSel,5)) NCHHFPlots::passHF5=1;
           if(passHF(*MITEvtSel,6)) NCHHFPlots::passHF6=1;
      
-          if(type==31 || type ==5) {
+          if(type==31) {
             if(passL1(E, *L1Trig, isMC)) NCHEvtSelPlots::passL1=1;
           }        
+          else if(type ==5) {
+            if(passL1HLT(E, *L1Trig, *HLTrig, 2 , isMC)) NCHEvtSelPlots::passL1=1;
+          }        
           else {
-            if(passL1HLT(E, *L1Trig, *HLTrig , 1,isMC ))  
-                NCHEvtSelPlots::passL1=1;
+            if(passL1HLT(E, *L1Trig, *HLTrig , 1,isMC )) NCHEvtSelPlots::passL1=1;
           }      
+
           if(passVtxQual(*MITEvtSel,E)) NCHEvtSelPlots::passVtxQual=1;     
           if(passVtx(*vertex)) NCHEvtSelPlots::passVtx=1;     
           //if(passBit40(*L1Trig)) NCHEvtSelPlots::passBit40=1;
