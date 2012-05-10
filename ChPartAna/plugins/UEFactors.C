@@ -521,6 +521,9 @@ void UEFactors::correcttruegengen(TProfile* hist, TProfile* truegenP, TProfile* 
      TH1D* truegen = truegenP->ProjectionX();
      TH1D* gen     = genP->ProjectionX();
      
+     //TH1D* ratio_temp = ratio_temp->Divide(truegen, gen, 1, 1, "B");
+     //truegen_gen_ratio = (TProfile*) ratio_temp->Clone("truegen_gen_ratio");
+     //truegen_gen_ratio->Divide(truegenP, genP, 1, 1, "B");
      truegen_gen_ratio->Divide(truegen, gen, 1, 1, "B");
      delete profile_corrected_truegengen;
      profile_corrected_truegengen = hist->ProjectionX();
