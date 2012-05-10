@@ -342,7 +342,7 @@ void UEPlots::fill(vector<MyPart>& part, double pt_lead_cut, double eta_lead_cut
      double ptsumtrans = 0;
      double ptsumaway = 0;
      double ptsumtotal = 0;
-     int dphitemp = 0;
+     double dphitemp = 0;
      
      if((ilead_part != -1) && (fabs(part.at(ilead_part).Eta()) <= eta_lead_cut) && (part.at(ilead_part).Pt() >= pt_lead_cut))
      {
@@ -490,6 +490,10 @@ void UEPlots::fill(vector<MyPart>& lead_jetpart, vector<MyPart>& assoc_jetpart, 
                 pt_lead_jet->Fill(it_jetpart->Pt(), EvtWeight);
                 eta_lead_jet->Fill(it_jetpart->Eta(), EvtWeight);
                 phi_lead_jet->Fill(it_jetpart->Phi(), EvtWeight);   
+                
+                //cout<< "Leading Jet:" << endl;
+                //cout<< "____________" << endl;
+                //cout<< "pt: " << it_jetpart->Pt() << " Eta: " << it_jetpart->Eta() << " phi: " << it_jetpart->Phi() << endl << endl;
              }
              else
              {
@@ -516,7 +520,7 @@ void UEPlots::fill(vector<MyPart>& lead_jetpart, vector<MyPart>& assoc_jetpart, 
     double ptsumtrans_weighted = 0;
     double ptsumaway_weighted = 0;
     double ptsumtotal_weighted = 0;
-    int dphitemp = 0;
+    double dphitemp = 0;
        
     if((ilead_jetpart != -1) && (fabs(lead_jetpart.at(ilead_jetpart).Eta()) <= eta_lead_cut) && (lead_jetpart.at(ilead_jetpart).Pt() >= pt_lead_cut))  
     {                           
@@ -524,7 +528,11 @@ void UEPlots::fill(vector<MyPart>& lead_jetpart, vector<MyPart>& assoc_jetpart, 
        { 
          if (WeighTr) weight = GetWeight(p->Pt(), p->Eta());
          
-         //if (goodtracks[trackcounter] == 0) continue;                           
+         //if (goodtracks[trackcounter] == 0) continue;   
+         
+         //cout<< "Particles:" << endl;
+         //cout<< "__________" << endl;
+                                                   
          if ((p->charge != 0) && (p->Pt() >= pt_assoc_cut) && (fabs(p->Eta()) < eta_assoc_cut))
          {
             int bin;
@@ -535,6 +543,9 @@ void UEPlots::fill(vector<MyPart>& lead_jetpart, vector<MyPart>& assoc_jetpart, 
             while (dphitemp > pi) dphitemp -= 2*pi;
             while (dphitemp <= -pi) dphitemp += 2*pi;
             dphitemp = fabs(dphitemp);
+            //cout<< "Delta Phi: " << dphitemp << endl;
+            //cout<< "Pt: " << p->Pt() << " Eta: " << p->Eta() << " Phi: " << p->Phi() << endl;
+            
             //if ((dphitemp <= deg2rad(60)) || (dphitemp >= deg2rad(300))){
             if (dphitemp <= deg2rad(60)){
                            npartforward++;
@@ -551,7 +562,7 @@ void UEPlots::fill(vector<MyPart>& lead_jetpart, vector<MyPart>& assoc_jetpart, 
                            ptsumtrans += p->Pt();
                            ptsumtrans_weighted += ( (p->Pt()) * weight);
                            pt_spectra_trans->Fill(p->Pt(), EvtWeight);
-                           pt_spectra_trans_weighted->Fill(p->Pt(), weight*EvtWeight);
+                           pt_spectra_trans_weighted->Fill(p->Pt(), weight*EvtWeight);                           
                            }
             //if ((dphitemp >= deg2rad(120)) && (dphitemp <= deg2rad(240))){
             if (dphitemp >= deg2rad(120)){
@@ -573,6 +584,9 @@ void UEPlots::fill(vector<MyPart>& lead_jetpart, vector<MyPart>& assoc_jetpart, 
          }
        }
        double jetPt = lead_jetpart.at(ilead_jetpart).Pt();
+       
+       //cout<< "Total num. of particles in Transverse: " << nparttrans << endl << endl;
+       //cout<< "_________________________________________________________________________________________" << endl;
        
        //---Uncorrected---
        n_mult_forward->Fill(npartforward, EvtWeight);
