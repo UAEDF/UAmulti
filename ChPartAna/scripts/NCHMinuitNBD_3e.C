@@ -38,7 +38,7 @@ using namespace TMath;
 #include "NCHincreaseNTracks.C"
 
 
-bool debug_=false;
+const bool debug_=false;
 const bool normalize=false;
 
 static Double_t p0=0;
@@ -49,17 +49,63 @@ static Double_t p6=6;
    
  
 const int matrixsize = 380; //bigger then number of bins of my matrix
-double matrix_normalized[matrixsize][matrixsize];
+//double matrix_normalized[matrixsize][matrixsize];
 void transform2Matrix(const TH2F* ,double matrix[][matrixsize]);
 bool checkMatrix(double inputMat[][matrixsize],double inputMatNormalized[][matrixsize]);
 double getChi2(const TH1F*, const TH1F*, int errortype);
 
-const int iNum = 127;   //=== GetNBinsX() on the TH1
-double ptcorr_val = 0.;
-TH1F* data_curve = NULL; 
-TH1F* data_corrected = NULL; 
-TH1F* eff_beforeUnf = NULL; 
-TH1F* eff_afterUnf = NULL; 
+class ENE{
+public:
+  double matrix_normalized[matrixsize][matrixsize];
+  TH1F* corrected;
+  TH1F* raw;
+  TH1F* eff_beforeUnf;
+  TH1F* eff_afterUnf;
+  double ptcorr_val;
+  Double_t* par;
+  Double_t norm;
+  
+  void init();
+  
+};
+
+void ENE::init(){
+
+  TString s_f = "files/unfold_outputs/" + unf_getFileName();
+  TFile* file = getFile( s_f ); 
+
+  TH2F* matrixhist = getHist<TH2F>( *file , "nch_matrix");
+  
+  corrected     = getHist<TH1F>( *file , "nch_data_corrected");
+  raw           = getHist<TH1F>( *file , "nch_data_raw"); 
+  eff_beforeUnf = getHist<TH1F>( *file , "eff_before_unf"); 
+  eff_afterUnf  = getHist<TH1F>( *file , "eff_after_unf"); 
+  delete file;
+ 
+  
+  //Transform the TH2F into an array
+  double matrix [matrixsize][matrixsize];
+  transform2Matrix( matrixhist, matrix);
+  
+  checkMatrix(matrix, matrix_normalized);
+  delete matrixhist;
+  //delete matrix;
+  
+  ptcorr_val = getPtCorrFactor("nch");
+  if(ptcorr_val) cout << "Using pt correction factor:  " << ptcorr_val << endl;
+  
+  par = new Double_t[6];
+  par[5] = raw->Integral(3, raw->GetNbinsX());
+
+}
+
+
+ENE e7;
+ENE e276;
+ENE e900;
+
+
+//const int iNum = 127;   //=== GetNBinsX() on the TH1
 
 // this is the function used for the fit
 //   par: vector with the fit parameters
@@ -78,146 +124,16 @@ Double_t doubleNBD(double* xx, double* par){
   return par[5]*(par[0]*NBD(xx[0],par[1],par[2])+(1-par[0])*NBD(xx[0],par[3],par[4]));
 }
 
-//_____________________________________________________________________________
-Double_t uncorrected_doubleNBD(Double_t* x , Double_t* par){
 
-  //cout << par[0] << "  " << par[1] << "  " << par[2] << "  " << par[3] << "  " << par[4] << endl;
-   debug_ = true; 
-   TH1F* fit = (TH1F*) data_curve->Clone("fit");
-   fit->Reset();
-   TH1F* fit_reco =(TH1F*) data_curve->Clone("fit_reco");
-   fit_reco->Reset();
-   
-   //optimize this
-   //TAxis* xAxis = (TAxis*) data_curve->GetXaxis();
-   const double nbins = data_curve->GetNbinsX();
-   
-   // set the curve coming from the generated values
-   for ( int i = 3 ; i <= nbins ; ++i ){
-       fit->SetBinContent( i , fit_function( fit->GetBinCenter(i) , par) );
-   }  
-   if(normalize==true) fit->Scale(1/fit->Integral());
-   
-   if(debug_){
-     data_corrected->Draw();
-     data_curve->Draw("same");
-     TH1F* fit_draw1 = (TH1F*) fit->Clone("fit_draw1");
-     fit_draw1->SetLineColor( kRed );
-     fit_draw1->Draw("same");
-     //gPad->WaitPrimitive();
-   }
-   
-   fit->Multiply(fit, eff_afterUnf , 1 , 1);
-   
-   if(debug_){
-     TH1F* fit_draw2 = (TH1F*) fit->Clone("fit_draw2");
-     fit_draw2->SetLineColor( kBlue );
-     fit_draw2->Draw("same");
-     //gPad->WaitPrimitive();
-   }
-   
-   //Backward unfolding
-   for(int j = 0 ; j < nbins ; ++j){
-     double auxFill = 0.; 
-     //double norm = 0;
-     for(int i = 0 ; i < nbins ; ++i){
-       auxFill += fit->GetBinContent(i+1) * matrix_normalized[j][i];   
-       //norm += matrix_normalized[j][i];
-     }
-            
-     fit_reco->SetBinContent(j+1,auxFill);
-     //cout << j << "  " << fit->GetBinContent(j+1) << "  " << norm << "  " << auxFill << endl;  
-   }
-   
-   if(debug_){
-     TH1F* fit_draw3 = (TH1F*) fit_reco->Clone("fit_draw3");
-     fit_draw3->SetLineColor( kGreen );
-     fit_draw3->Draw("same");
-     //gPad->WaitPrimitive();
-   }
-   
-   fit_reco->Multiply(fit_reco , eff_beforeUnf , 1 , 1);
-   
-   if(debug_){
-     TH1F* fit_draw4 = (TH1F*) fit_reco->Clone("fit_draw4");
-     fit_draw4->SetLineColor( kMagenta );
-     fit_draw4->Draw("same");
-     gPad->WaitPrimitive();
-   }
-   
-   if(normalize==true) fit_reco->Scale(data_curve->Integral()/fit_reco->Integral());    
-   
-   if(debug_) {
-      cout << "Chi2: " << getChi2( data_curve, fit_reco, 1) << endl;
-   }
-    
-  Double_t val = fit_reco->GetBinContent( fit_reco->GetXaxis()->FindFixBin( x[0] ) );
-  
-  debug_ = false; 
-  
-  delete fit;
-  delete fit_reco;
-  
-  return val;
-}
 
-//_____________________________________________________________________________
-void calc_chi_square(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag){
-    
-   TH1F* fit = (TH1F*) data_curve->Clone("fit");
-   fit->Reset();
-   TH1F* fit_reco =(TH1F*) data_curve->Clone("fit_reco");
-   fit_reco->Reset();
-   
-   //optimize this
-   //TAxis* xAxis = (TAxis*) data_curve->GetXaxis();
-   const double nbins = data_curve->GetNbinsX();
-   
-   // set the curve coming from the generated values
-   for ( int i = 1 ; i <= nbins ; ++i ){
-       fit->SetBinContent( i , fit_function( fit->GetBinCenter(i) , par) );
-   } 
-   
-   if(ptcorr_val) increaseNTracks( fit , -1 , ptcorr_val , 0); 
-   
-   if(normalize==true) fit->Scale(1/fit->Integral());
-   
-   fit->Multiply(fit, eff_afterUnf , 1 , 1);
-   
-   //Backward unfolding
-   for(int j = 0 ; j < nbins ; ++j){
-      double auxFill = 0.; 
-      for(int i = 0 ; i < nbins ; ++i)
-          auxFill += fit->GetBinContent(i+1) * matrix_normalized[j][i];      
-      fit_reco->SetBinContent(j+1,auxFill);
-   }
-   
-   fit_reco->Multiply(fit_reco , eff_beforeUnf , 1 , 1);
-   
-   if(normalize==true) fit_reco->Scale(data_curve->Integral()/fit_reco->Integral());    
-   
-   if(debug_) {
-      cout << "Chi2: " << getChi2( data_curve, fit_reco, 1) << endl;
-      TH1F* data_curve_clone = (TH1F*) data_curve->Clone("data_curve"); //data_curve is const, otherwise not able to Draw()
-      fit_reco->SetLineColor(kRed);
-      fit_reco->SetMarkerColor(kRed);
-      fit_reco->Draw();
-      data_curve_clone->Draw("same");     
-      gPad->WaitPrimitive();
-    }
-   f = getChi2( data_curve, fit_reco, 1);
- 
-  delete fit;
-  delete fit_reco;
-  return;
-}
+
 
 //_____________________________________________________________________________
 double getChi2(const TH1F* hist1 , const TH1F* hist2 , int errortype){
   double bin = 0 , error = 0 , sumbin = 0 , ndof = 0;
   
   //skip the first 2 bins + the underflow bin
-  for(int i=5 ; i <= hist1->GetNbinsX() ; ++i){
+  for(int i=2 ; i <= hist1->GetNbinsX() ; ++i){
     if(hist2->GetBinContent(i)!=0){
       ++ndof;
       bin = pow( hist1->GetBinContent(i) - hist2->GetBinContent(i) , 2 );
@@ -233,38 +149,96 @@ double getChi2(const TH1F* hist1 , const TH1F* hist2 , int errortype){
 
 
 
+//____________________________________________________________________________
+Double_t single_chisquare( ENE& ene ){
+  
+  TH1F* fit = (TH1F*) ene.raw->Clone("fit");
+  fit->Reset();
+  TH1F* fit_reco =(TH1F*) ene.raw->Clone("fit_reco");
+  fit_reco->Reset();
+  
+  //optimize this
+  //TAxis* xAxis = (TAxis*) data_curve->GetXaxis();
+  const double nbins = ene.raw->GetNbinsX();
+  
+  // set the curve coming from the generated values
+  for ( int i = 1 ; i <= nbins ; ++i ){
+      fit->SetBinContent( i , fit_function( fit->GetBinCenter(i) , ene.par) );
+  } 
+  
+  if(ene.ptcorr_val) increaseNTracks( fit , -1 , ene.ptcorr_val , 0); 
+  
+  if(normalize==true) fit->Scale(1/fit->Integral());
+  
+  fit->Multiply(fit, ene.eff_afterUnf , 1 , 1);
+  
+  //Backward unfolding
+  for(int j = 0 ; j < nbins ; ++j){
+     double auxFill = 0.; 
+     for(int i = 0 ; i < nbins ; ++i)
+  	 auxFill += fit->GetBinContent(i+1) * ene.matrix_normalized[j][i];	
+     fit_reco->SetBinContent(j+1,auxFill);
+  }
+  
+  fit_reco->Multiply(fit_reco , ene.eff_beforeUnf , 1 , 1);
+  
+  if(normalize==true) fit_reco->Scale(ene.raw->Integral()/fit_reco->Integral());    
+  
+  double f = getChi2( ene.raw, fit_reco, 1);
+ 
+  delete fit;
+  delete fit_reco;
+  
+  return f;
+}
+
+
 
 //_____________________________________________________________________________
-void NCHMinuitNBD_f(TString file_str = "files/unfold_outputs/v62/unf_MC60__allEffs_partfull_HF0_nocut_INEL_cut0.root"){
+void calc_chi_square(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag){
+   
+   //creating par for each energy
+   e7.par[1] = e276.par[1] = e900.par[1] = par[0]; //nmean1 
+   e7.par[2] = e276.par[2] = e900.par[2] = par[1]; //k1
+   
+   e7.par[0] = par[2]; //alpha
+   e7.par[3] = par[3]; //nmean2
+   e7.par[4] = par[4]; //k2
+   
+   e276.par[0] = par[5]; //alpha
+   e276.par[3] = par[6]; //nmean2
+   e276.par[4] = par[7]; //k2
+   
+   e900.par[0] = par[8]; //alpha
+   e900.par[3] = par[9]; //nmean2
+   e900.par[4] = par[10]; //k2
+   
+   f = single_chisquare( e7 ) + single_chisquare( e276 ) + single_chisquare( e900 ) ;
+   
+}
+
+
+
+
+
+
+//_____________________________________________________________________________
+void NCHMinuitNBD_f(){
 
   TH1::AddDirectory(0); //Detach histograms from rootfiles (they are no closed if the file is closed.)
   
-  TFile* file = getFile( file_str ); 
+  
+  d.fill_file_data(0 , 62 , 7 , 2);
+  e7.init();
+  
+  
+  d.fill_file_data(0 , 62 , 2.76 , 2);
+  e276.init();
+  
+  d.fill_file_data(0 , 62 , 0.9 , 2);
+  e900.init();
 
-  TH2F* matrixhist = getHist<TH2F>( *file , "nch_matrix");
-  TH1F* curve      = getHist<TH1F>( *file , "nch_data_raw"); 
-  TH1F* eff_before = getHist<TH1F>( *file , "eff_before_unf"); 
-  TH1F* eff_after  = getHist<TH1F>( *file , "eff_after_unf"); 
-  data_corrected   = getHist<TH1F>( *file , "nch_data_corrected");
-  delete file;
- 
-  //Putting to global var, so that they are accessible from within other funcs
-  data_curve=curve; 
-  eff_beforeUnf=eff_before;
-  eff_afterUnf=eff_after;
-  
-  //Transform the TH2F into an array
-  double matrix [matrixsize][matrixsize];
-  transform2Matrix( matrixhist, matrix);
-  
-  //don't normalize
-  checkMatrix(matrix, matrix_normalized);
-  delete matrixhist;
-  
-  ptcorr_val = getPtCorrFactor("nch");
-  if(ptcorr_val) cout << "Using pt correction factor:  " << ptcorr_val << endl;
-
-  TMinuit *ptMinuit = new TMinuit(6);  //initialize TMinuit with a maximum of 5 params
+  TMinuit *ptMinuit = new TMinuit(11);  //initialize TMinuit with a maximum of 5 params
   
   //
   //  select verbose level:
@@ -287,17 +261,22 @@ void NCHMinuitNBD_f(TString file_str = "files/unfold_outputs/v62/unf_MC60__allEf
   cout << "Return of mnexcm() func:  " << ierflg << endl;
 
   // Set starting values and step sizes for parameters
-  ptMinuit->mnparm(0, "alpha"  , 0.65 , 0.001   , 0 , 0 , ierflg);
-  ptMinuit->mnparm(1, "nmean1" , 14   , 0.001   , 0 , 0 , ierflg);
-  ptMinuit->mnparm(2, "k1"     , 2   , 0.001   , 0 , 0 , ierflg);
-  ptMinuit->mnparm(3, "nmean2" , 50  , 0.001   , 0 , 0 , ierflg);
-  ptMinuit->mnparm(4, "k2"     , 5 , 0.001   , 0 , 0 , ierflg);
-  ptMinuit->mnparm(5, "scaling", data_curve->Integral(2, data_curve->GetNbinsX())  , 0.1  , 0 ,0, ierflg);
-
+  ptMinuit->mnparm(0, "nmean1" , 14   , 0.001   , 0 , 0 , ierflg);
+  ptMinuit->mnparm(1, "k1"     , 2   , 0.001   , 0 , 0 , ierflg);
+  
+  ptMinuit->mnparm(2, "alpha7" , 0.65 , 0.001   , 0 , 0 , ierflg);
+  ptMinuit->mnparm(3, "nmean7" , 50  , 0.001   , 0 , 0 , ierflg);
+  ptMinuit->mnparm(4, "k7"     , 5 , 0.001   , 0 , 0 , ierflg);
+  
+  ptMinuit->mnparm(5, "alpha276" , 0.65 , 0.001   , 0 , 0 , ierflg);
+  ptMinuit->mnparm(6, "nmean276" , 50  , 0.001   , 0 , 0 , ierflg);
+  ptMinuit->mnparm(7, "k276"     , 5 , 0.001   , 0 , 0 , ierflg);
+  
+  ptMinuit->mnparm(8, "alpha900" , 0.65 , 0.001   , 0 , 0 , ierflg);
+  ptMinuit->mnparm(9, "nmean900" , 50  , 0.001   , 0 , 0 , ierflg);
+  ptMinuit->mnparm(10,"k900"     , 5 , 0.001   , 0 , 0 , ierflg);
+  
   ptMinuit->mnexcm("CALL FCN", &p1 ,1,ierflg);
-
-  cout << "Fix parameter 5: " << data_curve->Integral(2, data_curve->GetNbinsX() ) << endl;
-  ptMinuit->mnexcm("FIX", &p6 , 1 ,ierflg);
   
   // Now ready for minimization step
   arglist[0] = 0; // maxcalls
@@ -310,7 +289,7 @@ void NCHMinuitNBD_f(TString file_str = "files/unfold_outputs/v62/unf_MC60__allEf
   ptMinuit->mnexcm("CALL FCN", &p3 , 1,ierflg);
   
   // Print results
-  cout << "\nPrint results from minuit\n";
+  /*cout << "\nPrint results from minuit\n";
   double fParamVal;
   double fParamErr;
   ptMinuit->GetParameter(0,fParamVal,fParamErr);
@@ -324,11 +303,11 @@ void NCHMinuitNBD_f(TString file_str = "files/unfold_outputs/v62/unf_MC60__allEf
   ptMinuit->GetParameter(4,fParamVal,fParamErr);
   cout << "k2="     << fParamVal <<"+-" <<fParamErr<< "\n";
   ptMinuit->GetParameter(5,fParamVal,fParamErr);
-  cout << "scaling="<< fParamVal <<"+-" <<fParamErr<< "\n";
+  cout << "scaling="<< fParamVal <<"+-" <<fParamErr<< "\n";*/
   
-  static Double_t  parval[10];
-  static Double_t  parerr[10];
-  for ( int iPar = 0 ; iPar != 6 ; ++iPar ) 
+  static Double_t  parval[11];
+  static Double_t  parerr[11];
+  for ( int iPar = 0 ; iPar != 11 ; ++iPar ) 
      ptMinuit->GetParameter( iPar , parval[iPar] , parerr [iPar] );
      
   // if you want to access to these parameters, use:
@@ -378,18 +357,18 @@ void NCHMinuitNBD_f(TString file_str = "files/unfold_outputs/v62/unf_MC60__allEf
   //==================================================
   //simple fit on final curve
   
-  cout << endl << endl << " ====> Making simple fit on corrected data" << endl << endl;
+  /*cout << endl << endl << " ====> Making simple fit on corrected data" << endl << endl;
   //TWO NBDs
-  TF1* nbd = new TF1("nbd",uncorrected_doubleNBD,1.5,300,6);
-  //TF1* nbd = new TF1("nbd",doubleNBD,1.5,300,6);
+  //TF1* nbd = new TF1("nbd",uncorrected_doubleNBD,1.5,300,6);
+  TF1* nbd = new TF1("nbd",doubleNBD,1.5,300,6);
   nbd->SetParNames("alpha","nmean1","k1","nmean2","k2","scalefactor");
   nbd->SetParameters( 0.64 , 14.8 , 2.18 , 50 , 5.03 , data_corrected->Integral());
   nbd->FixParameter(5,data_corrected->Integral());
-  /*nbd->SetParLimits(0 , 0   , 1  );
+  nbd->SetParLimits(0 , 0   , 1  );
   nbd->SetParLimits(1 , 0.1 , 80 );
   nbd->SetParLimits(2 , 0.  , 80 );
   nbd->SetParLimits(3 , 0   , 120 );
-  nbd->SetParLimits(4 , 0.  , 80 );*/
+  nbd->SetParLimits(4 , 0.  , 80 );
   
   data_corrected->Fit("nbd","RO0");
   //curve->Fit("nbd","RO0");
@@ -426,7 +405,7 @@ void NCHMinuitNBD_f(TString file_str = "files/unfold_outputs/v62/unf_MC60__allEf
   gPad->WaitPrimitive();
   
   delete leg;
-  delete cCorr;
+  delete cCorr;*/
 
 
 }
@@ -467,13 +446,12 @@ bool checkMatrix(double inputMat[][matrixsize],double inputMatNormalized[][matri
 
 
 //_____________________________________________________________________________
-void NCHMinuitNBD(){
+void NCHMinuitNBD_3e(){
   d.v = "v62";
   
-  d.fill_file_data(0 , 62 , 7 , 2);
   d.fill_cuts_data("ATLAS2" , "HF0" , 0);
-  TString s_f = "files/unfold_outputs/" + unf_getFileName();
-  NCHMinuitNBD_f( s_f );
+
+  NCHMinuitNBD_f( );
 }
 
 
